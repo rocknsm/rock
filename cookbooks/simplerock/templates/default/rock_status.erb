@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "Zookeeper..."
+systemctl status zookeeper | egrep "^\s*Active"
+
+echo "Elasticsearch..."
+systemctl status elasticsearch | egrep "^\s*Active"
+
+echo "Kafka..."
+systemctl status kafka | egrep "^\s*Active"
+
+echo "Logstash..."
+systemctl status logstash | egrep "^\s*Active"
+
+echo "Kibana..."
+systemctl status kibana | egrep "^\s*Active"
+
+echo "Bro..."
+/opt/bro/bin/broctl status
+
+exit 0
