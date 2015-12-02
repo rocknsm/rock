@@ -150,12 +150,6 @@ http://IPADDRESS:9200/_plugin/marvel - Marvel (To watch the health of elasticsea
 
 http://IPADDRESS:9200/_plugin/sql - Query your ES data with SQL.
 
-## TODO
-----
-*  Nginx fronting all of the web services.
-*  Additional stats in the `rock_status` output.
-*  More documentation.  So, so very much.
-*  Appropriate credits.
 
 ## THANKS
 ----
