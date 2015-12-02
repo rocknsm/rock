@@ -15,10 +15,10 @@ Vagrant.configure(2) do |config|
     vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-vms"]
   end
 
-  config.vm.provision "shell", inline: <<-SHELL
-     hostnamectl set-hostname simplerockbuild.simplerock.lan
-     echo -e "127.0.0.2\tsimplerockbuild.simplerock.lan\tsimplerockbuild" >> /etc/hosts
-SHELL
+  #config.vm.provision "shell", inline: <<-SHELL
+     #hostnamectl set-hostname simplerockbuild.simplerock.lan
+     #echo -e "127.0.0.2\tsimplerockbuild.simplerock.lan\tsimplerockbuild" >> /etc/hosts
+#SHELL
 
   config.vm.provision "chef_solo" do |chef|
     chef.log_level = "info"
@@ -26,6 +26,6 @@ SHELL
     chef.cookbooks_path = "cookbooks" # path to your cookbooks
     #chef.roles_path = "roles"
     chef.add_recipe "simplerock"
-    chef.node_name = "simplerockbuild"
+    #chef.node_name = "simplerockbuild"
   end
 end

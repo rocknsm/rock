@@ -236,6 +236,16 @@ execute 'add_google_dns' do
   not_if 'grep 8.8.8.8 /etc/resolv.conf'
 end
 
+execute 'set_hostname' do
+  command 'echo -e "127.0.0.2\tsimplerockbuild.simplerock.lan\tsimplerockbuild" >> /etc/hosts'
+end
+
+execute 'set_system_hostname' do
+  command 'hostnamectl set-hostname simplerockbuild.simplerock.lan'
+end
+
+### TODO - This should come from somewhere else, not hard-coded.
+
 #######################################################
 #################### Install EPEL #####################
 #######################################################
