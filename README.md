@@ -7,7 +7,7 @@ This build was created and tested using CentOS 7. I pretty much guarantee that i
 NOTE:   
 This Vagrantfile is configured to give the VM 8GB of RAM.  If your system can't do that you should buy a new system or adjust the `vm.memory` value.  Anything below 4 is going to run like poopoo.
 ``` 
-git clone http://code.blackops.blue/jeff/simplerock.git
+env GIT_SSL_NO_VERIFY=true git clone https://code.blackops.blue/jeff/simplerock.git
 cd simplerock
 vagrant up
 ```

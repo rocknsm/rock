@@ -122,11 +122,11 @@ end
 ################### Configure Time ###################
 ######################################################
 execute 'set_time_zone' do
-  command 'timedatectl set-timezone UTC'
+  command '/usr/bin/timedatectl set-timezone UTC'
 end
 
 execute 'enable_ntp' do
-  command 'timedatectl set-ntp yes'
+  command '/usr/bin/timedatectl set-ntp yes'
 end
 
 ######################################################
