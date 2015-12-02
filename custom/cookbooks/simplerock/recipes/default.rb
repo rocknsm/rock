@@ -43,7 +43,7 @@ log 'branding' do
 ======================================================================
                   The EZ Network Security Monitor
 '
-  level :info
+  level :warn
   action :nothing
 end
 
@@ -121,12 +121,32 @@ end
 ######################################################
 ################### Configure Time ###################
 ######################################################
+package 'chrony' do
+  action :install
+end
+
 execute 'set_time_zone' do
   command '/usr/bin/timedatectl set-timezone UTC'
 end
 
 execute 'enable_ntp' do
   command '/usr/bin/timedatectl set-ntp yes'
+end
+
+######################################################
+############### Install Kernel Headers ###############
+######################################################
+fullver = node['kernel']['release']
+kernver = fullver.sub(".#{node['kernel']['machine']}", '')
+
+package "kernel-devel" do
+  version "#{kernver}"
+  arch "#{node['kernel']['machine']}"
+end
+
+package "kernel-headers" do
+  version "#{kernver}"
+  arch "#{node['kernel']['machine']}"
 end
 
 ######################################################
@@ -137,7 +157,6 @@ ohai "reload_network" do
   plugin "network"
 end
 
-#Mod this to use the default interface: https://gist.github.com/dcode/358b5795e90c9d5ecb43
 ruby_block 'determine_monitor_interface' do
   action :nothing
   block do
@@ -312,7 +331,7 @@ end
 #######################################################
 ############### Install Core Packages #################
 #######################################################
-package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'bro-plugin-kafka-output', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'elasticsearch', 'nginx-spnego', 'jq', 'monit', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kernel-devel', 'kernel-headers', 'kafkacat']
+package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'bro-plugin-kafka-output', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'elasticsearch', 'nginx-spnego', 'jq', 'monit', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat']
 
 ######################################################
 ################## Configure PF_RING #################

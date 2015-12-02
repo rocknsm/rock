@@ -3,8 +3,10 @@
 
 This build was created and tested using CentOS 7. I pretty much guarantee that it won't work with anything else other than RHEL 7.
 
+**BE ADVISED:**  This build process takes 3-10 minutes depending on your underlying hardware.  There will be times where it seems like it quit.  Be patient.  You'll know when it's done, for better or worse.
+
 ### Vagrant
-NOTE:   
+**NOTE:**   
 This Vagrantfile is configured to give the VM 8GB of RAM.  If your system can't do that you should buy a new system or adjust the `vm.memory` value.  Anything below 4 is going to run like poopoo.
 ``` 
 env GIT_SSL_NO_VERIFY=true git clone https://code.blackops.blue/jeff/simplerock.git
@@ -13,7 +15,7 @@ vagrant up
 ```
 
 ### Physical/Virtual/Non-Vagrant
-NOTE:
+**NOTE:**   
 The system you run this on should have at least 2 network interfaces and more than 4GB of RAM, with EL7 already installed.
 ```
 curl -O -k https://pkgs.blackops.blue/rock/chef-12.3.0-1.el6.x86_64.rpm
@@ -148,5 +150,15 @@ http://IPADDRESS:9200/_plugin/marvel - Marvel (To watch the health of elasticsea
 
 http://IPADDRESS:9200/_plugin/sql - Query your ES data with SQL.
 
+## TODO
+----
+*  Nginx fronting all of the web services.
+*  Additional stats in the `rock_status` output.
+*  More documentation.  So, so very much.
+*  Appropriate credits.
+
+## THANKS
+----
+This system and architecture are made possible by the efforts of the Missouri National Guard Cyber Team, and especially specific individuals and companies.
 
 
