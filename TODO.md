@@ -8,6 +8,8 @@
   *  Free space in /data
   *  Kafka offset
 *  Better on-going maintenance scripts
+*  Stenographer for PCAP
+*  Snort for IDS
 
 #### Documentation needed
 
