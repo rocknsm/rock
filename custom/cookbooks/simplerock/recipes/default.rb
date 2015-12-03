@@ -466,6 +466,10 @@ template '/opt/bro/share/bro/site/scripts/json-logs.bro' do
   mode '0644'
 end
 
+template '/etc/profile.d/bro.sh' do
+  source 'bro.sh.erb'
+end
+
 ######################################################
 ############### Reread Systemd Configs ###############
 ######################################################

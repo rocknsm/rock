@@ -17,3 +17,4 @@
 *  Scaling
 *  Clustering
 *  Care and feeding
+*  Offline build instructions
