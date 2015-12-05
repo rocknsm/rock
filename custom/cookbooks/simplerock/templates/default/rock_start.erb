@@ -30,4 +30,9 @@ echo "Starting Bro..."
 sleep 5
 /opt/bro/bin/broctl status
 
+#echo "Starting Stenographer..."
+#systemctl start stenographer
+#sleep 5
+#systemctl status stenographer | egrep "^\s*Active"
+
 exit 0

@@ -26,6 +26,20 @@ cd SimpleRock
 chef-client -z -r "recipe[simplerock]"
 ```
 
+## Minimum Hardware Recommendations (For anything other than a Vagrant build)
+----
+
+**NOTE:** This is a shadow of a recommendation of a guideline.  Your mileage may vary.  No returns or refunds.
+
+*  CPU
+  *  4 or more physical cores.  
+*  Memory
+  *  16GB (You can get away with 8GB, but it won't collect for long.)
+*  Storage
+  *  256GB, with 200+ of that dedicated to `/data`. Honestly, throw everything you can at it.  The higher the IOPS the better.
+
+**GOLDEN RULE:** If you throw hardware at it, ROCK will use it.  It will require some tuning to do so, but we'll be documenting that soon enough.
+
 ## Usage
 ----
 #### Start / Stop / Status
@@ -108,6 +122,8 @@ manager      manager localhost        running   20389  ???    02 Dec 17:12:34
 proxy-1      proxy   localhost        running   20438  ???    02 Dec 17:12:35
 worker-1-1   worker  localhost        running   20484  ???    02 Dec 17:12:36
 worker-1-2   worker  localhost        running   20485  ???    02 Dec 17:12:36
+Stenographer...
+   Active: active (running) since Wed 2015-12-02 17:12:22 UTC; 1min 47s ago
 ```
 
 ## Basic Troubleshooting
@@ -150,6 +166,9 @@ http://IPADDRESS:9200/_plugin/marvel - Marvel (To watch the health of elasticsea
 
 http://IPADDRESS:9200/_plugin/sql - Query your ES data with SQL.
 
+## Full Packet Capture
+----
+Google's Stenographer is installed and configured in this build.  However, it is disabled by default.  There are a few reasons for this: First, it can be too much for Vagrant builds on meager hardware.  Second, you really need to make sure you've mounted /data over sufficient storage before you start saving full packets.  Once you're ready to get nuts, enable and start the service with `systemctl enable stenographer.service` and then `systemctl start stenographer.service`.
 
 ## THANKS
 ----
