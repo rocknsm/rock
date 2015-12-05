@@ -279,12 +279,19 @@ end
 #######################################################
 ################ Install ROCK Repos ###################
 #######################################################
-yum_repository 'simplerock' do
-  description 'Simple ROCK Repo'
-  baseurl 'https://pkgs.blackops.blue/rock/'
+#yum_repository 'simplerock' do
+#  description 'Simple ROCK Repo'
+#  baseurl 'https://pkgs.blackops.blue/rock/'
+#  gpgcheck false
+#  action :create
+#  sslverify false
+#end
+
+yum_repository 'bintray_cyberdev' do
+  description 'Bintray CyberDev Repo'
+  baseurl 'https://dl.bintray.com/cyberdev/capes'
   gpgcheck false
   action :create
-  sslverify false
 end
 
 #######################################################
