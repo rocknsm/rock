@@ -536,7 +536,7 @@ template '/usr/local/bin/es_cleanup.sh' do
   mode '0755'
 end
 
-execute '' do
+execute 'set_es_memlock' do
   command 'sed -i "s/.*LimitMEMLOCK.*/LimitMEMLOCK=infinity/g" /usr/lib/systemd/system/elasticsearch.service'
 end
 

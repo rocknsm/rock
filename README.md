@@ -155,4 +155,10 @@ http://IPADDRESS:9200/_plugin/sql - Query your ES data with SQL.
 ----
 This system and architecture are made possible by the efforts of the Missouri National Guard Cyber Team, and especially specific individuals and companies.
 
+## Approach
+----
+The Chef recipe that drives this build strives not to use external recipes and cookbooks where possible.  The reasoning behind this is to make the simplerock recipe a "one-stop" reference for a manual build.  This allows users to use the build process as a guide when doing larger scale production roll outs without having to decypher a labrynth of dependencies.
+
+Templated config files have comment sections added near key config items with useful info.  They don't all have it, but they get added as remembered.
+
 
