@@ -26,7 +26,8 @@ cd SimpleRock
 chef-client -z -r "recipe[simplerock]"
 ```
 
-## Minimum Hardware Recommendations (For anything other than a Vagrant build)
+## Minimum Hardware Recommendations 
+#### (For anything other than a Vagrant build)
 ----
 
 **NOTE:** This is a shadow of a recommendation of a guideline.  Your mileage may vary.  No returns or refunds.
@@ -168,7 +169,7 @@ http://IPADDRESS:9200/_plugin/sql - Query your ES data with SQL.
 
 ## Full Packet Capture
 ----
-Google's Stenographer is installed and configured in this build.  However, it is disabled by default.  There are a few reasons for this: First, it can be too much for Vagrant builds on meager hardware.  Second, you really need to make sure you've mounted /data over sufficient storage before you start saving full packets.  Once you're ready to get nuts, enable and start the service with `systemctl enable stenographer.service` and then `systemctl start stenographer.service`.
+Google's Stenographer is installed and configured in this build.  However, it is disabled by default.  There are a few reasons for this: First, it can be too much for Vagrant builds on meager hardware.  Second, you really need to make sure you've mounted /data over sufficient storage before you start saving full packets.  Once you're ready to get nuts, enable and start the service with `systemctl enable stenographer.service` and then `systemctl start stenographer.service`.  Stenographer is already stubbed into the `/usr/local/bin/rock_{start,stop,status}` scripts, you just need to uncomment it if you're going to use it. 
 
 ## THANKS
 ----
