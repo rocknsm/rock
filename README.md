@@ -153,7 +153,8 @@ http://IPADDRESS:9200/_plugin/sql - Query your ES data with SQL.
 
 ## THANKS
 ----
-This system and architecture are made possible by the efforts of the Missouri National Guard Cyber Team, and especially specific individuals and companies.
+This architecture is made possible by the efforts of the Missouri National Guard Cyber Team, and especially Critical Stack and BroEZ for donating talent and resources to further development.
+
 
 ## Approach
 ----
