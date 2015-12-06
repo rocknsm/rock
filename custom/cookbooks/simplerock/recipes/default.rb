@@ -175,6 +175,7 @@ ruby_block 'determine_monitor_interface' do
   notifies :create, "template[/opt/bro/etc/node.cfg]", :delayed
   notifies :create, "template[ifcfg-monif]", :delayed
   notifies :create, "template[/sbin/ifup-local]", :delayed
+  notifies :create, "template[/etc/stenographer/config]", :delayed
 end
 
 #######################################################
@@ -659,6 +660,7 @@ end
 ######################################################
 template '/etc/stenographer/config' do
   source 'etc_stenographer_config.erb'
+  action :nothing
 end
 
 directory '/data/stenographer' do
