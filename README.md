@@ -1,5 +1,4 @@
 ## Response Operation Collections Kit Reference Build
-----
 
 This build was created and tested using CentOS 7. I pretty much guarantee that it won't work with anything else other than RHEL 7.
 
@@ -28,7 +27,6 @@ chef-client -z -r "recipe[simplerock]"
 
 ## Minimum Hardware Recommendations 
 #### (For anything other than a Vagrant build)
-----
 
 **NOTE:** This is a shadow of a recommendation of a guideline.  Your mileage may vary.  No returns or refunds.
 
@@ -42,7 +40,7 @@ chef-client -z -r "recipe[simplerock]"
 **GOLDEN RULE:** If you throw hardware at it, ROCK will use it.  It will require some tuning to do so, but we'll be documenting that soon enough.
 
 ## Usage
-----
+
 #### Start / Stop / Status
 Accomplished with `rock_stop`, `rock_start`, and `rock_status`.
 
@@ -128,7 +126,7 @@ Stenographer...
 ```
 
 ## Basic Troubleshooting
-----
+    
 #### Functions Check:
 ```
 # After the initial build, the ES cluster will be yellow because the marvel index will think it's missing a replica.  Run this to fix this issue.  This job will run from cron just after midnight every day.
@@ -157,8 +155,7 @@ netstat -planet | grep node
 ```
 
 ## Key web interfaces:
-----
-
+    
 IPADDRESS = The management interface of the box, or "localhost" if you did the vagrant build.
 
 http://IPADDRESS:5601 - Kibana
@@ -168,16 +165,16 @@ http://IPADDRESS:9200/_plugin/marvel - Marvel (To watch the health of elasticsea
 http://IPADDRESS:9200/_plugin/sql - Query your ES data with SQL.
 
 ## Full Packet Capture
-----
+   
 Google's Stenographer is installed and configured in this build.  However, it is disabled by default.  There are a few reasons for this: First, it can be too much for Vagrant builds on meager hardware.  Second, you really need to make sure you've mounted /data over sufficient storage before you start saving full packets.  Once you're ready to get nuts, enable and start the service with `systemctl enable stenographer.service` and then `systemctl start stenographer.service`.  Stenographer is already stubbed into the `/usr/local/bin/rock_{start,stop,status}` scripts, you just need to uncomment it if you're going to use it. 
 
 ## THANKS
-----
+   
 This architecture is made possible by the efforts of the Missouri National Guard Cyber Team, and especially Critical Stack and BroEZ for donating talent and resources to further development.
 
 
 ## Approach
-----
+   
 The Chef recipe that drives this build strives not to use external recipes and cookbooks where possible.  The reasoning behind this is to make the simplerock recipe a "one-stop" reference for a manual build.  This allows users to use the build process as a guide when doing larger scale production roll outs without having to decypher a labrynth of dependencies.
 
 Templated config files have comment sections added near key config items with useful info.  They don't all have it, but they get added as remembered.
