@@ -36,6 +36,9 @@ chef-client -z -r "recipe[simplerock]"
   *  16GB (You can get away with 8GB, but it won't collect for long.)
 *  Storage
   *  256GB, with 200+ of that dedicated to `/data`. Honestly, throw everything you can at it.  The higher the IOPS the better.
+*  Network
+  *  The system needs at least 2 network interfaces, one for management and one for collection.
+
 
 **GOLDEN RULE:** If you throw hardware at it, ROCK will use it.  It will require some tuning to do so, but we'll be documenting that soon enough.
 

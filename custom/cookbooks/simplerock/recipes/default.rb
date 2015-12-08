@@ -277,6 +277,11 @@ execute 'import_epel_key' do
   command 'rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7'
 end
 
+##### Temp Fix - In prep for CentOS 7.2, a dependency of gperftools-lib (libunwind) was moved to the CR repo.
+execute 'enable_centos_cr' do
+  command 'sed -i "s/enabled=0/enabled=1/g" /etc/yum.repos.d/CentOS-CR.repo'
+end
+
 #######################################################
 ################ Install ROCK Repos ###################
 #######################################################
