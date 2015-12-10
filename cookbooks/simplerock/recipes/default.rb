@@ -285,14 +285,6 @@ end
 #######################################################
 ################ Install ROCK Repos ###################
 #######################################################
-#yum_repository 'simplerock' do
-#  description 'Simple ROCK Repo'
-#  baseurl 'https://pkgs.blackops.blue/rock/'
-#  gpgcheck false
-#  action :create
-#  sslverify false
-#end
-
 yum_repository 'bintray_cyberdev' do
   description 'Bintray CyberDev Repo'
   baseurl 'https://dl.bintray.com/cyberdev/capes'
@@ -344,7 +336,7 @@ end
 #######################################################
 ############### Install Core Packages #################
 #######################################################
-package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'bro-plugin-kafka-output', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'elasticsearch', 'nginx-spnego', 'jq', 'monit', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer']
+package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'bro-plugin-kafka-output', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'elasticsearch', 'nginx-spnego', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer']
 
 ######################################################
 ################## Configure PF_RING #################
