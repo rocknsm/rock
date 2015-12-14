@@ -336,7 +336,7 @@ end
 #######################################################
 ############### Install Core Packages #################
 #######################################################
-package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'bro-plugin-kafka-output', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'elasticsearch', 'nginx-spnego', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer']
+package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'elasticsearch', 'nginx-spnego', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer']
 
 ######################################################
 ################## Configure PF_RING #################
