@@ -136,6 +136,11 @@ end
 ######################################################
 ############### Install Kernel Headers ###############
 ######################################################
+##### Temp Fix - In prep for CentOS 7.2, a dependency of gperftools-lib (libunwind) was moved to the CR repo.
+execute 'enable_centos_cr' do
+  command 'sed -i "s/enabled=0/enabled=1/g" /etc/yum.repos.d/CentOS-CR.repo'
+end
+
 fullver = node['kernel']['release']
 kernver = fullver.sub(".#{node['kernel']['machine']}", '')
 
@@ -271,15 +276,17 @@ end
 #######################################################
 package 'epel-release' do
   action :install
+  ignore_failure true
+end
+
+execute 'install_epel' do
+  command 'rpm -Uvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm'
+  not_if '[ $(rpm -qa epel-release | wc -l) -gt 0 ]'
 end
 
 execute 'import_epel_key' do
   command 'rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7'
-end
-
-##### Temp Fix - In prep for CentOS 7.2, a dependency of gperftools-lib (libunwind) was moved to the CR repo.
-execute 'enable_centos_cr' do
-  command 'sed -i "s/enabled=0/enabled=1/g" /etc/yum.repos.d/CentOS-CR.repo'
+  only_if '[ -f /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 ]'
 end
 
 #######################################################
@@ -560,6 +567,11 @@ bash 'install_marvel' do
     /usr/local/bin/es_cleanup.sh
     EOH
 end
+
+#Offline Install
+#bin/plugin install file:///path/to/file/license-2.1.0.zip
+#bin/plugin install file:///path/to/file/marvel-agent-2.1.0.zip
+#bin/kibana plugin --install marvel --url file:///path/to/file/marvel-2.1.0.tar.gz
 
 ######################################################
 ################## Configure Logstash ################

@@ -1,6 +1,6 @@
 ## Response Operation Collections Kit Reference Build
 
-This build was created and tested using CentOS 7. I pretty much guarantee that it won't work with anything else other than RHEL 7.
+This build was created and tested using CentOS 7.2. I pretty much guarantee that it won't work with anything else other than RHEL 7.  Unless you have an operational need, I would suggest basing your system off of CentOS 7.2 (build 1511), as that is where the bulk of the testing of this has happened.
 
 **BE ADVISED:**  This build process takes 3-10 minutes depending on your underlying hardware.  There will be times where it seems like it quit.  Be patient.  You'll know when it's done, for better or worse.
 
@@ -15,14 +15,13 @@ vagrant up
 
 ### Physical/Virtual/Non-Vagrant
 **NOTE:**   
-The system you run this on should have at least 2 network interfaces and more than 4GB of RAM, with EL7 already installed.
+The system you run this on should have at least 2 network interfaces and more than 4GB of RAM, with an OS (RHEL or CentOS 7) already installed.
 ```
-curl -LOk https://bintray.com/artifact/download/cyberdev/capes/chef-12.3.0-1.el6.x86_64.rpm
-rpm -Uvh chef-12.3.0-1.el6.x86_64.rpm
-yum install git -y
+sudo rpm -Uvh https://bintray.com/artifact/download/cyberdev/capes/chef-12.3.0-1.el6.x86_64.rpm
+sudo yum install git -y
 git clone https://github.com/CyberAnalyticDevTeam/SimpleRock.git
 cd SimpleRock
-chef-client -z -r "recipe[simplerock]"
+sudo chef-client -z -r "recipe[simplerock]"
 ```
 
 ## Minimum Hardware Recommendations 
