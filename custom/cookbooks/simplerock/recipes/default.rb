@@ -136,7 +136,17 @@ end
 ######################################################
 ############### Install Kernel Headers ###############
 ######################################################
-##### Temp Fix - In prep for CentOS 7.2, a dependency of gperftools-lib (libunwind) was moved to the CR repo.
+## Necessary to make this pig run on RHEL:
+execute 'enable_rhel_optional' do
+  command 'subscription-manager repos --enable rhel-7-server-optional-rpms'
+  only_if 'grep RHEL /etc/redhat-release'
+end
+
+execute 'enable_rhel_extras' do
+  command 'subscription-manager repos --enable rhel-7-server-extras-rpms'
+  only_if 'grep RHEL /etc/redhat-release'
+end
+
 execute 'enable_centos_cr' do
   command 'sed -i "s/enabled=0/enabled=1/g" /etc/yum.repos.d/CentOS-CR.repo'
   only_if 'grep CentOS /etc/redhat-release'
