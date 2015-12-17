@@ -46,8 +46,9 @@ sudo chef-client -z -r "recipe[simplerock]"
 #### Start / Stop / Status
 Accomplished with `rock_stop`, `rock_start`, and `rock_status`.
 
+**NOTE:** These may need to be prefaced with /usr/local/bin/ depending on your PATH.
 
-`rock_stop`
+`sudo rock_stop`
 ```
 [root@simplerockbuild ~]# rock_stop
 Stopping Bro...
@@ -62,7 +63,7 @@ Stopping Kafka...
 Stopping Zookeeper...
 ```
 
-`rock_start`
+`sudo rock_start`
 ```
 [root@simplerockbuild ~]# rock_start
 Starting Zookeeper...
@@ -102,7 +103,7 @@ worker-1-1   worker  localhost        running   20484  ???    02 Dec 17:12:36
 worker-1-2   worker  localhost        running   20485  ???    02 Dec 17:12:36
 ```
 
-`rock_status`
+`sudo rock_status`
 ```
 [root@simplerockbuild ~]# rock_status
 Zookeeper...
@@ -141,7 +142,8 @@ curl -s localhost:9200/_cluster/health | jq '.'
 curl -s localhost:9200/_all/_count | jq '.'
 
 # You can fire some traffic across the sensor at this point to see if it's collecting.
-tcpreplay -i [your monitor interface] /path/to/a/test.pcap
+# NOTE: This requires that you upload your own test PCAP to the box.
+sudo tcpreplay -i [your monitor interface] /path/to/a/test.pcap
 
 # After replaying some traffic, or just waiting a bit, the count should be going up.
 curl -s localhost:9200/_all/_count | jq '.'
@@ -153,7 +155,7 @@ ls -ltr /data/bro/logs/current/
 kafkacat -C -b localhost -t bro_raw -e | wc -l
 
 # If you haven't loaded kibana already, it should be running on port 5601.  This just verifies while you're still on the command line.
-netstat -planet | grep node
+sudo netstat -planet | grep node
 ```
 
 ## Key web interfaces:
