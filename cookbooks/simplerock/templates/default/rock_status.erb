@@ -1,24 +1,49 @@
-#!/bin/bash
+#!/bin/bats
 
-echo "Zookeeper..."
-systemctl status zookeeper | egrep "^\s*Active"
+export ZOOKEEPER_PORT=2181
 
-echo "Elasticsearch..."
-systemctl status elasticsearch | egrep "^\s*Active"
+@test "Check that broctl is running" {
+  sudo /opt/bro/bin/broctl status
+}
 
-echo "Kafka..."
-systemctl status kafka | egrep "^\s*Active"
+@test "Check that zookeeper is running" {
+  service zookeeper status
+}
 
-echo "Logstash..."
-systemctl status logstash | egrep "^\s*Active"
+@test "Check that zookeeper is listening" {
+  ss -lnt | grep ${ZOOKEEPER_PORT}
+}
 
-echo "Kibana..."
-systemctl status kibana | egrep "^\s*Active"
+@test "Check that client can connect to zookeeper" {
+  echo "" | ncat  127.0.0.1 ${ZOOKEEPER_PORT}
+}
 
-echo "Bro..."
-/opt/bro/bin/broctl status
+@test "Check that kafka is connected to zookeeper" {
+  kafka_pid=$(systemctl show -p MainPID kafka.service | cut -d= -f2)
+  echo "kafka_pid: ${kafka_pid}"
+  kafka_socket=$(sudo ss -ntp | grep "${kafka_pid}" | grep "${ZOOKEEPER_PORT}" | awk '{ print $4 }')
+  echo "Kafka socket: ${kafka_socket}"
+  kafka_conns=$(echo "cons" | ncat 127.0.0.1 ${ZOOKEEPER_PORT} | grep "${kafka_socket}" )
+  echo -e "Kafka Connections: \n ${kafka_conns}"
+  conn_count=$(echo ${kafka_conns} | wc -l )
+  echo "Number of Kafka Conns: ${conn_count}"
+  # It's possible this might need to be -ge
+  [[ ${conn_count} -eq 1 ]]
+}
 
-echo "Stenographer..."
-systemctl status stenographer | egrep "^\s*Active"
 
-exit 0
+@test "Check that kafka is running" {
+  service kafka status
+}
+
+@test "Check that logstash is running" {
+  ps -ef | grep $(cat /var/run/logstash.pid )
+}
+
+@test "Check that elasticsearch is running" {
+  service elasticsearch status
+}
+
+@test "Check that kibana is running" {
+  service kibana status
+}
