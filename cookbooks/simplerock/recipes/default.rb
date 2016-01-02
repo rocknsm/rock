@@ -521,6 +521,17 @@ execute 'set_kafka_retention' do
   command 'sed -i "s/log.retention.hours=168/log.retention.hours=1/" /opt/kafka/config/server.properties'
 end
 
+execute 'set_kafka_data_dir' do
+  command 'sed -i "s|log.dirs=/tmp/kafka-logs|log.dirs=/data/kafka|g" /opt/kafka/config/server.properties'
+end
+
+directory '/data/kafka' do
+  mode '0755'
+  owner 'kafka'
+  group 'kafka'
+  action :create
+end
+
 #Enable and start kafka
 service 'kafka' do
   action [ :enable, :start ]
