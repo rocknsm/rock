@@ -105,27 +105,18 @@ worker-1-2   worker  localhost        running   20485  ???    02 Dec 17:12:36
 
 `sudo rock_status`
 ```
-[root@simplerockbuild ~]# rock_status
-Zookeeper...
-   Active: active (running) since Wed 2015-12-02 17:12:02 UTC; 2min 7s ago
-Elasticsearch...
-   Active: active (running) since Wed 2015-12-02 17:12:07 UTC; 2min 2s ago
-Kafka...
-   Active: active (running) since Wed 2015-12-02 17:12:12 UTC; 1min 57s ago
-Logstash...
-   Active: active (running) since Wed 2015-12-02 17:12:17 UTC; 1min 52s ago
-Kibana...
-   Active: active (running) since Wed 2015-12-02 17:12:22 UTC; 1min 47s ago
-Bro...
-Getting process status ...
-Getting peer status ...
-Name         Type    Host             Status    Pid    Peers  Started
-manager      manager localhost        running   20389  ???    02 Dec 17:12:34
-proxy-1      proxy   localhost        running   20438  ???    02 Dec 17:12:35
-worker-1-1   worker  localhost        running   20484  ???    02 Dec 17:12:36
-worker-1-2   worker  localhost        running   20485  ???    02 Dec 17:12:36
-Stenographer...
-   Active: active (running) since Wed 2015-12-02 17:12:22 UTC; 1min 47s ago
+[root@simplerockbuild ~]# /usr/local/bin/rock_status
+ ✓ Check that broctl is running
+ ✓ Check that zookeeper is running
+ ✓ Check that zookeeper is listening
+ ✓ Check that client can connect to zookeeper
+ ✓ Check that kafka is connected to zookeeper
+ ✓ Check that kafka is running
+ ✓ Check that logstash is running
+ ✓ Check that elasticsearch is running
+ ✓ Check that kibana is running
+
+9 tests, 0 failures
 ```
 
 ## Basic Troubleshooting
