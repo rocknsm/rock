@@ -5,10 +5,6 @@ export ZOOKEEPER_PORT=2181
 export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 	sed 's/interface=//' | paste -sd " " -)
 
-export MYTMPDIR=$(mktemp -d)
-trap 'rm -rf "${TMPDIR}"' EXIT INT TERM HUP
-
-
 #----------------------------------------------------------------------------
 #                               INTERFACE
 #----------------------------------------------------------------------------
@@ -29,23 +25,56 @@ trap 'rm -rf "${TMPDIR}"' EXIT INT TERM HUP
   done
 }
 
-@test "Check interface errors" {
-
+@test "Check for interface errors" {
   for interface in $MON_IFS; do
     count=$(ethtool -S ${interface} | grep error | grep -v " 0$" | wc -l )
     echo "${interface} had ${count} error types."
     echo ">> Check \`ethtool -S ${interface}\` << "
-    [ $count -eq 1 ]
+    [ $count -eq 0 ]
   done
+}
+
+@test "Check monitor interface for tx packets" {
+  for interface in $MON_IFS; do
+    pkts=$(ethtool -S ${interface} | awk '/tx_packets/ {print $2}')
+    echo "WARNING: Monitor interface ${interface} has sent ${pkts} packets".
+    [ $pkts -eq 0 ]
+  done
+}
+
+@test "Check PF_RING settings" {
+  cap_tx=$(cat /proc/net/pf_ring/info | awk '/Capture TX/ {print $4}')
+  echo "WARNING: PR_RING is currently set to capture TX packets."
+  [ "${cap_tx}" = "No" ]
 }
 
 #----------------------------------------------------------------------------
 #                               BRO
 #----------------------------------------------------------------------------
 
-
 @test "Check that broctl is running" {
+  # This will fail if a worker is crashed as well
   sudo /opt/bro/bin/broctl status
+}
+
+@test "Check for bro-detected packet loss" {
+  local notice_log='/data/bro/logs/current/notice.log'
+  if [ ! -f "${notice_log}"]; then
+    skip "No notice.log to check for packet loss errors."
+  fi
+
+  capture_cnt=$(cat ${notice_log} | grep 'CaptureLoss::Too_Much_Loss'|wc -l)
+  drop_cnt=$(cat ${notice_log} | grep 'PacketFilter::Dropped_Packets'|wc -l)
+
+  if [ $capture_cnt > 0 ]; then
+    if [ $drop_cnt > 0 ]; then
+      echo "Sensor is dropping packets before Bro can process them."
+      [ $drop_cnt -eq 0 ]
+    else
+      echo "Packets are being dropped prior to sensor receiving them."
+      [ $capture_cnt -eq 0 ]
+    fi
+  fi
 }
 
 #----------------------------------------------------------------------------
