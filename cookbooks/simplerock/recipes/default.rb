@@ -315,22 +315,22 @@ end
 #######################################################
 yum_repository 'ntop' do
   description 'ntop CentOS Repo'
-  baseurl 'http://www.nmon.net/centos-stable/$releasever/$basearch/'
+  baseurl 'http://packages.ntop.org/centos-stable/$releasever/$basearch/'
   gpgcheck true
-  gpgkey 'http://www.nmon.net/centos-stable/RPM-GPG-KEY-deri'
+  gpgkey 'http://packages.ntop.org/centos-stable/RPM-GPG-KEY-deri'
   action :create
 end
 
 yum_repository 'ntop-noarch' do
   description 'ntop CentOS Repo - noarch'
-  baseurl 'http://www.nmon.net/centos-stable/$releasever/noarch/'
+  baseurl 'http://packages.ntop.org/centos-stable/$releasever/noarch/'
   gpgcheck true
-  gpgkey 'http://www.nmon.net/centos-stable/RPM-GPG-KEY-deri'
+  gpgkey 'http://packages.ntop.org/centos-stable/RPM-GPG-KEY-deri'
   action :create
 end
 
 execute 'import_ntop_key' do
-  command 'rpm --import http://www.nmon.net/centos-stable/RPM-GPG-KEY-deri'
+  command 'rpm --import http://packages.ntop.org/centos-stable/RPM-GPG-KEY-deri'
 end
 
 #######################################################
