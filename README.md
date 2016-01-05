@@ -106,17 +106,22 @@ worker-1-2   worker  localhost        running   20485  ???    02 Dec 17:12:36
 `sudo rock_status`
 ```
 [root@simplerockbuild ~]# /usr/local/bin/rock_status
+ ✓ Check each monitor interface is live
+ ✓ Check for interface errors
+ ✓ Check monitor interface for tx packets
+ ✓ Check PF_RING settings
  ✓ Check that broctl is running
+ ✓ Check for bro-detected packet loss
  ✓ Check that zookeeper is running
  ✓ Check that zookeeper is listening
  ✓ Check that client can connect to zookeeper
- ✓ Check that kafka is connected to zookeeper
  ✓ Check that kafka is running
+ ✓ Check that kafka is connected to zookeeper
  ✓ Check that logstash is running
  ✓ Check that elasticsearch is running
  ✓ Check that kibana is running
 
-9 tests, 0 failures
+14 tests, 0 failures
 ```
 
 ## Basic Troubleshooting
@@ -124,7 +129,7 @@ worker-1-2   worker  localhost        running   20485  ???    02 Dec 17:12:36
 #### Functions Check:
 ```
 # After the initial build, the ES cluster will be yellow because the marvel index will think it's missing a replica.  Run this to fix this issue.  This job will run from cron just after midnight every day.
-/usr/local/bin/es_cleanup.sh
+/usr/local/bin/es_cleanup.sh 2>&1 > /dev/null
 
 # Check to see that the ES cluster says it's green:
 curl -s localhost:9200/_cluster/health | jq '.'
