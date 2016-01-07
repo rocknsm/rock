@@ -291,7 +291,7 @@ package 'epel-release' do
 end
 
 execute 'install_epel' do
-  command 'rpm -Uvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm'
+  command 'rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
   not_if '[ $(rpm -qa epel-release | wc -l) -gt 0 ]'
 end
 
