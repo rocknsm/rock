@@ -291,7 +291,7 @@ package 'epel-release' do
 end
 
 execute 'install_epel' do
-  command 'rpm -Uvh http://download.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-5.noarch.rpm'
+  command 'rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm'
   not_if '[ $(rpm -qa epel-release | wc -l) -gt 0 ]'
 end
 
@@ -583,7 +583,7 @@ bash 'install_marvel' do
   code <<-EOH
     cd /usr/share/elasticsearch
     bin/plugin install elasticsearch/marvel/latest
-    bin/plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.5/elasticsearch-sql-1.4.5.zip --install sql
+    bin/plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.8/elasticsearch-sql-1.4.8.zip --install sql
     /bin/systemctl restart elasticsearch
     /usr/bin/sleep 10
     /usr/local/bin/es_cleanup.sh
@@ -719,6 +719,25 @@ end
 ######################################################
 ######################## NGINX #######################
 ######################################################
+template '/etc/nginx/conf.d/rock.conf' do
+  source 'rock.conf.erb'
+end
+
+file '/etc/nginx/conf.d/default.conf' do
+  action :delete
+end
+
+file '/etc/nginx/conf.d/example_ssl.conf' do
+  action :delete
+end
+
+execute 'enable_nginx_connect_selinux' do
+  command 'setsebool -P httpd_can_network_connect 1'
+end
+
+service 'nginx' do
+  action [ :enable, :start ]
+end
 
 # To be continued
 
