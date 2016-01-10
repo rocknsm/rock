@@ -22,7 +22,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "chef_solo" do |chef|
     chef.log_level = "info"
-    chef.version = "12.3.0"
+    #chef.version = "12.3.0"
     chef.cookbooks_path = "cookbooks" # path to your cookbooks
     #chef.roles_path = "roles"
     chef.add_recipe "simplerock"
