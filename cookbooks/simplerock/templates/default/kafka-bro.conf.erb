@@ -22,6 +22,7 @@ output {
       host => "127.0.0.1"
       cluster => "elasticsearch"
       protocol => "node"
+      document_type => "%{sensor_logtype}"
       #flush_size => 1000
     }
   }
