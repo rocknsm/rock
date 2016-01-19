@@ -313,21 +313,24 @@ end
 #######################################################
 ################ Install NTOP Repos ###################
 #######################################################
-yum_repository 'ntop' do
-  description 'ntop CentOS Repo'
-  baseurl 'http://packages.ntop.org/centos-stable/$releasever/$basearch/'
-  gpgcheck true
-  gpgkey 'http://packages.ntop.org/centos-stable/RPM-GPG-KEY-deri'
-  action :create
-end
+# Commented out 19JAN16 - version 6.2.0-425 was built against Myrinet and 
+# was causing SimpleRock install to fail.  Moved 6.2.0-411 to bintray, pending investigation.
 
-yum_repository 'ntop-noarch' do
-  description 'ntop CentOS Repo - noarch'
-  baseurl 'http://packages.ntop.org/centos-stable/$releasever/noarch/'
-  gpgcheck true
-  gpgkey 'http://packages.ntop.org/centos-stable/RPM-GPG-KEY-deri'
-  action :create
-end
+#yum_repository 'ntop' do
+#  description 'ntop CentOS Repo'
+#  baseurl 'http://packages.ntop.org/centos-stable/$releasever/$basearch/'
+#  gpgcheck true
+#  gpgkey 'http://packages.ntop.org/centos-stable/RPM-GPG-KEY-deri'
+#  action :create
+#end
+
+#yum_repository 'ntop-noarch' do
+#  description 'ntop CentOS Repo - noarch'
+#  baseurl 'http://packages.ntop.org/centos-stable/$releasever/noarch/'
+#  gpgcheck true
+#  gpgkey 'http://packages.ntop.org/centos-stable/RPM-GPG-KEY-deri'
+#  action :create
+#end
 
 execute 'import_ntop_key' do
   command 'rpm --import http://packages.ntop.org/centos-stable/RPM-GPG-KEY-deri'
