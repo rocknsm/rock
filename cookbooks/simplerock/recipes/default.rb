@@ -423,25 +423,6 @@ execute 'start_bro' do
 end
 
 
-
-#create /var/opt dirs
-directory '/var/opt/bro/spool' do
-  recursive true
-  owner 'root'
-  group 'root'
-  mode '0755'
-  action :create
-end
-
-
-directory '/var/opt/bro/logs' do
-  recursive true
-  owner 'root'
-  group 'root'
-  mode '0755'
-  action :create
-end
-
 # Add custom scripts dir and readme.
 directory '/opt/bro/share/bro/site/scripts' do
   owner 'root'
