@@ -606,6 +606,10 @@ template '/etc/logstash/conf.d/kafka-bro.conf' do
   source 'kafka-bro.conf.erb'
 end
 
+execute 'update_kafka_input_plugin' do
+  command 'cd /opt/logstash; sudo bin/plugin install --version 2.0.3 logstash-input-kafka'
+end
+
 service 'logstash' do
   action [ :enable, :start ]
 end
