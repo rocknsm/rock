@@ -311,6 +311,25 @@ yum_repository 'bintray_cyberdev' do
 end
 
 #######################################################
+############### Install Elastic Repos #################
+#######################################################
+yum_repository 'logstash-2.1.x' do
+  description 'Logstash repository for 2.1.x packages'
+  baseurl 'http://packages.elastic.co/logstash/2.1/centos'
+  gpgcheck true
+  gpgkey 'http://packages.elastic.co/GPG-KEY-elasticsearch'
+  action :create
+end
+
+yum_repository 'elasticsearch-2.x' do
+  description 'Elasticsearch repository for 2.x packages'
+  baseurl 'http://packages.elastic.co/elasticsearch/2.x/centos'
+  gpgcheck true
+  gpgkey 'http://packages.elastic.co/GPG-KEY-elasticsearch'
+  action :create
+end
+
+#######################################################
 ################ Install NTOP Repos ###################
 #######################################################
 # Commented out 19JAN16 - version 6.2.0-425 was built against Myrinet and 
@@ -612,7 +631,7 @@ end
 ################## Configure Kibana ##################
 ######################################################
 remote_file "#{Chef::Config[:file_cache_path]}/kibana.tar.gz" do
-  source 'https://download.elastic.co/kibana/kibana/kibana-4.1.2-linux-x64.tar.gz'
+  source 'https://download.elastic.co/kibana/kibana/kibana-4.3.1-linux-x64.tar.gz'
 end
 
 execute 'untar_kibana' do
@@ -620,7 +639,7 @@ execute 'untar_kibana' do
 end
 
 execute 'rename_kibana_dir' do
-  command 'mv /opt/{kibana-4.1.2-linux-x64,kibana}'
+  command 'mv /opt/{kibana-4.3.1-linux-x64,kibana}'
 end
 
 user 'kibana' do
