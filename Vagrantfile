@@ -6,6 +6,7 @@ Vagrant.configure(2) do |config|
   config.ssh.forward_agent = true
   config.vm.network "forwarded_port", guest: 5601, host: 5601
   config.vm.network "forwarded_port", guest: 9200, host: 9200
+  config.vm.network "forwarded_port", guest: 80, host: 8080
   config.vm.provider "virtualbox" do |vb|
     vb.memory = 8192
     vb.cpus   = 4
@@ -22,7 +23,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.provision "chef_solo" do |chef|
     chef.log_level = "info"
-    chef.version = "12.3.0"
+    #chef.version = "12.3.0"
     chef.cookbooks_path = "cookbooks" # path to your cookbooks
     #chef.roles_path = "roles"
     chef.add_recipe "simplerock"
