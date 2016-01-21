@@ -404,12 +404,25 @@ end
   end
 end
 
+# Convenience for the wandering analyst
+%w{logs spool}.each do |dir|
+  directory "/opt/bro/#{dir}" do
+    action :delete
+    recursive true
+  end
+  link "/opt/bro/#{dir}" do
+    to "/data/bro/#{dir}"
+  end
+end
+
 #Start bro
 execute 'start_bro' do
   command '/opt/bro/bin/broctl install; /opt/bro/bin/broctl check && /opt/bro/bin/broctl start'
   action :nothing
   notifies :write, "log[branding]", :delayed
 end
+
+
 
 #create /var/opt dirs
 directory '/var/opt/bro/spool' do
@@ -419,6 +432,7 @@ directory '/var/opt/bro/spool' do
   mode '0755'
   action :create
 end
+
 
 directory '/var/opt/bro/logs' do
   recursive true
