@@ -19,9 +19,7 @@ output {
   if [@metadata][stage] == "bro_kafka" {
     #stdout { codec => rubydebug }
     elasticsearch {
-      host => "127.0.0.1"
-      cluster => "elasticsearch"
-      protocol => "node"
+      hosts => ["127.0.0.1"]
       document_type => "%{sensor_logtype}"
       #flush_size => 1000
     }
