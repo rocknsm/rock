@@ -595,23 +595,6 @@ service 'elasticsearch' do
   action [ :enable, :start ]  
 end
 
-bash 'install_marvel' do
-  cwd '/usr/share/elasticsearch'
-  code <<-EOH
-    cd /usr/share/elasticsearch
-    bin/plugin install elasticsearch/marvel/latest
-    bin/plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.8/elasticsearch-sql-1.4.8.zip --install sql
-    /bin/systemctl restart elasticsearch
-    /usr/bin/sleep 10
-    /usr/local/bin/es_cleanup.sh
-    EOH
-end
-
-#Offline Install
-#bin/plugin install file:///path/to/file/license-2.1.0.zip
-#bin/plugin install file:///path/to/file/marvel-agent-2.1.0.zip
-#bin/kibana plugin --install marvel --url file:///path/to/file/marvel-2.1.0.tar.gz
-
 ######################################################
 ################## Configure Logstash ################
 ######################################################
@@ -664,6 +647,28 @@ end
 service 'kibana' do
   action [ :enable, :start ]
 end
+
+
+######################################################
+################## Configure Marvel ##################
+######################################################
+bash 'install_marvel' do
+  cwd '/usr/share/elasticsearch'
+  code <<-EOH
+    cd /usr/share/elasticsearch
+    bin/plugin install license
+    bin/plugin install marvel-agent
+    bin/plugin https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip 
+    /bin/systemctl restart elasticsearch
+    /usr/bin/sleep 10
+    /usr/local/bin/es_cleanup.sh
+    EOH
+end
+
+#Offline Install
+#bin/plugin install file:///path/to/file/license-2.1.0.zip
+#bin/plugin install file:///path/to/file/marvel-agent-2.1.0.zip
+#bin/kibana plugin --install marvel --url file:///path/to/file/marvel-2.1.0.tar.gz
 
 ######################################################
 #################### Configure Cron ##################
