@@ -615,14 +615,17 @@ end
 ######################################################
 remote_file "#{Chef::Config[:file_cache_path]}/kibana.tar.gz" do
   source 'https://download.elastic.co/kibana/kibana/kibana-4.3.1-linux-x64.tar.gz'
+  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.3.1'
 end
 
 execute 'untar_kibana' do
   command "tar xzf #{Chef::Config[:file_cache_path]}/kibana.tar.gz -C /opt/"
+  not_if 'ls /opt/kibana'
 end
 
 execute 'rename_kibana_dir' do
   command 'mv /opt/{kibana-4.3.1-linux-x64,kibana}'
+  not_if 'ls /opt/kibana'
 end
 
 user 'kibana' do
@@ -636,7 +639,7 @@ end
 
 execute 'chown_kibana' do
   command 'chown -R kibana:kibana /opt/kibana'
-  action :nothing
+  not_if 'ls -ld /opt/kibana/optimize | grep -q "kibana kibana"'
 end
 
 template '/etc/systemd/system/kibana.service' do
@@ -652,16 +655,23 @@ end
 ######################################################
 ################## Configure Marvel ##################
 ######################################################
-bash 'install_marvel' do
+bash 'install_marvel_and_sql' do
   cwd '/usr/share/elasticsearch'
   code <<-EOH
+    # Install ES components
     cd /usr/share/elasticsearch
     bin/plugin install license
     bin/plugin install marvel-agent
-    bin/plugin https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip 
+    bin/plugin install https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip 
+    systemctl daemon-reload
     /bin/systemctl restart elasticsearch
     /usr/bin/sleep 10
     /usr/local/bin/es_cleanup.sh
+    # Install kibana component
+    cd /opt/kibana
+    bin/kibana plugin --install elasticsearch/marvel/latest
+    /bin/systemctl restart kibana
+    /usr/bin/sleep 5
     EOH
 end
 
