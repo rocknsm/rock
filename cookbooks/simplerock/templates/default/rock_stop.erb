@@ -3,6 +3,9 @@
 #echo "Stopping Stenographer..."
 #systemctl stop stenographer
 
+echo "Stopping Snort..."
+systemctl stop snortd
+
 echo "Stopping Bro..."
 /opt/bro/bin/broctl stop
 

@@ -1,5 +1,4 @@
 tmp/
 .vagrant
-snort*
 Vagrantfile.vmware
 *.pcap
