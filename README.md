@@ -158,11 +158,11 @@ sudo netstat -planet | grep node
     
 IPADDRESS = The management interface of the box, or "localhost" if you did the vagrant build.
 
-http://IPADDRESS:5601 - Kibana
+http://IPADDRESS - Kibana & Marvel
 
-http://IPADDRESS:9200/_plugin/marvel - Marvel (To watch the health of elasticsearch.)
+http://IPADDRESS/_plugin/hq - Elastic HQ (To watch the health of elasticsearch.)
 
-http://IPADDRESS:9200/_plugin/sql - Query your ES data with SQL.
+http://IPADDRESS/_plugin/sql - Query your ES data with SQL.
 
 ## Full Packet Capture
    

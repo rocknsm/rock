@@ -684,6 +684,7 @@ bash 'install_marvel_and_sql' do
     bin/plugin install license
     bin/plugin install marvel-agent
     bin/plugin install https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip 
+    bin/plugin install royrusso/elasticsearch-HQ
     systemctl daemon-reload
     /bin/systemctl restart elasticsearch
     /usr/bin/sleep 10
