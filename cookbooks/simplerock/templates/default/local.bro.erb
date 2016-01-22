@@ -100,13 +100,9 @@ redef KafkaLogger::sensor_name = "<%= node['hostname'] %>";
 redef KafkaLogger::logstash_style_timestamp = T;
 
 # File Extraction
-@load scripts/bro-file-extraction/plugins/extract-common-exploit-types
+@load scripts/bro-file-extraction
 redef FileExtract::prefix = "/data/bro/logs/extract_files/";
+redef FileExtract::default_limit = 1048576000;
 
-##########
-## ROCK ##
-##########
-# Adjust extract size:
-# vim /opt/bro/share/bro/policy/tuning/defaults/extracted_file_limits.bro
-# 4294967296 = 4 GB
-##########
+# Unified2
+@load scripts/rock/unified2

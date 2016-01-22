@@ -1,47 +1,52 @@
 #######################################################
 ##             Simple ROCK Build Recipe              ##
-##                Provided by BroEZ                  ##
-##         The EZ Network Security Monitor           ##
+##   Provided by MOCYBER, BroEZ, & Critical Stack    ##
 #######################################################
 
 log 'branding' do
   message '
-          Simple ROCK Automated Install Brought to You By:
-======================================================================
-                                 ,,     ]QQQyyy,;               
-          ,,gQQQQQQ  QQERH@Qy #QB^^BQQ  @QQ  ``^h  QQQQy,,      
-          @QQ ,,gQQ  @QygyQM  QQ    @Q  QQREBB       ,#QQR      
-           QQ#^` `QQ |Q[ `QQg `BQQQQM^  QQQyyyg,   yQQM`        
-           ]QQgQQQM^  ``                  . ``^T BQQQQy,,       
-            ^`   ,,y#QQQQSBEERFHHHHHHFBEEBSQQQQQyy,  .`^P       
-          ,gQQQMR^`    ,,,y   QQQQQQQQ~  y,,,    `^FBQQQy,      
-         ]Q   ,y#Qyyy, `BQQQQ, QQQQQQ^,QQQQB` ,,yyQyy,   Q[     
-         Q# ]QQQQQQQQQQQQyKQQQQ`QQQQUQQQQRyQQQQQQQQQQQQy @Q     
-        Q#   ``^BQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQMH^`   @Q    
-     ,QQR ,QQQQQQQyQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQgQQQQQQQy `QQy 
-    @Q  yQQQQQQQQQQQQQQBB^ ```^BQQQQ#R``  `BBQQQQQQQQQQQQQQy  QQ
-    ]Q    ,,yyQQQQQQQQy          @#          ,#QQQQQQQyy,,    QQ
-     Qy @QQQQQQQQQQQQQQQR7QQQ          @QQL]QQQQQQQQQQQQQQQQ ]Qh
-     QQ |QQQQQQQBEQQQQF   ROQ          QOR    YQQQQEBQQQQQQQh @Q 
-     |Qp QQQR`,QQQQQQ^y                      g`QQQQQQy`HQQQ  Qh 
-      @Q `^ yQQQQQQQQQ #                    y QQQQQQQQQy `h @Q  
-       QQ  QQQQQQQQ}QQQQy                  y]QQQQQQQQQQQQ  ]Q^  
-       ]Qp @QUQQQ# QQQQQQn;   |@QQQQ#L   g QQQQQQ @QQQRQ# .QL   
-        %Q  ^QQQQ @QQQQQQQ      `@#^      QQQQQQQQ QQQQ`  QB    
-         YQ  @QQh QQQ#QQQQ                {QQQ@QQQ  QQ#  QM     
-          \Qy BQ ]QQQ QQQQ      ,QQy      QQQQ QQQ[ @M ,QR      
-           1Qy ` @QQM QQQQQg ,#^    `@, ,QQQQQp]QQQ ` {QL       
-             QQ  @Q# @Q#QQQQQL        `QQQQQ@QQ @Q#  #Q         
-              YQy ` {QQ QQQQQ          QQQQQ QQQ ^ ;QR          
-                @Q, YQ`{QQBQQQQQQ,,#QQQQQ\QQQ QR ,Q#            
-                 `QQ,  QQQ QQQQQQQQQQQQQQ QQQ  ,QS^             
-                   `@Qy `B QQQQQQQQQQQQQQ 5^ ,Q#^               
-                     `BQy  `BQQQ@QQQQQQ#^  gQB                  
-                        `BQy, `^QQQQ`` ,gQM^                    
-                           `BQQy,  ,yQQB`                       
-                               `HBBR`               TM    
-======================================================================
-                  The EZ Network Security Monitor
+                                                Simple ROCK Automated Install Brought to You By:
+=======================================================================================================================================================
+                                                                                                                                                      
+                                                                                                                 ,,      ]QQQQ#yyy,                   
+                                    ,gppg,                                             ,,g#QQQQQ  @QQ#SRRQQ  yQQRRR@QQ,  @QQ``^^RRB   QQQQy,,         
+                              ,sSS888888888USSg                                      |QQQ^`  @Q#  |QQ  ,,QQh]QQ     @QQ  QQQQQQQh       ``@QQQR^      
+                         ,SSS88888888888888888888SSp,                                 @QQQQQSR@QQ, QQRRRQQ,  @QQ,,,yQQR  QQQ           ,QQQ#^         
+                   ,sSS88888888888888888888888888888888SSp,                            QQQ    ,QQR @QQ   #RR   ^RRRR^   4RS#QQQQQQ   #QQ#R            
+              ;SSS8888888888888888888888888888888888888888888SSo,                      @QQQQ##R^         ,,,,yyyyyyyyyy,,,,        `RRR#QQQQyy        
+        ,sSS888888888888888888888888&R^^RSN888888888888888888888889SSg                 ^`    ,yy#QQQQQS#RRRRRRR^^^^^^RRRRRRRS#QQQQQ#yy,    `Rh        
+   ,SSU88888888888888888888888&R^`           ^RR888888888888888888888888SSp          ,,yQQQQRRR^`     ,,,,  ·y########y   ,,,,     `^RBRQQQQy,        
+  S8888888888888888888889R^`                       `^RS88888888888888888888Ry        QQ^`   ,yy,,   `R@QQQQQ `QQQQQQQS  #QQQQ#R   ,,,yy,   `^QQ       
+ Q8888888888888888UR^`                                  ,|8888888888888888888y      jQ# ]QQQQQQQQQQQQQQ`@QQQQQ QQQQQQ @QQQQR,yQQQQQQQQQQQQQ  @Qp      
+ 88888888888UR^`                     ,-,,          ,SSS8888888888888888888888U      QQ  @QQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQQQyQQQQQQQQQQQQQQQQQ `QQ      
+ 88888888888                   ,sSSU888888USSpSSS8888888888888888888888888888U    yQ#  ,,,,, `R@QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#R^ ,,,,, `@QQ    
+ 88888888888              ;SSS88888888888888888888888888888888888888888888888U yQQ#^ ,QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQ#QQQQQQQQQQ  ?@QQy 
+ 88888888888             8888888888888888888888888888888888RR^   |88888888888U]QQ  ,QQQQQQQQQQQQQQQQQ#RR   ``^WQQQQQQR^`    RWSQQQQQQQQQQQQQQQQQ,  @Q 
+ 88888888888             N888888888888888888888888888&R^         |88888888888U QQ  ^   ,,Q@QQQQQQQQy,           KQQL           ,yQQQQQQQQQ,,,   `  QQ 
+ 88888888888             N88888888888888888888888888U            |88888888888U @Q  ,#QQQQQQQQQQQQQQQQQQBQyyy            yy##RQQQQQQQQQQQQQQQQQQQ  ]QQ 
+ 88888888888             N88888888888888888888888888h            |88888888888U |QQ ]QQQQQQQQQQQQQQQQQM  `RR^Y          F^RT  `@QQQQQQQQQQQQQQQQQh @Qh 
+ 88888888888             `*RS888888888888888888RR^               |88888888888U  QQ  QQQQQQ#R^Q#QQQQF                           `@QQQQyQ^R@QQQQQ#  QQ  
+ 88888888888                    `*RS88888RR^                     |88888888888U  @QQ ]QQR^ #QQQQQQQQ;R                          @Q@QQQQQQQy `WQQh @QR  
+ 88888888888S,                                               ,-SS888888888888U   QQ  R  #QQQQQQQQQQQ,#                        Q,@QQQQQQQQQQQ  R  QQ   
+ 888888888888888SSSg,                                  ,-SSS8888K888888888888U   ]QQ  ;QQQQQQQQQRQQQQh,Q                    @,@QQQQRQQQQQQQQQp  @Qh   
+ 88888888888shh9RRR8888SSp,                       -SSS8888RRhhhhh688888888888U    @QQ |QQ#@QQQQ @QQQQQQQ ,^  |QQ#yy#QQ   ^, @QQQQQQQ`QQQQQQQQh @QR    
+ 88888888888shhhhhhhh*9RR8888SSSg,          ;SSS888RRRhhhhhhhhhhh988888888888U     @QQ |R(QQQQ (QQQQQQQQ#      RQQQQR      @QQQQQQQQy`QQQQQ@R (QM     
+ 8888888888888#sjhhhhhhhhhh*9RRR8888SSSSSS888RRRhhhhhhhhhhhhjjs#U888888888888U      @Qy  QQQQh QQQQQQQQQ         ]R        |QQQQQQQQQ ]QQQQ  yQ#      
+ 88888888888888888U8#Njhhhhhhhhhhh9RRRRRRRhhhhhhhhhhhhjjs#U88888R888888888888U       @QQ ?QQ# ]QQQQNQQQQ         |Q        .QQQQRQQQQ  @QQh (Q#       
+ 88888888888shh9RRR88888U8#Njhhhhhhhhhhhhhhhhhhhjjs#888888RRUhhhh688888888888U        @QQ `Qh @QQQ#]QQQQQ      yQRRQy      @QQQQ @QQQQ ]Q  {QR        
+ 88888888888shhhhhhhh9RRR88888U##jhhhhhhhhhj8#888888RRRhhhhhhhhhh888888888888U         %QQ    QQQQ @QQQQQQ, ,#R     `BQ  ,QQQQQQQ QQQQ    @QR         
+ 88888888888U##jjhhhhhhhhhh99RR88888U###888888RRRhhhhhhhhhhhhj8#8888888888888U          ?QQ,  QQQh QQ#QQQQQQR          @QQQQQQ@QQ |QQQ  ,QQ^          
+ 88888888888888888U##jshhhhhhhhhh*9RRR88RRRhhhhhhhhhhhhj8#8888888888888888888R            @QQ  @R @QQhQQQQQQ           |QQQQQQ|QQQ %F  #QR            
+  &888888888888888888888U##jshhhhhhhhhhhhhhhhhhhhj8#888888888888888888888888R              7QQ,  @QQR]QQQMQQQ#Q      #QQQQ@QQQ 7QQM  ,Q#^             
+   ^R8888888888888888888888888U##jshhhhhhhhj8#8U8888888888888888888888888UR                  RQQ, 7^ QQQ#]QQQQQQQQ#QQQQQQQh@QQQ ?^ ,QQR               
+        ^R&88888888888888888888888888###8U8888888888888888888888888UR^`                        BQQ, `@QQh]QQQQQQQQQQQQQQQQh]QQM  ,QQR                 
+             `^RS88888888888888888888888888888888888888888888RRR^                                RQQQ  R  QQQQQQQQQQQQQQQQ ]R  yQQR                   
+                   ^R&R888888888888888888888888888888888RR^                                        ?@QQ   %QQQQSQQQQ@QQQQR  ,#Q#^                     
+                        `^RS8888888888888888888888UR^                                                 RQQy, `R@]QQQQM#R  ,#Q#R                        
+                              `Y&88888888888RR^`                                                        `RQQQg  `RR`  yQQ#R                           
+                                   `^RRRH^                                                                  ^BQQQyyQQ#R^                              
+                                                                                                                `RT`                                  
+=======================================================================================================================================================
 '
   level :warn
   action :nothing
@@ -188,10 +193,11 @@ ruby_block 'determine_monitor_interface' do
       #Chef::Log.info("******** Using #{iface} (VAR: #{node.run_state['monif']}) for monitoring. ********")
     end
   end
-  notifies :create, "template[/opt/bro/etc/node.cfg]", :delayed
   notifies :create, "template[ifcfg-monif]", :delayed
   notifies :create, "template[/sbin/ifup-local]", :delayed
   notifies :create, "template[/etc/stenographer/config]", :delayed
+  notifies :create, "template[/etc/sysconfig/snort]", :delayed
+  notifies :create, "template[/opt/bro/etc/node.cfg]", :delayed
 end
 
 #######################################################
@@ -357,7 +363,7 @@ end
 #######################################################
 ############### Install Core Packages #################
 #######################################################
-package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'elasticsearch', 'nginx-spnego', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat']
+package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'elasticsearch', 'nginx-spnego', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https']
 
 ######################################################
 ################## Configure PF_RING #################
@@ -478,7 +484,7 @@ template '/opt/bro/share/bro/site/local.bro' do
 end
 
 git '/opt/bro/share/bro/site/scripts/bro-file-extraction' do
-  repository 'https://github.com/hosom/bro-file-extraction.git'
+  repository 'https://github.com/CyberAnalyticDevTeam/bro-file-extraction.git'
   revision 'master'
   action :sync
 end
@@ -494,6 +500,17 @@ end
 
 template '/etc/profile.d/bro.sh' do
   source 'bro.sh.erb'
+end
+
+# Set capabilities for bro
+execute 'set capabilities on bro' do
+  command '/usr/sbin/setcap cap_net_raw,cap_net_admin=eip $(readlink -f /opt/bro/bin/bro)'
+  not_if '/usr/sbin/setcap -v -q cap_net_raw,cap_net_admin=eip $(readlink -f /opt/bro/bin/bro)'
+end
+
+execute 'set capabilities on capstats' do
+  command '/usr/sbin/setcap cap_net_raw,cap_net_admin=eip $(readlink -f /opt/bro/bin/capstats)'
+  not_if '/usr/sbin/setcap -v -q cap_net_raw,cap_net_admin=eip $(readlink -f /opt/bro/bin/capstats)'
 end
 
 ######################################################
@@ -741,6 +758,117 @@ end
 service 'nginx' do
   action [ :enable, :start ]
 end
+
+######################################################
+######################## SNORT #######################
+######################################################
+# Temaplate in the various snort config files
+template '/etc/sysconfig/snort' do
+  source 'snort.erb'
+  action :nothing
+  notifies :run, "bash[run_pulledpork]", :immediately 
+end
+
+template '/etc/snort/snort.conf' do
+  source 'snort.conf.erb'
+end
+
+template '/etc/snort/disablesid.conf' do
+  source 'disablesid.conf.erb'
+end
+
+template '/etc/snort/pulledpork.conf' do
+  source 'pulledpork.conf.erb'
+end
+
+# Set snort capabilities
+execute 'set capabilities on snort' do
+  command '/usr/sbin/setcap cap_net_raw,cap_net_admin=eip $(readlink -f /usr/sbin/snort)'
+  not_if '/usr/sbin/setcap -v -q cap_net_raw,cap_net_admin=eip $(readlink -f /usr/sbin/snort)'
+end
+
+# ROCK Bro Scripts  !!!TODO!!! This should probably be moved to the BRO section later. 
+git '/opt/bro/share/bro/site/scripts/rock' do
+  repository 'https://github.com/CyberAnalyticDevTeam/rock_bro_scripts.git'
+  revision 'master'
+  action :sync
+end
+
+# Install pulledpork  !!!TODO!!! pulledpork should probably be moved to /opt/pulledpork for consistency
+git '/usr/local/pulledpork' do
+  repository 'https://github.com/shirkdog/pulledpork.git'
+  revision 'master'
+  action :sync
+end
+
+execute 'chmod_pulledpork' do
+  command 'chmod 755 /usr/local/pulledpork/pulledpork.pl' 
+end
+
+#`ln -s /usr/local/pulledpork/pulledpork.pl /usr/local/bin/pulledpork.pl`
+link '/usr/local/bin/pulledpork.pl' do
+  to '/usr/local/pulledpork/pulledpork.pl'
+end
+
+#`mkdir /usr/lib/snort_dynamicrules/; chmod 755 /usr/lib/snort_dynamicrules/; chown root:root /usr/lib/snort_dynamicrules/`
+directory '/usr/lib/snort_dynamicrules' do
+  mode '0755'
+  owner 'root'
+  group 'root'
+  action :create
+end
+
+#`mkdir /etc/snort/rules/iplists`
+directory '/etc/snort/rules/iplists' do
+  mode '0755'
+  owner 'root'
+  group 'root'
+  action :create
+end
+
+#`touch /etc/snort/rules/local.rules`
+file '/etc/snort/rules/local.rules' do
+  action :create
+end
+
+#`touch /etc/snort/rules/{black,white}_list.rules`
+file '/etc/snort/rules/white_list.rules' do
+  action :create
+end
+
+file '/etc/snort/rules/black_list.rules' do
+  action :create
+end
+
+#`mkdir /data/snort; chown snort:snort /data/snort`
+directory '/data/snort' do
+  mode '0755'
+  owner 'snort'
+  group 'snort'
+  action :create
+end
+
+execute 'snort_chcon' do
+  command 'chcon -v --type=snort_log_t /data/snort/'
+end
+
+# Run pulledpork
+bash 'run_pulledpork' do
+  code <<-EOH
+  /usr/local/bin/pulledpork.pl -c /etc/snort/pulledpork.conf -l;
+  /usr/bin/systemctl restart snortd
+  EOH
+  action :nothing
+end
+
+# Add pulledpork cron
+cron 'pulledpork' do
+  hour '12'
+  minute '0'
+  command "/usr/local/bin/pulledpork.pl -c /etc/snort/pulledpork.conf -l > /var/log/snort/pulledpork.log 2>&1 && /usr/bin/systemctl restart snortd"
+end
+
+
 
 # To be continued
 

@@ -1,0 +1,30 @@
+rule_url=https://snort.org/downloads/community/|community-rules.tar.gz|Community
+rule_url=https://www.snort.org/reg-rules/|snortrules-snapshot.tar.gz|796f26a2188c4c953ced38ff3ec899d8ae543350
+rule_url=https://rules.emergingthreats.net/|emerging.rules.tar.gz|open-nogpl
+rule_url=http://talosintel.com/feeds/ip-filter.blf|IPBLACKLIST|open
+ignore=deleted.rules,experimental.rules,local.rules
+temp_path=/tmp
+rule_path=/etc/snort/rules/snort.rules
+sid_msg=/etc/snort/sid-msg.map
+sid_msg_version=1
+sid_changelog=/var/log/snort/sid_changes.log
+snort_path=/usr/sbin/snort
+config_path=/etc/snort/snort.conf
+sorule_path=/usr/lib/snort_dynamicrules/
+distro=''
+black_list=/etc/snort/rules/iplists/default.blacklist
+IPRVersion=/etc/snort/rules/iplists
+version=0.7.2
+
+# Here you can specify what rule modification files to run automatically.
+# simply uncomment and specify the apt path.
+# enablesid=/usr/local/etc/snort/enablesid.conf
+# dropsid=/usr/local/etc/snort/dropsid.conf
+disablesid=/etc/snort/disablesid.conf
+# modifysid=/usr/local/etc/snort/modifysid.conf
+
+# What is the base ruleset that you want to use, please uncomment to use
+# and see the README.RULESETS for a description of the options.  
+# Note that setting this value will disable all ET rulesets if you are 
+# Running such rulesets
+# ips_policy=security
