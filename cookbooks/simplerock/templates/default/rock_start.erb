@@ -25,6 +25,11 @@ systemctl start kibana
 sleep 5 
 systemctl status kibana | egrep "^\s*Active"
 
+echo "Starting Snort..."
+systemctl start snortd
+sleep 5
+systemctl status snortd | egrep "^\s*Active"
+
 echo "Starting Bro..."
 /opt/bro/bin/broctl install; /opt/bro/bin/broctl check && /opt/bro/bin/broctl start
 sleep 5
