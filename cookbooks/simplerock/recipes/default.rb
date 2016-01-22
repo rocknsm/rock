@@ -317,6 +317,25 @@ yum_repository 'bintray_cyberdev' do
 end
 
 #######################################################
+############### Install Elastic Repos #################
+#######################################################
+yum_repository 'logstash-2.1.x' do
+  description 'Logstash repository for 2.1.x packages'
+  baseurl 'http://packages.elastic.co/logstash/2.1/centos'
+  gpgcheck true
+  gpgkey 'http://packages.elastic.co/GPG-KEY-elasticsearch'
+  action :create
+end
+
+yum_repository 'elasticsearch-2.x' do
+  description 'Elasticsearch repository for 2.x packages'
+  baseurl 'http://packages.elastic.co/elasticsearch/2.x/centos'
+  gpgcheck true
+  gpgkey 'http://packages.elastic.co/GPG-KEY-elasticsearch'
+  action :create
+end
+
+#######################################################
 ################ Install NTOP Repos ###################
 #######################################################
 # Commented out 19JAN16 - version 6.2.0-425 was built against Myrinet and 
@@ -410,6 +429,17 @@ end
   end
 end
 
+# Convenience for the wandering analyst
+%w{logs spool}.each do |dir|
+  directory "/opt/bro/#{dir}" do
+    action :delete
+    recursive true
+  end
+  link "/opt/bro/#{dir}" do
+    to "/data/bro/#{dir}"
+  end
+end
+
 #Start bro
 execute 'start_bro' do
   command '/opt/bro/bin/broctl install; /opt/bro/bin/broctl check && /opt/bro/bin/broctl start'
@@ -417,22 +447,6 @@ execute 'start_bro' do
   notifies :write, "log[branding]", :delayed
 end
 
-#create /var/opt dirs
-directory '/var/opt/bro/spool' do
-  recursive true
-  owner 'root'
-  group 'root'
-  mode '0755'
-  action :create
-end
-
-directory '/var/opt/bro/logs' do
-  recursive true
-  owner 'root'
-  group 'root'
-  mode '0755'
-  action :create
-end
 
 # Add custom scripts dir and readme.
 directory '/opt/bro/share/bro/site/scripts' do
@@ -598,23 +612,6 @@ service 'elasticsearch' do
   action [ :enable, :start ]  
 end
 
-bash 'install_marvel' do
-  cwd '/usr/share/elasticsearch'
-  code <<-EOH
-    cd /usr/share/elasticsearch
-    bin/plugin install elasticsearch/marvel/latest
-    bin/plugin -u https://github.com/NLPchina/elasticsearch-sql/releases/download/1.4.8/elasticsearch-sql-1.4.8.zip --install sql
-    /bin/systemctl restart elasticsearch
-    /usr/bin/sleep 10
-    /usr/local/bin/es_cleanup.sh
-    EOH
-end
-
-#Offline Install
-#bin/plugin install file:///path/to/file/license-2.1.0.zip
-#bin/plugin install file:///path/to/file/marvel-agent-2.1.0.zip
-#bin/kibana plugin --install marvel --url file:///path/to/file/marvel-2.1.0.tar.gz
-
 ######################################################
 ################## Configure Logstash ################
 ######################################################
@@ -626,6 +623,10 @@ template '/etc/logstash/conf.d/kafka-bro.conf' do
   source 'kafka-bro.conf.erb'
 end
 
+execute 'update_kafka_input_plugin' do
+  command 'cd /opt/logstash; sudo bin/plugin install --version 2.0.3 logstash-input-kafka'
+end
+
 service 'logstash' do
   action [ :enable, :start ]
 end
@@ -634,15 +635,18 @@ end
 ################## Configure Kibana ##################
 ######################################################
 remote_file "#{Chef::Config[:file_cache_path]}/kibana.tar.gz" do
-  source 'https://download.elastic.co/kibana/kibana/kibana-4.1.2-linux-x64.tar.gz'
+  source 'https://download.elastic.co/kibana/kibana/kibana-4.3.1-linux-x64.tar.gz'
+  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.3.1'
 end
 
 execute 'untar_kibana' do
   command "tar xzf #{Chef::Config[:file_cache_path]}/kibana.tar.gz -C /opt/"
+  not_if 'ls /opt/kibana'
 end
 
 execute 'rename_kibana_dir' do
-  command 'mv /opt/{kibana-4.1.2-linux-x64,kibana}'
+  command 'mv /opt/{kibana-4.3.1-linux-x64,kibana}'
+  not_if 'ls /opt/kibana'
 end
 
 user 'kibana' do
@@ -656,7 +660,7 @@ end
 
 execute 'chown_kibana' do
   command 'chown -R kibana:kibana /opt/kibana'
-  action :nothing
+  not_if 'ls -ld /opt/kibana/optimize | grep -q "kibana kibana"'
 end
 
 template '/etc/systemd/system/kibana.service' do
@@ -667,6 +671,35 @@ end
 service 'kibana' do
   action [ :enable, :start ]
 end
+
+
+######################################################
+################## Configure Marvel ##################
+######################################################
+bash 'install_marvel_and_sql' do
+  cwd '/usr/share/elasticsearch'
+  code <<-EOH
+    # Install ES components
+    cd /usr/share/elasticsearch
+    bin/plugin install license
+    bin/plugin install marvel-agent
+    bin/plugin install https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip 
+    systemctl daemon-reload
+    /bin/systemctl restart elasticsearch
+    /usr/bin/sleep 10
+    /usr/local/bin/es_cleanup.sh
+    # Install kibana component
+    cd /opt/kibana
+    bin/kibana plugin --install elasticsearch/marvel/latest
+    /bin/systemctl restart kibana
+    /usr/bin/sleep 5
+    EOH
+end
+
+#Offline Install
+#bin/plugin install file:///path/to/file/license-2.1.0.zip
+#bin/plugin install file:///path/to/file/marvel-agent-2.1.0.zip
+#bin/kibana plugin --install marvel --url file:///path/to/file/marvel-2.1.0.tar.gz
 
 ######################################################
 #################### Configure Cron ##################

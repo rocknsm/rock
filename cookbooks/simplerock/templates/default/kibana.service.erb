@@ -6,7 +6,7 @@ Type=simple
 User=kibana
 Environment=CONFIG_PATH=/opt/kibana/config/kibana.yml
 Environment=NODE_ENV=production
-ExecStart=/opt/kibana/node/bin/node /opt/kibana/src/bin/kibana.js
+ExecStart=/opt/kibana/node/bin/node /opt/kibana/src/cli
 
 [Install]
 WantedBy=multi-user.target
