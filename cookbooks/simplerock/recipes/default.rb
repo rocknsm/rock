@@ -668,6 +668,21 @@ template '/etc/systemd/system/kibana.service' do
   notifies :run, "execute[reload_systemd]", :immediately
 end
 
+bash 'set_kibana_replicas' do
+  code <<-EOH
+  curl -XPUT localhost:9200/_template/kibana-config -d ' {
+   "order" : 0,
+   "template" : ".kibana",
+   "settings" : {
+     "index.number_of_replicas" : "0",
+     "index.number_of_shards" : "1"
+   },
+   "mappings" : { },
+   "aliases" : { }
+  }'
+ EOH
+end
+
 service 'kibana' do
   action [ :enable, :start ]
 end
