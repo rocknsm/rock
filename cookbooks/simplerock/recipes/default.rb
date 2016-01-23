@@ -497,6 +497,13 @@ template '/opt/bro/share/bro/site/local.bro' do
   mode '0644'
 end
 
+# ROCK Bro Scripts
+git '/opt/bro/share/bro/site/scripts/rock' do
+  repository 'https://github.com/mocyber/rock-scripts.git'
+  revision 'master'
+  action :sync
+end
+
 git '/opt/bro/share/bro/site/scripts/bro-file-extraction' do
   repository 'https://github.com/CyberAnalyticDevTeam/bro-file-extraction.git'
   revision 'master'
@@ -504,7 +511,8 @@ git '/opt/bro/share/bro/site/scripts/bro-file-extraction' do
 end
 
 # Configure JSON logging
-### This file will be dropped on the system, but not loaded.  This is for the "old way" where logstash picked up the files from disk.
+### This file will be dropped on the system, but not loaded.  
+# This is for the "old way" where logstash picked up the files from disk.
 template '/opt/bro/share/bro/site/scripts/json-logs.bro' do
   source 'json-logs.bro.erb'
   owner 'root'
@@ -836,12 +844,6 @@ execute 'set capabilities on snort' do
   not_if '/usr/sbin/setcap -v -q cap_net_raw,cap_net_admin=eip $(readlink -f /usr/sbin/snort)'
 end
 
-# ROCK Bro Scripts  !!!TODO!!! This should probably be moved to the BRO section later. 
-git '/opt/bro/share/bro/site/scripts/rock' do
-  repository 'https://github.com/CyberAnalyticDevTeam/rock_bro_scripts.git'
-  revision 'master'
-  action :sync
-end
 
 # Install pulledpork  !!!TODO!!! pulledpork should probably be moved to /opt/pulledpork for consistency
 git '/usr/local/pulledpork' do
