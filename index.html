@@ -38,6 +38,9 @@
 
 <p>This build was created and tested using CentOS 7.2. I pretty much guarantee that it won't work with anything else other than RHEL 7.  Unless you have an operational need, I would suggest basing your system off of CentOS 7.2 (build 1511), as that is where the bulk of the testing of this has happened.</p>
 
+<p><strong>NOTE:</strong> This system is iterating rapidly right now and we test it as best we can.  If the build fails, please reach out to us with an issue.  In the near future, we'll add a document to the GitHub wiki with common fail scenarios and fixes.  But for right now, it's changing almost daily.  If you ask for help, we'll get back to you as soon as we can.
+</p>
+
 <p><strong>BE ADVISED:</strong>  This build process takes 3-10 minutes depending on your underlying hardware.  There will be times where it seems like it quit.  Be patient.  You'll know when it's done, for better or worse.</p>
 
 <h3>
@@ -225,11 +228,11 @@ sudo netstat -planet | grep node
 
 <p>IPADDRESS = The management interface of the box, or "localhost" if you did the vagrant build.</p>
 
-<p>http://IPADDRESS:5601 - Kibana</p>
+<p>http://IPADDRESS - Kibana & Marvel</p>
 
-<p>http://IPADDRESS:9200/_plugin/marvel - Marvel (To watch the health of elasticsearch.)</p>
+<p>http://IPADDRESS/_plugin/hq - Elastic HQ(To watch the health of elasticsearch.)</p>
 
-<p>http://IPADDRESS:9200/_plugin/sql - Query your ES data with SQL.</p>
+<p>http://IPADDRESS/_plugin/sql - Query your ES data with SQL.</p>
 
 <h2>
 <a id="full-packet-capture" class="anchor" href="#full-packet-capture" aria-hidden="true"><span class="octicon octicon-link"></span></a>Full Packet Capture</h2>
