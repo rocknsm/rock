@@ -7,45 +7,45 @@ log 'branding' do
   message '
                                                 Simple ROCK Automated Install Brought to You By:
 =======================================================================================================================================================
-                                                                                                                                                      
-                                                                                                                 ,,      ]QQQQ#yyy,                   
-                                    ,gppg,                                             ,,g#QQQQQ  @QQ#SRRQQ  yQQRRR@QQ,  @QQ``^^RRB   QQQQy,,         
-                              ,sSS888888888USSg                                      |QQQ^`  @Q#  |QQ  ,,QQh]QQ     @QQ  QQQQQQQh       ``@QQQR^      
-                         ,SSS88888888888888888888SSp,                                 @QQQQQSR@QQ, QQRRRQQ,  @QQ,,,yQQR  QQQ           ,QQQ#^         
-                   ,sSS88888888888888888888888888888888SSp,                            QQQ    ,QQR @QQ   #RR   ^RRRR^   4RS#QQQQQQ   #QQ#R            
-              ;SSS8888888888888888888888888888888888888888888SSo,                      @QQQQ##R^         ,,,,yyyyyyyyyy,,,,        `RRR#QQQQyy        
-        ,sSS888888888888888888888888&R^^RSN888888888888888888888889SSg                 ^`    ,yy#QQQQQS#RRRRRRR^^^^^^RRRRRRRS#QQQQQ#yy,    `Rh        
-   ,SSU88888888888888888888888&R^`           ^RR888888888888888888888888SSp          ,,yQQQQRRR^`     ,,,,  ·y########y   ,,,,     `^RBRQQQQy,        
-  S8888888888888888888889R^`                       `^RS88888888888888888888Ry        QQ^`   ,yy,,   `R@QQQQQ `QQQQQQQS  #QQQQ#R   ,,,yy,   `^QQ       
- Q8888888888888888UR^`                                  ,|8888888888888888888y      jQ# ]QQQQQQQQQQQQQQ`@QQQQQ QQQQQQ @QQQQR,yQQQQQQQQQQQQQ  @Qp      
- 88888888888UR^`                     ,-,,          ,SSS8888888888888888888888U      QQ  @QQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQQQyQQQQQQQQQQQQQQQQQ `QQ      
- 88888888888                   ,sSSU888888USSpSSS8888888888888888888888888888U    yQ#  ,,,,, `R@QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#R^ ,,,,, `@QQ    
- 88888888888              ;SSS88888888888888888888888888888888888888888888888U yQQ#^ ,QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQ#QQQQQQQQQQ  ?@QQy 
- 88888888888             8888888888888888888888888888888888RR^   |88888888888U]QQ  ,QQQQQQQQQQQQQQQQQ#RR   ``^WQQQQQQR^`    RWSQQQQQQQQQQQQQQQQQ,  @Q 
- 88888888888             N888888888888888888888888888&R^         |88888888888U QQ  ^   ,,Q@QQQQQQQQy,           KQQL           ,yQQQQQQQQQ,,,   `  QQ 
- 88888888888             N88888888888888888888888888U            |88888888888U @Q  ,#QQQQQQQQQQQQQQQQQQBQyyy            yy##RQQQQQQQQQQQQQQQQQQQ  ]QQ 
- 88888888888             N88888888888888888888888888h            |88888888888U |QQ ]QQQQQQQQQQQQQQQQQM  `RR^Y          F^RT  `@QQQQQQQQQQQQQQQQQh @Qh 
- 88888888888             `*RS888888888888888888RR^               |88888888888U  QQ  QQQQQQ#R^Q#QQQQF                           `@QQQQyQ^R@QQQQQ#  QQ  
- 88888888888                    `*RS88888RR^                     |88888888888U  @QQ ]QQR^ #QQQQQQQQ;R                          @Q@QQQQQQQy `WQQh @QR  
- 88888888888S,                                               ,-SS888888888888U   QQ  R  #QQQQQQQQQQQ,#                        Q,@QQQQQQQQQQQ  R  QQ   
- 888888888888888SSSg,                                  ,-SSS8888K888888888888U   ]QQ  ;QQQQQQQQQRQQQQh,Q                    @,@QQQQRQQQQQQQQQp  @Qh   
- 88888888888shh9RRR8888SSp,                       -SSS8888RRhhhhh688888888888U    @QQ |QQ#@QQQQ @QQQQQQQ ,^  |QQ#yy#QQ   ^, @QQQQQQQ`QQQQQQQQh @QR    
- 88888888888shhhhhhhh*9RR8888SSSg,          ;SSS888RRRhhhhhhhhhhh988888888888U     @QQ |R(QQQQ (QQQQQQQQ#      RQQQQR      @QQQQQQQQy`QQQQQ@R (QM     
- 8888888888888#sjhhhhhhhhhh*9RRR8888SSSSSS888RRRhhhhhhhhhhhhjjs#U888888888888U      @Qy  QQQQh QQQQQQQQQ         ]R        |QQQQQQQQQ ]QQQQ  yQ#      
- 88888888888888888U8#Njhhhhhhhhhhh9RRRRRRRhhhhhhhhhhhhjjs#U88888R888888888888U       @QQ ?QQ# ]QQQQNQQQQ         |Q        .QQQQRQQQQ  @QQh (Q#       
- 88888888888shh9RRR88888U8#Njhhhhhhhhhhhhhhhhhhhjjs#888888RRUhhhh688888888888U        @QQ `Qh @QQQ#]QQQQQ      yQRRQy      @QQQQ @QQQQ ]Q  {QR        
- 88888888888shhhhhhhh9RRR88888U##jhhhhhhhhhj8#888888RRRhhhhhhhhhh888888888888U         %QQ    QQQQ @QQQQQQ, ,#R     `BQ  ,QQQQQQQ QQQQ    @QR         
- 88888888888U##jjhhhhhhhhhh99RR88888U###888888RRRhhhhhhhhhhhhj8#8888888888888U          ?QQ,  QQQh QQ#QQQQQQR          @QQQQQQ@QQ |QQQ  ,QQ^          
- 88888888888888888U##jshhhhhhhhhh*9RRR88RRRhhhhhhhhhhhhj8#8888888888888888888R            @QQ  @R @QQhQQQQQQ           |QQQQQQ|QQQ %F  #QR            
-  &888888888888888888888U##jshhhhhhhhhhhhhhhhhhhhj8#888888888888888888888888R              7QQ,  @QQR]QQQMQQQ#Q      #QQQQ@QQQ 7QQM  ,Q#^             
-   ^R8888888888888888888888888U##jshhhhhhhhj8#8U8888888888888888888888888UR                  RQQ, 7^ QQQ#]QQQQQQQQ#QQQQQQQh@QQQ ?^ ,QQR               
-        ^R&88888888888888888888888888###8U8888888888888888888888888UR^`                        BQQ, `@QQh]QQQQQQQQQQQQQQQQh]QQM  ,QQR                 
-             `^RS88888888888888888888888888888888888888888888RRR^                                RQQQ  R  QQQQQQQQQQQQQQQQ ]R  yQQR                   
-                   ^R&R888888888888888888888888888888888RR^                                        ?@QQ   %QQQQSQQQQ@QQQQR  ,#Q#^                     
-                        `^RS8888888888888888888888UR^                                                 RQQy, `R@]QQQQM#R  ,#Q#R                        
-                              `Y&88888888888RR^`                                                        `RQQQg  `RR`  yQQ#R                           
-                                   `^RRRH^                                                                  ^BQQQyyQQ#R^                              
-                                                                                                                `RT`                                  
+
+                                                                                                                 ,,      ]QQQQ#yyy,
+                                    ,gppg,                                             ,,g#QQQQQ  @QQ#SRRQQ  yQQRRR@QQ,  @QQ``^^RRB   QQQQy,,
+                              ,sSS888888888USSg                                      |QQQ^`  @Q#  |QQ  ,,QQh]QQ     @QQ  QQQQQQQh       ``@QQQR^
+                         ,SSS88888888888888888888SSp,                                 @QQQQQSR@QQ, QQRRRQQ,  @QQ,,,yQQR  QQQ           ,QQQ#^
+                   ,sSS88888888888888888888888888888888SSp,                            QQQ    ,QQR @QQ   #RR   ^RRRR^   4RS#QQQQQQ   #QQ#R
+              ;SSS8888888888888888888888888888888888888888888SSo,                      @QQQQ##R^         ,,,,yyyyyyyyyy,,,,        `RRR#QQQQyy
+        ,sSS888888888888888888888888&R^^RSN888888888888888888888889SSg                 ^`    ,yy#QQQQQS#RRRRRRR^^^^^^RRRRRRRS#QQQQQ#yy,    `Rh
+   ,SSU88888888888888888888888&R^`           ^RR888888888888888888888888SSp          ,,yQQQQRRR^`     ,,,,  ·y########y   ,,,,     `^RBRQQQQy,
+  S8888888888888888888889R^`                       `^RS88888888888888888888Ry        QQ^`   ,yy,,   `R@QQQQQ `QQQQQQQS  #QQQQ#R   ,,,yy,   `^QQ
+ Q8888888888888888UR^`                                  ,|8888888888888888888y      jQ# ]QQQQQQQQQQQQQQ`@QQQQQ QQQQQQ @QQQQR,yQQQQQQQQQQQQQ  @Qp
+ 88888888888UR^`                     ,-,,          ,SSS8888888888888888888888U      QQ  @QQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQQQyQQQQQQQQQQQQQQQQQ `QQ
+ 88888888888                   ,sSSU888888USSpSSS8888888888888888888888888888U    yQ#  ,,,,, `R@QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#R^ ,,,,, `@QQ
+ 88888888888              ;SSS88888888888888888888888888888888888888888888888U yQQ#^ ,QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQ#QQQQQQQQQQ  ?@QQy
+ 88888888888             8888888888888888888888888888888888RR^   |88888888888U]QQ  ,QQQQQQQQQQQQQQQQQ#RR   ``^WQQQQQQR^`    RWSQQQQQQQQQQQQQQQQQ,  @Q
+ 88888888888             N888888888888888888888888888&R^         |88888888888U QQ  ^   ,,Q@QQQQQQQQy,           KQQL           ,yQQQQQQQQQ,,,   `  QQ
+ 88888888888             N88888888888888888888888888U            |88888888888U @Q  ,#QQQQQQQQQQQQQQQQQQBQyyy            yy##RQQQQQQQQQQQQQQQQQQQ  ]QQ
+ 88888888888             N88888888888888888888888888h            |88888888888U |QQ ]QQQQQQQQQQQQQQQQQM  `RR^Y          F^RT  `@QQQQQQQQQQQQQQQQQh @Qh
+ 88888888888             `*RS888888888888888888RR^               |88888888888U  QQ  QQQQQQ#R^Q#QQQQF                           `@QQQQyQ^R@QQQQQ#  QQ
+ 88888888888                    `*RS88888RR^                     |88888888888U  @QQ ]QQR^ #QQQQQQQQ;R                          @Q@QQQQQQQy `WQQh @QR
+ 88888888888S,                                               ,-SS888888888888U   QQ  R  #QQQQQQQQQQQ,#                        Q,@QQQQQQQQQQQ  R  QQ
+ 888888888888888SSSg,                                  ,-SSS8888K888888888888U   ]QQ  ;QQQQQQQQQRQQQQh,Q                    @,@QQQQRQQQQQQQQQp  @Qh
+ 88888888888shh9RRR8888SSp,                       -SSS8888RRhhhhh688888888888U    @QQ |QQ#@QQQQ @QQQQQQQ ,^  |QQ#yy#QQ   ^, @QQQQQQQ`QQQQQQQQh @QR
+ 88888888888shhhhhhhh*9RR8888SSSg,          ;SSS888RRRhhhhhhhhhhh988888888888U     @QQ |R(QQQQ (QQQQQQQQ#      RQQQQR      @QQQQQQQQy`QQQQQ@R (QM
+ 8888888888888#sjhhhhhhhhhh*9RRR8888SSSSSS888RRRhhhhhhhhhhhhjjs#U888888888888U      @Qy  QQQQh QQQQQQQQQ         ]R        |QQQQQQQQQ ]QQQQ  yQ#
+ 88888888888888888U8#Njhhhhhhhhhhh9RRRRRRRhhhhhhhhhhhhjjs#U88888R888888888888U       @QQ ?QQ# ]QQQQNQQQQ         |Q        .QQQQRQQQQ  @QQh (Q#
+ 88888888888shh9RRR88888U8#Njhhhhhhhhhhhhhhhhhhhjjs#888888RRUhhhh688888888888U        @QQ `Qh @QQQ#]QQQQQ      yQRRQy      @QQQQ @QQQQ ]Q  {QR
+ 88888888888shhhhhhhh9RRR88888U##jhhhhhhhhhj8#888888RRRhhhhhhhhhh888888888888U         %QQ    QQQQ @QQQQQQ, ,#R     `BQ  ,QQQQQQQ QQQQ    @QR
+ 88888888888U##jjhhhhhhhhhh99RR88888U###888888RRRhhhhhhhhhhhhj8#8888888888888U          ?QQ,  QQQh QQ#QQQQQQR          @QQQQQQ@QQ |QQQ  ,QQ^
+ 88888888888888888U##jshhhhhhhhhh*9RRR88RRRhhhhhhhhhhhhj8#8888888888888888888R            @QQ  @R @QQhQQQQQQ           |QQQQQQ|QQQ %F  #QR
+  &888888888888888888888U##jshhhhhhhhhhhhhhhhhhhhj8#888888888888888888888888R              7QQ,  @QQR]QQQMQQQ#Q      #QQQQ@QQQ 7QQM  ,Q#^
+   ^R8888888888888888888888888U##jshhhhhhhhj8#8U8888888888888888888888888UR                  RQQ, 7^ QQQ#]QQQQQQQQ#QQQQQQQh@QQQ ?^ ,QQR
+        ^R&88888888888888888888888888###8U8888888888888888888888888UR^`                        BQQ, `@QQh]QQQQQQQQQQQQQQQQh]QQM  ,QQR
+             `^RS88888888888888888888888888888888888888888888RRR^                                RQQQ  R  QQQQQQQQQQQQQQQQ ]R  yQQR
+                   ^R&R888888888888888888888888888888888RR^                                        ?@QQ   %QQQQSQQQQ@QQQQR  ,#Q#^
+                        `^RS8888888888888888888888UR^                                                 RQQy, `R@]QQQQM#R  ,#Q#R
+                              `Y&88888888888RR^`                                                        `RQQQg  `RR`  yQQ#R
+                                   `^RRRH^                                                                  ^BQQQyyQQ#R^
+                                                                                                                `RT`
 =======================================================================================================================================================
 '
   level :warn
@@ -132,29 +132,29 @@ end
 
 execute 'set_time_zone' do
   command '/usr/bin/timedatectl set-timezone UTC'
+  not_if '/usr/bin/timedatectl | grep -q "Time zone.*UTC"'
 end
 
 execute 'enable_ntp' do
   command '/usr/bin/timedatectl set-ntp yes'
+  not_if '/usr/bin/timedatectl | grep -q "NTP enabled.*yes"'
 end
 
 ######################################################
 ############### Install Kernel Headers ###############
 ######################################################
 ## Necessary to make this pig run on RHEL:
-execute 'enable_rhel_optional' do
-  command 'subscription-manager repos --enable rhel-7-server-optional-rpms'
-  only_if 'grep RHEL /etc/redhat-release'
-end
-
-execute 'enable_rhel_extras' do
-  command 'subscription-manager repos --enable rhel-7-server-extras-rpms'
-  only_if 'grep RHEL /etc/redhat-release'
+['rhel-7-server-optional-rpms', 'rhel-7-server-extras-rpms'].each do |repo|
+  execute "enable_#{repo}" do
+    command "subscription-manager repos --enable #{repo}"
+    only_if { platform?('rhel') }
+    not_if "subscription-manager repos --list-enabled | grep -q #{repo}"
+  end
 end
 
 execute 'enable_centos_cr' do
   command 'sed -i "s/enabled=0/enabled=1/g" /etc/yum.repos.d/CentOS-CR.repo'
-  only_if 'grep CentOS /etc/redhat-release'
+  only_if { platform?('centos') }
 end
 
 fullver = node['kernel']['release']
@@ -187,7 +187,7 @@ ruby_block 'determine_monitor_interface' do
       next if iface == 'lo'
       next if iface == node['network']['default_interface']
       #next unless vals[:addresses].length == 1
-      node.run_state['monif'] = iface  
+      node.run_state['monif'] = iface
       ## DEBUG
       Chef::Log.debug("Using interface #{iface} for monitoring. \nDEBUG: Addr length of #{vals[:addresses].length}\n#{vals[:addresses]}")
       #Chef::Log.info("******** Using #{iface} (VAR: #{node.run_state['monif']}) for monitoring. ********")
@@ -232,7 +232,7 @@ if File.readlines("/proc/sys/net/ipv6/conf/all/disable_ipv6").grep(/0/).size > 0
   execute 'ipv6_fix_sshd_restart' do
     command 'systemctl restart sshd'
   end
-  
+
   execute 'ipv6_remove_localhost' do
     command 'sed -i "/^::1/d" /etc/hosts'
   end
@@ -260,7 +260,7 @@ execute 'ifcfg_hacks' do
   action :nothing
 end
 
-#Tune the capture interface, enable promiscuous mode at boot. 
+#Tune the capture interface, enable promiscuous mode at boot.
 template "/sbin/ifup-local" do
  source 'ifup-local.erb'
  owner 'root'
@@ -338,7 +338,7 @@ end
 #######################################################
 ################ Install NTOP Repos ###################
 #######################################################
-# Commented out 19JAN16 - version 6.2.0-425 was built against Myrinet and 
+# Commented out 19JAN16 - version 6.2.0-425 was built against Myrinet and
 # was causing SimpleRock install to fail.  Moved 6.2.0-411 to bintray, pending investigation.
 
 #yum_repository 'ntop' do
@@ -511,7 +511,7 @@ git '/opt/bro/share/bro/site/scripts/bro-file-extraction' do
 end
 
 # Configure JSON logging
-### This file will be dropped on the system, but not loaded.  
+### This file will be dropped on the system, but not loaded.
 # This is for the "old way" where logstash picked up the files from disk.
 template '/opt/bro/share/bro/site/scripts/json-logs.bro' do
   source 'json-logs.bro.erb'
@@ -548,7 +548,7 @@ end
 ######################################################
 #Enable and start zookeeper
 service 'zookeeper' do
-  action [ :enable, :start ]  
+  action [ :enable, :start ]
 end
 
 ######################################################
@@ -617,7 +617,7 @@ execute 'set_es_memlock' do
 end
 
 service 'elasticsearch' do
-  action [ :enable, :start ]  
+  action [ :enable, :start ]
 end
 
 ######################################################
@@ -706,7 +706,7 @@ bash 'install_marvel_and_sql' do
     cd /usr/share/elasticsearch
     bin/plugin install license
     bin/plugin install marvel-agent
-    bin/plugin install https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip 
+    bin/plugin install https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip
     bin/plugin install royrusso/elasticsearch-HQ
     systemctl daemon-reload
     /bin/systemctl restart elasticsearch
@@ -823,7 +823,7 @@ end
 template '/etc/sysconfig/snort' do
   source 'snort.erb'
   action :nothing
-  notifies :run, "bash[run_pulledpork]", :immediately 
+  notifies :run, "bash[run_pulledpork]", :immediately
 end
 
 template '/etc/snort/snort.conf' do
@@ -844,6 +844,12 @@ execute 'set capabilities on snort' do
   not_if '/usr/sbin/setcap -v -q cap_net_raw,cap_net_admin=eip $(readlink -f /usr/sbin/snort)'
 end
 
+# ROCK Bro Scripts  !!!TODO!!! This should probably be moved to the BRO section later.
+git '/opt/bro/share/bro/site/scripts/rock' do
+  repository 'https://github.com/CyberAnalyticDevTeam/rock_bro_scripts.git'
+  revision 'master'
+  action :sync
+end
 
 # Install pulledpork  !!!TODO!!! pulledpork should probably be moved to /opt/pulledpork for consistency
 git '/usr/local/pulledpork' do
@@ -853,7 +859,7 @@ git '/usr/local/pulledpork' do
 end
 
 execute 'chmod_pulledpork' do
-  command 'chmod 755 /usr/local/pulledpork/pulledpork.pl' 
+  command 'chmod 755 /usr/local/pulledpork/pulledpork.pl'
 end
 
 #`ln -s /usr/local/pulledpork/pulledpork.pl /usr/local/bin/pulledpork.pl`
@@ -919,9 +925,4 @@ cron 'pulledpork' do
   command "/usr/local/bin/pulledpork.pl -c /etc/snort/pulledpork.conf -l > /var/log/snort/pulledpork.log 2>&1 && /usr/bin/systemctl restart snortd"
 end
 
-
-
 # To be continued
-
-
-
