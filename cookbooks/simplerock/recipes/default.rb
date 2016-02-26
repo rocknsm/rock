@@ -699,25 +699,80 @@ end
 ######################################################
 ################## Configure Marvel ##################
 ######################################################
-bash 'install_marvel_and_sql' do
-  cwd '/usr/share/elasticsearch'
-  code <<-EOH
-    # Install ES components
-    cd /usr/share/elasticsearch
-    bin/plugin install license
-    bin/plugin install marvel-agent
-    bin/plugin install https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip
-    bin/plugin install royrusso/elasticsearch-HQ
-    systemctl daemon-reload
-    /bin/systemctl restart elasticsearch
-    /usr/bin/sleep 10
-    /usr/local/bin/es_cleanup.sh
-    # Install kibana component
-    cd /opt/kibana
-    bin/kibana plugin --install elasticsearch/marvel/latest
-    /bin/systemctl restart kibana
-    /usr/bin/sleep 5
+require 'uri'
+
+license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.2.0/license-2.2.0.zip'
+license_plugin_hash = 'c458b835441223ec41ae85915fbb6b325fb004b98e35c5d49660b29f2f0d7b22'
+marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.2.0/marvel-agent-2.2.0.zip'
+marvel_agent_hash = '57a097d6bd013782887ee551036765b88219d4bcd5e8544c79cc6b14599eb05e'
+# TODO: SQL plugin needs updating to 2.2.0
+esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip'
+esSQL_plugin_hash = 'c3e96bcb42309b6658a0b053bd29540899f566691f4518ef2a00df5336dcf296'
+esHQ_plugin_url = 'https://codeload.github.com/royrusso/elasticsearch-HQ/legacy.zip/v2.0.3'
+esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf8572'
+
+[
+  { :name => 'license', :url => license_plugin_url, :hash => license_plugin_hash },
+  { :name => 'marvel-agent', :url => marvel_agent_url, :hash => marvel_agent_hash },
+  #{ :name => 'sql', :url => esSQL_plugin_url, :hash => esSQL_plugin_hash },
+  { :name => 'hq', :url => esHQ_plugin_url, :hash => esHQ_plugin_hash }
+].each do |item|
+  filename = File.basename(URI.parse(item[:url]).path)
+  remote_file filename do
+    source item[:url]
+    checksum item[:hash]
+    path File.join(Chef::Config['file_cache_path'], filename)
+  end
+
+  bash "install_#{filename}" do
+    cwd '/usr/share/elasticsearch'
+    code <<-EOH
+      ./bin/plugin install file://#{File.join(Chef::Config['file_cache_path'], filename)}
     EOH
+    not_if "/usr/share/elasticsearch/bin/plugin list | grep -q #{item[:name]}"
+  end
+end
+
+bash 'es_postplugin_cleanup' do
+  code <<-EOH
+  /bin/systemctl daemon-reload
+  /bin/systemctl restart elasticsearch
+  /usr/bin/sleep 10
+  /usr/local/bin/es_cleanup.sh
+  EOH
+end
+
+## Kibana plugins
+marvel_plugin_url = 'https://download.elasticsearch.org/elasticsearch/marvel/marvel-2.2.0.tar.gz'
+marvel_plugin_hash = 'cbee0a8e8ac605476277e2c2cf3bc1f2fe5142907d01190ef1290e368a59f004'
+
+[
+  { :url => marvel_plugin_url, :hash => marvel_plugin_hash }
+].each do |item|
+  filename = File.basename(URI.parse(item[:url]).path)
+  remote_file filename do
+    source item[:url]
+    checksum item[:hash]
+    path File.join(Chef::Config['file_cache_path'], filename)
+  end
+
+  bash "install_#{filename}" do
+    cwd '/opt/kibana'
+    code <<-EOH
+      bin/kibana plugin --install #{item[:name]} \
+      --url file://#{File.join(Chef::Config['file_cache_path'], filename)}
+    EOH
+    not_if { File.exist?("/opt/kibana/installedPlugins/#{item[:name]}")}
+  end
+end
+
+
+bash 'kibana_postplugin_cleanup' do
+  code <<-EOH
+  /bin/systemctl daemon-reload
+  /bin/systemctl restart kibana
+  /usr/bin/sleep 5
+  EOH
 end
 
 #Offline Install
