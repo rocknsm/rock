@@ -94,16 +94,5 @@
 #@load scripts/json-logs
 ##########
 
-# TODO: Move these parts to the ROCK-script repo
-# Bro Kafka Output
-@load Kafka/KafkaWriter/logs-to-kafka
-redef KafkaLogger::topic_name = "bro_raw";
-redef KafkaLogger::sensor_name = "<%= node['hostname'] %>";
-
-# File Extraction
-@load scripts/bro-file-extraction
-redef FileExtract::prefix = "/data/bro/logs/extract_files/";
-redef FileExtract::default_limit = 1048576000;
-
 # ROCK Customization Scripts
 @load scripts/rock

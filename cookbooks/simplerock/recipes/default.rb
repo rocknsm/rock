@@ -274,7 +274,7 @@ end
 #######################################################
 # This is only necessary because my local DNS isn't trustworthy.
 execute 'add_google_dns' do
-  command 'echo "nameserver 8.8.8.8" >> /etc/resolv.conf; echo "nameserver 8.8.4.4" >> /etc/resolv.conf'
+  command 'echo "nameserver 8.8.8.8" > /etc/resolv.conf; echo "nameserver 8.8.4.4" >> /etc/resolv.conf'
   not_if 'grep 8.8.8.8 /etc/resolv.conf'
 end
 
@@ -321,7 +321,7 @@ end
 #######################################################
 yum_repository 'logstash-2.1.x' do
   description 'Logstash repository for 2.1.x packages'
-  baseurl 'http://packages.elastic.co/logstash/2.1/centos'
+  baseurl 'http://packages.elastic.co/logstash/2.2/centos'
   gpgcheck true
   gpgkey 'http://packages.elastic.co/GPG-KEY-elasticsearch'
   action :create
@@ -504,21 +504,21 @@ git '/opt/bro/share/bro/site/scripts/rock' do
   action :sync
 end
 
-git '/opt/bro/share/bro/site/scripts/bro-file-extraction' do
-  repository 'https://github.com/CyberAnalyticDevTeam/bro-file-extraction.git'
-  revision 'master'
-  action :sync
-end
+# git '/opt/bro/share/bro/site/scripts/bro-file-extraction' do
+#   repository 'https://github.com/CyberAnalyticDevTeam/bro-file-extraction.git'
+#   revision 'master'
+#   action :sync
+# end
 
 # Configure JSON logging
 ### This file will be dropped on the system, but not loaded.
 # This is for the "old way" where logstash picked up the files from disk.
-template '/opt/bro/share/bro/site/scripts/json-logs.bro' do
-  source 'json-logs.bro.erb'
-  owner 'root'
-  group 'root'
-  mode '0644'
-end
+# template '/opt/bro/share/bro/site/scripts/json-logs.bro' do
+#   source 'json-logs.bro.erb'
+#   owner 'root'
+#   group 'root'
+#   mode '0644'
+# end
 
 template '/etc/profile.d/bro.sh' do
   source 'bro.sh.erb'
@@ -561,10 +561,12 @@ end
 
 execute 'set_kafka_retention' do
   command 'sed -i "s/log.retention.hours=168/log.retention.hours=1/" /opt/kafka/config/server.properties'
+  not_if {File.readlines('/opt/kafka/config/server.properties').grep(/^log\.retention\.hours=1/).size > 0}
 end
 
 execute 'set_kafka_data_dir' do
   command 'sed -i "s|log.dirs=/tmp/kafka-logs|log.dirs=/data/kafka|g" /opt/kafka/config/server.properties'
+  not_if {File.readlines('/opt/kafka/config/server.properties').grep(/^log\.dirs=\/data\/kafka/).size > 0}
 end
 
 directory '/data/kafka' do
@@ -614,6 +616,7 @@ end
 
 execute 'set_es_memlock' do
   command 'sed -i "s/.*LimitMEMLOCK.*/LimitMEMLOCK=infinity/g" /usr/lib/systemd/system/elasticsearch.service'
+  not_if {File.readlines('/usr/lib/systemd/system/elasticsearch.service').grep(/^LimitMEMLOCK=infinity/).size > 0}
 end
 
 service 'elasticsearch' do
@@ -625,14 +628,36 @@ end
 ######################################################
 execute 'set_logstash_ipv4_affinity' do
   command 'echo  "LS_JAVA_OPTS=\"-Djava.net.preferIPv4Stack=true\"" >> /etc/sysconfig/logstash'
+  not_if {File.readlines('/usr/lib/systemd/system/elasticsearch.service').grep(/^LS_JAVA_OPTS="-Djava.net.preferIPv4Stack=true"/).size > 0}
 end
 
 template '/etc/logstash/conf.d/kafka-bro.conf' do
   source 'kafka-bro.conf.erb'
 end
 
-execute 'update_kafka_input_plugin' do
-  command 'cd /opt/logstash; sudo bin/plugin install --version 2.0.3 logstash-input-kafka'
+logstash_input_kafka_url = 'https://rubygems.org/downloads/logstash-input-kafka-2.0.4.gem'
+logstash_input_kafka_hash = '462b6d2cbc129a66936954e704bb9dc9486041c283ba4fe46226b8f3c210af4b'
+
+[
+  { :name => 'logstash-input-kafka',
+    :version => '2.0.4',
+    :url => logstash_input_kafka_url,
+    :hash => logstash_input_kafka_hash }
+].each do |item|
+  filename = File.basename(URI.parse(item[:url]).path)
+  remote_file filename do
+    source item[:url]
+    checksum item[:hash]
+    path File.join(Chef::Config['file_cache_path'], filename)
+  end
+
+  bash "install_#{filename}" do
+    cwd '/opt/logstash'
+    code <<-EOH
+      sudo ./bin/plugin install #{File.join(Chef::Config['file_cache_path'], filename)}
+    EOH
+    not_if "/opt/logstash/bin/plugin list --verbose | grep -q '#{item[:name]} (#{item[:version]})'"
+  end
 end
 
 service 'logstash' do
@@ -642,27 +667,29 @@ end
 ######################################################
 ################## Configure Kibana ##################
 ######################################################
-remote_file "#{Chef::Config[:file_cache_path]}/kibana.tar.gz" do
-  source 'https://download.elastic.co/kibana/kibana/kibana-4.3.1-linux-x64.tar.gz'
-  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.3.1'
-end
-
-execute 'untar_kibana' do
-  command "tar xzf #{Chef::Config[:file_cache_path]}/kibana.tar.gz -C /opt/"
-  not_if 'ls /opt/kibana'
-end
-
-execute 'rename_kibana_dir' do
-  command 'mv /opt/{kibana-4.3.1-linux-x64,kibana}'
-  not_if 'ls /opt/kibana'
-end
-
 user 'kibana' do
   comment "kibana system user"
   home "/opt/kibana"
   manage_home false
   shell "/sbin/nologin"
   system true
+end
+
+directory '/opt/kibana' do
+  mode '0755'
+  owner 'kibana'
+  group 'kibana'
+  action :create
+end
+
+remote_file "#{Chef::Config[:file_cache_path]}/kibana.tar.gz" do
+  source 'https://download.elastic.co/kibana/kibana/kibana-4.4.1-linux-x64.tar.gz'
+  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.4.1'
+end
+
+execute 'untar_kibana' do
+  command "tar xzf #{Chef::Config[:file_cache_path]}/kibana.tar.gz -C /opt/kibana --strip-components 1"
+  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.4.1'
   notifies :run, "execute[chown_kibana]", :immediately
 end
 
@@ -727,7 +754,7 @@ esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf
   bash "install_#{filename}" do
     cwd '/usr/share/elasticsearch'
     code <<-EOH
-      ./bin/plugin install file://#{File.join(Chef::Config['file_cache_path'], filename)}
+      sudo ./bin/plugin install file://#{File.join(Chef::Config['file_cache_path'], filename)}
     EOH
     not_if "/usr/share/elasticsearch/bin/plugin list | grep -q #{item[:name]}"
   end
@@ -763,6 +790,7 @@ marvel_plugin_hash = 'cbee0a8e8ac605476277e2c2cf3bc1f2fe5142907d01190ef1290e368a
       --url file://#{File.join(Chef::Config['file_cache_path'], filename)}
     EOH
     not_if { File.exist?("/opt/kibana/installedPlugins/#{item[:name]}")}
+    notifies :run, "bash[kibana_postplugin_cleanup]", :immediately
   end
 end
 
@@ -773,6 +801,7 @@ bash 'kibana_postplugin_cleanup' do
   /bin/systemctl restart kibana
   /usr/bin/sleep 5
   EOH
+  action :nothing
 end
 
 #Offline Install
@@ -865,6 +894,7 @@ end
 
 execute 'enable_nginx_connect_selinux' do
   command 'setsebool -P httpd_can_network_connect 1'
+  not_if 'getsebool httpd_can_network_connect | grep -q "on$"'
 end
 
 service 'nginx' do
@@ -899,13 +929,6 @@ execute 'set capabilities on snort' do
   not_if '/usr/sbin/setcap -v -q cap_net_raw,cap_net_admin=eip $(readlink -f /usr/sbin/snort)'
 end
 
-# ROCK Bro Scripts  !!!TODO!!! This should probably be moved to the BRO section later.
-git '/opt/bro/share/bro/site/scripts/rock' do
-  repository 'https://github.com/CyberAnalyticDevTeam/rock_bro_scripts.git'
-  revision 'master'
-  action :sync
-end
-
 # Install pulledpork  !!!TODO!!! pulledpork should probably be moved to /opt/pulledpork for consistency
 git '/usr/local/pulledpork' do
   repository 'https://github.com/shirkdog/pulledpork.git'
@@ -913,8 +936,8 @@ git '/usr/local/pulledpork' do
   action :sync
 end
 
-execute 'chmod_pulledpork' do
-  command 'chmod 755 /usr/local/pulledpork/pulledpork.pl'
+file '/usr/local/pulledpork/pulledpork.pl' do
+  mode '0755'
 end
 
 #`ln -s /usr/local/pulledpork/pulledpork.pl /usr/local/bin/pulledpork.pl`
@@ -962,6 +985,7 @@ end
 
 execute 'snort_chcon' do
   command 'chcon -v --type=snort_log_t /data/snort/'
+  not_if 'ls -Zd /data/snort | grep -q snort_log_t'
 end
 
 # Run pulledpork
