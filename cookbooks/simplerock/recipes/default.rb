@@ -754,7 +754,7 @@ esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf
   bash "install_#{filename}" do
     cwd '/usr/share/elasticsearch'
     code <<-EOH
-      sudo ./bin/plugin install file://#{File.join(Chef::Config['file_cache_path'], filename)}
+      ./bin/plugin install file://#{File.join(Chef::Config['file_cache_path'], filename)}
     EOH
     not_if "/usr/share/elasticsearch/bin/plugin list | grep -q #{item[:name]}"
   end
@@ -774,7 +774,7 @@ marvel_plugin_url = 'https://download.elasticsearch.org/elasticsearch/marvel/mar
 marvel_plugin_hash = 'cbee0a8e8ac605476277e2c2cf3bc1f2fe5142907d01190ef1290e368a59f004'
 
 [
-  { :url => marvel_plugin_url, :hash => marvel_plugin_hash }
+  { :name => 'marvel', :url => marvel_plugin_url, :hash => marvel_plugin_hash }
 ].each do |item|
   filename = File.basename(URI.parse(item[:url]).path)
   remote_file filename do
@@ -786,7 +786,7 @@ marvel_plugin_hash = 'cbee0a8e8ac605476277e2c2cf3bc1f2fe5142907d01190ef1290e368a
   bash "install_#{filename}" do
     cwd '/opt/kibana'
     code <<-EOH
-      bin/kibana plugin --install #{item[:name]} \
+      ./bin/kibana plugin --install #{item[:name]} \
       --url file://#{File.join(Chef::Config['file_cache_path'], filename)}
     EOH
     not_if { File.exist?("/opt/kibana/installedPlugins/#{item[:name]}")}
@@ -801,7 +801,6 @@ bash 'kibana_postplugin_cleanup' do
   /bin/systemctl restart kibana
   /usr/bin/sleep 5
   EOH
-  action :nothing
 end
 
 #Offline Install
