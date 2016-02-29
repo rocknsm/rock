@@ -85,24 +85,14 @@
 # this might impact performance a bit.
 # @load policy/protocols/ssl/heartbleed
 
-#@load scripts/json-logs
+
 ##########
 ## ROCK ##
 ##########
+
 # As referenced in the "simplerock" recipe, here is the json-logs load line, commented out.
+#@load scripts/json-logs
 ##########
 
-
-# Bro Kafka Output
-@load Kafka/KafkaWriter/logs-to-kafka
-redef KafkaLogger::topic_name = "bro_raw";
-redef KafkaLogger::sensor_name = "<%= node['hostname'] %>";
-redef KafkaLogger::logstash_style_timestamp = T;
-
-# File Extraction
-@load scripts/bro-file-extraction
-redef FileExtract::prefix = "/data/bro/logs/extract_files/";
-redef FileExtract::default_limit = 1048576000;
-
-# Unified2
-@load scripts/rock/unified2
+# ROCK Customization Scripts
+@load scripts/rock

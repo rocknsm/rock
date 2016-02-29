@@ -1,52 +1,40 @@
 #######################################################
 ##             Simple ROCK Build Recipe              ##
-##   Provided by MOCYBER, BroEZ, & Critical Stack    ##
+##               Provided by MOCYBER                 ##
 #######################################################
 
 log 'branding' do
   message '
-                                                Simple ROCK Automated Install Brought to You By:
-=======================================================================================================================================================
-                                                                                                                                                      
-                                                                                                                 ,,      ]QQQQ#yyy,                   
-                                    ,gppg,                                             ,,g#QQQQQ  @QQ#SRRQQ  yQQRRR@QQ,  @QQ``^^RRB   QQQQy,,         
-                              ,sSS888888888USSg                                      |QQQ^`  @Q#  |QQ  ,,QQh]QQ     @QQ  QQQQQQQh       ``@QQQR^      
-                         ,SSS88888888888888888888SSp,                                 @QQQQQSR@QQ, QQRRRQQ,  @QQ,,,yQQR  QQQ           ,QQQ#^         
-                   ,sSS88888888888888888888888888888888SSp,                            QQQ    ,QQR @QQ   #RR   ^RRRR^   4RS#QQQQQQ   #QQ#R            
-              ;SSS8888888888888888888888888888888888888888888SSo,                      @QQQQ##R^         ,,,,yyyyyyyyyy,,,,        `RRR#QQQQyy        
-        ,sSS888888888888888888888888&R^^RSN888888888888888888888889SSg                 ^`    ,yy#QQQQQS#RRRRRRR^^^^^^RRRRRRRS#QQQQQ#yy,    `Rh        
-   ,SSU88888888888888888888888&R^`           ^RR888888888888888888888888SSp          ,,yQQQQRRR^`     ,,,,  ·y########y   ,,,,     `^RBRQQQQy,        
-  S8888888888888888888889R^`                       `^RS88888888888888888888Ry        QQ^`   ,yy,,   `R@QQQQQ `QQQQQQQS  #QQQQ#R   ,,,yy,   `^QQ       
- Q8888888888888888UR^`                                  ,|8888888888888888888y      jQ# ]QQQQQQQQQQQQQQ`@QQQQQ QQQQQQ @QQQQR,yQQQQQQQQQQQQQ  @Qp      
- 88888888888UR^`                     ,-,,          ,SSS8888888888888888888888U      QQ  @QQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQQQyQQQQQQQQQQQQQQQQQ `QQ      
- 88888888888                   ,sSSU888888USSpSSS8888888888888888888888888888U    yQ#  ,,,,, `R@QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#R^ ,,,,, `@QQ    
- 88888888888              ;SSS88888888888888888888888888888888888888888888888U yQQ#^ ,QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQ#QQQQQQQQQQ  ?@QQy 
- 88888888888             8888888888888888888888888888888888RR^   |88888888888U]QQ  ,QQQQQQQQQQQQQQQQQ#RR   ``^WQQQQQQR^`    RWSQQQQQQQQQQQQQQQQQ,  @Q 
- 88888888888             N888888888888888888888888888&R^         |88888888888U QQ  ^   ,,Q@QQQQQQQQy,           KQQL           ,yQQQQQQQQQ,,,   `  QQ 
- 88888888888             N88888888888888888888888888U            |88888888888U @Q  ,#QQQQQQQQQQQQQQQQQQBQyyy            yy##RQQQQQQQQQQQQQQQQQQQ  ]QQ 
- 88888888888             N88888888888888888888888888h            |88888888888U |QQ ]QQQQQQQQQQQQQQQQQM  `RR^Y          F^RT  `@QQQQQQQQQQQQQQQQQh @Qh 
- 88888888888             `*RS888888888888888888RR^               |88888888888U  QQ  QQQQQQ#R^Q#QQQQF                           `@QQQQyQ^R@QQQQQ#  QQ  
- 88888888888                    `*RS88888RR^                     |88888888888U  @QQ ]QQR^ #QQQQQQQQ;R                          @Q@QQQQQQQy `WQQh @QR  
- 88888888888S,                                               ,-SS888888888888U   QQ  R  #QQQQQQQQQQQ,#                        Q,@QQQQQQQQQQQ  R  QQ   
- 888888888888888SSSg,                                  ,-SSS8888K888888888888U   ]QQ  ;QQQQQQQQQRQQQQh,Q                    @,@QQQQRQQQQQQQQQp  @Qh   
- 88888888888shh9RRR8888SSp,                       -SSS8888RRhhhhh688888888888U    @QQ |QQ#@QQQQ @QQQQQQQ ,^  |QQ#yy#QQ   ^, @QQQQQQQ`QQQQQQQQh @QR    
- 88888888888shhhhhhhh*9RR8888SSSg,          ;SSS888RRRhhhhhhhhhhh988888888888U     @QQ |R(QQQQ (QQQQQQQQ#      RQQQQR      @QQQQQQQQy`QQQQQ@R (QM     
- 8888888888888#sjhhhhhhhhhh*9RRR8888SSSSSS888RRRhhhhhhhhhhhhjjs#U888888888888U      @Qy  QQQQh QQQQQQQQQ         ]R        |QQQQQQQQQ ]QQQQ  yQ#      
- 88888888888888888U8#Njhhhhhhhhhhh9RRRRRRRhhhhhhhhhhhhjjs#U88888R888888888888U       @QQ ?QQ# ]QQQQNQQQQ         |Q        .QQQQRQQQQ  @QQh (Q#       
- 88888888888shh9RRR88888U8#Njhhhhhhhhhhhhhhhhhhhjjs#888888RRUhhhh688888888888U        @QQ `Qh @QQQ#]QQQQQ      yQRRQy      @QQQQ @QQQQ ]Q  {QR        
- 88888888888shhhhhhhh9RRR88888U##jhhhhhhhhhj8#888888RRRhhhhhhhhhh888888888888U         %QQ    QQQQ @QQQQQQ, ,#R     `BQ  ,QQQQQQQ QQQQ    @QR         
- 88888888888U##jjhhhhhhhhhh99RR88888U###888888RRRhhhhhhhhhhhhj8#8888888888888U          ?QQ,  QQQh QQ#QQQQQQR          @QQQQQQ@QQ |QQQ  ,QQ^          
- 88888888888888888U##jshhhhhhhhhh*9RRR88RRRhhhhhhhhhhhhj8#8888888888888888888R            @QQ  @R @QQhQQQQQQ           |QQQQQQ|QQQ %F  #QR            
-  &888888888888888888888U##jshhhhhhhhhhhhhhhhhhhhj8#888888888888888888888888R              7QQ,  @QQR]QQQMQQQ#Q      #QQQQ@QQQ 7QQM  ,Q#^             
-   ^R8888888888888888888888888U##jshhhhhhhhj8#8U8888888888888888888888888UR                  RQQ, 7^ QQQ#]QQQQQQQQ#QQQQQQQh@QQQ ?^ ,QQR               
-        ^R&88888888888888888888888888###8U8888888888888888888888888UR^`                        BQQ, `@QQh]QQQQQQQQQQQQQQQQh]QQM  ,QQR                 
-             `^RS88888888888888888888888888888888888888888888RRR^                                RQQQ  R  QQQQQQQQQQQQQQQQ ]R  yQQR                   
-                   ^R&R888888888888888888888888888888888RR^                                        ?@QQ   %QQQQSQQQQ@QQQQR  ,#Q#^                     
-                        `^RS8888888888888888888888UR^                                                 RQQy, `R@]QQQQM#R  ,#Q#R                        
-                              `Y&88888888888RR^`                                                        `RQQQg  `RR`  yQQ#R                           
-                                   `^RRRH^                                                                  ^BQQQyyQQ#R^                              
-                                                                                                                `RT`                                  
-=======================================================================================================================================================
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                       Thank you for installing:                              │
+│                                                                              │
+│                                                                              │
+│                 :::::::..       ...       .,-:::::  :::  .                   │
+│                 ;;;;\`\`;;;;   .;;;;;;;.  ,;;;\'\`\`\`\`\'  ;;; .;;,.                │
+│                  [[[,/[[[\'  ,[[     \\[[,[[[         [[[[[/\'                  │
+│                  $$$$$$c    $$$,     $$$$$$        _$$$$,                    │
+│                  888b "88bo,"888,_ _,88P\`88bo,__,o,"888"88o,                 │
+│                  MMMM   "W"   "YMMMMMP"   "YUMMMMMP"MMM "MMP"                │
+│                          :::.    :::. .::::::. .        :                    │
+│                          \`;;;;,  \`;;;;;;\`    \` ;;,.    ;;;                   │
+│                            [[[[[. \'[[\'[==/[[[[,[[[[, ,[[[[,                  │
+│                            $$$ "Y$c$$  \'\'\'    $$$$$$$$$"$$$                  │
+│                            888    Y88 88b    dP888 Y88" 888o                 │
+│                            MMM     YM  "YMmMY" MMM  M\'  "MMM                 │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 '
   level :warn
   action :nothing
@@ -132,29 +120,29 @@ end
 
 execute 'set_time_zone' do
   command '/usr/bin/timedatectl set-timezone UTC'
+  not_if '/usr/bin/timedatectl | grep -q "Time zone.*UTC"'
 end
 
 execute 'enable_ntp' do
   command '/usr/bin/timedatectl set-ntp yes'
+  not_if '/usr/bin/timedatectl | grep -q "NTP enabled.*yes"'
 end
 
 ######################################################
 ############### Install Kernel Headers ###############
 ######################################################
 ## Necessary to make this pig run on RHEL:
-execute 'enable_rhel_optional' do
-  command 'subscription-manager repos --enable rhel-7-server-optional-rpms'
-  only_if 'grep RHEL /etc/redhat-release'
-end
-
-execute 'enable_rhel_extras' do
-  command 'subscription-manager repos --enable rhel-7-server-extras-rpms'
-  only_if 'grep RHEL /etc/redhat-release'
+['rhel-7-server-optional-rpms', 'rhel-7-server-extras-rpms'].each do |repo|
+  execute "enable_#{repo}" do
+    command "subscription-manager repos --enable #{repo}"
+    only_if { platform?('rhel') }
+    not_if "subscription-manager repos --list-enabled | grep -q #{repo}"
+  end
 end
 
 execute 'enable_centos_cr' do
   command 'sed -i "s/enabled=0/enabled=1/g" /etc/yum.repos.d/CentOS-CR.repo'
-  only_if 'grep CentOS /etc/redhat-release'
+  only_if { platform?('centos') }
 end
 
 fullver = node['kernel']['release']
@@ -187,7 +175,7 @@ ruby_block 'determine_monitor_interface' do
       next if iface == 'lo'
       next if iface == node['network']['default_interface']
       #next unless vals[:addresses].length == 1
-      node.run_state['monif'] = iface  
+      node.run_state['monif'] = iface
       ## DEBUG
       Chef::Log.debug("Using interface #{iface} for monitoring. \nDEBUG: Addr length of #{vals[:addresses].length}\n#{vals[:addresses]}")
       #Chef::Log.info("******** Using #{iface} (VAR: #{node.run_state['monif']}) for monitoring. ********")
@@ -232,7 +220,7 @@ if File.readlines("/proc/sys/net/ipv6/conf/all/disable_ipv6").grep(/0/).size > 0
   execute 'ipv6_fix_sshd_restart' do
     command 'systemctl restart sshd'
   end
-  
+
   execute 'ipv6_remove_localhost' do
     command 'sed -i "/^::1/d" /etc/hosts'
   end
@@ -260,7 +248,7 @@ execute 'ifcfg_hacks' do
   action :nothing
 end
 
-#Tune the capture interface, enable promiscuous mode at boot. 
+#Tune the capture interface, enable promiscuous mode at boot.
 template "/sbin/ifup-local" do
  source 'ifup-local.erb'
  owner 'root'
@@ -274,7 +262,7 @@ end
 #######################################################
 # This is only necessary because my local DNS isn't trustworthy.
 execute 'add_google_dns' do
-  command 'echo "nameserver 8.8.8.8" >> /etc/resolv.conf; echo "nameserver 8.8.4.4" >> /etc/resolv.conf'
+  command 'echo "nameserver 8.8.8.8" > /etc/resolv.conf; echo "nameserver 8.8.4.4" >> /etc/resolv.conf'
   not_if 'grep 8.8.8.8 /etc/resolv.conf'
 end
 
@@ -321,7 +309,7 @@ end
 #######################################################
 yum_repository 'logstash-2.1.x' do
   description 'Logstash repository for 2.1.x packages'
-  baseurl 'http://packages.elastic.co/logstash/2.1/centos'
+  baseurl 'http://packages.elastic.co/logstash/2.2/centos'
   gpgcheck true
   gpgkey 'http://packages.elastic.co/GPG-KEY-elasticsearch'
   action :create
@@ -338,7 +326,7 @@ end
 #######################################################
 ################ Install NTOP Repos ###################
 #######################################################
-# Commented out 19JAN16 - version 6.2.0-425 was built against Myrinet and 
+# Commented out 19JAN16 - version 6.2.0-425 was built against Myrinet and
 # was causing SimpleRock install to fail.  Moved 6.2.0-411 to bintray, pending investigation.
 
 #yum_repository 'ntop' do
@@ -497,20 +485,28 @@ template '/opt/bro/share/bro/site/local.bro' do
   mode '0644'
 end
 
-git '/opt/bro/share/bro/site/scripts/bro-file-extraction' do
-  repository 'https://github.com/CyberAnalyticDevTeam/bro-file-extraction.git'
+# ROCK Bro Scripts
+git '/opt/bro/share/bro/site/scripts/rock' do
+  repository 'https://github.com/mocyber/rock-scripts.git'
   revision 'master'
   action :sync
 end
 
+# git '/opt/bro/share/bro/site/scripts/bro-file-extraction' do
+#   repository 'https://github.com/CyberAnalyticDevTeam/bro-file-extraction.git'
+#   revision 'master'
+#   action :sync
+# end
+
 # Configure JSON logging
-### This file will be dropped on the system, but not loaded.  This is for the "old way" where logstash picked up the files from disk.
-template '/opt/bro/share/bro/site/scripts/json-logs.bro' do
-  source 'json-logs.bro.erb'
-  owner 'root'
-  group 'root'
-  mode '0644'
-end
+### This file will be dropped on the system, but not loaded.
+# This is for the "old way" where logstash picked up the files from disk.
+# template '/opt/bro/share/bro/site/scripts/json-logs.bro' do
+#   source 'json-logs.bro.erb'
+#   owner 'root'
+#   group 'root'
+#   mode '0644'
+# end
 
 template '/etc/profile.d/bro.sh' do
   source 'bro.sh.erb'
@@ -540,7 +536,7 @@ end
 ######################################################
 #Enable and start zookeeper
 service 'zookeeper' do
-  action [ :enable, :start ]  
+  action [ :enable, :start ]
 end
 
 ######################################################
@@ -553,10 +549,12 @@ end
 
 execute 'set_kafka_retention' do
   command 'sed -i "s/log.retention.hours=168/log.retention.hours=1/" /opt/kafka/config/server.properties'
+  not_if {File.readlines('/opt/kafka/config/server.properties').grep(/^log\.retention\.hours=1/).size > 0}
 end
 
 execute 'set_kafka_data_dir' do
   command 'sed -i "s|log.dirs=/tmp/kafka-logs|log.dirs=/data/kafka|g" /opt/kafka/config/server.properties'
+  not_if {File.readlines('/opt/kafka/config/server.properties').grep(/^log\.dirs=\/data\/kafka/).size > 0}
 end
 
 directory '/data/kafka' do
@@ -606,10 +604,11 @@ end
 
 execute 'set_es_memlock' do
   command 'sed -i "s/.*LimitMEMLOCK.*/LimitMEMLOCK=infinity/g" /usr/lib/systemd/system/elasticsearch.service'
+  not_if {File.readlines('/usr/lib/systemd/system/elasticsearch.service').grep(/^LimitMEMLOCK=infinity/).size > 0}
 end
 
 service 'elasticsearch' do
-  action [ :enable, :start ]  
+  action [ :enable, :start ]
 end
 
 ######################################################
@@ -617,14 +616,36 @@ end
 ######################################################
 execute 'set_logstash_ipv4_affinity' do
   command 'echo  "LS_JAVA_OPTS=\"-Djava.net.preferIPv4Stack=true\"" >> /etc/sysconfig/logstash'
+  not_if {File.readlines('/usr/lib/systemd/system/elasticsearch.service').grep(/^LS_JAVA_OPTS="-Djava.net.preferIPv4Stack=true"/).size > 0}
 end
 
 template '/etc/logstash/conf.d/kafka-bro.conf' do
   source 'kafka-bro.conf.erb'
 end
 
-execute 'update_kafka_input_plugin' do
-  command 'cd /opt/logstash; sudo bin/plugin install --version 2.0.3 logstash-input-kafka'
+logstash_input_kafka_url = 'https://rubygems.org/downloads/logstash-input-kafka-2.0.4.gem'
+logstash_input_kafka_hash = '462b6d2cbc129a66936954e704bb9dc9486041c283ba4fe46226b8f3c210af4b'
+
+[
+  { :name => 'logstash-input-kafka',
+    :version => '2.0.4',
+    :url => logstash_input_kafka_url,
+    :hash => logstash_input_kafka_hash }
+].each do |item|
+  filename = File.basename(URI.parse(item[:url]).path)
+  remote_file filename do
+    source item[:url]
+    checksum item[:hash]
+    path File.join(Chef::Config['file_cache_path'], filename)
+  end
+
+  bash "install_#{filename}" do
+    cwd '/opt/logstash'
+    code <<-EOH
+      sudo ./bin/plugin install #{File.join(Chef::Config['file_cache_path'], filename)}
+    EOH
+    not_if "/opt/logstash/bin/plugin list --verbose | grep -q '#{item[:name]} (#{item[:version]})'"
+  end
 end
 
 service 'logstash' do
@@ -634,27 +655,29 @@ end
 ######################################################
 ################## Configure Kibana ##################
 ######################################################
-remote_file "#{Chef::Config[:file_cache_path]}/kibana.tar.gz" do
-  source 'https://download.elastic.co/kibana/kibana/kibana-4.3.1-linux-x64.tar.gz'
-  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.3.1'
-end
-
-execute 'untar_kibana' do
-  command "tar xzf #{Chef::Config[:file_cache_path]}/kibana.tar.gz -C /opt/"
-  not_if 'ls /opt/kibana'
-end
-
-execute 'rename_kibana_dir' do
-  command 'mv /opt/{kibana-4.3.1-linux-x64,kibana}'
-  not_if 'ls /opt/kibana'
-end
-
 user 'kibana' do
   comment "kibana system user"
   home "/opt/kibana"
   manage_home false
   shell "/sbin/nologin"
   system true
+end
+
+directory '/opt/kibana' do
+  mode '0755'
+  owner 'kibana'
+  group 'kibana'
+  action :create
+end
+
+remote_file "#{Chef::Config[:file_cache_path]}/kibana.tar.gz" do
+  source 'https://download.elastic.co/kibana/kibana/kibana-4.4.1-linux-x64.tar.gz'
+  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.4.1'
+end
+
+execute 'untar_kibana' do
+  command "tar xzf #{Chef::Config[:file_cache_path]}/kibana.tar.gz -C /opt/kibana --strip-components 1"
+  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.4.1'
   notifies :run, "execute[chown_kibana]", :immediately
 end
 
@@ -691,25 +714,81 @@ end
 ######################################################
 ################## Configure Marvel ##################
 ######################################################
-bash 'install_marvel_and_sql' do
-  cwd '/usr/share/elasticsearch'
-  code <<-EOH
-    # Install ES components
-    cd /usr/share/elasticsearch
-    bin/plugin install license
-    bin/plugin install marvel-agent
-    bin/plugin install https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip 
-    bin/plugin install royrusso/elasticsearch-HQ
-    systemctl daemon-reload
-    /bin/systemctl restart elasticsearch
-    /usr/bin/sleep 10
-    /usr/local/bin/es_cleanup.sh
-    # Install kibana component
-    cd /opt/kibana
-    bin/kibana plugin --install elasticsearch/marvel/latest
-    /bin/systemctl restart kibana
-    /usr/bin/sleep 5
+require 'uri'
+
+license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.2.0/license-2.2.0.zip'
+license_plugin_hash = 'c458b835441223ec41ae85915fbb6b325fb004b98e35c5d49660b29f2f0d7b22'
+marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.2.0/marvel-agent-2.2.0.zip'
+marvel_agent_hash = '57a097d6bd013782887ee551036765b88219d4bcd5e8544c79cc6b14599eb05e'
+# TODO: SQL plugin needs updating to 2.2.0
+esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip'
+esSQL_plugin_hash = 'c3e96bcb42309b6658a0b053bd29540899f566691f4518ef2a00df5336dcf296'
+esHQ_plugin_url = 'https://codeload.github.com/royrusso/elasticsearch-HQ/legacy.zip/v2.0.3'
+esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf8572'
+
+[
+  { :name => 'license', :url => license_plugin_url, :hash => license_plugin_hash },
+  { :name => 'marvel-agent', :url => marvel_agent_url, :hash => marvel_agent_hash },
+  #{ :name => 'sql', :url => esSQL_plugin_url, :hash => esSQL_plugin_hash },
+  { :name => 'hq', :url => esHQ_plugin_url, :hash => esHQ_plugin_hash }
+].each do |item|
+  filename = File.basename(URI.parse(item[:url]).path)
+  remote_file filename do
+    source item[:url]
+    checksum item[:hash]
+    path File.join(Chef::Config['file_cache_path'], filename)
+  end
+
+  bash "install_#{filename}" do
+    cwd '/usr/share/elasticsearch'
+    code <<-EOH
+      ./bin/plugin install file://#{File.join(Chef::Config['file_cache_path'], filename)}
     EOH
+    not_if "/usr/share/elasticsearch/bin/plugin list | grep -q #{item[:name]}"
+  end
+end
+
+bash 'es_postplugin_cleanup' do
+  code <<-EOH
+  /bin/systemctl daemon-reload
+  /bin/systemctl restart elasticsearch
+  /usr/bin/sleep 10
+  /usr/local/bin/es_cleanup.sh
+  EOH
+end
+
+## Kibana plugins
+marvel_plugin_url = 'https://download.elasticsearch.org/elasticsearch/marvel/marvel-2.2.0.tar.gz'
+marvel_plugin_hash = 'cbee0a8e8ac605476277e2c2cf3bc1f2fe5142907d01190ef1290e368a59f004'
+
+[
+  { :name => 'marvel', :url => marvel_plugin_url, :hash => marvel_plugin_hash }
+].each do |item|
+  filename = File.basename(URI.parse(item[:url]).path)
+  remote_file filename do
+    source item[:url]
+    checksum item[:hash]
+    path File.join(Chef::Config['file_cache_path'], filename)
+  end
+
+  bash "install_#{filename}" do
+    cwd '/opt/kibana'
+    code <<-EOH
+      ./bin/kibana plugin --install #{item[:name]} \
+      --url file://#{File.join(Chef::Config['file_cache_path'], filename)}
+    EOH
+    not_if { File.exist?("/opt/kibana/installedPlugins/#{item[:name]}")}
+    notifies :run, "bash[kibana_postplugin_cleanup]", :immediately
+  end
+end
+
+
+bash 'kibana_postplugin_cleanup' do
+  code <<-EOH
+  /bin/systemctl daemon-reload
+  /bin/systemctl restart kibana
+  /usr/bin/sleep 5
+  EOH
 end
 
 #Offline Install
@@ -802,6 +881,7 @@ end
 
 execute 'enable_nginx_connect_selinux' do
   command 'setsebool -P httpd_can_network_connect 1'
+  not_if 'getsebool httpd_can_network_connect | grep -q "on$"'
 end
 
 service 'nginx' do
@@ -815,7 +895,7 @@ end
 template '/etc/sysconfig/snort' do
   source 'snort.erb'
   action :nothing
-  notifies :run, "bash[run_pulledpork]", :immediately 
+  notifies :run, "bash[run_pulledpork]", :immediately
 end
 
 template '/etc/snort/snort.conf' do
@@ -836,13 +916,6 @@ execute 'set capabilities on snort' do
   not_if '/usr/sbin/setcap -v -q cap_net_raw,cap_net_admin=eip $(readlink -f /usr/sbin/snort)'
 end
 
-# ROCK Bro Scripts  !!!TODO!!! This should probably be moved to the BRO section later. 
-git '/opt/bro/share/bro/site/scripts/rock' do
-  repository 'https://github.com/CyberAnalyticDevTeam/rock_bro_scripts.git'
-  revision 'master'
-  action :sync
-end
-
 # Install pulledpork  !!!TODO!!! pulledpork should probably be moved to /opt/pulledpork for consistency
 git '/usr/local/pulledpork' do
   repository 'https://github.com/shirkdog/pulledpork.git'
@@ -850,8 +923,8 @@ git '/usr/local/pulledpork' do
   action :sync
 end
 
-execute 'chmod_pulledpork' do
-  command 'chmod 755 /usr/local/pulledpork/pulledpork.pl' 
+file '/usr/local/pulledpork/pulledpork.pl' do
+  mode '0755'
 end
 
 #`ln -s /usr/local/pulledpork/pulledpork.pl /usr/local/bin/pulledpork.pl`
@@ -899,6 +972,7 @@ end
 
 execute 'snort_chcon' do
   command 'chcon -v --type=snort_log_t /data/snort/'
+  not_if 'ls -Zd /data/snort | grep -q snort_log_t'
 end
 
 # Run pulledpork
@@ -917,9 +991,4 @@ cron 'pulledpork' do
   command "/usr/local/bin/pulledpork.pl -c /etc/snort/pulledpork.conf -l > /var/log/snort/pulledpork.log 2>&1 && /usr/bin/systemctl restart snortd"
 end
 
-
-
 # To be continued
-
-
-
