@@ -1,52 +1,40 @@
 #######################################################
 ##             Simple ROCK Build Recipe              ##
-##   Provided by MOCYBER, BroEZ, & Critical Stack    ##
+##               Provided by MOCYBER                 ##
 #######################################################
 
 log 'branding' do
   message '
-                                                Simple ROCK Automated Install Brought to You By:
-=======================================================================================================================================================
-
-                                                                                                                 ,,      ]QQQQ#yyy,
-                                    ,gppg,                                             ,,g#QQQQQ  @QQ#SRRQQ  yQQRRR@QQ,  @QQ``^^RRB   QQQQy,,
-                              ,sSS888888888USSg                                      |QQQ^`  @Q#  |QQ  ,,QQh]QQ     @QQ  QQQQQQQh       ``@QQQR^
-                         ,SSS88888888888888888888SSp,                                 @QQQQQSR@QQ, QQRRRQQ,  @QQ,,,yQQR  QQQ           ,QQQ#^
-                   ,sSS88888888888888888888888888888888SSp,                            QQQ    ,QQR @QQ   #RR   ^RRRR^   4RS#QQQQQQ   #QQ#R
-              ;SSS8888888888888888888888888888888888888888888SSo,                      @QQQQ##R^         ,,,,yyyyyyyyyy,,,,        `RRR#QQQQyy
-        ,sSS888888888888888888888888&R^^RSN888888888888888888888889SSg                 ^`    ,yy#QQQQQS#RRRRRRR^^^^^^RRRRRRRS#QQQQQ#yy,    `Rh
-   ,SSU88888888888888888888888&R^`           ^RR888888888888888888888888SSp          ,,yQQQQRRR^`     ,,,,  ·y########y   ,,,,     `^RBRQQQQy,
-  S8888888888888888888889R^`                       `^RS88888888888888888888Ry        QQ^`   ,yy,,   `R@QQQQQ `QQQQQQQS  #QQQQ#R   ,,,yy,   `^QQ
- Q8888888888888888UR^`                                  ,|8888888888888888888y      jQ# ]QQQQQQQQQQQQQQ`@QQQQQ QQQQQQ @QQQQR,yQQQQQQQQQQQQQ  @Qp
- 88888888888UR^`                     ,-,,          ,SSS8888888888888888888888U      QQ  @QQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQQQyQQQQQQQQQQQQQQQQQ `QQ
- 88888888888                   ,sSSU888888USSpSSS8888888888888888888888888888U    yQ#  ,,,,, `R@QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#R^ ,,,,, `@QQ
- 88888888888              ;SSS88888888888888888888888888888888888888888888888U yQQ#^ ,QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ#QQQQQQQQ#QQQQQQQQQQ  ?@QQy
- 88888888888             8888888888888888888888888888888888RR^   |88888888888U]QQ  ,QQQQQQQQQQQQQQQQQ#RR   ``^WQQQQQQR^`    RWSQQQQQQQQQQQQQQQQQ,  @Q
- 88888888888             N888888888888888888888888888&R^         |88888888888U QQ  ^   ,,Q@QQQQQQQQy,           KQQL           ,yQQQQQQQQQ,,,   `  QQ
- 88888888888             N88888888888888888888888888U            |88888888888U @Q  ,#QQQQQQQQQQQQQQQQQQBQyyy            yy##RQQQQQQQQQQQQQQQQQQQ  ]QQ
- 88888888888             N88888888888888888888888888h            |88888888888U |QQ ]QQQQQQQQQQQQQQQQQM  `RR^Y          F^RT  `@QQQQQQQQQQQQQQQQQh @Qh
- 88888888888             `*RS888888888888888888RR^               |88888888888U  QQ  QQQQQQ#R^Q#QQQQF                           `@QQQQyQ^R@QQQQQ#  QQ
- 88888888888                    `*RS88888RR^                     |88888888888U  @QQ ]QQR^ #QQQQQQQQ;R                          @Q@QQQQQQQy `WQQh @QR
- 88888888888S,                                               ,-SS888888888888U   QQ  R  #QQQQQQQQQQQ,#                        Q,@QQQQQQQQQQQ  R  QQ
- 888888888888888SSSg,                                  ,-SSS8888K888888888888U   ]QQ  ;QQQQQQQQQRQQQQh,Q                    @,@QQQQRQQQQQQQQQp  @Qh
- 88888888888shh9RRR8888SSp,                       -SSS8888RRhhhhh688888888888U    @QQ |QQ#@QQQQ @QQQQQQQ ,^  |QQ#yy#QQ   ^, @QQQQQQQ`QQQQQQQQh @QR
- 88888888888shhhhhhhh*9RR8888SSSg,          ;SSS888RRRhhhhhhhhhhh988888888888U     @QQ |R(QQQQ (QQQQQQQQ#      RQQQQR      @QQQQQQQQy`QQQQQ@R (QM
- 8888888888888#sjhhhhhhhhhh*9RRR8888SSSSSS888RRRhhhhhhhhhhhhjjs#U888888888888U      @Qy  QQQQh QQQQQQQQQ         ]R        |QQQQQQQQQ ]QQQQ  yQ#
- 88888888888888888U8#Njhhhhhhhhhhh9RRRRRRRhhhhhhhhhhhhjjs#U88888R888888888888U       @QQ ?QQ# ]QQQQNQQQQ         |Q        .QQQQRQQQQ  @QQh (Q#
- 88888888888shh9RRR88888U8#Njhhhhhhhhhhhhhhhhhhhjjs#888888RRUhhhh688888888888U        @QQ `Qh @QQQ#]QQQQQ      yQRRQy      @QQQQ @QQQQ ]Q  {QR
- 88888888888shhhhhhhh9RRR88888U##jhhhhhhhhhj8#888888RRRhhhhhhhhhh888888888888U         %QQ    QQQQ @QQQQQQ, ,#R     `BQ  ,QQQQQQQ QQQQ    @QR
- 88888888888U##jjhhhhhhhhhh99RR88888U###888888RRRhhhhhhhhhhhhj8#8888888888888U          ?QQ,  QQQh QQ#QQQQQQR          @QQQQQQ@QQ |QQQ  ,QQ^
- 88888888888888888U##jshhhhhhhhhh*9RRR88RRRhhhhhhhhhhhhj8#8888888888888888888R            @QQ  @R @QQhQQQQQQ           |QQQQQQ|QQQ %F  #QR
-  &888888888888888888888U##jshhhhhhhhhhhhhhhhhhhhj8#888888888888888888888888R              7QQ,  @QQR]QQQMQQQ#Q      #QQQQ@QQQ 7QQM  ,Q#^
-   ^R8888888888888888888888888U##jshhhhhhhhj8#8U8888888888888888888888888UR                  RQQ, 7^ QQQ#]QQQQQQQQ#QQQQQQQh@QQQ ?^ ,QQR
-        ^R&88888888888888888888888888###8U8888888888888888888888888UR^`                        BQQ, `@QQh]QQQQQQQQQQQQQQQQh]QQM  ,QQR
-             `^RS88888888888888888888888888888888888888888888RRR^                                RQQQ  R  QQQQQQQQQQQQQQQQ ]R  yQQR
-                   ^R&R888888888888888888888888888888888RR^                                        ?@QQ   %QQQQSQQQQ@QQQQR  ,#Q#^
-                        `^RS8888888888888888888888UR^                                                 RQQy, `R@]QQQQM#R  ,#Q#R
-                              `Y&88888888888RR^`                                                        `RQQQg  `RR`  yQQ#R
-                                   `^RRRH^                                                                  ^BQQQyyQQ#R^
-                                                                                                                `RT`
-=======================================================================================================================================================
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                       Thank you for installing:                              │
+│                                                                              │
+│                                                                              │
+│                 :::::::..       ...       .,-:::::  :::  .                   │
+│                 ;;;;\`\`;;;;   .;;;;;;;.  ,;;;\'\`\`\`\`\'  ;;; .;;,.                │
+│                  [[[,/[[[\'  ,[[     \\[[,[[[         [[[[[/\'                  │
+│                  $$$$$$c    $$$,     $$$$$$        _$$$$,                    │
+│                  888b "88bo,"888,_ _,88P\`88bo,__,o,"888"88o,                 │
+│                  MMMM   "W"   "YMMMMMP"   "YUMMMMMP"MMM "MMP"                │
+│                          :::.    :::. .::::::. .        :                    │
+│                          \`;;;;,  \`;;;;;;\`    \` ;;,.    ;;;                   │
+│                            [[[[[. \'[[\'[==/[[[[,[[[[, ,[[[[,                  │
+│                            $$$ "Y$c$$  \'\'\'    $$$$$$$$$"$$$                  │
+│                            888    Y88 88b    dP888 Y88" 888o                 │
+│                            MMM     YM  "YMmMY" MMM  M\'  "MMM                 │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 '
   level :warn
   action :nothing
