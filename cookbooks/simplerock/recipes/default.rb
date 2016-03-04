@@ -835,6 +835,23 @@ template '/usr/local/bin/rock_status' do
 end
 
 ######################################################
+############### Service Mode Scripts #################
+######################################################
+template '/usr/local/bin/training_mode' do
+  source 'training_mode.erb'
+  mode '0700'
+  owner 'root'
+  group 'root'
+end
+
+template '/usr/local/bin/service_mode' do
+  source 'status_mode.erb'
+  mode '0700'
+  owner 'root'
+  group 'root'
+end
+
+######################################################
 ############### Configure Stenographer ###############
 ######################################################
 template '/etc/stenographer/config' do
