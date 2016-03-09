@@ -845,7 +845,7 @@ template '/usr/local/bin/training_mode' do
 end
 
 template '/usr/local/bin/service_mode' do
-  source 'status_mode.erb'
+  source 'service_mode.erb'
   mode '0700'
   owner 'root'
   group 'root'
