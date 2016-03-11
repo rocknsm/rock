@@ -162,7 +162,8 @@ http://IPADDRESS - Kibana & Marvel
 
 http://IPADDRESS/_plugin/hq - Elastic HQ (To watch the health of elasticsearch.)
 
-http://IPADDRESS/_plugin/sql - Query your ES data with SQL.
+http://IPADDRESS/_plugin/sql - Query your ES data with SQL.   
+**NOTE:** When using the elasticsearch-sql plugin, you must set the address of your ES node in the upper right to `http://IPADDRESS:9200/`.
 
 ## Full Packet Capture
    
