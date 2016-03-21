@@ -1,0 +1,7 @@
+---
+- hosts: all
+  roles:
+    - common
+    - sensor
+    - datastor
+    - analysis
