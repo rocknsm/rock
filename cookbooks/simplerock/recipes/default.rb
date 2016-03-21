@@ -720,16 +720,15 @@ license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elas
 license_plugin_hash = 'c458b835441223ec41ae85915fbb6b325fb004b98e35c5d49660b29f2f0d7b22'
 marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.2.0/marvel-agent-2.2.0.zip'
 marvel_agent_hash = '57a097d6bd013782887ee551036765b88219d4bcd5e8544c79cc6b14599eb05e'
-# TODO: SQL plugin needs updating to 2.2.0
-esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.1.1/elasticsearch-sql-2.1.1.zip'
-esSQL_plugin_hash = 'c3e96bcb42309b6658a0b053bd29540899f566691f4518ef2a00df5336dcf296'
+esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.2.0/elasticsearch-sql-2.2.0.zip'
+esSQL_plugin_hash = 'daf74a6691678273baf045068088ada4bc4d6903a231e4ba7ce6f9d621df473d'
 esHQ_plugin_url = 'https://codeload.github.com/royrusso/elasticsearch-HQ/legacy.zip/v2.0.3'
 esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf8572'
 
 [
   { :name => 'license', :url => license_plugin_url, :hash => license_plugin_hash },
   { :name => 'marvel-agent', :url => marvel_agent_url, :hash => marvel_agent_hash },
-  #{ :name => 'sql', :url => esSQL_plugin_url, :hash => esSQL_plugin_hash },
+  { :name => 'sql', :url => esSQL_plugin_url, :hash => esSQL_plugin_hash },
   { :name => 'hq', :url => esHQ_plugin_url, :hash => esHQ_plugin_hash }
 ].each do |item|
   filename = File.basename(URI.parse(item[:url]).path)

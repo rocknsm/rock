@@ -252,7 +252,7 @@ bootstrap.mlockall: true
 
 # Set both 'bind_host' and 'publish_host':
 #
-#network.host: 192.168.0.1
+network.host: 0.0.0.0
 
 # Set a custom port for the node to node communication (9300 by default):
 #
@@ -274,6 +274,11 @@ bootstrap.mlockall: true
 #
 #http.enabled: false
 
+# These are set to get around cross-domain issues when using the ES-SQL plugin.
+http.cors.enabled : true
+http.cors.allow-origin : "*"
+http.cors.allow-methods : OPTIONS, HEAD, GET, POST, PUT, DELETE
+http.cors.allow-headers : X-Requested-With,X-Auth-Token,Content-Type, Content-Length
 
 ################################### Gateway ###################################
 
