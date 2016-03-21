@@ -1,0 +1,6 @@
+---
+# file: sensor.yml
+- hosts: sensors
+  roles:
+    - common
+    - sensor

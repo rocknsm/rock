@@ -1,0 +1,6 @@
+---
+# file: analysis.yml
+- hosts: analysis
+  roles:
+    - common
+    - analysis
