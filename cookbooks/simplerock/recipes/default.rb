@@ -716,12 +716,12 @@ end
 ######################################################
 require 'uri'
 
-license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.2.0/license-2.2.0.zip'
-license_plugin_hash = 'c458b835441223ec41ae85915fbb6b325fb004b98e35c5d49660b29f2f0d7b22'
-marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.2.0/marvel-agent-2.2.0.zip'
-marvel_agent_hash = '57a097d6bd013782887ee551036765b88219d4bcd5e8544c79cc6b14599eb05e'
-esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.2.0/elasticsearch-sql-2.2.0.zip'
-esSQL_plugin_hash = 'daf74a6691678273baf045068088ada4bc4d6903a231e4ba7ce6f9d621df473d'
+license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.3.0/license-2.3.0.zip'
+license_plugin_hash = '02d1b1bc9b94e490961dc9e172afb38d0e984b21a4adfb53b9689e507cc65d71'
+marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.3.0/marvel-agent-2.3.0.zip'
+marvel_agent_hash = 'f4d8dd3c8b3bc76f11e84ef9438ef6edefb345279065ec35d903d0d535e24f67'
+esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.3.0.0/elasticsearch-sql-2.3.0.0.zip'
+esSQL_plugin_hash = '1e69629aa04985ac4047bb35e28b4768c8df2f93e15253abdb6e51fa052762af'
 esHQ_plugin_url = 'https://codeload.github.com/royrusso/elasticsearch-HQ/legacy.zip/v2.0.3'
 esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf8572'
 
@@ -757,8 +757,8 @@ bash 'es_postplugin_cleanup' do
 end
 
 ## Kibana plugins
-marvel_plugin_url = 'https://download.elasticsearch.org/elasticsearch/marvel/marvel-2.2.0.tar.gz'
-marvel_plugin_hash = 'cbee0a8e8ac605476277e2c2cf3bc1f2fe5142907d01190ef1290e368a59f004'
+marvel_plugin_url = 'https://download.elasticsearch.org/elasticsearch/marvel/marvel-2.3.0.tar.gz'
+marvel_plugin_hash = '65132e1e66f3491b6e33c3b2173487144921382e94d577e01a3825b68acf6634'
 
 [
   { :name => 'marvel', :url => marvel_plugin_url, :hash => marvel_plugin_hash }
