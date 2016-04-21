@@ -671,13 +671,15 @@ directory '/opt/kibana' do
 end
 
 remote_file "#{Chef::Config[:file_cache_path]}/kibana.tar.gz" do
-  source 'https://download.elastic.co/kibana/kibana/kibana-4.4.1-linux-x64.tar.gz'
-  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.4.1'
+  source 'https://download.elastic.co/kibana/kibana/kibana-4.5.0-linux-x64.tar.gz'
+  checksum 'fa3f675febb34c0f676f8a64537967959eb95d2f5a81bc6da17aa5c98b9c76ef'
+  path "#{Chef::Config[:file_cache_path]}/kibana.tar.gz"
+  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.5.0'
 end
 
 execute 'untar_kibana' do
   command "tar xzf #{Chef::Config[:file_cache_path]}/kibana.tar.gz -C /opt/kibana --strip-components 1"
-  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.4.1'
+  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.5.0'
   notifies :run, "execute[chown_kibana]", :immediately
 end
 
@@ -716,12 +718,12 @@ end
 ######################################################
 require 'uri'
 
-license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.3.0/license-2.3.0.zip'
-license_plugin_hash = '02d1b1bc9b94e490961dc9e172afb38d0e984b21a4adfb53b9689e507cc65d71'
-marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.3.0/marvel-agent-2.3.0.zip'
-marvel_agent_hash = 'f4d8dd3c8b3bc76f11e84ef9438ef6edefb345279065ec35d903d0d535e24f67'
-esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.3.0.0/elasticsearch-sql-2.3.0.0.zip'
-esSQL_plugin_hash = '1e69629aa04985ac4047bb35e28b4768c8df2f93e15253abdb6e51fa052762af'
+license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.3.1/license-2.3.1.zip'
+license_plugin_hash = '1d94788f21a35eb0dfe1f36ac7605959b4b2e3d12cb68a6a570be2873c6a6f3d'
+marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.3.1/marvel-agent-2.3.1.zip'
+marvel_agent_hash = '92f45ed632df6cffa5dd7c68b0e1f4e718dee60788b6a1978d4ca0899e27336e'
+esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.3.1.0/elasticsearch-sql-2.3.1.0.zip'
+esSQL_plugin_hash = 'db15ec5ca36e1a3b0e8d4347e5d413ffb41a906d02b275e407a922f4cb2a69d0'
 esHQ_plugin_url = 'https://codeload.github.com/royrusso/elasticsearch-HQ/legacy.zip/v2.0.3'
 esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf8572'
 
