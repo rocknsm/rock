@@ -623,30 +623,30 @@ template '/etc/logstash/conf.d/kafka-bro.conf' do
   source 'kafka-bro.conf.erb'
 end
 
-logstash_input_kafka_url = 'https://rubygems.org/downloads/logstash-input-kafka-2.0.4.gem'
-logstash_input_kafka_hash = '462b6d2cbc129a66936954e704bb9dc9486041c283ba4fe46226b8f3c210af4b'
-
-[
-  { :name => 'logstash-input-kafka',
-    :version => '2.0.4',
-    :url => logstash_input_kafka_url,
-    :hash => logstash_input_kafka_hash }
-].each do |item|
-  filename = File.basename(URI.parse(item[:url]).path)
-  remote_file filename do
-    source item[:url]
-    checksum item[:hash]
-    path File.join(Chef::Config['file_cache_path'], filename)
-  end
-
-  bash "install_#{filename}" do
-    cwd '/opt/logstash'
-    code <<-EOH
-      sudo ./bin/plugin install #{File.join(Chef::Config['file_cache_path'], filename)}
-    EOH
-    not_if "/opt/logstash/bin/plugin list --verbose | grep -q '#{item[:name]} (#{item[:version]})'"
-  end
-end
+#logstash_input_kafka_url = 'https://rubygems.org/downloads/logstash-input-kafka-2.0.4.gem'
+#logstash_input_kafka_hash = '462b6d2cbc129a66936954e704bb9dc9486041c283ba4fe46226b8f3c210af4b'
+#
+#[
+#  { :name => 'logstash-input-kafka',
+#    :version => '2.0.4',
+#    :url => logstash_input_kafka_url,
+#    :hash => logstash_input_kafka_hash }
+#].each do |item|
+#  filename = File.basename(URI.parse(item[:url]).path)
+#  remote_file filename do
+#    source item[:url]
+#    checksum item[:hash]
+#    path File.join(Chef::Config['file_cache_path'], filename)
+#  end
+#
+#  bash "install_#{filename}" do
+#    cwd '/opt/logstash'
+#    code <<-EOH
+#      sudo ./bin/plugin install #{File.join(Chef::Config['file_cache_path'], filename)}
+#    EOH
+#    not_if "/opt/logstash/bin/plugin list --verbose | grep -q '#{item[:name]} (#{item[:version]})'"
+#  end
+#end
 
 service 'logstash' do
   action [ :enable, :start ]
@@ -718,19 +718,21 @@ end
 ######################################################
 require 'uri'
 
-license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.3.1/license-2.3.1.zip'
-license_plugin_hash = '1d94788f21a35eb0dfe1f36ac7605959b4b2e3d12cb68a6a570be2873c6a6f3d'
-marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.3.1/marvel-agent-2.3.1.zip'
-marvel_agent_hash = '92f45ed632df6cffa5dd7c68b0e1f4e718dee60788b6a1978d4ca0899e27336e'
-esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.3.1.0/elasticsearch-sql-2.3.1.0.zip'
-esSQL_plugin_hash = 'db15ec5ca36e1a3b0e8d4347e5d413ffb41a906d02b275e407a922f4cb2a69d0'
+license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.3.2/license-2.3.2.zip'
+license_plugin_hash = 'd2df9e5b603a22d1ad903190eb1e9bfe3395837567c2713a7983d36cb0817202'
+marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.3.2/marvel-agent-2.3.2.zip'
+marvel_agent_hash = 'c4c96434b775e016ee95210281efc4a0e7e4c68002282af87f3f9d83a18f64b8'
+#esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.3.2.0/elasticsearch-sql-2.3.2.0.zip'
+#esSQL_plugin_hash = 'db15ec5ca36e1a3b0e8d4347e5d413ffb41a906d02b275e407a922f4cb2a69d0'
 esHQ_plugin_url = 'https://codeload.github.com/royrusso/elasticsearch-HQ/legacy.zip/v2.0.3'
 esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf8572'
+
+#   Removed until 2.3.2 compatible version comes out
+#   { :name => 'sql', :url => esSQL_plugin_url, :hash => esSQL_plugin_hash },
 
 [
   { :name => 'license', :url => license_plugin_url, :hash => license_plugin_hash },
   { :name => 'marvel-agent', :url => marvel_agent_url, :hash => marvel_agent_hash },
-  { :name => 'sql', :url => esSQL_plugin_url, :hash => esSQL_plugin_hash },
   { :name => 'hq', :url => esHQ_plugin_url, :hash => esHQ_plugin_hash }
 ].each do |item|
   filename = File.basename(URI.parse(item[:url]).path)
@@ -759,8 +761,8 @@ bash 'es_postplugin_cleanup' do
 end
 
 ## Kibana plugins
-marvel_plugin_url = 'https://download.elasticsearch.org/elasticsearch/marvel/marvel-2.3.0.tar.gz'
-marvel_plugin_hash = '65132e1e66f3491b6e33c3b2173487144921382e94d577e01a3825b68acf6634'
+marvel_plugin_url = 'https://download.elasticsearch.org/elasticsearch/marvel/marvel-2.3.2.tar.gz'
+marvel_plugin_hash = '1736bf6facb25279ed9634004ab87d3b7c366b94d1ac9556f502c6cadbb48437'
 
 [
   { :name => 'marvel', :url => marvel_plugin_url, :hash => marvel_plugin_hash }
