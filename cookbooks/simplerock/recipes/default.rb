@@ -370,7 +370,13 @@ end
 #######################################################
 ############### Install Core Packages #################
 #######################################################
-package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'elasticsearch', 'nginx-spnego', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https']
+#Pinning the ES version until v5 comes out.
+yum_package 'elasticsearch' do
+  version '2.3.2-1'
+  allow_downgrade true
+end
+
+package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'nginx-spnego', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https']
 
 ######################################################
 ################## Configure PF_RING #################
