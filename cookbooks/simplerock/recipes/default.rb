@@ -761,7 +761,8 @@ bash 'es_postplugin_cleanup' do
   code <<-EOH
   /bin/systemctl daemon-reload
   /bin/systemctl restart elasticsearch
-  /usr/bin/sleep 10
+  local ctr=0
+  while ! $(ss -lnt | grep -q ':9200'); do sleep 1; ctr=$(expr $ctr + 1); if [ $ctr -gt 30 ]; then exit; fi; done
   /usr/local/bin/es_cleanup.sh
   EOH
 end
