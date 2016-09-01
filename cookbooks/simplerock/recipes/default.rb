@@ -297,11 +297,15 @@ end
 #######################################################
 ################ Install ROCK Repos ###################
 #######################################################
-yum_repository 'bintray_cyberdev' do
-  description 'Bintray CyberDev Repo'
-  baseurl 'https://dl.bintray.com/cyberdev/capes'
-  gpgcheck false
-  action :create
+#yum_repository 'bintray_cyberdev' do
+#  description 'Bintray CyberDev Repo'
+#  baseurl 'https://dl.bintray.com/cyberdev/capes'
+#  gpgcheck false
+#  action :create
+#end
+
+packagecloud_repo "rocknsm/current" do
+  type "rpm"
 end
 
 #######################################################
@@ -376,7 +380,12 @@ yum_package 'elasticsearch' do
   allow_downgrade true
 end
 
-package ['tcpreplay', 'iptables-services', 'dkms', 'bro', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'nginx-spnego', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https']
+yum_package 'bro' do
+  version '2.4.1-1.1'
+  allow_downgrade true
+end
+
+package ['tcpreplay', 'iptables-services', 'dkms', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'nginx', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https']
 
 ######################################################
 ################## Configure PF_RING #################
@@ -412,6 +421,27 @@ end
 ######################################################
 #################### Configure Bro ###################
 ######################################################
+template '/etc/GeoIP.conf' do
+  source 'GeoIP.conf.erb'
+  notifies :run, "execute[run_geoipupdate]", :immediately
+end
+
+execute 'run_geoipupdate' do
+  command '/usr/bin/geoipupdate'
+  action :nothing
+  notifies :run, "bash[link_geoip_files]", :immediately
+end
+
+bash 'link_geoip_files' do
+  code <<-EOH
+    ln -s /usr/share/GeoIP/GeoLiteCity.dat /usr/share/GeoIP/GeoIPCity.dat
+    ln -s /usr/share/GeoIP/GeoLiteCountry.dat /usr/share/GeoIP/GeoIPCountry.dat
+    ln -s /usr/share/GeoIP/GeoLiteASNum.dat /usr/share/GeoIP/GeoIPASNum.dat
+    ln -s /usr/share/GeoIP/GeoLiteCityv6.dat /usr/share/GeoIP/GeoIPCityv6.dat
+ EOH
+  action :nothing
+end
+
 #Create bro data directories.
 %w{logs spool}.each do |dir|
   directory "/data/bro/#{dir}" do
@@ -898,6 +928,10 @@ template '/etc/nginx/conf.d/rock.conf' do
   source 'rock.conf.erb'
 end
 
+template '/etc/nginx/nginx.conf' do
+  source 'nginx.conf.erb'
+end
+
 file '/etc/nginx/conf.d/default.conf' do
   action :delete
 end
@@ -927,6 +961,18 @@ end
 
 template '/etc/snort/snort.conf' do
   source 'snort.conf.erb'
+end
+
+template '/usr/local/bin/snort_cleanup.sh' do
+  source 'snort_cleanup.sh.erb'
+  mode '0700'
+  owner 'root'
+  group 'root'
+end
+
+cron 'snort_cleanup' do
+  minute '58'
+  command "/usr/local/bin/snort_cleanup.sh > /var/log/snort_cleanup.log 2>&1"
 end
 
 template '/etc/snort/disablesid.conf' do
@@ -991,6 +1037,13 @@ end
 
 #`mkdir /data/snort; chown snort:snort /data/snort`
 directory '/data/snort' do
+  mode '0755'
+  owner 'snort'
+  group 'snort'
+  action :create
+end
+
+directory '/data/snort/OLD' do
   mode '0755'
   owner 'snort'
   group 'snort'
