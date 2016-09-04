@@ -673,6 +673,12 @@ bash 'set_kibana_replicas' do
  EOH
 end
 
+# set logstash template for resp_location
+execute 'logstash template' do
+command %q^ curl -XPUT http://localhost:9200/_template/logstash  -d '
+{"template":"logstash-*","settings":{"index":{"refresh_interval":"5s"}},"mappings":{"_default_":{"dynamic_templates":[{"message_field":{"mapping":{"fielddata":{"format":"disabled"},"index":"analyzed","omit_norms":true,"type":"string"},"match_mapping_type":"string","match":"message"}},{"string_fields":{"mapping":{"fielddata":{"format":"disabled"},"index":"analyzed","omit_norms":true,"type":"string","fields":{"raw":{"ignore_above":256,"index":"not_analyzed","type":"string"}}},"match_mapping_type":"string","match":"*"}}],"_all":{"omit_norms":true,"enabled":true},"properties":{"resp_location": {"type":"geo_point","index": "not_analyzed"},"@timestamp":{"type":"date"},"geoip":{"dynamic":true,"properties":{"ip":{"type":"ip"},"latitude":{"type":"float"},"location":{"type":"geo_point"},"longitude":{"type":"float"}}},"@version":{"index":"not_analyzed","type":"string"}}}},"aliases":{}}'^
+end
+
 
 ######################################################
 ################ Configure ES Plugins ################
@@ -711,10 +717,47 @@ esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf
   end
 end
 
+# install elasticsearch license
+bash 'es_license' do
+  code <<-EOH
+/usr/share/elasticsearch/bin/plugin install license
+  EOH
+ ignore_failure true
+end
+
+#install elasticsearch graph
+bash 'es_graph' do
+  code <<-EOH
+/usr/share/elasticsearch/bin/plugin install graph
+/opt/kibana/bin/kibana plugin --install elasticsearch/graph/latest
+  EOH
+ ignore_failure true
+end
+
+#install elasticsearch reporting
+bash 'es_reporting' do
+  code <<-EOH
+/opt/kibana/bin/kibana plugin --install kibana/reporting/latest
+  EOH
+ ignore_failure true
+end
+
+#generate / insert encryption key
+key = 'reporting.encryptionKey : "'+SecureRandom.hex+'"'
+
+ruby_block "insert_encryptionkey" do
+  block do
+    file = Chef::Util::FileEdit.new("/opt/kibana/config/kibana.yml")
+    file.insert_line_if_no_match("reporting.encryptionKey :", key)
+    file.write_file
+  end
+end
+
 bash 'es_postplugin_cleanup' do
   code <<-EOH
   /bin/systemctl daemon-reload
   /bin/systemctl restart elasticsearch
+  /bin/systemctl restart kibana
   local ctr=0
   while ! $(ss -lnt | grep -q ':9200'); do sleep 1; ctr=$(expr $ctr + 1); if [ $ctr -gt 30 ]; then exit; fi; done
   /usr/local/bin/es_cleanup.sh
