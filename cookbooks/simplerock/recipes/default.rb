@@ -297,12 +297,6 @@ end
 #######################################################
 ################ Install ROCK Repos ###################
 #######################################################
-#yum_repository 'bintray_cyberdev' do
-#  description 'Bintray CyberDev Repo'
-#  baseurl 'https://dl.bintray.com/cyberdev/capes'
-#  gpgcheck false
-#  action :create
-#end
 
 packagecloud_repo "rocknsm/current" do
   type "rpm"
@@ -311,9 +305,9 @@ end
 #######################################################
 ############### Install Elastic Repos #################
 #######################################################
-yum_repository 'logstash-2.1.x' do
-  description 'Logstash repository for 2.1.x packages'
-  baseurl 'http://packages.elastic.co/logstash/2.2/centos'
+yum_repository 'logstash-2.4.x' do
+  description 'Logstash repository for 2.4 packages'
+  baseurl 'http://packages.elastic.co/logstash/2.4/centos'
   gpgcheck true
   gpgkey 'http://packages.elastic.co/GPG-KEY-elasticsearch'
   action :create
@@ -322,6 +316,14 @@ end
 yum_repository 'elasticsearch-2.x' do
   description 'Elasticsearch repository for 2.x packages'
   baseurl 'http://packages.elastic.co/elasticsearch/2.x/centos'
+  gpgcheck true
+  gpgkey 'http://packages.elastic.co/GPG-KEY-elasticsearch'
+  action :create
+end
+
+yum_repository 'kibana-4.6' do
+  description 'Kibana repository for 4.6 packages'
+  baseurl 'https://packages.elastic.co/kibana/4.6/centos'
   gpgcheck true
   gpgkey 'http://packages.elastic.co/GPG-KEY-elasticsearch'
   action :create
@@ -376,7 +378,7 @@ end
 #######################################################
 #Pinning the ES version until v5 comes out.
 yum_package 'elasticsearch' do
-  version '2.3.2-1'
+  version '2.4.0-1'
   allow_downgrade true
 end
 
@@ -385,7 +387,7 @@ yum_package 'bro' do
   allow_downgrade true
 end
 
-package ['tcpreplay', 'iptables-services', 'dkms', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'nginx', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https']
+package ['tcpreplay', 'iptables-services', 'dkms', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'nginx', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https', 'kibana']
 
 ######################################################
 ################## Configure PF_RING #################
@@ -528,22 +530,6 @@ git '/opt/bro/share/bro/site/scripts/rock' do
   action :sync
 end
 
-# git '/opt/bro/share/bro/site/scripts/bro-file-extraction' do
-#   repository 'https://github.com/CyberAnalyticDevTeam/bro-file-extraction.git'
-#   revision 'master'
-#   action :sync
-# end
-
-# Configure JSON logging
-### This file will be dropped on the system, but not loaded.
-# This is for the "old way" where logstash picked up the files from disk.
-# template '/opt/bro/share/bro/site/scripts/json-logs.bro' do
-#   source 'json-logs.bro.erb'
-#   owner 'root'
-#   group 'root'
-#   mode '0644'
-# end
-
 template '/etc/profile.d/bro.sh' do
   source 'bro.sh.erb'
 end
@@ -659,31 +645,6 @@ template '/etc/logstash/conf.d/kafka-bro.conf' do
   source 'kafka-bro.conf.erb'
 end
 
-#logstash_input_kafka_url = 'https://rubygems.org/downloads/logstash-input-kafka-2.0.4.gem'
-#logstash_input_kafka_hash = '462b6d2cbc129a66936954e704bb9dc9486041c283ba4fe46226b8f3c210af4b'
-#
-#[
-#  { :name => 'logstash-input-kafka',
-#    :version => '2.0.4',
-#    :url => logstash_input_kafka_url,
-#    :hash => logstash_input_kafka_hash }
-#].each do |item|
-#  filename = File.basename(URI.parse(item[:url]).path)
-#  remote_file filename do
-#    source item[:url]
-#    checksum item[:hash]
-#    path File.join(Chef::Config['file_cache_path'], filename)
-#  end
-#
-#  bash "install_#{filename}" do
-#    cwd '/opt/logstash'
-#    code <<-EOH
-#      sudo ./bin/plugin install #{File.join(Chef::Config['file_cache_path'], filename)}
-#    EOH
-#    not_if "/opt/logstash/bin/plugin list --verbose | grep -q '#{item[:name]} (#{item[:version]})'"
-#  end
-#end
-
 service 'logstash' do
   action [ :enable, :start ]
 end
@@ -691,46 +652,14 @@ end
 ######################################################
 ################## Configure Kibana ##################
 ######################################################
-user 'kibana' do
-  comment "kibana system user"
-  home "/opt/kibana"
-  manage_home false
-  shell "/sbin/nologin"
-  system true
-end
-
-directory '/opt/kibana' do
-  mode '0755'
-  owner 'kibana'
-  group 'kibana'
-  action :create
-end
-
-remote_file "#{Chef::Config[:file_cache_path]}/kibana.tar.gz" do
-  source 'https://download.elastic.co/kibana/kibana/kibana-4.5.0-linux-x64.tar.gz'
-  checksum 'fa3f675febb34c0f676f8a64537967959eb95d2f5a81bc6da17aa5c98b9c76ef'
-  path "#{Chef::Config[:file_cache_path]}/kibana.tar.gz"
-  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.5.0'
-end
-
-execute 'untar_kibana' do
-  command "tar xzf #{Chef::Config[:file_cache_path]}/kibana.tar.gz -C /opt/kibana --strip-components 1"
-  not_if 'cat /opt/kibana/package.json | jq \'.version\' | grep 4.5.0'
-  notifies :run, "execute[chown_kibana]", :immediately
-end
-
-execute 'chown_kibana' do
-  command 'chown -R kibana:kibana /opt/kibana'
-  not_if 'ls -ld /opt/kibana/optimize | grep -q "kibana kibana"'
-end
-
-template '/etc/systemd/system/kibana.service' do
-  source 'kibana.service.erb'
-  notifies :run, "execute[reload_systemd]", :immediately
+service 'kibana' do
+  action [ :enable, :start ]
 end
 
 bash 'set_kibana_replicas' do
   code <<-EOH
+  local ctr=0
+  while ! $(ss -lnt | grep -q ':9200'); do sleep 1; ctr=$(expr $ctr + 1); if [ $ctr -gt 30 ]; then exit; fi; done
   curl -XPUT localhost:9200/_template/kibana-config -d ' {
    "order" : 0,
    "template" : ".kibana",
@@ -744,31 +673,26 @@ bash 'set_kibana_replicas' do
  EOH
 end
 
-service 'kibana' do
-  action [ :enable, :start ]
-end
-
 
 ######################################################
-################## Configure Marvel ##################
+################ Configure ES Plugins ################
 ######################################################
 require 'uri'
 
-license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.3.2/license-2.3.2.zip'
-license_plugin_hash = 'd2df9e5b603a22d1ad903190eb1e9bfe3395837567c2713a7983d36cb0817202'
-marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.3.2/marvel-agent-2.3.2.zip'
-marvel_agent_hash = 'c4c96434b775e016ee95210281efc4a0e7e4c68002282af87f3f9d83a18f64b8'
+#license_plugin_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/license/2.3.2/license-2.3.2.zip'
+#license_plugin_hash = 'd2df9e5b603a22d1ad903190eb1e9bfe3395837567c2713a7983d36cb0817202'
+#marvel_agent_url = 'https://download.elastic.co/elasticsearch/release/org/elasticsearch/plugin/marvel-agent/2.3.2/marvel-agent-2.3.2.zip'
+#marvel_agent_hash = 'c4c96434b775e016ee95210281efc4a0e7e4c68002282af87f3f9d83a18f64b8'
 #esSQL_plugin_url = 'https://github.com/NLPchina/elasticsearch-sql/releases/download/2.3.2.0/elasticsearch-sql-2.3.2.0.zip'
 #esSQL_plugin_hash = 'db15ec5ca36e1a3b0e8d4347e5d413ffb41a906d02b275e407a922f4cb2a69d0'
 esHQ_plugin_url = 'https://codeload.github.com/royrusso/elasticsearch-HQ/legacy.zip/v2.0.3'
 esHQ_plugin_hash = '1ddf966226f3424c5a4dd49583a3da476bba8885901f025e0a73dc9861bf8572'
 
-#   Removed until 2.3.2 compatible version comes out
+#   Temporarily Removed
 #   { :name => 'sql', :url => esSQL_plugin_url, :hash => esSQL_plugin_hash },
-
+#   { :name => 'license', :url => license_plugin_url, :hash => license_plugin_hash },
+#   { :name => 'marvel-agent', :url => marvel_agent_url, :hash => marvel_agent_hash },
 [
-  { :name => 'license', :url => license_plugin_url, :hash => license_plugin_hash },
-  { :name => 'marvel-agent', :url => marvel_agent_url, :hash => marvel_agent_hash },
   { :name => 'hq', :url => esHQ_plugin_url, :hash => esHQ_plugin_hash }
 ].each do |item|
   filename = File.basename(URI.parse(item[:url]).path)
@@ -797,39 +721,39 @@ bash 'es_postplugin_cleanup' do
   EOH
 end
 
-## Kibana plugins
-marvel_plugin_url = 'https://download.elasticsearch.org/elasticsearch/marvel/marvel-2.3.2.tar.gz'
-marvel_plugin_hash = '1736bf6facb25279ed9634004ab87d3b7c366b94d1ac9556f502c6cadbb48437'
-
-[
-  { :name => 'marvel', :url => marvel_plugin_url, :hash => marvel_plugin_hash }
-].each do |item|
-  filename = File.basename(URI.parse(item[:url]).path)
-  remote_file filename do
-    source item[:url]
-    checksum item[:hash]
-    path File.join(Chef::Config['file_cache_path'], filename)
-  end
-
-  bash "install_#{filename}" do
-    cwd '/opt/kibana'
-    code <<-EOH
-      ./bin/kibana plugin --install #{item[:name]} \
-      --url file://#{File.join(Chef::Config['file_cache_path'], filename)}
-    EOH
-    not_if { File.exist?("/opt/kibana/installedPlugins/#{item[:name]}")}
-    notifies :run, "bash[kibana_postplugin_cleanup]", :immediately
-  end
-end
-
-
-bash 'kibana_postplugin_cleanup' do
-  code <<-EOH
-  /bin/systemctl daemon-reload
-  /bin/systemctl restart kibana
-  /usr/bin/sleep 5
-  EOH
-end
+#### Kibana plugins
+##marvel_plugin_url = 'https://download.elasticsearch.org/elasticsearch/marvel/marvel-2.3.2.tar.gz'
+##marvel_plugin_hash = '1736bf6facb25279ed9634004ab87d3b7c366b94d1ac9556f502c6cadbb48437'
+##
+##[
+##  { :name => 'marvel', :url => marvel_plugin_url, :hash => marvel_plugin_hash }
+##].each do |item|
+##  filename = File.basename(URI.parse(item[:url]).path)
+##  remote_file filename do
+##    source item[:url]
+##    checksum item[:hash]
+##    path File.join(Chef::Config['file_cache_path'], filename)
+##  end
+##
+##  bash "install_#{filename}" do
+##    cwd '/opt/kibana'
+##    code <<-EOH
+##      ./bin/kibana plugin --install #{item[:name]} \
+##      --url file://#{File.join(Chef::Config['file_cache_path'], filename)}
+##    EOH
+##    not_if { File.exist?("/opt/kibana/installedPlugins/#{item[:name]}")}
+##    notifies :run, "bash[kibana_postplugin_cleanup]", :immediately
+##  end
+##end
+##
+##
+##bash 'kibana_postplugin_cleanup' do
+##  code <<-EOH
+##  /bin/systemctl daemon-reload
+##  /bin/systemctl restart kibana
+##  /usr/bin/sleep 5
+##  EOH
+##end
 
 #Offline Install
 #bin/plugin install file:///path/to/file/license-2.1.0.zip
