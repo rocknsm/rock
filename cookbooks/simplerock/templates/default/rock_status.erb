@@ -139,5 +139,5 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 
 
 @test "Check that kibana is running" {
-  service kibana status
+  systemctl status kibana
 }

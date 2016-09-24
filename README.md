@@ -6,7 +6,7 @@ This build was created and tested using CentOS 7.2. I pretty much guarantee that
 
 ### Vagrant
 **NOTE:**   
-This Vagrantfile is configured to give the VM 8GB of RAM.  If your system can't do that you should buy a new system or adjust the `vm.memory` value.  Anything below 8 is going to run like poopoo.
+This Vagrantfile is configured to give the VM 8GB of RAM.  If your system can't do that you should buy a new system or adjust the `vm.memory` value.  Anything below 8 is going to run like poopoo. You will also need to have a host-only adapter configured named `vboxnet0`.
 ``` 
 git clone https://github.com/CyberAnalyticDevTeam/SimpleRock.git
 cd SimpleRock
@@ -17,7 +17,8 @@ vagrant up
 **NOTE:**   
 The system you run this on should have at least 2 network interfaces and more than 4GB of RAM, with an OS (RHEL or CentOS 7) already installed.
 ```
-sudo rpm -Uvh https://bintray.com/artifact/download/cyberdev/capes/chef-12.3.0-1.el6.x86_64.rpm
+yum update -y && reboot
+sudo rpm -Uvh https://packages.chef.io/stable/el/7/chef-12.9.38-1.el7.x86_64.rpm
 sudo yum install git -y
 git clone https://github.com/CyberAnalyticDevTeam/SimpleRock.git
 cd SimpleRock
@@ -162,7 +163,8 @@ http://IPADDRESS - Kibana & Marvel
 
 http://IPADDRESS/_plugin/hq - Elastic HQ (To watch the health of elasticsearch.)
 
-http://IPADDRESS/_plugin/sql - Query your ES data with SQL.
+http://IPADDRESS/_plugin/sql - Query your ES data with SQL.   
+**NOTE:** When using the elasticsearch-sql plugin, you must set the address of your ES node in the upper right to `http://IPADDRESS:9200/`.
 
 ## Full Packet Capture
    
