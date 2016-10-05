@@ -387,6 +387,12 @@ yum_package 'bro' do
   allow_downgrade true
 end
 
+yum_package 'broctl' do
+  version '2.4.1-1.1'
+  allow_downgrade true
+  timeout 90
+end
+
 package ['tcpreplay', 'iptables-services', 'dkms', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'nginx', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https', 'kibana']
 
 ######################################################
