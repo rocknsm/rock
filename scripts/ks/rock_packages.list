@@ -1,0 +1,16 @@
+# ROCK packages
+ansible
+bro
+bro-plugin-kafka
+bro-plugin-af_packet
+bwm-ng
+suricata
+stenographer
+zookeeper
+kafka
+kafkacat
+logstash
+elasticsearch
+java-1.8.0-openjdk-headless
+
+

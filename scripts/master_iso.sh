@@ -16,12 +16,13 @@ function cleanup() {
   [ -d ${TMP_NEW} ] && rm -rf ${TMP_NEW}
   [ -d ${TMP_RPMDB} ] && rm -rf ${TMP_RPMDB}
 
+  http_pid=$(ps -ef | grep SimpleHTTP | grep -v grep | awk '{ print $2 }')
+  kill -9 ${http_pid}
 }
 
 TMP_ISO=$(mktemp -d)
 TMP_NEW=$(mktemp -d)
 TMP_RPMDB=$(mktemp -d)
-CACHE_DIR=/tmp/rockiso_cachedir
 
 trap cleanup EXIT
 
@@ -31,6 +32,8 @@ function check_depends() {
   which flattenks  # pykiskstart
   which createrepo # createrepo
 
+  # Kill the HTTP server
+  kill -9 $(ps -ef | awk 'BEGIN {i=0;}; /SimpleHTTPServer/  { print $2; if (i == 1) exit; i=$i+1 }')
 }
 
 function usage() {
@@ -53,8 +56,6 @@ function mkiso() {
 
 function main() {
 
-  mkdir -p ${CACHE_DIR}
-
   # Check preconditions
   if [ $# -lt 1 ] || [ -z "$1" ]; then usage; fi
   if [ $(id -u) != 0 ]; then echo "Run this script as root (try sudo)"; exit 1; fi
@@ -66,7 +67,7 @@ function main() {
   
   # Mount existing iso and copy to new dir
   mount -o loop -t iso9660 "$1" ${TMP_ISO}
-  rsync -a --exclude=Packages ${TMP_ISO}/ ${TMP_NEW}/
+  rsync -a --exclude=Packages --exclude=repodata ${TMP_ISO}/ ${TMP_NEW}/
 
   # Remove TRANS files
   find ${TMP_NEW} -name TRANS.TBL -delete
@@ -90,44 +91,53 @@ EOS
     py 'jinja2.Template(open("grub.cfg.j2").read()).render(json.loads(sys.stdin.read()))' | \
     tee ${TMP_NEW}/EFI/BOOT/grub.cfg
 
+  # Enable rock-mkiso repo
+  (cd $( readlink -f ${SCRIPT_DIR}/../repo ); nohup python -m SimpleHTTPServer 8000 &)
+
   # Add repo file for local repo of custom content
   cat << EOF | tee /etc/yum.repos.d/rock-mkiso.repo
 [rock-mkiso]
 name=ROCK ISO support RPMs
-baseurl=file://$( readlink -f ${SCRIPT_DIR}/../repo )/
+baseurl=http://127.0.0.1:8000/
 gpgcheck=0
 enabled=0
-[rock-cache]
-name=ROCK ISO cache RPMs
-baseurl=file://${CACHE_DIR}
-enabled=0
-gpgcheck=0
-skip_if_unavailable=1
 EOF
 
   # Update metadata cache
-  yum --enablerepo=rock-* makecache
+  yum --enablerepo=rock-mkiso makecache fast
 
   # Download minimal set of packages for kickstart
   grep -vE '^[%#-]|^$' ks/packages.list | \
     awk '{print$1}' | \
     xargs sudo yum install --downloadonly --releasever=/ \
-      --enablerepo=rock-* \
+      --enablerepo=rock-mkiso \
+      --downloaddir=${TMP_NEW}/Packages/ \
+      --installroot=${TMP_RPMDB}
+
+  # Download minimal set of packages for kickstart
+  grep -vE '^[%#-]|^$' ks/rock_packages.list | \
+    awk '{print$1}' | \
+    xargs sudo yum install --downloadonly --releasever=/ \
+      --enablerepo=rock-mkiso \
+      --downloaddir=${TMP_NEW}/Packages/ \
+      --installroot=${TMP_RPMDB}
+
+  # Add packages needed for anaconda
+  grep -vE '^[%#-]|^$' ks/installer_packages.list | \
+    awk '{print$1}' | \
+    xargs sudo yum install --downloadonly --releasever=/ \
+      --enablerepo=rock-mkiso \
       --downloaddir=${TMP_NEW}/Packages/ \
       --installroot=${TMP_RPMDB}
 
   # Clear old repo data & generate fresh
-  rm -rf ${TMP_NEW}/repodata/*
+  rm -rf ${TMP_NEW}/repodata
+  mkdir -p ${TMP_NEW}/repodata
   cp $(ls ${TMP_ISO}/repodata/*-comps.xml | head -1) ${TMP_NEW}/repodata/comps.xml
-
-  #local discinfo=$(head -1 ${TMP_ISO}/.discinfo)
   createrepo -g ${TMP_NEW}/repodata/comps.xml ${TMP_NEW}
 
-  # Save to cache dir
-  rsync -a ${TMP_NEW}/{Packages,repodata} ${CACHE_DIR}/
-
   # Add non-RPM content
-  rsync -a ${SCRIPT_DIR}/../repo/support "${TMP_NEW}/"
+  rsync -r ${SCRIPT_DIR}/../repo/support "${TMP_NEW}/"
 
   # Generate flattened kickstart & add pre-inst hooks
   ksflatten -c ks/install.ks -o "${TMP_NEW}/${KICKSTART}"
