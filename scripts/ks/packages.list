@@ -1,41 +1,10 @@
-# Start with a functional system
-@core
-@anaconda-tools
-
-# vagrant needs this to copy initial files via scp
-openssh-clients
-sudo
-#kernel-headers
-#kernel-devel
-#gcc
-#make
-#perl
-#selinux-policy-devel
-#nfs-utils
-net-tools
-bzip2
--fprintd-pam
--intltool
-
+# Start with a functional installation system
+@^minimal
 # Tools for operator sanity
 vim
 tmux
 git
-
-# ROCK packages
-ansible
-bro
-bro-plugin-kafka
-bro-plugin-af_packet
-bwm-ng
-suricata
-stenographer
-zookeeper
-kafka
-kafkacat
-logstash
-elasticsearch
-java-1.8.0-openjdk-headless
+bzip2
 
 # unnecessary firmware
 -aic94xx-firmware
