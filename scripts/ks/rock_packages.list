@@ -1,5 +1,4 @@
 # ROCK packages
-ansible
 bro
 bro-plugin-kafka
 bro-plugin-af_packet

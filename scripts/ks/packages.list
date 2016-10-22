@@ -1,10 +1,12 @@
 # Start with a functional installation system
 @^minimal
+
 # Tools for operator sanity
 vim
 tmux
 git
 bzip2
+ansible
 
 # unnecessary firmware
 -aic94xx-firmware
