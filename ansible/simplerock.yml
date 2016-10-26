@@ -1,0 +1,751 @@
+- hosts: all
+  vars:
+    rock_debug: "{{ lookup('env', 'DEBUG') }}"
+    rock_online_install: true
+    rock_data_dir: /data
+    rock_data_user: root
+    rock_data_group: root
+    rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface ])| list }}"
+    rock_hostname: "{{ inventory_hostname_short }}"
+    rock_fqdn: "{{ inventory_hostname }}"
+    epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+    epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
+    elastic_baseurl: https://artifacts.elastic.co/packages/5.x-prerelease/yum
+    elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    rocknsm_baseurl: https://packagecloud.io/rocknsm/dev/el/7/$basearch
+    rocknsm_gpgurl: https://packagecloud.io/rocknsm/dev/gpgkey
+    rocknsm_local_baseurl: /srv/repo
+    bro_user: bro
+    bro_group: bro
+    bro_data_dir: "{{ rock_data_dir }}/bro"
+    bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
+    bro_rockscripts_repo: https://github.com/mocyber/rock-scripts.git
+    stenographer_user: stenographer
+    stenographer_group: stenographer
+    stenographer_data_dir: "{{ rock_data_dir }}/stenographer"
+    suricata_user: suricata
+    suricata_group: suricata
+    suricata_data_dir: "{{ rock_data_dir }}/suricata"
+    pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
+    pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
+    kafka_user: kafka
+    kafka_group: kafka
+    kafka_data_dir: "{{ rock_data_dir }}/kafka"
+    kafka_config_path: /etc/kafka/server.properties
+    es_user: elasticsearch
+    es_group: elasticsearch
+    es_data_dir: "{{ rock_data_dir }}/elasticsearch"
+    es_cluster_name: rocknsm
+    es_node_name: "{{ rock_hostname }}"
+    es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
+    es_memlock_override: |
+      [Service]
+      LimitMEMLOCK=infinity
+    logstash_user: logstash
+    logstash_group: logstash
+
+    http_proxy: "{{ lookup('env','http_proxy') }}"
+    https_proxy: "{{ lookup('env', 'https_proxy') }}"
+
+  tasks:
+  - debug: msg="Dumping variables for debug"
+    when: rock_debug is defined and rock_debug
+  - debug: var=rock_debug
+    when: rock_debug is defined and rock_debug
+  - debug: var=rock_online_install
+    when: rock_debug is defined and rock_debug
+  - debug: var=rock_data_dir
+    when: rock_debug is defined and rock_debug
+  - debug: var=bro_data_dir
+    when: rock_debug is defined and rock_debug
+  - debug: var=suricata_data_dir
+    when: rock_debug is defined and rock_debug
+  - debug: var=stenographer_data_dir
+    when: rock_debug is defined and rock_debug
+  - debug: var=rock_data_user
+    when: rock_debug is defined and rock_debug
+  - debug: var=es_mem
+    when: rock_debug is defined and rock_debug
+  - debug: var=bro_cpu
+    when: rock_debug is defined and rock_debug
+  - debug: var=rock_monifs
+    when: rock_debug is defined and rock_debug
+  - debug: var=rock_hostname
+    when: rock_debug is defined and rock_debug
+  - debug: var=rock_fqdn
+    when: rock_debug is defined and rock_debug
+  - debug: var=epel_baseurl
+    when: rock_debug is defined and rock_debug
+  - debug: var=epel_gpgurl
+    when: rock_debug is defined and rock_debug
+  - debug: var=elastic_baseurl
+    when: rock_debug is defined and rock_debug
+  - debug: var=elastic_gpgurl
+    when: rock_debug is defined and rock_debug
+  - debug: var=rocknsm_baseurl
+    when: rock_debug is defined and rock_debug
+  - debug: var=rocknsm_gpgurl
+    when: rock_debug is defined and rock_debug
+  - debug: var=rocknsm_local_baseurl
+    when: rock_debug is defined and rock_debug
+  - debug: var=http_proxy
+    when: rock_debug is defined and rock_debug
+  - debug: var=https_proxy
+    when: rock_debug is defined and rock_debug
+
+  ######################################################
+  ################# Data Directory #####################
+  ######################################################
+  ###############
+  ##### NOTE ####
+  ###############
+  #You will want to remount this to your "good" storage after the build.  This is just to make sure all the paths in the configs are proper.
+  ###############  - file:
+  - name: Create ROCK data dir
+    file:
+      path: "{{ rock_data_dir }}"
+      mode: 0755
+      owner: "{{ rock_data_user }}"
+      group: "{{ rock_data_group }}"
+      recurse: yes
+      state: directory
+    when: false
+
+    ######################################################
+    ################### Configure Time ###################
+    ######################################################
+  - name: Install Chrony
+    yum:
+      name: chrony
+      state: installed
+
+  - name: Enable and start chrony
+    service:
+      name: chronyd
+      enabled: yes
+      state: started
+
+  - name: Set system timezone
+    command: /usr/bin/timedatectl set-timezone UTC
+    when: ansible_date_time.tz != "UTC"
+
+  - name: Check if RTC set to UTC
+    shell: timedatectl | awk '/RTC in local/ { print $5 }'
+    changed_when: false
+    register: chrony_local_utc
+
+  - name: Set system hardware clock to UTC
+    command: /usr/bin/timedatectl set-local-rtc no
+    when: chrony_local_utc == 'yes'
+
+    ######################################################
+    ######### Configure the monitoring interface #########
+    ######################################################
+  - name: Configure monitor interface
+    template:
+      src: templates/ifcfg-monif.j2
+      dest: /etc/sysconfig/network-scripts/ifcfg-{{ item }}
+      mode: 0644
+      owner: root
+      group: root
+      force: yes
+    with_items: "{{ rock_monifs }}"
+
+  - name: Configure local ifup script
+    template:
+      src: templates/ifup-local.j2
+      dest: /sbin/ifup-local
+      mode: 0755
+      owner: root
+      group: root
+      force: yes
+
+    #######################################################
+    #################### Disable IPv6 #####################
+    #######################################################
+
+  - name: Disable IPv6 for all interfaces
+    sysctl:
+      name: net.ipv6.conf.all.disable_ipv6
+      value: 1
+
+  - name: Disable IPv6 for default interfaces
+    sysctl:
+      name: net.ipv6.conf.default.disable_ipv6
+      value: 1
+
+  - name: Disable IPv6 in SSHD
+    lineinfile:
+      dest: /etc/ssh/sshd_config
+      regexp: AddressFamily
+      line: AddressFamily inet
+    notify:
+    - sshd restart
+
+  - name: Remove localhost6 from hosts file
+    lineinfile:
+      dest: /etc/hosts
+      regexp: localhost6
+      state: absent
+
+    #######################################################
+    ###################### DNS Fixes ######################
+    #######################################################
+    # This is only necessary because my local DNS isn't trustworthy
+  - name: Add OpenDNS resolver
+    copy:
+      content: |
+        nameserver 208.67.222.222
+        nameserver 208.67.220.220
+      dest: /etc/resolv.conf
+
+  - name: Set hostname in hosts file
+    lineinfile:
+      dest: /etc/hosts
+      insertafter: 127.0.0.1
+      line: 127.0.0.2  {{ rock_fqdn }}  {{ rock_hostname }}
+
+  - name: Set system hostname
+    hostname: name="{{ rock_fqdn }}"
+
+    #######################################################
+    ################## Setup Yum Repos ####################
+    #######################################################
+  - name: Setup EPEL repo
+    yum_repository:
+      name: epel
+      description: EPEL YUM repo
+      baseurl: "{{ epel_baseurl }}"
+      gpgkey:  "{{ epel_gpgurl }}"
+      gpgcheck: yes
+    when: rock_online_install
+
+  - name: Setup Elastic repo
+    yum_repository:
+      name: elastic-5.x
+      description: Elastic Stack repository for 5.x
+      baseurl: "{{ elastic_baseurl }}"
+      gpgkey:  "{{ elastic_gpgurl }}"
+      gpgcheck: no
+    when: rock_online_install
+
+  - name: Setup ROCK NSM repo
+    yum_repository:
+      name: rocknsm
+      description: ROCK NSM repository for devel
+      baseurl: "{{ rocknsm_baseurl }}"
+      gpgkey:  "{{ rocknsm_gpgurl }}"
+      gpgcheck: no
+      cost: 750
+    when: rock_online_install
+
+  - name: Setup local offline repo
+    yum_repository:
+      name: rocknsm-local
+      description: Local repo for ROCK NSM packages
+      baseurl: "{{ rocknsm_local_baseurl }}"
+      gpgcheck: no
+      cost: 500
+    when: not rock_online_install
+
+    #######################################################
+    ############# Install/Remove Packages #################
+    #######################################################
+  - name: Install needed packages
+    yum:
+      name: "{{ item }}"
+      state: latest
+    with_items:
+      - java-1.8.0-openjdk-headless
+      - elasticsearch
+      - logstash
+      - kibana
+      - bro
+      - bro-plugin-af_packet
+      - bro-plugin-kafka
+      - stenographer
+      - jq
+      - suricata
+      - zookeeper
+      - kafka
+      - kafkacat
+      - GeoIP
+      - GeoIP-update
+      - tcpreplay
+      - tcpdump
+      - bats
+      - nginx
+      - policycoreutils-python
+      - htop
+      - vim
+      - git
+      - tmux
+      - nmap-ncat
+  - name: Remove unneeded packages
+    yum:
+      name: "{{ item }}"
+      state: absent
+    with_items:
+      - firewalld
+      - postfix
+
+    #######################################################
+    ###################### Setup Bro  #####################
+    #######################################################
+  - name: Configure GeoIP Update
+    copy: src=files/GeoIP.conf dest=/etc/GeoIP.conf
+    notify:
+      - update geoip
+
+  - name: Create GeoIP symlinks
+    file:
+      src: "/usr/share/GeoIP/{{ item.src }}"
+      dest: "/usr/share/GeoIP/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'GeoLiteCity.dat', dest: 'GeoIPCity.dat' }
+      - { src: 'GeoLiteCountry.dat', dest: 'GeoIPCountry.dat' }
+      - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
+      - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
+
+  - name: Create bro group
+    group:
+      name: "{{ bro_group }}"
+      state: present
+      system: yes
+
+  - name: Create bro user and group
+    user:
+      name: "{{ bro_user }}"
+      comment: "bro service account"
+      createhome: no
+      group: "{{ bro_group }}"
+      home: /opt/bro
+      shell: /sbin/nologin
+      system: yes
+      state: present
+
+  - name: Create Bro directories
+    file:
+      path: "{{ bro_data_dir }}/{{ item }}"
+      mode: 0755
+      owner: "{{ bro_user }}"
+      group: "{{ bro_group }}"
+      recurse: yes
+      state: directory
+    with_items:
+      - logs
+      - spool
+
+  - name: Create symlinks for wandering analysts
+    file:
+      dest: "/opt/bro/{{ item }}"
+      src:  "{{ bro_data_dir }}/{{ item }}"
+      state: link
+      force: yes
+    with_items:
+      - logs
+
+  - name: Create Bro node.cfg
+    template:
+      src: templates/bro-node.cfg.j2
+      dest: /opt/bro/etc/node.cfg
+      mode: 0644
+      owner: root
+      group: root
+    notify:
+    - initialize bro
+
+  - name: Create broctl.cfg
+    template:
+      src: templates/bro-broctl.cfg.j2
+      dest: /opt/bro/etc/broctl.cfg
+      mode: 0644
+      owner: root
+      group: root
+    notify:
+    - initialize bro
+
+  - name: Create bro networks.cfg
+    copy:
+      src: files/bro-networks.cfg
+      dest: /opt/bro/etc/networks.cfg
+      mode: 0644
+      owner: root
+      group: root
+
+  - name: Add bro custom scripts dir
+    file:
+      path: /opt/bro/share/bro/site/scripts
+      owner: root
+      group: root
+      mode: 0755
+      state: directory
+
+  - name: Add README to scripts dir
+    copy:
+      src: files/bro-scripts-readme.txt
+      dest: /opt/bro/share/bro/site/scripts/README.txt
+      mode: 0644
+      owner: root
+      group: root
+
+  - name: Checkout ROCK Bro scripts
+    git:
+      repo: "{{ bro_rockscripts_repo }}"
+      dest: /opt/bro/share/bro/site/scripts/rock
+      depth: 1
+
+  - name: Add ROCK scripts to local.bro
+    lineinfile:
+      dest: /opt/bro/share/bro/site/local.bro
+      line: "@load scripts/rock # ROCK NSM customizations"
+      state: present
+
+  - name: Add bro to path and aliases
+    copy:
+      src: files/profile.d-bro.sh
+      dest: /etc/profile.d/bro.sh
+      mode: 0644
+      owner: root
+      group: root
+
+  - name: Set bro capabilities
+    capabilities:
+      path: /opt/bro/bin/bro
+      capability: "{{ item }}"
+      state: present
+    with_items:
+      - "cap_net_raw+eip"
+      - "cap_net_admin+eip"
+
+  - name: Set capstats capabilities
+    capabilities:
+      path: /opt/bro/bin/capstats
+      capability: "{{ item }}"
+      state: present
+    with_items:
+      - "cap_net_raw+eip"
+      - "cap_net_admin+eip"
+
+  - name: Set broctl cron
+    cron:
+      name: "broctl maintenance"
+      minute: "*/5"
+      cron_file: rocknsm_broctl
+      user: "{{ bro_user }}"
+      job: "/opt/bro/bin/broctl cron >/dev/null 2>&1"
+
+    ######################################################
+    ################# Setup Stenographer #################
+    ######################################################
+
+  - name: Set stenographer config
+    template:
+      src: templates/stenographer-config.j2
+      dest: "/etc/stenographer/config.{{ item.1 }}"
+    with_indexed_items: "{{ rock_monifs }}"
+
+  - name: Create Stenographer directories
+    file:
+      path: "{{ stenographer_data_dir }}/{{ item[0] }}/{{ item[1] }}"
+      mode: 0755
+      owner: "{{ stenographer_user }}"
+      group: "{{ stenographer_group }}"
+      recurse: yes
+      state: directory
+    with_nested:
+      - "{{ rock_monifs }}"
+      - [ 'index', 'packets' ]
+
+  - name: Install stenographer service files
+    copy:
+      src: "files/{{ item }}"
+      dest: "/etc/systemd/system/{{ item }}"
+      mode: 0644
+      owner: root
+      group: root
+    with_items:
+      - stenographer.service
+      - stenographer@.service
+
+  - name: Generate stenographer keys
+    command: >
+      /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
+    args:
+      creates: /etc/stenographer/certs/client_key.pem
+
+  - name: Set Stenographer disabled by default
+    service: name=stenographer enabled=no state=stopped
+
+    ######################################################
+    ################## Setup Suricata ####################
+    ######################################################
+
+  - name: Create Suricata directories
+    file:
+      path: "{{ suricata_data_dir }}/old"
+      mode: 0755
+      owner: "{{ suricata_user }}"
+      group: "{{ suricata_group }}"
+      recurse: yes
+      state: directory
+
+  - name: Set suricata capabilities
+    capabilities:
+      path: /usr/sbin/suricata
+      capability: "{{ item }}"
+      state: present
+    with_items:
+      - "cap_net_raw+eip"
+      - "cap_net_admin+eip"
+      - "cap_ipc_lock+eip"
+
+  - name: Remove suricata sysconfig file
+    file:
+      path: /etc/sysconfig/suricata
+      state: absent
+
+  - name: Install suricata service files
+    copy:
+      src: "files/{{ item }}"
+      dest: "/etc/systemd/system/{{ item }}"
+      mode: 0644
+      owner: root
+      group: root
+    with_items:
+      - suricata.service
+      - suricata@.service
+
+  - name: Install suricata configuration
+    copy:
+      src: files/suricata.yaml
+      dest: /etc/suricata/suricata.yaml
+      mode: 0600
+      owner: "{{ suricata_user }}"
+      group: root
+
+  - name: Enable and start suricata
+    service: name="suricata@{{ item }}" enabled=yes state=started
+    with_items: "{{ rock_monifs }}"
+
+    ######################################################
+    ################### Setup Zookeeper ##################
+    ######################################################
+
+  - name: Enable and start zookeeper
+    service: name=zookeeper state=started enabled=yes
+
+    ######################################################
+    ##################### Setup Kafka ####################
+    ######################################################
+
+  - name: Create Kafka data dir
+    file:
+      path: "{{ kafka_data_dir }}"
+      mode: 0755
+      owner: "{{ kafka_user }}"
+      group: "{{ kafka_group }}"
+      state: directory
+      recurse: yes
+
+  - name: Set kafka retention
+    lineinfile:
+      dest: "{{ kafka_config_path }}"
+      regexp: "log.retention.hours="
+      line:  "log.retention.hours=1"
+      state: present
+
+  - name: Set kafka data dir
+    lineinfile:
+      dest: "{{ kafka_config_path }}"
+      regexp: "log.dirs="
+      line: "log.dirs={{ kafka_data_dir }}"
+
+  - name: Enable and start kafka
+    service: name=kafka state=started enabled=yes
+    notify:
+      - create kafka bro topic
+
+    ######################################################
+    ################# Setup Elasticsearch ################
+    ######################################################
+  - name: Create Elasticsearch directory
+    file:
+      path: "{{ es_data_dir }}"
+      mode: 0755
+      owner: "{{ es_user }}"
+      group: "{{ es_group }}"
+      state: directory
+      recurse: yes
+
+  - name: Setup elasticsearch config
+    template:
+      src: templates/elasticsearch.yml.j2
+      dest: /etc/elasticsearch/elasticsearch.yml
+      owner: root
+      group: "{{ es_group }}"
+      mode: 0640
+
+  - name: Create elasticsearch systemd override dir
+    file:
+      path: /etc/systemd/system/elasticsearch.service.d
+      owner: root
+      group: root
+      mode: 0755
+      state: directory
+
+  - name: Enable elasticsearch memlock in service override
+    copy:
+      content: "{{ es_memlock_override }}"
+      dest: /etc/systemd/system/elasticsearch.service.d/override.conf
+      mode: 0644
+      owner: root
+      group: root
+
+  - name: Setup elasticsearch data dir in sysconfig
+    lineinfile:
+      dest: /etc/sysconfig/elasticsearch
+      regexp: "DATA_DIR="
+      line: "DATA_DIR={{ es_data_dir }}"
+
+  - name: Setup elasticsearch jvm options
+    template:
+      src: templates/es-jvm.options.j2
+      dest: /etc/elasticsearch/jvm.options
+      mode: 0640
+      owner: root
+      group: "{{ es_group }}"
+
+  - name: Install ROCK Elasticsearch cleanup script
+    copy:
+      src: files/es_cleanup.sh
+      dest: /usr/local/bin/es_cleanup.sh
+      mode: 0755
+      owner: root
+      group: root
+
+  - name: Set elasticsearch cleanup cron job
+    cron:
+      name: "ES maintenance"
+      cron_file: rocknsm_es_maintenance
+      hour: 0
+      minute: 1
+      user: root
+      job: /usr/local/bin/es_cleanup.sh > /dev/null 2>&1
+
+  - name: Enable and start Elasticsearch
+    service: name=elasticsearch state=started enabled=yes
+
+    ######################################################
+    ################### Setup Logstash ###################
+    ######################################################
+  - name: Install bro Kafka configuration for Logstash
+    copy:
+      src: files/logstash-kafka-bro.conf
+      dest: /etc/logstash/conf.d/kafka-bro.conf
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+
+  - name: Enable and start Logstash
+    service: name=logstash state=started enabled=yes
+
+    ######################################################
+    ################### Setup Kibana #####################
+    ######################################################
+  - name: Enable and start Kibana
+    service: name=kibana state=started enabled=yes
+    notify:
+      - configure kibana templates
+
+    ######################################################
+    ################### Setup nginx ######################
+    ######################################################
+  - name: Install ROCK nginx configuration
+    template:
+      src: templates/nginx-rock.conf.j2
+      dest: /etc/nginx/conf.d/rock.conf
+      mode:
+
+  - name: Install nginx base configuration
+    copy:
+      src: files/nginx.conf
+      dest: /etc/nginx.conf
+      mode: 0644
+      owner: root
+      group: root
+
+  - name: Enable nginx to perform proxy connect
+    seboolean: name=httpd_can_network_connect state=yes persistent=yes
+
+  - name: Enable and start nginx
+    service: name=nginx state=started enabled=yes
+
+    ######################################################
+    ############### Setup ROCKNSM Scripts ################
+    ######################################################
+  - name: Install rock start script
+    copy:
+      src: files/rock_start
+      dest: /usr/local/bin/rock_start
+      mode: 0700
+      owner: root
+      group: root
+
+  - name: Install rock stop script
+    copy:
+      src: files/rock_stop
+      dest: /usr/local/bin/rock_stop
+      mode: 0700
+      owner: root
+      group: root
+
+  - name: Install rock status script
+    copy:
+      src: files/rock_status
+      dest: /usr/local/bin/rock_status
+      mode: 0700
+      owner: root
+      group: root
+
+  # Training mode / Service mode not needed for AF_PACKET
+
+  #######################################################
+  #####################  Handlers  ######################
+  #######################################################
+  handlers:
+    - name: sshd restart
+      service: name=sshd state=restarted
+    - name: update geoip
+      command: /usr/bin/geoipupdate
+    - name: create kafka bro topic
+      command: /opt/kafka/bin/kafka-topics.sh --zookeeper 127.0.0.1:2181 --create --replication-factor 1 --topic bro_raw --partitions 4
+    - name: initialize bro
+      command: >
+        sudo -u {{ bro_user }} /opt/bro/bin/broctl install;
+        sudo -u {{ bro_user }} /opt/bro/bin/broctl check &&
+        sudo -u {{ bro_user }} /opt/bro/bin/broctl start
+    - name: configure kibana templates
+      command: >
+        local ctr=0
+         while ! $(ss -lnt | grep -q ':9200'); do sleep 1; ctr=$(expr $ctr + 1); if [ $ctr -gt 30 ]; then exit; fi; done
+         /usr/bin/curl -XPUT localhost:9200/_template/kibana-config -d ' {
+          "order" : 0,
+          "template" : ".kibana",
+          "settings" : {
+            "index.number_of_replicas" : "0",
+            "index.number_of_shards" : "1"
+          },
+          "mappings" : { },
+          "aliases" : { }
+         }'
+    - name: es maintenance
+      command: /usr/local/bin/es_cleanup.sh
+
+  environment:
+   http_proxy:  "{{ http_proxy }}"
+   https_proxy: "{{ https_proxy }}"
+   HTTP_PROXY:  "{{ http_proxy }}"
+   HTTPS_PROXY: "{{ https_proxy }}"

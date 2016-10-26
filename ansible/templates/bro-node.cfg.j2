@@ -1,0 +1,21 @@
+[logger]
+type=logger
+host=localhost
+
+[manager]
+type=manager
+host=localhost
+
+[proxy-1]
+type=proxy
+host=localhost
+
+{% for iface in rock_monifs %}
+[{{ iface }}]
+type=worker
+host=localhost
+interface=af_packet::{{ iface }}
+lb_method=custom
+lb_procs={{ (bro_cpu | int) // loop.length }}
+{# TODO: add logic for pinning processes #}
+{% endfor %}

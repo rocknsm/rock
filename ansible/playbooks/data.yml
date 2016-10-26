@@ -1,6 +1,0 @@
----
-# file: datastor.yml
-- hosts: datastors
-  roles:
-    - common
-    - datastor
