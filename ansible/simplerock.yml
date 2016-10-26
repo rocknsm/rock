@@ -328,15 +328,15 @@
 
   - name: Create Bro directories
     file:
-      path: "{{ bro_data_dir }}/{{ item }}"
+      path: "{{ item }}"
       mode: 0755
       owner: "{{ bro_user }}"
       group: "{{ bro_group }}"
-      recurse: yes
       state: directory
     with_items:
-      - logs
-      - spool
+      - "{{ bro_data_dir }}"
+      - "{{ bro_data_dir }}/logs"
+      - "{{ bro_data_dir }}/spool"
 
   - name: Create symlinks for wandering analysts
     file:
