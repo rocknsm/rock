@@ -24,3 +24,10 @@ Example:
 ```
 sudo ./master_iso.sh /vagrant/CentOS-7-x86_64-Everything-1511.iso rocknsm-20161101.iso
 ```
+
+## Support dir
+
+In the top level of this git repo is an empty dir, `repo/support`. Anything
+in this directory will be copied to `/support/` on the ISO. This is useful
+for including additional scripts or support files to use during the `%post`
+install script, or to install on the host.
