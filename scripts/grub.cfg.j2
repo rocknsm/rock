@@ -1,0 +1,40 @@
+set default="1"
+
+function load_video {
+  insmod efi_gop
+  insmod efi_uga
+  insmod video_bochs
+  insmod video_cirrus
+  insmod all_video
+}
+
+load_video
+set gfxpayload=keep
+insmod gzio
+insmod part_gpt
+insmod ext2
+
+set timeout=60
+### END /etc/grub.d/00_header ###
+
+search --no-floppy --set=root -l '{{ name }} {{ version }} {{ arch }}'
+
+### BEGIN /etc/grub.d/10_linux ###
+menuentry 'Install {{ name }} {{ version }} ({{ build }})' --class fedora --class gnu-linux --class gnu --class os {
+	linuxefi /images/pxeboot/vmlinuz inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} quiet ks=cdrom:/{{ kickstart }}
+	initrdefi /images/pxeboot/initrd.img
+}
+menuentry 'Test this media & install {{ name }} {{ version }} ({{ build }})' --class fedora --class gnu-linux --class gnu --class os {
+	linuxefi /images/pxeboot/vmlinuz inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} rd.live.check quiet ks=cdrom:/{{ kickstart }}
+	initrdefi /images/pxeboot/initrd.img
+}
+submenu 'Troubleshooting -->' {
+	menuentry 'Install {{ name }} {{ version }} in basic graphics mode' --class fedora --class gnu-linux --class gnu --class os {
+		linuxefi /images/pxeboot/vmlinuz inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} xdriver=vesa nomodeset quiet ks=cdrom:/{{ kickstart }}
+		initrdefi /images/pxeboot/initrd.img
+	}
+	menuentry 'Rescue a {{ name }} system' --class fedora --class gnu-linux --class gnu --class os {
+		linuxefi /images/pxeboot/vmlinuz inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} rescue quiet
+		initrdefi /images/pxeboot/initrd.img
+	}
+}

@@ -1,4 +1,7 @@
 tmp/
+repo/
 .vagrant
 Vagrantfile.vmware
 *.pcap
+*.iso
+.DS_Store
