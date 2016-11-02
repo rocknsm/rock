@@ -15,9 +15,6 @@ function cleanup() {
   [ -d ${TMP_ISO} ] && rm -rf ${TMP_ISO}
   [ -d ${TMP_NEW} ] && rm -rf ${TMP_NEW}
   [ -d ${TMP_RPMDB} ] && rm -rf ${TMP_RPMDB}
-
-  http_pid=$(ps -ef | grep SimpleHTTP | grep -v grep | awk '{ print $2 }')
-  kill -9 ${http_pid}
 }
 
 TMP_ISO=$(mktemp -d)
@@ -31,9 +28,6 @@ function check_depends() {
   which mkisofs    # genisoimage
   which flattenks  # pykiskstart
   which createrepo # createrepo
-
-  # Kill the HTTP server
-  kill -9 $(ps -ef | awk 'BEGIN {i=0;}; /SimpleHTTPServer/  { print $2; if (i == 1) exit; i=$i+1 }')
 }
 
 function usage() {
@@ -73,7 +67,7 @@ function main() {
   find ${TMP_NEW} -name TRANS.TBL -delete
 
   # Add new isolinux & grub config
-  read -r -d '' template_json <<EOS || echo
+  read -r -d '' template_json <<EOF || echo
   {
     "name": "${NAME}", 
     "version": "${VERSION}",
@@ -81,7 +75,7 @@ function main() {
     "kickstart": "${KICKSTART}",
     "build": "${TIMESTAMP}"
   }
-EOS
+EOF
 
   echo ${template_json} | \
     py 'jinja2.Template(open("isolinux.cfg.j2").read()).render(json.loads(sys.stdin.read()))' | \
@@ -91,26 +85,26 @@ EOS
     py 'jinja2.Template(open("grub.cfg.j2").read()).render(json.loads(sys.stdin.read()))' | \
     tee ${TMP_NEW}/EFI/BOOT/grub.cfg
 
-  # Enable rock-mkiso repo
-  (cd $( readlink -f ${SCRIPT_DIR}/../repo ); nohup python -m SimpleHTTPServer 8000 &)
-
-  # Add repo file for local repo of custom content
-  cat << EOF | tee /etc/yum.repos.d/rock-mkiso.repo
-[rock-mkiso]
-name=ROCK ISO support RPMs
-baseurl=http://127.0.0.1:8000/
-gpgcheck=0
-enabled=0
+  # Add repo file for rocksnm repo content
+  cat << EOF | tee /etc/yum.repos.d/rock-devel.repo
+[rocknsm_dev]
+name=rocknsm_dev
+baseurl=https://packagecloud.io/rocknsm/dev/el/7/$basearch
+repo_gpgcheck=1
+enabled=1
+gpgkey=https://packagecloud.io/rocknsm/dev/gpgkey
+sslverify=1
+sslcacert=/etc/pki/tls/certs/ca-bundle.crt
+metadata_expire=300
 EOF
 
   # Update metadata cache
-  yum --enablerepo=rock-mkiso makecache fast
+  yum makecache fast
 
   # Download minimal set of packages for kickstart
   grep -vE '^[%#-]|^$' ks/packages.list | \
     awk '{print$1}' | \
     xargs sudo yum install --downloadonly --releasever=/ \
-      --enablerepo=rock-mkiso \
       --downloaddir=${TMP_NEW}/Packages/ \
       --installroot=${TMP_RPMDB}
 
@@ -118,7 +112,6 @@ EOF
   grep -vE '^[%#-]|^$' ks/rock_packages.list | \
     awk '{print$1}' | \
     xargs sudo yum install --downloadonly --releasever=/ \
-      --enablerepo=rock-mkiso \
       --downloaddir=${TMP_NEW}/Packages/ \
       --installroot=${TMP_RPMDB}
 
@@ -126,7 +119,6 @@ EOF
   grep -vE '^[%#-]|^$' ks/installer_packages.list | \
     awk '{print$1}' | \
     xargs sudo yum install --downloadonly --releasever=/ \
-      --enablerepo=rock-mkiso \
       --downloaddir=${TMP_NEW}/Packages/ \
       --installroot=${TMP_RPMDB}
 
@@ -137,7 +129,7 @@ EOF
   createrepo -g ${TMP_NEW}/repodata/comps.xml ${TMP_NEW}
 
   # Add non-RPM content
-  rsync -r ${SCRIPT_DIR}/../repo/support "${TMP_NEW}/"
+  rsync -r --exclude=.gitempty ${SCRIPT_DIR}/../repo/support "${TMP_NEW}/"
 
   # Generate flattened kickstart & add pre-inst hooks
   ksflatten -c ks/install.ks -o "${TMP_NEW}/${KICKSTART}"
