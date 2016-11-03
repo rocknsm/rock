@@ -1,53 +1,15 @@
 - hosts: all
   vars:
     rock_debug: "{{ lookup('env', 'DEBUG') }}"
-    rock_online_install: true
-    rock_data_dir: /data
-    rock_data_user: root
-    rock_data_group: root
-    rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface ])| list }}"
-    rock_hostname: "{{ inventory_hostname_short }}"
-    rock_fqdn: "{{ inventory_hostname }}"
-    epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
-    epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
-    elastic_baseurl: https://artifacts.elastic.co/packages/5.x-prerelease/yum
-    elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-    rocknsm_baseurl: https://packagecloud.io/rocknsm/dev/el/7/$basearch
-    rocknsm_gpgurl: https://packagecloud.io/rocknsm/dev/gpgkey
-    rocknsm_local_baseurl: /srv/repo
-    bro_user: bro
-    bro_group: bro
-    bro_data_dir: "{{ rock_data_dir }}/bro"
-    bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
-    bro_rockscripts_repo: https://github.com/mocyber/rock-scripts.git
-    stenographer_user: stenographer
-    stenographer_group: stenographer
-    stenographer_data_dir: "{{ rock_data_dir }}/stenographer"
-    suricata_user: suricata
-    suricata_group: suricata
-    suricata_data_dir: "{{ rock_data_dir }}/suricata"
-    pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
-    pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
-    kafka_user: kafka
-    kafka_group: kafka
-    kafka_data_dir: "{{ rock_data_dir }}/kafka"
-    kafka_config_path: /etc/kafka/server.properties
-    es_user: elasticsearch
-    es_group: elasticsearch
-    es_data_dir: "{{ rock_data_dir }}/elasticsearch"
-    es_cluster_name: rocknsm
-    es_node_name: "{{ rock_hostname }}"
-    es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
-    es_memlock_override: |
-      [Service]
-      LimitMEMLOCK=infinity
-    logstash_user: logstash
-    logstash_group: logstash
-
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
 
   tasks:
+  - name: Generate default settings
+    include_vars: files/config.yml.dist
+  - name: Apply override settings, if available
+    include_vars: /etc/rocknsm/config.yml
+
   - debug: msg="Dumping variables for debug"
     when: rock_debug is defined and rock_debug
   - debug: var=rock_debug

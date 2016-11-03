@@ -1,5 +1,0 @@
----
-# file: site.yml
-- include: playbooks/analysis.yml
-- include: playbooks/data.yml
-- include: playbooks/sensor.yml

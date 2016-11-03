@@ -1,0 +1,13 @@
+---
+- hosts: all
+  tasks:
+  - name: Read in variables
+    include_vars: /opt/rocknsm/config.yml.dist
+  - name: Render template
+    template:
+      backup: yes
+      src: templates/rock_config.yml.j2
+      dest: /etc/rocknsm/config.yml
+      owner: root
+      group: root
+      mode: 0644
