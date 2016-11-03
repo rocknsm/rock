@@ -3,6 +3,13 @@
   tasks:
   - name: Read in variables
     include_vars: /opt/rocknsm/config.yml.dist
+  - name: Create config directory
+    file:
+      state: directory
+      owner: root
+      group: root
+      mode:  0755
+      path: /etc/rocknsm
   - name: Render template
     template:
       backup: yes
