@@ -345,6 +345,15 @@
       mode: 0755
       state: directory
 
+  - name: Set permissions on broctl scripts dir
+    file:
+      path: /opt/bro/share/broctl/scripts
+      owner: "{{ bro_user }}"
+      group: "{{ bro_user }}"
+      mode: 0755
+      state: directory
+      recurse: yes
+
   - name: Add README to scripts dir
     copy:
       src: files/bro-scripts-readme.txt
@@ -363,6 +372,12 @@
     lineinfile:
       dest: /opt/bro/share/bro/site/local.bro
       line: "@load scripts/rock # ROCK NSM customizations"
+      state: present
+
+  - name: Add AF_PACKET workaround to local.bro
+    lineinfile:
+      dest: /opt/bro/share/bro/site/local.bro
+      line: "@load scripts/rock/plugins/afpacket"
       state: present
 
   - name: Add bro to path and aliases
@@ -680,19 +695,24 @@
   handlers:
     - name: sshd restart
       service: name=sshd state=restarted
-    - name: update geoip
-      command: /usr/bin/geoipupdate
+    - name: es maintenance
+      command: /usr/local/bin/es_cleanup.sh
     - name: create kafka bro topic
-      command: /opt/kafka/bin/kafka-topics.sh --zookeeper 127.0.0.1:2181 --create --replication-factor 1 --topic bro_raw --partitions 4
+      command: /opt/kafka/bin/kafka-topics.sh --zookeeper 127.0.0.1:2181 --create --replication-factor 1 --topic bro_raw --partitions 1
+    - name: update geoip
+      command: >
+        # prime the DNS cache
+        ping -c 1 updates.maxmind.com;
+        /usr/bin/geoipupdate
     - name: initialize bro
       command: >
         sudo -u {{ bro_user }} /opt/bro/bin/broctl install;
         sudo -u {{ bro_user }} /opt/bro/bin/broctl check &&
         sudo -u {{ bro_user }} /opt/bro/bin/broctl start
     - name: configure kibana templates
-      command: >
-        local ctr=0
-         while ! $(ss -lnt | grep -q ':9200'); do sleep 1; ctr=$(expr $ctr + 1); if [ $ctr -gt 30 ]; then exit; fi; done
+      shell: >
+        local ctr=0;
+         while ! $(ss -lnt | grep -q ':9200'); do sleep 1; ctr=$(expr $ctr + 1); if [ $ctr -gt 30 ]; then exit; fi; done;
          /usr/bin/curl -XPUT localhost:9200/_template/kibana-config -d ' {
           "order" : 0,
           "template" : ".kibana",
@@ -703,8 +723,6 @@
           "mappings" : { },
           "aliases" : { }
          }'
-    - name: es maintenance
-      command: /usr/local/bin/es_cleanup.sh
 
   environment:
    http_proxy:  "{{ http_proxy }}"

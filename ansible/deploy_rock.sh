@@ -1,2 +1,2 @@
 #!/bin/bash 
-ansible-playbook -i inventory/all-in-one.ini -c local -b simplerock.yml 
+DEBUG=1 ansible-playbook --inventory inventory/all-in-one.ini --connection local --become --force-handlers simplerock.yml 
