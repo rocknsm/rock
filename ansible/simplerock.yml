@@ -367,6 +367,7 @@
       repo: "{{ bro_rockscripts_repo }}"
       dest: /opt/bro/share/bro/site/scripts/rock
       depth: 1
+      version: devel
 
   - name: Add ROCK scripts to local.bro
     lineinfile:
