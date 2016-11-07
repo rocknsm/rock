@@ -701,10 +701,24 @@
     - name: create kafka bro topic
       command: /opt/kafka/bin/kafka-topics.sh --zookeeper 127.0.0.1:2181 --create --replication-factor 1 --topic bro_raw --partitions 1
     - name: update geoip
-      command: >
-        # prime the DNS cache
-        ping -c 1 updates.maxmind.com;
+      shell: >
+        # There's an issue w/ geoipupdate when env is empty
+        if [ "x$HTTP_PROXY" == "x" ]; then
+            unset HTTP_PROXY
+        fi
+        if [ "x$http_proxy" == "x" ]; then
+            unset http_proxy
+        fi
+        if [ "x$HTTPS_PROXY" == "x" ]; then
+            unset HTTPS_PROXY
+        fi
+        if [ "x$https_proxy" == "x" ]; then
+            unset https_proxy
+        fi
         /usr/bin/geoipupdate
+      register: result
+      failed_when: (result.rc != 0) and (result.rc != 1)
+        
     - name: initialize bro
       command: >
         sudo -u {{ bro_user }} /opt/bro/bin/broctl install;
