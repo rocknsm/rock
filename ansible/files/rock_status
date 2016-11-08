@@ -18,7 +18,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
   for interface in $MON_IFS; do
     packets_1=$(ethtool -S ${interface} | awk '/rx_packets/ {print $2}')
     sleep ${timeout_sec}
-    packets_2=$(ethtool -S ${interface} | awk '/rx_packets/ {print $2}') 
+    packets_2=$(ethtool -S ${interface} | awk '/rx_packets/ {print $2}')
     packets=$(echo `expr ${packets_2} - ${packets_1}`)
     echo "${interface} had ${packets} packets in ${timeout_sec} secs."
     [ $packets -gt 0 ]
@@ -82,15 +82,15 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 #----------------------------------------------------------------------------
 
 @test "Check that zookeeper is running" {
-  systemctl zookeeper status
+  systemctl status zookeeper
 }
 
 @test "Check that zookeeper is listening" {
-  ss -lnt | grep ${ZOOKEEPER_PORT} 
+  ss -lnt | grep ${ZOOKEEPER_PORT}
 }
 
 @test "Check that client can connect to zookeeper" {
-  echo "" | ncat  ${ZOOKEEPER_HOST} ${ZOOKEEPER_PORT} 
+  echo "" | ncat  ${ZOOKEEPER_HOST} ${ZOOKEEPER_PORT}
 }
 
 #----------------------------------------------------------------------------
@@ -98,11 +98,11 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 #----------------------------------------------------------------------------
 
 @test "Check that kafka is running" {
-  systemctl kafka status
+  systemctl status kafka
 }
 
 @test "Check that kafka is connected to zookeeper" {
-  kafka_pid=$(systemctl show -p MainPID kafka.service | cut -d= -f2) 
+  kafka_pid=$(systemctl show -p MainPID kafka.service | cut -d= -f2)
   echo "kafka_pid: ${kafka_pid}"
   kafka_socket=$(sudo ss -ntp | grep "${kafka_pid}" | \
 	grep "${ZOOKEEPER_PORT}" | awk '{ print $4 }')
