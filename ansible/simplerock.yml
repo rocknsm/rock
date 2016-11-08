@@ -413,6 +413,23 @@
       user: "{{ bro_user }}"
       job: "/opt/bro/bin/broctl cron >/dev/null 2>&1"
 
+  - name: Install broctl service file
+    template:
+      src: templates/broctl.service.j2
+      dest: /etc/systemd/system/broctl.service
+      owner: root
+      group: root
+      mode: 0644
+    notify: reload systemd
+   
+  - name: Initialize bro scripts for workers
+    command: sudo -u {{ bro_user }} /opt/bro/bin/broctl install
+    args:
+      creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
+
+  - name: Enable and start broctl
+    service: name=broctl enabled=yes state=started
+
     ######################################################
     ################# Setup Stenographer #################
     ######################################################
@@ -725,12 +742,15 @@
         /usr/bin/geoipupdate
       register: result
       failed_when: (result.rc != 0) and (result.rc != 1)
-        
+    - name: reload systemd
+      command: systemctl daemon-reload
     - name: initialize bro
       command: >
-        sudo -u {{ bro_user }} /opt/bro/bin/broctl install;
-        sudo -u {{ bro_user }} /opt/bro/bin/broctl check &&
-        sudo -u {{ bro_user }} /opt/bro/bin/broctl start
+        sudo -u {{ bro_user }} /opt/bro/bin/broctl {{ item }}
+      with_items:
+        - install
+        - check
+        - start
     - name: configure kibana templates
       shell: >
         local ctr=0;
