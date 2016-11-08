@@ -6,9 +6,11 @@
 
   tasks:
   - name: Get default settings
-    include_vars: files/rocknsm_config.yml.dist
+    include_vars: files/rocknsm_config.dist.yml
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
+    ignore_errors: true
+    failed_when: false
 
   - debug: msg="Dumping variables for debug"
     when: rock_debug is defined and rock_debug

@@ -2,7 +2,7 @@
 - hosts: all
   tasks:
   - name: Read in variables
-    include_vars: files/rocknsm_config.yml.dist
+    include_vars: files/rocknsm_config.dist.yml
   - name: Create config directory
     file:
       state: directory
