@@ -699,21 +699,28 @@
     - name: es maintenance
       command: /usr/local/bin/es_cleanup.sh
     - name: create kafka bro topic
-      command: /opt/kafka/bin/kafka-topics.sh --zookeeper 127.0.0.1:2181 --create --replication-factor 1 --topic bro_raw --partitions 1
+      command: >
+        (kafkacat -C -b 127.0.0.1:9092 -L  | grep -q bro_raw) ||
+        /opt/kafka/bin/kafka-topics.sh 
+           --zookeeper 127.0.0.1:2181 
+           --create 
+           --replication-factor 1
+           --topic bro_raw 
+           --partitions 1
+      # There's an issue w/ geoipupdate when env is empty
     - name: update geoip
       shell: >
-        # There's an issue w/ geoipupdate when env is empty
         if [ "x$HTTP_PROXY" == "x" ]; then
-            unset HTTP_PROXY
+            unset HTTP_PROXY;
         fi
         if [ "x$http_proxy" == "x" ]; then
-            unset http_proxy
+            unset http_proxy;
         fi
         if [ "x$HTTPS_PROXY" == "x" ]; then
-            unset HTTPS_PROXY
+            unset HTTPS_PROXY;
         fi
         if [ "x$https_proxy" == "x" ]; then
-            unset https_proxy
+            unset https_proxy;
         fi
         /usr/bin/geoipupdate
       register: result

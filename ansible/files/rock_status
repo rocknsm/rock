@@ -3,7 +3,7 @@
 export ZOOKEEPER_HOST=127.0.0.1
 export ZOOKEEPER_PORT=2181
 export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
-	sed 's/interface=//' | paste -sd " " -)
+	sed 's/interface=//; s/.*:://' | sort | uniq | paste -sd " " -)
 
 #----------------------------------------------------------------------------
 #                               INTERFACE
@@ -27,9 +27,9 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 
 @test "Check for interface errors" {
   for interface in $MON_IFS; do
-    count=$(ethtool -S ${interface} | grep error | grep -v " 0$" | wc -l )
+    count=$(ethtool -S ${interface} | awk '/error/ && $2 > 0' | wc -l )
     echo "${interface} had ${count} error types."
-    echo ">> Check \`ethtool -S ${interface}\` << "
+    echo ">> Check \`ethtool -S ${interface} | awk '/error/' \`  << "
     [ $count -eq 0 ]
   done
 }
@@ -42,11 +42,11 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
   done
 }
 
-@test "Check PF_RING settings" {
-  cap_tx=$(cat /proc/net/pf_ring/info | awk '/Capture TX/ {print $4}')
-  echo "WARNING: PR_RING is currently set to capture TX packets."
-  [ "${cap_tx}" = "No" ]
-}
+#@test "Check PF_RING settings" {
+#  cap_tx=$(cat /proc/net/pf_ring/info | awk '/Capture TX/ {print $4}')
+#  echo "WARNING: PR_RING is currently set to capture TX packets."
+#  [ "${cap_tx}" = "No" ]
+#}
 
 #----------------------------------------------------------------------------
 #                               BRO
@@ -82,7 +82,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 #----------------------------------------------------------------------------
 
 @test "Check that zookeeper is running" {
-  service zookeeper status
+  systemctl zookeeper status
 }
 
 @test "Check that zookeeper is listening" {
@@ -98,7 +98,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 #----------------------------------------------------------------------------
 
 @test "Check that kafka is running" {
-  service kafka status
+  systemctl kafka status
 }
 
 @test "Check that kafka is connected to zookeeper" {
@@ -121,7 +121,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 #----------------------------------------------------------------------------
 
 @test "Check that logstash is running" {
-  ps -ef | grep $(cat /var/run/logstash.pid )
+  systemctl status logstash
 }
 
 #----------------------------------------------------------------------------
@@ -130,14 +130,19 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 
 
 @test "Check that elasticsearch is running" {
-  service elasticsearch status
+  systemctl status elasticsearch
+}
+
+@test "Check that elasticsearch is green" {
+  result=$(curl -s http://localhost:9200/_cluster/health | jq '.status')
+  [ "${result}" == "\"green\"" ]
 }
 
 #----------------------------------------------------------------------------
 #                               KIBANA
 #----------------------------------------------------------------------------
 
-
 @test "Check that kibana is running" {
   systemctl status kibana
 }
+
