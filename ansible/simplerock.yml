@@ -5,8 +5,8 @@
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
 
   tasks:
-  - name: Generate default settings
-    include_vars: files/config.yml.dist
+  - name: Get default settings
+    include_vars: files/rocknsm_config.yml.dist
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
 
@@ -505,12 +505,19 @@
       group: root
 
   - name: Enable and start suricata
-    service: name="suricata@{{ item }}" enabled=yes state=started
+    service: name="suricata@{{item}}" enabled=yes state=started
     with_items: "{{ rock_monifs }}"
 
     ######################################################
     ################### Setup Zookeeper ##################
     ######################################################
+  - name: Install zookeeper service file
+    copy:
+      src: files/zookeeper.service
+      dest: /etc/systemd/system/zookeeper.service
+      mode: 0644
+      owner: root
+      group: root
 
   - name: Enable and start zookeeper
     service: name=zookeeper state=started enabled=yes
@@ -700,7 +707,6 @@
       command: /usr/local/bin/es_cleanup.sh
     - name: create kafka bro topic
       command: >
-        (kafkacat -C -b 127.0.0.1:9092 -L  | grep -q bro_raw) ||
         /opt/kafka/bin/kafka-topics.sh 
            --zookeeper 127.0.0.1:2181 
            --create 
