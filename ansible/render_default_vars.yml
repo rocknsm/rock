@@ -10,7 +10,7 @@
       group: root
   - name: Create dist file if it doesn't exist
     copy:
-      src: files/rock_nsm/config.yml.dist
+      src: files/rocknsm_config.yml.dist
       dest: /opt/rocknsm/config.yml.dist
       owner: root
       group: root
