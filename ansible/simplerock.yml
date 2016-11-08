@@ -69,7 +69,6 @@
       mode: 0755
       owner: "{{ rock_data_user }}"
       group: "{{ rock_data_group }}"
-      recurse: yes
       state: directory
     when: false
 
@@ -352,7 +351,6 @@
       group: "{{ bro_user }}"
       mode: 0755
       state: directory
-      recurse: yes
 
   - name: Add README to scripts dir
     copy:
@@ -431,7 +429,6 @@
       mode: 0755
       owner: "{{ stenographer_user }}"
       group: "{{ stenographer_group }}"
-      recurse: yes
       state: directory
     with_nested:
       - "{{ rock_monifs }}"
@@ -463,11 +460,10 @@
 
   - name: Create Suricata directories
     file:
-      path: "{{ suricata_data_dir }}/old"
+      path: "{{ suricata_data_dir }}/"
       mode: 0755
       owner: "{{ suricata_user }}"
       group: "{{ suricata_group }}"
-      recurse: yes
       state: directory
 
   - name: Set suricata capabilities
@@ -533,7 +529,6 @@
       owner: "{{ kafka_user }}"
       group: "{{ kafka_group }}"
       state: directory
-      recurse: yes
 
   - name: Set kafka retention
     lineinfile:
@@ -563,7 +558,6 @@
       owner: "{{ es_user }}"
       group: "{{ es_group }}"
       state: directory
-      recurse: yes
 
   - name: Setup elasticsearch config
     template:
