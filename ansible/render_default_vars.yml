@@ -1,6 +1,20 @@
 ---
 - hosts: all
   tasks:
+  - name: Create rocknsm dir
+    file:
+      path: /opt/rocknsm/
+      state: directory
+      mode: 0755
+      owner: root
+      group: root
+  - name: Create dist file if it doesn't exist
+    copy:
+      src: files/rock_nsm/config.yml.dist
+      dest: /opt/rocknsm/config.yml.dist
+      owner: root
+      group: root
+      mode: 0644
   - name: Read in variables
     include_vars: /opt/rocknsm/config.yml.dist
   - name: Create config directory
