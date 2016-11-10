@@ -1,3 +1,4 @@
+%YAML 1.1
 ---
 rock_online_install: true
 rock_data_dir: /data
@@ -6,6 +7,35 @@ rock_data_group: root
 rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface ])| list }}"
 rock_hostname: "{{ inventory_hostname_short }}"
 rock_fqdn: "{{ inventory_hostname }}"
+
+# Feature options - Don't flip these unless you know what you're doing
+with_stenographer: true
+with_bro: true
+with_suricata: true
+with_snort: false
+with_pulledpork: true
+with_logstash: true
+with_elasticsearch: true
+with_kibana: true
+with_zookeeper: true
+with_kafka: true
+with_nginx: true
+
+rocknsm_package_list:
+  - java-1.8.0-openjdk-headless
+  - jq
+  - GeoIP
+  - GeoIP-update
+  - tcpreplay
+  - tcpdump
+  - bats
+  - policycoreutils-python
+  - htop
+  - vim
+  - git
+  - tmux
+  - nmap-ncat
+
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 elastic_baseurl: https://artifacts.elastic.co/packages/5.x-prerelease/yum

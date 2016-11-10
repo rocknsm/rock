@@ -1,3 +1,4 @@
+---
 - hosts: all
   vars:
     rock_debug: "{{ lookup('env', 'DEBUG') }}"
@@ -74,32 +75,6 @@
       state: directory
     when: false
 
-    ######################################################
-    ################### Configure Time ###################
-    ######################################################
-  - name: Install Chrony
-    yum:
-      name: chrony
-      state: installed
-
-  - name: Enable and start chrony
-    service:
-      name: chronyd
-      enabled: yes
-      state: started
-
-  - name: Set system timezone
-    command: /usr/bin/timedatectl set-timezone UTC
-    when: ansible_date_time.tz != "UTC"
-
-  - name: Check if RTC set to UTC
-    shell: timedatectl | awk '/RTC in local/ { print $5 }'
-    changed_when: false
-    register: chrony_local_utc
-
-  - name: Set system hardware clock to UTC
-    command: /usr/bin/timedatectl set-local-rtc no
-    when: chrony_local_utc == 'yes'
 
     ######################################################
     ######### Configure the monitoring interface #########
@@ -214,36 +189,31 @@
     #######################################################
     ############# Install/Remove Packages #################
     #######################################################
+  - name: Add conditional packages to list
+    set_fact:
+      rocknsm_package_list: "{{ rocknsm_package_list }} + [ '{{ item.pkg }}' ]"
+    when: item.test
+    with_items:
+      - { pkg: elasticsearch, test: "{{with_elasticsearch}}" }
+      - { pkg: logstash, test: "{{with_logstash}}" }
+      - { pkg: kibana, test: "{{with_kibana}}" }
+      - { pkg: nginx, test: "{{with_nginx}}" }
+      - { pkg: bro, test: "{{with_bro}}" }
+      - { pkg: bro-plugin-af_packet, test: "{{with_bro}}" }
+      - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}" }
+      - { pkg: stenographer, test: "{{with_stenographer}}" }
+      - { pkg: suricata, test: "{{with_suricata}}" }
+      - { pkg: snort, test: "{{with_snort}}" }
+      - { pkg: daq, test: "{{with_snort}}" }
+      - { pkg: zookeeper, test: "{{with_zookeeper}}" }
+      - { pkg: kafka, test: "{{with_kafka}}" }
+      - { pkg: kafkacat, test: "{{with_kafka}}" }
+
   - name: Install needed packages
     yum:
       name: "{{ item }}"
-      state: latest
-    with_items:
-      - java-1.8.0-openjdk-headless
-      - elasticsearch
-      - logstash
-      - kibana
-      - bro
-      - bro-plugin-af_packet
-      - bro-plugin-kafka
-      - stenographer
-      - jq
-      - suricata
-      - zookeeper
-      - kafka
-      - kafkacat
-      - GeoIP
-      - GeoIP-update
-      - tcpreplay
-      - tcpdump
-      - bats
-      - nginx
-      - policycoreutils-python
-      - htop
-      - vim
-      - git
-      - tmux
-      - nmap-ncat
+    with_items: "{{ rocknsm_package_list }}"
+
   - name: Remove unneeded packages
     yum:
       name: "{{ item }}"
@@ -252,9 +222,38 @@
       - firewalld
       - postfix
 
-    #######################################################
-    ###################### Setup Bro  #####################
-    #######################################################
+    ######################################################
+    ################### Configure Time ###################
+    ######################################################
+  - name: Install Chrony
+    yum:
+      name: chrony
+      state: installed
+
+  - name: Enable and start chrony
+    service:
+      name: chronyd
+      enabled: yes
+      state: started
+    notify: force sync time
+
+  - name: Set system timezone
+    command: /usr/bin/timedatectl set-timezone UTC
+    when: ansible_date_time.tz != "UTC"
+
+  - name: Check if RTC set to UTC
+    shell: timedatectl | awk '/RTC in local/ { print $5 }'
+    changed_when: false
+    register: chrony_local_utc
+
+  - name: Set system hardware clock to UTC
+    command: /usr/bin/timedatectl set-local-rtc no
+    when: chrony_local_utc == 'yes'
+
+
+    ######################################################
+    ############## Configure GeoIP Databases #############
+    ######################################################
   - name: Configure GeoIP Update
     copy: src=files/GeoIP.conf dest=/etc/GeoIP.conf
     notify:
@@ -272,6 +271,9 @@
       - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
       - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
 
+    #######################################################
+    ###################### Setup Bro  #####################
+    #######################################################
   - name: Create bro group
     group:
       name: "{{ bro_group }}"
@@ -423,7 +425,7 @@
       group: root
       mode: 0644
     notify: reload systemd
-   
+
   - name: Initialize bro scripts for workers
     command: sudo -u {{ bro_user }} /opt/bro/bin/broctl install
     args:
@@ -441,6 +443,7 @@
       src: templates/stenographer-config.j2
       dest: "/etc/stenographer/config.{{ item.1 }}"
     with_indexed_items: "{{ rock_monifs }}"
+    when: with_stenographer
 
   - name: Create Stenographer directories
     file:
@@ -452,6 +455,7 @@
     with_nested:
       - "{{ rock_monifs }}"
       - [ 'index', 'packets' ]
+    when: with_stenographer
 
   - name: Install stenographer service files
     copy:
@@ -463,15 +467,18 @@
     with_items:
       - stenographer.service
       - stenographer@.service
+    when: with_stenographer
 
   - name: Generate stenographer keys
     command: >
       /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
     args:
       creates: /etc/stenographer/certs/client_key.pem
+    when: with_stenographer
 
   - name: Set Stenographer disabled by default
     service: name=stenographer enabled=no state=stopped
+    when: with_stenographer
 
     ######################################################
     ################## Setup Suricata ####################
@@ -484,6 +491,7 @@
       owner: "{{ suricata_user }}"
       group: "{{ suricata_group }}"
       state: directory
+    when: with_suricata
 
   - name: Set suricata capabilities
     capabilities:
@@ -494,34 +502,42 @@
       - "cap_net_raw+eip"
       - "cap_net_admin+eip"
       - "cap_ipc_lock+eip"
+    when: with_suricata
 
   - name: Remove suricata sysconfig file
     file:
       path: /etc/sysconfig/suricata
       state: absent
+    when: with_suricata
 
   - name: Install suricata service files
     copy:
-      src: "files/{{ item }}"
-      dest: "/etc/systemd/system/{{ item }}"
+      src: "files/suricata.service"
+      dest: "/etc/systemd/system/suricata.service"
       mode: 0644
       owner: root
       group: root
-    with_items:
-      - suricata.service
-      - suricata@.service
+    when: with_suricata
 
-  - name: Install suricata configuration
-    copy:
-      src: files/suricata.yaml
-      dest: /etc/suricata/suricata.yaml
-      mode: 0600
+  - name: Install suricata overrides
+    template:
+      src: templates/suricata_overrides.yaml.j2
+      dest: /etc/suricata/rocknsm-overrides.yaml
+      mode: 0644
       owner: "{{ suricata_user }}"
       group: root
+    when: with_suricata
+
+  - name: Set suricata overrides include in main config
+    lineinfile:
+      dest: /etc/suricata/suricata.yaml
+      line: "include: rocknsm-overrides.yaml"
+      state: present
+    when: with_suricata
 
   - name: Enable and start suricata
-    service: name="suricata@{{item}}" enabled=yes state=started
-    with_items: "{{ rock_monifs }}"
+    service: name="suricata" enabled=yes state=started
+    when: with_suricata
 
     ######################################################
     ################### Setup Zookeeper ##################
@@ -533,9 +549,11 @@
       mode: 0644
       owner: root
       group: root
+    when: with_zookeeper
 
   - name: Enable and start zookeeper
     service: name=zookeeper state=started enabled=yes
+    when: with_zookeeper
 
     ######################################################
     ##################### Setup Kafka ####################
@@ -548,6 +566,7 @@
       owner: "{{ kafka_user }}"
       group: "{{ kafka_group }}"
       state: directory
+    when: with_kafka
 
   - name: Set kafka retention
     lineinfile:
@@ -555,17 +574,20 @@
       regexp: "log.retention.hours="
       line:  "log.retention.hours=1"
       state: present
+    when: with_kafka
 
   - name: Set kafka data dir
     lineinfile:
       dest: "{{ kafka_config_path }}"
       regexp: "log.dirs="
       line: "log.dirs={{ kafka_data_dir }}"
+    when: with_kafka
 
   - name: Enable and start kafka
     service: name=kafka state=started enabled=yes
     notify:
       - create kafka bro topic
+    when: with_kafka
 
     ######################################################
     ################# Setup Elasticsearch ################
@@ -577,6 +599,7 @@
       owner: "{{ es_user }}"
       group: "{{ es_group }}"
       state: directory
+    when: with_elasticsearch
 
   - name: Setup elasticsearch config
     template:
@@ -585,6 +608,7 @@
       owner: root
       group: "{{ es_group }}"
       mode: 0640
+    when: with_elasticsearch
 
   - name: Create elasticsearch systemd override dir
     file:
@@ -593,6 +617,7 @@
       group: root
       mode: 0755
       state: directory
+    when: with_elasticsearch
 
   - name: Enable elasticsearch memlock in service override
     copy:
@@ -601,12 +626,14 @@
       mode: 0644
       owner: root
       group: root
+    when: with_elasticsearch
 
   - name: Setup elasticsearch data dir in sysconfig
     lineinfile:
       dest: /etc/sysconfig/elasticsearch
       regexp: "DATA_DIR="
       line: "DATA_DIR={{ es_data_dir }}"
+    when: with_elasticsearch
 
   - name: Setup elasticsearch jvm options
     template:
@@ -615,6 +642,7 @@
       mode: 0640
       owner: root
       group: "{{ es_group }}"
+    when: with_elasticsearch
 
   - name: Install ROCK Elasticsearch cleanup script
     copy:
@@ -623,6 +651,7 @@
       mode: 0755
       owner: root
       group: root
+    when: with_elasticsearch
 
   - name: Set elasticsearch cleanup cron job
     cron:
@@ -632,9 +661,11 @@
       minute: 1
       user: root
       job: /usr/local/bin/es_cleanup.sh > /dev/null 2>&1
+    when: with_elasticsearch
 
   - name: Enable and start Elasticsearch
     service: name=elasticsearch state=started enabled=yes
+    when: with_elasticsearch
 
     ######################################################
     ################### Setup Logstash ###################
@@ -646,9 +677,11 @@
       mode: 0640
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
+    when: with_logstash and with_bro and with_kafka
 
   - name: Enable and start Logstash
     service: name=logstash state=started enabled=yes
+    when: with_logstash
 
     ######################################################
     ################### Setup Kibana #####################
@@ -657,6 +690,9 @@
     service: name=kibana state=started enabled=yes
     notify:
       - configure kibana templates
+    when: with_kibana
+
+    # TODO: Setup ROCK NSM dashboards
 
     ######################################################
     ################### Setup nginx ######################
@@ -665,7 +701,10 @@
     template:
       src: templates/nginx-rock.conf.j2
       dest: /etc/nginx/conf.d/rock.conf
-      mode:
+      mode: 0644
+      owner: root
+      group: root
+    when: with_nginx and with_kibana
 
   - name: Install nginx base configuration
     copy:
@@ -674,12 +713,15 @@
       mode: 0644
       owner: root
       group: root
+    when: with_nginx
 
   - name: Enable nginx to perform proxy connect
     seboolean: name=httpd_can_network_connect state=yes persistent=yes
+    when: with_nginx and with_kibana
 
   - name: Enable and start nginx
     service: name=nginx state=started enabled=yes
+    when: with_nginx
 
     ######################################################
     ############### Setup ROCKNSM Scripts ################
@@ -704,7 +746,7 @@
     copy:
       src: files/rock_status
       dest: /usr/local/bin/rock_status
-      mode: 0700
+      mode: 0755
       owner: root
       group: root
 
@@ -714,17 +756,20 @@
   #####################  Handlers  ######################
   #######################################################
   handlers:
+    - name: force sync time
+      command: >
+        chronyc -a 'burst 3/4'; sleep 5; chronyc -a makestep
     - name: sshd restart
       service: name=sshd state=restarted
     - name: es maintenance
       command: /usr/local/bin/es_cleanup.sh
     - name: create kafka bro topic
       command: >
-        /opt/kafka/bin/kafka-topics.sh 
-           --zookeeper 127.0.0.1:2181 
-           --create 
+        /opt/kafka/bin/kafka-topics.sh
+           --zookeeper 127.0.0.1:2181
+           --create
            --replication-factor 1
-           --topic bro_raw 
+           --topic bro_raw
            --partitions 1
       # There's an issue w/ geoipupdate when env is empty
     - name: update geoip

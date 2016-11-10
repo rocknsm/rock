@@ -1,13 +1,13 @@
 [Unit]
 Description=Suricata Intrusion Detection Service
-After=syslog.target network-online.target
+After=syslog.target network.target
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-ExecStart=/bin/true
-ExecReload=/bin/true
-WorkingDirectory=/etc/suricata
+EnvironmentFile=-/etc/sysconfig/suricata
+ExecStart=/sbin/suricata -c /etc/suricata/suricata.yaml --af-packet
+ExecReload=/bin/kill -HUP $MAINPID
+User=suricata
+Group=suricata
 
 [Install]
 WantedBy=multi-user.target

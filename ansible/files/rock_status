@@ -78,6 +78,13 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 }
 
 #----------------------------------------------------------------------------
+#                               SURICATA
+#----------------------------------------------------------------------------
+@test "Check that suricata is running" {
+  systemctl status suricata
+}
+
+#----------------------------------------------------------------------------
 #                               ZOOKEEPER
 #----------------------------------------------------------------------------
 
@@ -145,4 +152,3 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 @test "Check that kibana is running" {
   systemctl status kibana
 }
-
