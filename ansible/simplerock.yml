@@ -666,7 +666,7 @@
     ######################################################
     ################### Setup Logstash ###################
     ######################################################
-  - name: Install bro Kafka configuration for Logstash
+  - name: Install Bro-Kafka configuration for Logstash
     copy:
       src: files/logstash-kafka-bro.conf
       dest: /etc/logstash/conf.d/kafka-bro.conf
@@ -674,6 +674,15 @@
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
     when: with_logstash and with_bro and with_kafka
+
+  - name: Configure Logstash to pickup suricata events
+    copy:
+      src: "files/logstash-suricata-es.conf"
+      dest: "/etc/logstash/conf.d/suricata-es.conf"
+      mode: 0644
+      owner: root
+      group: root
+    when: with_logstash and with_suricata
 
   - name: Enable and start Logstash
     service: name=logstash state=started enabled=yes
