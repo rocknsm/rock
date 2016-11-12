@@ -235,7 +235,6 @@
       name: chronyd
       enabled: yes
       state: started
-    notify: force sync time
 
   - name: Set system timezone
     command: /usr/bin/timedatectl set-timezone UTC
