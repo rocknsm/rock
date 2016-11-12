@@ -1,0 +1,16 @@
+%YAML 1.1
+---
+af-packet:
+{% for iface in rock_monifs %}
+  - interface: {{ iface }}
+    #threads: auto
+    cluster-id: {{ 99 - loop.index0 }}
+    cluster-type: cluster_flow
+    defrag: yes
+    use-mmap: yes
+    mmap-locked: yes
+    #rollover: yes
+    tpacket-v3: yes
+    use-emergency-flush: yes
+{% endfor %}
+default-log-dir: {{ suricata_data_dir }}
