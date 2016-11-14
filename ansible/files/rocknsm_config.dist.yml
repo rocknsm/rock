@@ -47,7 +47,7 @@ bro_user: bro
 bro_group: bro
 bro_data_dir: "{{ rock_data_dir }}/bro"
 bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
-bro_rockscripts_repo: https://github.com/mocyber/rock-scripts.git
+bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 stenographer_user: stenographer
 stenographer_group: stenographer
 stenographer_data_dir: "{{ rock_data_dir }}/stenographer"
