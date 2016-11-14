@@ -593,8 +593,6 @@
 
   - name: Enable and start kafka
     service: name=kafka state=started enabled=yes
-    notify:
-      - create kafka bro topic
     when: with_kafka
 
     ######################################################
