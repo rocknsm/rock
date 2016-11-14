@@ -278,6 +278,7 @@
       name: "{{ bro_group }}"
       state: present
       system: yes
+    when: with_bro
 
   - name: Create bro user and group
     user:
@@ -289,6 +290,8 @@
       shell: /sbin/nologin
       system: yes
       state: present
+    when: with_bro
+
 
   - name: Create Bro directories
     file:
@@ -301,6 +304,7 @@
       - "{{ bro_data_dir }}"
       - "{{ bro_data_dir }}/logs"
       - "{{ bro_data_dir }}/spool"
+    when: with_bro
 
   - name: Create symlinks for wandering analysts
     file:
@@ -310,6 +314,7 @@
       force: yes
     with_items:
       - logs
+    when: with_bro
 
   - name: Create Bro node.cfg
     template:
@@ -318,6 +323,7 @@
       mode: 0644
       owner: root
       group: root
+    when: with_bro
 
   - name: Create broctl.cfg
     template:
@@ -326,7 +332,6 @@
       mode: 0644
       owner: root
       group: root
-
   - name: Create bro networks.cfg
     copy:
       src: files/bro-networks.cfg
@@ -377,6 +382,14 @@
       dest: /opt/bro/share/bro/site/local.bro
       line: "@load scripts/rock/plugins/afpacket"
       state: present
+    when: with_bro
+
+  - name: Enable Bro Kafka output to local.bro
+    lineinfile:
+      dest: /opt/bro/share/bro/site/local.bro
+      line: "@load scripts/rock/plugins/kafka"
+      state: present
+    when: with_bro and with_kafka
 
   - name: Add bro to path and aliases
     copy:
