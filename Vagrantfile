@@ -2,20 +2,23 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  #config.vm.box = "relativkreativ/centos-7-minimal"
   config.vm.box = "bento/centos-7.2"
+
   config.ssh.forward_agent = true
   config.ssh.username = 'vagrant'
   config.ssh.password = 'vagrant'
+
+  # Forward exposed service ports
   config.vm.network "forwarded_port", guest: 5601, host: 5601
   config.vm.network "forwarded_port", guest: 9200, host: 9200
   config.vm.network "forwarded_port", guest: 80, host: 8000
 
+  # Configure overall network interfaces
   config.vm.network "public_network", bridge: "en4: Apple USB Ethernet Adapter", auto_config: false
-  config.vm.network "private_network", auto_config: false
+  #config.vm.network "private_network", auto_config: false
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = 8192
+    vb.memory = 8704
     vb.cpus   = 4
     vb.customize ["modifyvm", :id, "--nic1", "nat"]
     vb.customize ["modifyvm", :id, "--nic2", "hostonly"]
@@ -30,18 +33,28 @@ Vagrant.configure(2) do |config|
     v.vmx["ethernet1.noPromisc"]  = "false"
     v.vmx["ethernet2.noPromisc"]  = "false"
     v.vmx["ethernet3.noPromisc"]  = "false"
+
+    # Ensure vmware-tools are auto-updated when we update the kernel
+    config.vm.provision "shell", inline: <<-SHELL
+      sed -i.bak 's/answer AUTO_KMODS_ENABLED_ANSWER no/answer AUTO_KMODS_ENABLED_ANSWER yes/g' /etc/vmware-tools/locations
+      sed -i 's/answer AUTO_KMODS_ENABLED no/answer AUTO_KMODS_ENABLED yes/g' /etc/vmware-tools/locations
+    SHELL
   end
 
-  config.vm.provision "shell", inline: <<-SHELL
-    # This is needed for GP VPN
-    cp /vagrant/localpa-cert.pem /etc/pki/ca-trust/source/anchors/localpa-cert.pem
-    ln -sf /etc/pki/ca-trust/source/anchors/localpa-cert.pem /etc/pki/tls/certs/
-    update-ca-trust extract
-  SHELL
-
+  # ansible required for ROCK 2.0 deployment
+  # git required to clone ROCK repo
+  # vim & tmux because of my sanity
+  # @development to build hgfs module when you upgrade kernel
   config.vm.provision "shell", inline: <<-SHELL
     yum -y install epel-release
-    yum -y install ansible git tmux ansible
+    yum -y update
+    yum -y install ansible vim git tmux @development
+  SHELL
+
+  # Enable selinux
+  config.vm.provision "shell", inline: <<-SHELL
+    sed -i 's/^SELINUX=.*/SELINUX=enforcing/' /etc/selinux/config
+    setenforce 1
   SHELL
 
   #config.vm.provision "shell", inline: <<-SHELL
