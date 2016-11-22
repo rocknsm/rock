@@ -8,13 +8,10 @@ Vagrant.configure(2) do |config|
   config.ssh.username = 'vagrant'
   config.ssh.password = 'vagrant'
 
-  # Forward exposed service ports
-  config.vm.network "forwarded_port", guest: 5601, host: 5601
-  config.vm.network "forwarded_port", guest: 9200, host: 9200
-  config.vm.network "forwarded_port", guest: 80, host: 8000
 
   # Configure overall network interfaces
-  config.vm.network "public_network", bridge: "en4: Apple USB Ethernet Adapter", auto_config: false
+  #config.vm.network "public_network", bridge: "en4: Apple USB Ethernet Adapter", auto_config: false
+  config.vm.network "public_network", bridge: "en0: Wi-Fi", auto_config: false
   #config.vm.network "private_network", auto_config: false
 
   config.vm.provider "virtualbox" do |vb|
@@ -24,10 +21,14 @@ Vagrant.configure(2) do |config|
     vb.customize ["modifyvm", :id, "--nic2", "hostonly"]
     vb.customize ["modifyvm", :id, "--hostonlyadapter2", "vboxnet0"]
     vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-vms"]
+
+    # Forward exposed service ports - these are directly accesible on vmware
+    config.vm.network "forwarded_port", guest: 5601, host: 5601
+    config.vm.network "forwarded_port", guest: 9200, host: 9200
+    config.vm.network "forwarded_port", guest: 80, host: 8000
   end
 
   config.vm.provider "vmware_fusion" do |v|
-    v.linked_clone = true
     v.vmx["memsize"] = 8704
     v.vmx["numvcpus"] = 8
     v.vmx["ethernet1.noPromisc"]  = "false"
