@@ -720,7 +720,7 @@
   - name: Install nginx base configuration
     copy:
       src: files/nginx.conf
-      dest: /etc/nginx.conf
+      dest: /etc/nginx/nginx.conf
       mode: 0644
       owner: root
       group: root
@@ -817,7 +817,6 @@
 
     - name: include kibana tasks
       include: kibana-tasks.yml
-      when: with_kibana
  
   environment:
    http_proxy:  "{{ http_proxy }}"

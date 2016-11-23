@@ -1,7 +1,8 @@
 server {
-    listen 80;
+    listen 80 default_server;
 
     server_name {{ rock_hostname }};
+    server_name _;
 
     #auth_basic "Restricted Access";
     #auth_basic_user_file /etc/nginx/htpasswd.users;
@@ -13,15 +14,5 @@ server {
         proxy_set_header Connection 'upgrade';
         proxy_set_header Host $host;
         proxy_cache_bypass $http_upgrade;
-    }
-
-    location /_plugin/ {
-        proxy_pass http://localhost:9200;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_redirect off;
     }
 }
