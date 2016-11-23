@@ -48,6 +48,7 @@ Vagrant.configure(2) do |config|
   # @development to build hgfs module when you upgrade kernel
   config.vm.provision "shell", inline: <<-SHELL
     yum -y install epel-release
+    sed -i 's/^mirrorlist/#mirrorlist/; s/^#baseurl/baseurl/' /etc/yum.repos.d/{CentOS-Base.repo,epel.repo}
     yum -y update
     yum -y install ansible vim git tmux @development
   SHELL
