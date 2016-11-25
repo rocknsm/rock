@@ -554,6 +554,15 @@
     service: name="suricata" enabled=yes state=started
     when: with_suricata
 
+  - name: Configure logrotate for suricata logs
+    copy:
+      src: files/logrotate-suricata.conf
+      dest: /etc/logrotate.d/suricata.conf
+      mode: 0644
+      owner: root
+      group: root
+    when: with_suricata
+
     ######################################################
     ################### Setup Zookeeper ##################
     ######################################################
