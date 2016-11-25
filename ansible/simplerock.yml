@@ -58,14 +58,15 @@
   - debug: var=https_proxy
     when: rock_debug is defined and rock_debug
 
-  ######################################################
-  ################# Data Directory #####################
-  ######################################################
-  ###############
-  ##### NOTE ####
-  ###############
-  #You will want to remount this to your "good" storage after the build.  This is just to make sure all the paths in the configs are proper.
-  ###############  - file:
+    ######################################################
+    ################# Data Directory #####################
+    ######################################################
+    ###############
+    ##### NOTE ####
+    ###############
+    # You will want to remount this to your "good" storage after the build.  
+    # This is just to make sure all the paths in the configs are proper.
+    ###############  - file:
   - name: Create ROCK data dir
     file:
       path: "{{ rock_data_dir }}"
@@ -211,7 +212,6 @@
       name: "{{ item }}"
       state: absent
     with_items:
-      - firewalld
       - postfix
 
     ######################################################
@@ -241,6 +241,22 @@
     command: /usr/bin/timedatectl set-local-rtc no
     when: chrony_local_utc == 'yes'
 
+    #######################################################
+    ################ Configure firewall ###################
+    #######################################################
+
+  - name: Configure firewall
+    firewalld:
+      port: "{{ item[1].port }}"
+      source: "{{ item[0] }}"
+      permanent: yes
+      state: enabled
+    when: (item[1].test is undefined) or item[1].test
+    with_nested:
+      - "{{ rock_mgmt_nets }}"
+      -
+        - { port: "22/tcp" }
+        - { port: "80/tcp",  test: "{{ with_kibana }}" }
 
     ######################################################
     ############## Configure GeoIP Databases #############
