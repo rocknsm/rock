@@ -201,6 +201,11 @@
       - { pkg: zookeeper, test: "{{with_zookeeper}}" }
       - { pkg: kafka, test: "{{with_kafka}}" }
       - { pkg: kafkacat, test: "{{with_kafka}}" }
+      - { pkg: perl-Crypt-SSLeay, test: "{{with_pulledpork}}" }
+      - { pkg: perl-LWP-Protocol-https, test: "{{with_pulledpork}}" }
+      - { pkg: perl-Sys-Syslog, test: "{{with_pulledpork}}" }
+      - { pkg: perl-Archive-Tar, test: "{{with_pulledpork}}" }
+      - { pkg: perl-libwww-perl, test: "{{with_pulledpork}}" }
 
   - name: Install needed packages
     yum:
@@ -213,6 +218,16 @@
       state: absent
     with_items:
       - postfix
+
+  - name: Install Pulled Pork
+    unarchive:
+      src: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
+      dest: /opt
+      owner: root
+      group: root
+      creates: "/opt/pulledpork-{{ pulledpork_release }}"
+      remote_src: yes
+    when: "{{ with_pulledpork }}"
 
     ######################################################
     ################### Configure Time ###################
@@ -543,6 +558,15 @@
       group: root
     when: with_suricata
 
+  - name: Create IP reputation config dir
+    file:
+      path: /etc/suricata/rules/iplists
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+    when: with_suricata
+
   - name: Set suricata overrides include in main config
     lineinfile:
       dest: /etc/suricata/suricata.yaml
@@ -562,6 +586,72 @@
       owner: root
       group: root
     when: with_suricata
+
+    ######################################################
+    ################# Setup PulledPork  ##################
+    ######################################################
+  - name: Create pulledpork directory symlink
+    file:
+      src: "/opt/pulledpork-{{ pulledpork_release }}"
+      dest: "/opt/pulledpork"
+      state: link
+      force: yes
+    when: with_pulledpork
+
+  - name: Set pulledpork executable
+    file:
+      path: /opt/pulledpork/pulledpork.pl
+      mode: 0755
+      owner: root
+      group: root
+    when: with_pulledpork
+
+  - name: Create pulledpork config dir
+    file:
+      path: /etc/pulledpork
+      mode: 0755
+      owner: root
+      group: root
+      state: directory
+    when: with_pulledpork
+
+  - name: Configure pulledpork
+    template:
+      src: templates/pulledpork.conf.j2
+      dest: /etc/pulledpork/pulledpork.conf
+      owner: root
+      group: root
+      mode: 0644
+    when: with_pulledpork
+
+  - name: Check stats of rules files
+    stat:
+      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules }}"
+    register: rules_file
+    when: with_pulledpork
+
+  - name: Create initial pulledpork rules-related files
+    file:
+      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules }}"
+      owner: root
+      group: root
+      mode: 0644
+      state: touch
+    when: not rules_file.stat.exists and with_pulledpork
+
+  - name: Schedule pulledpork to run daily
+    cron:
+      name: "pulledpork update"
+      cron_file: rocknsm_pulledpork
+      user: root
+      hour: "12"
+      minute: "0"
+      job: /opt/pulledpork/pulledpork.pl 
+        -c /etc/pulledpork/pulledpork.conf 
+        -l > /var/log/pulledpork.log 2>&1;
+        {{ "/usr/bin/systemctl kill -s USR2 suricata;" if with_suricata else None }}
+        {{ "/usr/bin/systemctl restart snortd;" if with_snort else None }}
+    when: with_pulledpork
 
     ######################################################
     ################### Setup Zookeeper ##################
