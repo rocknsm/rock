@@ -55,7 +55,7 @@ pulledpork_engine_basepath: "/etc/{{ \"suricata\" if with_suricata else \"snort\
 
 rocknsm_baseurl: https://packagecloud.io/rocknsm/dev/el/7/$basearch
 rocknsm_gpgurl: https://packagecloud.io/rocknsm/dev/gpgkey
-rocknsm_local_baseurl: /srv/repo
+rocknsm_local_baseurl: file:///srv/rocknsm
 bro_user: bro
 bro_group: bro
 bro_data_dir: "{{ rock_data_dir }}/bro"

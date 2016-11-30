@@ -39,8 +39,8 @@ auth --enableshadow --passalgo=sha512 --kickstart
 %post --nochroot --log=/mnt/sysimage/root/ks-post.log
 
 # Save packages to local repo
-mkdir -p /mnt/sysimage/srv/repo
-rsync -rP --exclude 'TRANS.TBL' /mnt/install/repo/{Packages,repodata,support} /mnt/sysimage/srv/repo/
+mkdir -p /mnt/sysimage/srv/rocknsm
+rsync -rP --exclude 'TRANS.TBL' /mnt/install/repo/{Packages,repodata,support} /mnt/sysimage/srv/rocknsm/
 
 %end
 
@@ -48,5 +48,20 @@ rsync -rP --exclude 'TRANS.TBL' /mnt/install/repo/{Packages,repodata,support} /m
 # sudo
 echo "%vagrant ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers.d/vagrant
 sed -i "s/^[^#].*requiretty/#Defaults requiretty/" /etc/sudoers
+
+cat << 'EOF' > /etc/yum.repos.d/rocknsm-local.repo
+[rocknsm-local]
+name=ROCKNSM Local Repository
+baseurl=file:///srv/rocknsm
+gpgcheck=0
+enabled=1
+# Prefer these packages versus online
+cost=500
+EOF
+
+mkdir -p /opt/rocknsm
+cd /opt/rocknsm
+tar --extract --strip-components=1 --auto-compress --file=$(ls /srv/rocknsm/support/SimpleRock-*.tar.gz|head -1)
+cd /opt/rocknsm/ansible; ./generate_defaults.sh
 
 %end

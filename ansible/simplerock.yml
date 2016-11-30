@@ -173,7 +173,7 @@
   - name: Setup local offline repo
     yum_repository:
       name: rocknsm-local
-      description: Local repo for ROCK NSM packages
+      description: ROCKNSM Local Repository
       baseurl: "{{ rocknsm_local_baseurl }}"
       gpgcheck: no
       cost: 500
