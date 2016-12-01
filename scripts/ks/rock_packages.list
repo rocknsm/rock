@@ -26,7 +26,7 @@ logstash
 kibana
 nginx
 # Needed for pulledpork
-perl-CryptSSLeay
+perl-Crypt-SSLeay
 perl-LWP-Protocol-https
 perl-Sys-Syslog
 perl-Archive-Tar

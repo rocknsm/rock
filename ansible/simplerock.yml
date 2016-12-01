@@ -64,7 +64,7 @@
     ###############
     ##### NOTE ####
     ###############
-    # You will want to remount this to your "good" storage after the build.  
+    # You will want to remount this to your "good" storage after the build.
     # This is just to make sure all the paths in the configs are proper.
     ###############  - file:
   - name: Create ROCK data dir
@@ -391,7 +391,26 @@
       repo: "{{ bro_rockscripts_repo }}"
       dest: /opt/bro/share/bro/site/scripts/rock
       depth: 1
-      version: devel
+      version: "{{ bro_rockscripts_branch }}"
+    when: rock_online_install
+
+  - name: Deploy offline ROCK Bro scripts
+    unarchive:
+      src: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
+      dest: /opt/bro/share/bro/site/scripts/
+      owner: root
+      group: root
+      creates: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+      remote_src: yes
+    when: not rock_online_install
+
+  - name: Symlink offline ROCK bro scripts
+    file:
+      src: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+      dest: "/opt/bro/share/bro/site/scripts/rock"
+      state: link
+      force: yes
+    when: not rock_online_install
 
   - name: Add ROCK scripts to local.bro
     lineinfile:
@@ -646,8 +665,8 @@
       user: root
       hour: "12"
       minute: "0"
-      job: /opt/pulledpork/pulledpork.pl 
-        -c /etc/pulledpork/pulledpork.conf 
+      job: /opt/pulledpork/pulledpork.pl
+        -c /etc/pulledpork/pulledpork.conf
         -l > /var/log/pulledpork.log 2>&1;
         {{ "/usr/bin/systemctl kill -s USR2 suricata;" if with_suricata else None }}
         {{ "/usr/bin/systemctl restart snortd;" if with_snort else None }}
@@ -932,7 +951,7 @@
 
     - name: include kibana tasks
       include: kibana-tasks.yml
- 
+
   environment:
    http_proxy:  "{{ http_proxy }}"
    https_proxy: "{{ https_proxy }}"
