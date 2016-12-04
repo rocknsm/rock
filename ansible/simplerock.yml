@@ -4,7 +4,6 @@
     rock_debug: "{{ lookup('env', 'DEBUG') }}"
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
-
   tasks:
   - name: Get default settings
     include_vars: files/rocknsm_config.dist.yml
@@ -98,6 +97,7 @@
       owner: root
       group: root
       force: yes
+    notify: configure monitor interfaces
 
     #######################################################
     #################### Disable IPv6 #####################
@@ -904,6 +904,11 @@
     - name: force sync time
       command: >
         chronyc -a 'burst 3/4'; sleep 5; chronyc -a makestep
+    - name: configure monitor interfaces
+      shell: >
+        for intf in {{ rock_monifs | join(' ')}}; do
+          /sbin/ifup ${intf};
+        done
     - name: sshd restart
       service: name=sshd state=restarted
     - name: es maintenance

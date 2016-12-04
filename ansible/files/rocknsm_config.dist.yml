@@ -4,7 +4,7 @@ rock_online_install: true
 rock_data_dir: /data
 rock_data_user: root
 rock_data_group: root
-rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface ])| list }}"
+rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface|default('lo') ])| list }}"
 rock_hostname: "{{ inventory_hostname_short }}"
 rock_fqdn: "{{ inventory_hostname }}"
 rock_mgmt_nets: [ "0.0.0.0/0" ]
