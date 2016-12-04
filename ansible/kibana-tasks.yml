@@ -1,0 +1,48 @@
+---
+- name: configure kibana templates
+  uri: 
+    method: PUT
+    url: http://localhost:9200/_template/kibana-config
+    body: >
+      { "order" : 0, "template" : ".kibana", 
+        "settings" : 
+          { "index.number_of_replicas" : "0",
+            "index.number_of_shards" : "1" }, 
+        "mappings" : { }, "aliases" : { } }
+    status_code: 200,201
+
+- name: configure bro index in kibana
+  uri:
+    method: PUT
+    url: http://localhost:9200/.kibana/index-pattern/bro-*
+    body: >
+      { "title": "bro-*", "timeFieldName": "@timestamp" }
+    status_code: 200,201
+  when: with_bro
+
+- name: configure suricata index in kibana
+  uri: 
+    method: PUT
+    url: http://localhost:9200/.kibana/index-pattern/suricata-*
+    body: >
+      { "title": "suricata-*", "timeFieldName": "timestamp" }
+    status_code: 200,201
+  when: with_suricata
+
+- name: set bro default index in kibana
+  uri:
+    method: PUT 
+    url: http://localhost:9200/.kibana/config/5.0.1
+    body: >
+      {"defaultIndex" : "bro-*"}
+    status_code: 200,201
+  when: with_bro
+
+- name: set suricata default index in kibana
+  uri:
+    method: PUT
+    url: http://localhost:9200/.kibana/config/5.0.1
+    body: >
+      {"defaultIndex" : "suricata-*"}
+    status_code: 200,201
+  when: with_suricata and not with_bro

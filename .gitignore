@@ -3,5 +3,6 @@ repo/
 .vagrant
 Vagrantfile.vmware
 *.pcap
+.kitchen
 *.iso
 .DS_Store

@@ -1,0 +1,25 @@
+[logger]
+type=logger
+host=localhost
+env_vars=fanout_id=0
+
+[manager]
+type=manager
+host=localhost
+env_vars=fanout_id=0
+
+[proxy-1]
+type=proxy
+host=localhost
+env_vars=fanout_id=0
+
+{% for iface in rock_monifs %}
+[{{ iface }}]
+type=worker
+host=localhost
+interface=af_packet::{{ iface }}
+lb_method=custom
+lb_procs={{ (bro_cpu | int) // loop.length }}
+env_vars=fanout_id={{ 42 + loop.index0 }}
+{# TODO: add logic for pinning processes #}
+{% endfor %}

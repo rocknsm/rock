@@ -1,0 +1,88 @@
+%YAML 1.1
+---
+rock_online_install: true
+rock_data_dir: /data
+rock_data_user: root
+rock_data_group: root
+rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface|default('lo') ])| list }}"
+rock_hostname: "{{ inventory_hostname_short }}"
+rock_fqdn: "{{ inventory_hostname }}"
+rock_mgmt_nets: [ "0.0.0.0/0" ]
+rock_cache_dir: /srv/rocknsm/support
+pulledpork_rules:
+  - { url: "https://snort.org/downloads/community/", file: "community-rules.tar.gz", apikey: "Community", test: "{{not with_suricata and with_snort}}" }
+  - { url: "https://www.snort.org/reg-rules/", file: "snortrules-snapshot.tar.gz", apikey: "796f26a2188c4c953ced38ff3ec899d8ae543350", test: "{{not with_suricata and with_snort}}" }
+  - { url: "https://rules.emergingthreats.net/", file: "emerging.rules.tar.gz", apikey: "open-nogpl" }
+  - { url: "http://talosintel.com/feeds/ip-filter.blf", file: "IPBLACKLIST", apikey: "open" }
+
+# Feature options - Don't flip these unless you know what you're doing
+with_stenographer: true
+with_bro: true
+with_suricata: true
+with_snort: false
+with_pulledpork: true
+with_logstash: true
+with_elasticsearch: true
+with_kibana: true
+with_zookeeper: true
+with_kafka: true
+with_nginx: true
+
+rocknsm_package_list:
+  - java-1.8.0-openjdk-headless
+  - jq
+  - GeoIP
+  - GeoIP-update
+  - tcpreplay
+  - tcpdump
+  - bats
+  - policycoreutils-python
+  - htop
+  - vim
+  - git
+  - tmux
+  - nmap-ncat
+  - logrotate
+
+epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
+elastic_baseurl: https://artifacts.elastic.co/packages/5.x/yum
+elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+pulledpork_release: 0.7.2
+pulledpork_url: "https://github.com/shirkdog/pulledpork/archive/{{ pulledpork_release }}.tar.gz"
+pulledpork_filename: "pulledpork-{{ pulledpork_release }}.tar.gz"
+pulledpork_engine_basepath: "/etc/{{ \"suricata\" if with_suricata else \"snort\" }}"
+
+rocknsm_baseurl: https://packagecloud.io/rocknsm/dev/el/7/$basearch
+rocknsm_gpgurl: https://packagecloud.io/rocknsm/dev/gpgkey
+rocknsm_local_baseurl: file:///srv/rocknsm
+bro_user: bro
+bro_group: bro
+bro_data_dir: "{{ rock_data_dir }}/bro"
+bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
+bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
+bro_rockscripts_branch: devel
+bro_rockscripts_filename: "rock-scripts-{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
+stenographer_user: stenographer
+stenographer_group: stenographer
+stenographer_data_dir: "{{ rock_data_dir }}/stenographer"
+suricata_user: suricata
+suricata_group: suricata
+suricata_data_dir: "{{ rock_data_dir }}/suricata"
+pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
+pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
+kafka_user: kafka
+kafka_group: kafka
+kafka_data_dir: "{{ rock_data_dir }}/kafka"
+kafka_config_path: /etc/kafka/server.properties
+es_user: elasticsearch
+es_group: elasticsearch
+es_data_dir: "{{ rock_data_dir }}/elasticsearch"
+es_cluster_name: rocknsm
+es_node_name: "{{ rock_hostname }}"
+es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
+es_memlock_override: |
+  [Service]
+  LimitMEMLOCK=infinity
+logstash_user: logstash
+logstash_group: logstash

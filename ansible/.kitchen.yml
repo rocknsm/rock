@@ -1,0 +1,34 @@
+---
+driver:
+  name: vagrant
+  customize:
+    memory: 2048
+
+provisioner:
+  name: ansible_playbook
+  roles_path: roles
+  hosts: allinone
+  require_ansible_repo: true
+  ansible_verbose: true
+  ansible_version: 1.9.4
+  require_chef_for_busser: false
+  require_chef_omnibus: false
+  idempotency_test: true
+  ansible_extra_flags: <%= ENV['ANSIBLE_EXTRA_FLAGS'] %>
+
+
+platforms:
+  - name: centos-7.2
+    driver_plugin: vagrant
+    driver_config:
+      box: ddi-kitchen
+      box_url: https://app.box.com/shared/static/qutbi4laxvpmd4uqpwd88zbrup6hbqy0.box
+
+suites:
+  - name: default
+
+verifier:
+  name: Busser
+  plugin:
+  - Ansiblespec
+  ruby_bindir: '/usr/bin'

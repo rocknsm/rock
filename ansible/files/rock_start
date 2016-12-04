@@ -1,0 +1,43 @@
+#!/bin/bash
+
+echo "Starting Zookeeper..."
+systemctl start zookeeper
+sleep 5
+systemctl status zookeeper | egrep "^\s*Active"
+
+echo "Starting Elasticsearch..."
+systemctl start elasticsearch
+sleep 5
+systemctl status elasticsearch | egrep "^\s*Active"
+
+echo "Starting Kafka..."
+systemctl start kafka
+sleep 5
+systemctl status kafka | egrep "^\s*Active"
+
+echo "Starting Logstash..."
+systemctl start logstash
+sleep 5
+systemctl status logstash | egrep "^\s*Active"
+
+echo "Starting Kibana..."
+systemctl start kibana
+sleep 5 
+systemctl status kibana | egrep "^\s*Active"
+
+echo "Starting Suricata..."
+systemctl start suricata
+sleep 5
+systemctl status suricata | egrep "^\s*Active"
+
+echo "Starting Bro..."
+sudo -u bro /opt/bro/bin/broctl install; sudo -u bro /opt/bro/bin/broctl check && sudo -u bro /opt/bro/bin/broctl start
+sleep 5
+sudo -u bro /opt/bro/bin/broctl status
+
+#echo "Starting Stenographer..."
+#systemctl start stenographer
+#sleep 5
+#systemctl status stenographer | egrep "^\s*Active"
+
+exit 0

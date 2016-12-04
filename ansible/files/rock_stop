@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#echo "Stopping Stenographer..."
+#systemctl stop stenographer
+
+echo "Stopping Suricata..."
+systemctl stop suricata
+
+echo "Stopping Bro..."
+/opt/bro/bin/broctl stop
+
+echo "Stopping Logstash..."
+systemctl stop logstash
+
+echo "Stopping Kibana..."
+systemctl stop kibana
+
+echo "Stopping Elasticsearch..."
+systemctl stop elasticsearch
+
+echo "Stopping Kafka..."
+systemctl stop kafka
+
+echo "Stopping Zookeeper..."
+systemctl stop zookeeper
+
+exit 0

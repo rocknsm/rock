@@ -1,0 +1,15 @@
+[Unit]
+Description=Bro Network Intrusion Detection System (NIDS)
+After=network.target
+
+[Service]
+Type=forking
+User={{ bro_user }}
+Group={{ bro_group }}
+Environment=HOME={{ bro_data_dir }}/spool
+ExecStart=/opt/bro/bin/broctl deploy
+ExecStop=/opt/bro/bin/broctl stop
+
+[Install]
+WantedBy=multi-user.target
+
