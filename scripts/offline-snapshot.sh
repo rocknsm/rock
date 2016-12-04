@@ -3,7 +3,7 @@
 ROCK_CACHE_DIR=/srv/rocknsm
 ROCK_REPO=dev
 ROCKSCRIPTS_BRANCH=devel
-ROCK_BRANCH=dcode/ansible
+ROCK_BRANCH=devel
 PULLEDPORK_RELEASE=0.7.2
 TMP_RPM_ROOT=$(mktemp -d)
 
