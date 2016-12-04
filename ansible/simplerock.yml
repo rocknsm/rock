@@ -919,7 +919,7 @@
            --zookeeper 127.0.0.1:2181
            --create
            --replication-factor 1
-           --topic bro_raw
+           --topic bro-raw
            --partitions 1
     - name: create kafka suricata  topic
       command: >
@@ -927,7 +927,7 @@
            --zookeeper 127.0.0.1:2181
            --create
            --replication-factor 1
-           --topic suricata_raw
+         --topic suricata-raw
            --partitions 1
       # There's an issue w/ geoipupdate when env is empty
     - name: update geoip
