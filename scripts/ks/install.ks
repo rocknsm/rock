@@ -4,7 +4,7 @@ cdrom
 text
 skipx
 firstboot --disabled
-reboot
+reboot --eject
 
 # Configure Storage
 zerombr
