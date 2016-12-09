@@ -11,50 +11,8 @@
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true
     failed_when: false
-
-  - debug: msg="Dumping variables for debug"
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_debug
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_online_install
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_data_dir
-    when: rock_debug is defined and rock_debug
-  - debug: var=bro_data_dir
-    when: rock_debug is defined and rock_debug
-  - debug: var=suricata_data_dir
-    when: rock_debug is defined and rock_debug
-  - debug: var=stenographer_data_dir
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_data_user
-    when: rock_debug is defined and rock_debug
-  - debug: var=es_mem
-    when: rock_debug is defined and rock_debug
-  - debug: var=bro_cpu
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_monifs
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_hostname
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_fqdn
-    when: rock_debug is defined and rock_debug
-  - debug: var=epel_baseurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=epel_gpgurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=elastic_baseurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=elastic_gpgurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=rocknsm_baseurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=rocknsm_gpgurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=rocknsm_local_baseurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=http_proxy
-    when: rock_debug is defined and rock_debug
-  - debug: var=https_proxy
+  - name: Debug variables
+    include: debug.yml
     when: rock_debug is defined and rock_debug
 
     ######################################################
@@ -74,7 +32,6 @@
       group: "{{ rock_data_group }}"
       state: directory
     when: false
-
 
     ######################################################
     ######### Configure the monitoring interface #########
@@ -802,6 +759,7 @@
     ######################################################
     ################### Setup Logstash ###################
     ######################################################
+
   - name: Install Bro-Kafka configuration for Logstash
     copy:
       src: files/logstash-kafka-bro.conf
@@ -827,6 +785,7 @@
     ######################################################
     ################### Setup Kibana #####################
     ######################################################
+
   - name: Enable and start Kibana
     service: name=kibana state=started enabled=yes
     notify:
@@ -842,6 +801,7 @@
     ######################################################
     ################### Setup nginx ######################
     ######################################################
+
   - name: Install ROCK nginx configuration
     template:
       src: templates/nginx-rock.conf.j2
@@ -871,6 +831,7 @@
     ######################################################
     ############### Setup ROCKNSM Scripts ################
     ######################################################
+
   - name: Install rock start script
     copy:
       src: files/rock_start
@@ -896,6 +857,24 @@
       group: root
 
   # Training mode / Service mode not needed for AF_PACKET
+  ######################################################
+  ############### ROCKNSM Customization ################
+  ######################################################
+  - name: Install ROCK NSM /etc/issue
+    copy:
+      src: files/etc-issue.in
+      dest: /etc/issue.in
+      mode: 0644
+      owner: root
+      group: root
+
+  - name: NetworkManager ROCK NSM hook
+    copy:
+      src: files/nm-issue-update
+      dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+      mode: 0755
+      owner: root
+      group: root
 
   #######################################################
   #####################  Handlers  ######################
