@@ -36,7 +36,7 @@
     ######################################################
     ######### Configure the monitoring interface #########
     ######################################################
-  - name: Configure monitor interface
+  - name: Set monitor interface config
     template:
       src: templates/ifcfg-monif.j2
       dest: /etc/sysconfig/network-scripts/ifcfg-{{ item }}
@@ -217,12 +217,13 @@
     ################ Configure firewall ###################
     #######################################################
 
-  - name: Configure firewall
+  - name: Configure firewalld
     firewalld:
       port: "{{ item[1].port }}"
       source: "{{ item[0] }}"
       permanent: yes
       state: enabled
+      immediate: yes
     when: (item[1].test is undefined) or item[1].test
     with_nested:
       - "{{ rock_mgmt_nets }}"

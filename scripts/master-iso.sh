@@ -64,7 +64,9 @@ function main() {
 
   # Mount existing iso and copy to new dir
   mount -o loop -t iso9660 "$1" ${TMP_ISO}
-  rsync -a --exclude=Packages --exclude=repodata ${TMP_ISO}/ ${TMP_NEW}/
+  rsync --recursive --quiet --exclude=Packages --exclude=repodata ${TMP_ISO}/ ${TMP_NEW}/
+  #rsync --recursive --quiet --exclude=repodata ${TMP_ISO}/ ${TMP_NEW}/
+
 
   # Remove TRANS files
   find ${TMP_NEW} -name TRANS.TBL -delete

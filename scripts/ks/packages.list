@@ -8,6 +8,9 @@ git
 bzip2
 ansible
 
+# Needed for better AF_PACKET support for now
+kernel-ml
+
 # Hardening packages
 openscap
 openscap-scanner

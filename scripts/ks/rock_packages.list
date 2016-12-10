@@ -25,6 +25,8 @@ elasticsearch
 logstash
 kibana
 nginx
+kernel-ml
+kernel-ml-devel
 # Needed for pulledpork
 perl-Crypt-SSLeay
 perl-LWP-Protocol-https

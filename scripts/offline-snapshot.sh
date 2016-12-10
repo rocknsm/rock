@@ -41,6 +41,13 @@ baseurl = http://download.fedoraproject.org/pub/epel/\$releasever/\$basearch/
 gpgcheck = 1
 gpgkey = https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 name = EPEL YUM repo
+
+[elrepo-kernel]
+name=ELRepo.org Community Enterprise Linux Kernel Repository - el7
+baseurl=http://elrepo.org/linux/kernel/el7/\$basearch/
+gpgcheck=1
+gpgkey=https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+protect=0
 EOF
 
   mkdir -p "${ROCK_CACHE_DIR}/Packages"
@@ -76,22 +83,27 @@ EOF
   mkdir -p "${ROCK_CACHE_DIR}/support"
   pushd "${ROCK_CACHE_DIR}/support" >/dev/null
 
+  echo "Downloading ET Snort rules..."
   # ET Rules - Snort
   curl -Ls -o emerging.rules-snort.tar.gz \
     'https://rules.emergingthreats.net/open/snort-2.9.0/emerging.rules.tar.gz'
 
+  echo "Downloading ET Suricata rules..."
   # ET Rules - Suricata
   curl -Ls -o emerging.rules-suricata.tar.gz \
     'https://rules.emergingthreats.net/open/suricata/emerging.rules.tar.gz'
 
+  echo "Downloading pulledpork..."
   # PulledPork:
   curl -Ls -o "pulledpork-$(echo ${PULLEDPORK_RELEASE} | tr '/' '-').tar.gz" \
     "https://github.com/shirkdog/pulledpork/archive/${PULLEDPORK_RELEASE}.tar.gz"
 
+  echo "Downloading ROCK Scripts..."
   # ROCK-Scripts:
   curl -Ls -o "rock-scripts-$(echo ${ROCKSCRIPTS_BRANCH} | tr '/' '-').tar.gz" \
     "https://github.com/rocknsm/rock-scripts/archive/${ROCKSCRIPTS_BRANCH}.tar.gz"
 
+  echo "Downloading SimpleROCK Snapshot..."
   curl -Ls -o "SimpleRock-$(echo ${ROCK_BRANCH} | tr '/' '-').tar.gz" \
     "https://github.com/rocknsm/SimpleRock/archive/${ROCK_BRANCH}.tar.gz"
 
