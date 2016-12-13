@@ -4,7 +4,6 @@
     rock_debug: "{{ lookup('env', 'DEBUG') }}"
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
-
   tasks:
   - name: Get default settings
     include_vars: files/rocknsm_config.dist.yml
@@ -12,60 +11,19 @@
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true
     failed_when: false
-
-  - debug: msg="Dumping variables for debug"
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_debug
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_online_install
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_data_dir
-    when: rock_debug is defined and rock_debug
-  - debug: var=bro_data_dir
-    when: rock_debug is defined and rock_debug
-  - debug: var=suricata_data_dir
-    when: rock_debug is defined and rock_debug
-  - debug: var=stenographer_data_dir
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_data_user
-    when: rock_debug is defined and rock_debug
-  - debug: var=es_mem
-    when: rock_debug is defined and rock_debug
-  - debug: var=bro_cpu
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_monifs
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_hostname
-    when: rock_debug is defined and rock_debug
-  - debug: var=rock_fqdn
-    when: rock_debug is defined and rock_debug
-  - debug: var=epel_baseurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=epel_gpgurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=elastic_baseurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=elastic_gpgurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=rocknsm_baseurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=rocknsm_gpgurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=rocknsm_local_baseurl
-    when: rock_debug is defined and rock_debug
-  - debug: var=http_proxy
-    when: rock_debug is defined and rock_debug
-  - debug: var=https_proxy
+  - name: Debug variables
+    include: debug.yml
     when: rock_debug is defined and rock_debug
 
-  ######################################################
-  ################# Data Directory #####################
-  ######################################################
-  ###############
-  ##### NOTE ####
-  ###############
-  #You will want to remount this to your "good" storage after the build.  This is just to make sure all the paths in the configs are proper.
-  ###############  - file:
+    ######################################################
+    ################# Data Directory #####################
+    ######################################################
+    ###############
+    ##### NOTE ####
+    ###############
+    # You will want to remount this to your "good" storage after the build.
+    # This is just to make sure all the paths in the configs are proper.
+    ###############  - file:
   - name: Create ROCK data dir
     file:
       path: "{{ rock_data_dir }}"
@@ -75,11 +33,10 @@
       state: directory
     when: false
 
-
     ######################################################
     ######### Configure the monitoring interface #########
     ######################################################
-  - name: Configure monitor interface
+  - name: Set monitor interface config
     template:
       src: templates/ifcfg-monif.j2
       dest: /etc/sysconfig/network-scripts/ifcfg-{{ item }}
@@ -97,6 +54,7 @@
       owner: root
       group: root
       force: yes
+    notify: configure monitor interfaces
 
     #######################################################
     #################### Disable IPv6 #####################
@@ -172,7 +130,7 @@
   - name: Setup local offline repo
     yum_repository:
       name: rocknsm-local
-      description: Local repo for ROCK NSM packages
+      description: ROCKNSM Local Repository
       baseurl: "{{ rocknsm_local_baseurl }}"
       gpgcheck: no
       cost: 500
@@ -206,6 +164,16 @@
       - { pkg: firewalld, state: absent }
       - { pkg: postfix, state: absent }
 
+  - name: Install Pulled Pork
+    unarchive:
+      src: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
+      dest: /opt
+      owner: root
+      group: root
+      creates: "/opt/pulledpork-{{ pulledpork_release }}"
+      remote_src: yes
+    when: "{{ with_pulledpork }}"
+
     ######################################################
     ################### Configure Time ###################
     ######################################################
@@ -228,6 +196,23 @@
     command: /usr/bin/timedatectl set-local-rtc no
     when: chrony_local_utc == 'yes'
 
+    #######################################################
+    ################ Configure firewall ###################
+    #######################################################
+
+  - name: Configure firewalld
+    firewalld:
+      port: "{{ item[1].port }}"
+      source: "{{ item[0] }}"
+      permanent: yes
+      state: enabled
+      immediate: yes
+    when: (item[1].test is undefined) or item[1].test
+    with_nested:
+      - "{{ rock_mgmt_nets }}"
+      -
+        - { port: "22/tcp" }
+        - { port: "80/tcp",  test: "{{ with_kibana }}" }
 
     ######################################################
     ############## Configure GeoIP Databases #############
@@ -270,7 +255,6 @@
       system: yes
       state: present
     when: with_bro
-
 
   - name: Create Bro directories
     file:
@@ -348,7 +332,26 @@
       repo: "{{ bro_rockscripts_repo }}"
       dest: /opt/bro/share/bro/site/scripts/rock
       depth: 1
-      version: devel
+      version: "{{ bro_rockscripts_branch }}"
+    when: rock_online_install
+
+  - name: Deploy offline ROCK Bro scripts
+    unarchive:
+      src: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
+      dest: /opt/bro/share/bro/site/scripts/
+      owner: root
+      group: root
+      creates: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+      remote_src: yes
+    when: not rock_online_install
+
+  - name: Symlink offline ROCK bro scripts
+    file:
+      src: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+      dest: "/opt/bro/share/bro/site/scripts/rock"
+      state: link
+      force: yes
+    when: not rock_online_install
 
   - name: Add ROCK scripts to local.bro
     lineinfile:
@@ -515,6 +518,15 @@
       group: root
     when: with_suricata
 
+  - name: Create IP reputation config dir
+    file:
+      path: /etc/suricata/rules/iplists
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+    when: with_suricata
+
   - name: Set suricata overrides include in main config
     lineinfile:
       dest: /etc/suricata/suricata.yaml
@@ -525,6 +537,81 @@
   - name: Enable and start suricata
     service: name="suricata" enabled=yes state=started
     when: with_suricata
+
+  - name: Configure logrotate for suricata logs
+    copy:
+      src: files/logrotate-suricata.conf
+      dest: /etc/logrotate.d/suricata.conf
+      mode: 0644
+      owner: root
+      group: root
+    when: with_suricata
+
+    ######################################################
+    ################# Setup PulledPork  ##################
+    ######################################################
+  - name: Create pulledpork directory symlink
+    file:
+      src: "/opt/pulledpork-{{ pulledpork_release }}"
+      dest: "/opt/pulledpork"
+      state: link
+      force: yes
+    when: with_pulledpork
+
+  - name: Set pulledpork executable
+    file:
+      path: /opt/pulledpork/pulledpork.pl
+      mode: 0755
+      owner: root
+      group: root
+    when: with_pulledpork
+
+  - name: Create pulledpork config dir
+    file:
+      path: /etc/pulledpork
+      mode: 0755
+      owner: root
+      group: root
+      state: directory
+    when: with_pulledpork
+
+  - name: Configure pulledpork
+    template:
+      src: templates/pulledpork.conf.j2
+      dest: /etc/pulledpork/pulledpork.conf
+      owner: root
+      group: root
+      mode: 0644
+    when: with_pulledpork
+
+  - name: Check stats of rules files
+    stat:
+      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules }}"
+    register: rules_file
+    when: with_pulledpork
+
+  - name: Create initial pulledpork rules-related files
+    file:
+      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules }}"
+      owner: root
+      group: root
+      mode: 0644
+      state: touch
+    when: not rules_file.stat.exists and with_pulledpork
+
+  - name: Schedule pulledpork to run daily
+    cron:
+      name: "pulledpork update"
+      cron_file: rocknsm_pulledpork
+      user: root
+      hour: "12"
+      minute: "0"
+      job: /opt/pulledpork/pulledpork.pl
+        -c /etc/pulledpork/pulledpork.conf
+        -l > /var/log/pulledpork.log 2>&1;
+        {{ "/usr/bin/systemctl kill -s USR2 suricata;" if with_suricata else None }}
+        {{ "/usr/bin/systemctl restart snortd;" if with_snort else None }}
+    when: with_pulledpork
 
     ######################################################
     ################### Setup Zookeeper ##################
@@ -651,10 +738,12 @@
   - name: Enable and start Elasticsearch
     service: name=elasticsearch state=started enabled=yes
     when: with_elasticsearch
+    notify: wait for elasticsearch to become ready
 
     ######################################################
     ################### Setup Logstash ###################
     ######################################################
+
   - name: Install Bro-Kafka configuration for Logstash
     copy:
       src: files/logstash-kafka-bro.conf
@@ -680,10 +769,15 @@
     ######################################################
     ################### Setup Kibana #####################
     ######################################################
+
   - name: Enable and start Kibana
     service: name=kibana state=started enabled=yes
     notify:
       - configure kibana templates
+      - configure suricata index in kibana
+      - configure bro index in kibana
+      - set bro default index in kibana
+      - set suricata default index in kibana
     when: with_kibana
 
     # TODO: Setup ROCK NSM dashboards
@@ -691,6 +785,7 @@
     ######################################################
     ################### Setup nginx ######################
     ######################################################
+
   - name: Install ROCK nginx configuration
     template:
       src: templates/nginx-rock.conf.j2
@@ -703,7 +798,7 @@
   - name: Install nginx base configuration
     copy:
       src: files/nginx.conf
-      dest: /etc/nginx.conf
+      dest: /etc/nginx/nginx.conf
       mode: 0644
       owner: root
       group: root
@@ -720,6 +815,7 @@
     ######################################################
     ############### Setup ROCKNSM Scripts ################
     ######################################################
+
   - name: Install rock start script
     copy:
       src: files/rock_start
@@ -745,6 +841,24 @@
       group: root
 
   # Training mode / Service mode not needed for AF_PACKET
+  ######################################################
+  ############### ROCKNSM Customization ################
+  ######################################################
+  - name: Install ROCK NSM /etc/issue
+    copy:
+      src: files/etc-issue.in
+      dest: /etc/issue.in
+      mode: 0644
+      owner: root
+      group: root
+
+  - name: NetworkManager ROCK NSM hook
+    copy:
+      src: files/nm-issue-update
+      dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+      mode: 0755
+      owner: root
+      group: root
 
   #######################################################
   #####################  Handlers  ######################
@@ -753,6 +867,11 @@
     - name: force sync time
       command: >
         chronyc -a 'burst 3/4'; sleep 5; chronyc -a makestep
+    - name: configure monitor interfaces
+      shell: >
+        for intf in {{ rock_monifs | join(' ')}}; do
+          /sbin/ifup ${intf};
+        done
     - name: sshd restart
       service: name=sshd state=restarted
     - name: es maintenance
@@ -763,7 +882,15 @@
            --zookeeper 127.0.0.1:2181
            --create
            --replication-factor 1
-           --topic bro_raw
+           --topic bro-raw
+           --partitions 1
+    - name: create kafka suricata  topic
+      command: >
+        /opt/kafka/bin/kafka-topics.sh
+           --zookeeper 127.0.0.1:2181
+           --create
+           --replication-factor 1
+         --topic suricata-raw
            --partitions 1
       # There's an issue w/ geoipupdate when env is empty
     - name: update geoip
@@ -783,22 +910,15 @@
         /usr/bin/geoipupdate
       register: result
       failed_when: (result.rc != 0) and (result.rc != 1)
+
     - name: reload systemd
       command: systemctl daemon-reload
-    - name: configure kibana templates
-      shell: >
-        local ctr=0;
-         while ! $(ss -lnt | grep -q ':9200'); do sleep 1; ctr=$(expr $ctr + 1); if [ $ctr -gt 30 ]; then exit; fi; done;
-         /usr/bin/curl -XPUT localhost:9200/_template/kibana-config -d ' {
-          "order" : 0,
-          "template" : ".kibana",
-          "settings" : {
-            "index.number_of_replicas" : "0",
-            "index.number_of_shards" : "1"
-          },
-          "mappings" : { },
-          "aliases" : { }
-         }'
+
+    - name: wait for elasticsearch to become ready
+      wait_for: host=localhost port=9200
+
+    - name: include kibana tasks
+      include: kibana-tasks.yml
 
   environment:
    http_proxy:  "{{ http_proxy }}"

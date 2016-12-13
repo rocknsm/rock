@@ -8,6 +8,14 @@ git
 bzip2
 ansible
 
+# Needed for better AF_PACKET support for now
+kernel-ml
+
+# Hardening packages
+openscap
+openscap-scanner
+scap-security-guide
+
 # unnecessary firmware
 -aic94xx-firmware
 -atmel-firmware
@@ -32,6 +40,7 @@ ansible
 -iwl6000g2b-firmware
 -iwl6050-firmware
 -iwl7260-firmware
+-iwl7265-firmware
 -libertas-usb8388-firmware
 -libertas-sd8686-firmware
 -libertas-sd8787-firmware
