@@ -187,6 +187,7 @@
       state: "{{ item.state }}"
     when: (item.test) or (item.test is undefined)
     with_items:
+      - { pkg: "{{ rocknsm_package_list }}", state: installed }
       - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
       - { pkg: logstash, test: "{{with_logstash}}", state: installed }
       - { pkg: kibana, test: "{{with_kibana}}", state: installed }
