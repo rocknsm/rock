@@ -139,42 +139,30 @@
     #######################################################
     ############# Install/Remove Packages #################
     #######################################################
-  - name: Add conditional packages to list
-    set_fact:
-      rocknsm_package_list: "{{ rocknsm_package_list }} + [ '{{ item.pkg }}' ]"
-    when: item.test
-    with_items:
-      - { pkg: elasticsearch, test: "{{with_elasticsearch}}" }
-      - { pkg: logstash, test: "{{with_logstash}}" }
-      - { pkg: kibana, test: "{{with_kibana}}" }
-      - { pkg: nginx, test: "{{with_nginx}}" }
-      - { pkg: bro, test: "{{with_bro}}" }
-      - { pkg: bro-plugin-af_packet, test: "{{with_bro}}" }
-      - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}" }
-      - { pkg: stenographer, test: "{{with_stenographer}}" }
-      - { pkg: suricata, test: "{{with_suricata}}" }
-      - { pkg: snort, test: "{{with_snort}}" }
-      - { pkg: daq, test: "{{with_snort}}" }
-      - { pkg: zookeeper, test: "{{with_zookeeper}}" }
-      - { pkg: kafka, test: "{{with_kafka}}" }
-      - { pkg: kafkacat, test: "{{with_kafka}}" }
-      - { pkg: perl-Crypt-SSLeay, test: "{{with_pulledpork}}" }
-      - { pkg: perl-LWP-Protocol-https, test: "{{with_pulledpork}}" }
-      - { pkg: perl-Sys-Syslog, test: "{{with_pulledpork}}" }
-      - { pkg: perl-Archive-Tar, test: "{{with_pulledpork}}" }
-      - { pkg: perl-libwww-perl, test: "{{with_pulledpork}}" }
-
-  - name: Install needed packages
+  - name: Configure packages
     yum:
-      name: "{{ item }}"
-    with_items: "{{ rocknsm_package_list }}"
-
-  - name: Remove unneeded packages
-    yum:
-      name: "{{ item }}"
-      state: absent
+      name: "{{ item.pkg }}"
+      state: "{{ item.state }}"
+    when: (item.test) or (item.test is undefined)
     with_items:
-      - postfix
+      - { pkg: "{{ rocknsm_package_list }}", state: installed }
+      - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
+      - { pkg: logstash, test: "{{with_logstash}}", state: installed }
+      - { pkg: kibana, test: "{{with_kibana}}", state: installed }
+      - { pkg: nginx, test: "{{with_nginx}}", state: installed }
+      - { pkg: bro, test: "{{with_bro}}", state: installed }
+      - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
+      - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
+      - { pkg: stenographer, test: "{{with_stenographer}}", state: installed }
+      - { pkg: suricata, test: "{{with_suricata}}", state: installed }
+      - { pkg: snort, test: "{{with_snort}}", state: installed }
+      - { pkg: daq, test: "{{with_snort}}", state: installed }
+      - { pkg: zookeeper, test: "{{with_zookeeper}}", state: installed }
+      - { pkg: kafka, test: "{{with_kafka}}", state: installed }
+      - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
+      - { pkg: chrony, state: installed }
+      - { pkg: firewalld, state: absent }
+      - { pkg: postfix, state: absent }
 
   - name: Install Pulled Pork
     unarchive:
@@ -189,11 +177,6 @@
     ######################################################
     ################### Configure Time ###################
     ######################################################
-  - name: Install Chrony
-    yum:
-      name: chrony
-      state: installed
-
   - name: Enable and start chrony
     service:
       name: chronyd
