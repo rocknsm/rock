@@ -161,7 +161,7 @@
       - { pkg: kafka, test: "{{with_kafka}}", state: installed }
       - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
       - { pkg: chrony, state: installed }
-      - { pkg: firewalld, state: absent }
+      - { pkg: firewalld, state: installed }
       - { pkg: postfix, state: absent }
 
   - name: Install Pulled Pork
