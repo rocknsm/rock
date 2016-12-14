@@ -108,6 +108,15 @@
       gpgcheck: yes
     when: rock_online_install
 
+  - name: Setup ELrepo Kernel repo
+      yum_repository:
+        name: elrepo-kernel
+        description: ELrepo Kernel YUM repo
+        baseurl: "{{ elrepo_baseurl }}"
+        gpgkey:  "{{ elrepo_gpgurl }}"
+        gpgcheck: yes
+      when: rock_online_install
+
   - name: Setup Elastic repo
     yum_repository:
       name: elastic-5.x
