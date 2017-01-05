@@ -46,6 +46,10 @@ function mkiso() {
     -no-emul-boot -boot-load-size 4 -boot-info-table \
     -eltorito-alt-boot -e images/efiboot.img -no-emul-boot \
     -o ${_iso_fname} ${_build_dir}
+
+  /usr/bin/isohybrid --uefi ${_iso_fname}
+
+  /usr/bin/implantisomd5 ${_iso_fname}
 }
 
 function main() {
@@ -56,6 +60,9 @@ function main() {
 
   # Download offline-snapshot
   offline-snapshot
+
+  # Copy XKCD dictionary
+  cp xkcd-dict.txt ${ROCK_CACHE_DIR}/support/
 
   # Generate output filename
   TIMESTAMP=$(date +%y%m%d_%H%M%S)
