@@ -63,12 +63,14 @@
   - name: Disable IPv6 for all interfaces
     sysctl:
       name: net.ipv6.conf.all.disable_ipv6
-      value: 1
+      value: 1l
+      sysctl_file: "{{ rock_sysctl_file }}"
 
   - name: Disable IPv6 for default interfaces
     sysctl:
       name: net.ipv6.conf.default.disable_ipv6
       value: 1
+      sysctl_file: "{{ rock_sysctl_file }}"
 
   - name: Disable IPv6 in SSHD
     lineinfile:
@@ -109,13 +111,13 @@
     when: rock_online_install
 
   - name: Setup ELrepo Kernel repo
-      yum_repository:
-        name: elrepo-kernel
-        description: ELrepo Kernel YUM repo
-        baseurl: "{{ elrepo_baseurl }}"
-        gpgkey:  "{{ elrepo_gpgurl }}"
-        gpgcheck: yes
-      when: rock_online_install
+    yum_repository:
+      name: elrepo-kernel
+      description: ELrepo Kernel YUM repo
+      baseurl: "{{ elrepo_baseurl }}"
+      gpgkey:  "{{ elrepo_gpgurl }}"
+      gpgcheck: yes
+    when: rock_online_install
 
   - name: Setup Elastic repo
     yum_repository:
