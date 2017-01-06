@@ -37,7 +37,7 @@ Some of the biggest changes with ROCK 2.0 are upgrading all the software to the 
 
 On top of software updates, we also changed the deployment mechanism to using Ansible as the primary mechanism. We did this for a few reasons: I used it for one of my full-time projects, it’s super lightweight and available in EPEL, doesn’t require an agent, super easy to understand. I’m hoping that ultimately this makes the platform more approachable to a wider community and better suitable to offline or isolated install environments, which I’ve frequently encountered for sensor networks. That said, the chef cookbooks are not going away and may eventually be updated in parallel, but understand that they lag behind.
 
-On that last note, we now have an ISO that _should _contain everything you need to deploy. The ISO is merely a snapshot of packages available at the time and latest snapshot of various Git repositories.
+On that last note, we now have an ISO that \_should \_contain everything you need to deploy. The ISO is merely a snapshot of packages available at the time and latest snapshot of various Git repositories.
 
 ## Installation {#user-content-installation}
 
@@ -58,7 +58,7 @@ Boot the ISO. If you’re installing in a VM, I recommend you disable the "consi
 biosdevname=0 if.netnames=0
 ```
 
-This will ensure you get interface names like`eth0`. If you have physical hardware, I_highly_recommend that you do not use this function.
+This will ensure you get interface names like`eth0`. If you have physical hardware, I\_highly\_recommend that you do not use this function.
 
 The installer is just Anaconda \(the default RHEL/CentOS installer\) with a kickstart preseed which sets some values. You will be presented with a graphical installer that will automatically start installing. During the installation stage, you will be given the opportunity to add a user. The `root` account will be locked, so add a user with "administrator" privileges. For the sake of documentation, I will call this user `rockadmin`. Marking the user with admin access will give you access to sudo.
 
