@@ -1,8 +1,6 @@
 # Setup installer
 install
 cdrom
-text
-skipx
 firstboot --disabled
 reboot --eject
 
@@ -22,31 +20,44 @@ services --enabled=ssh
 
 # Users
 rootpw --lock --plaintext ROCKadmin!1234
-user --name=rockadmin --gecos='ROCK admin account' --groups wheel --plaintext --password ROCKadmin!1234
+# user --name=rockadmin --gecos='ROCK admin account' --groups wheel --plaintext --password ROCKadmin!1234
 
 # Security
 firewall --enabled --service=ssh
 selinux --enforcing
 auth --enableshadow --passalgo=sha512 --kickstart
 
-%packages --excludedocs
+%packages
 %include packages.list
 %end
+#
+# %pre
+# #!/bin/bash
+# PASS=$(shuf -n3 /srv/rocknsm/support/xkcd-dict.txt | sed 's/./\u&/' | tr -cd '[A-Za-z]')
+#
+# # Generate user information here
+# cat << EOF > /tmp/ks-user.txt
+# rootpw --lock --plaintext "${PASS}"
+# user --name=rockadmin --gecos='ROCK admin account' --groups wheel --plaintext --password="${PASS}"
+# EOF
+#
+# cat << EOF > /tmp/ks-pass.txt
+# ${PASS}
+# EOF
+#
+# %end
 
-%pre
-# Generate user information here
-%end
-
-%addon org_fedora_oscap
-  content-type = scap-security-guide
-  profile = stig-rhel7-server-upstream
-%end
-
-%addon com_redhat_kdump --disable --reserve-mb='auto'
-
+# This seems to get removed w/ ksflatten
+%addon com_redhat_kdump --disable
 %end
 
 %post --nochroot --log=/mnt/sysimage/root/ks-post.log
+#!/bin/bash
+#
+# # Save password
+# mv /tmp/ks-pass.txt /mnt/sysimage/root/ks-pass.txt
+# chmod 0600 /mnt/sysimage/root/ks-pass.txt
+# cp /tmp/ks-user.txt /mnt/sysimage/root/ks-user.txt
 
 # Save packages to local repo
 mkdir -p /mnt/sysimage/srv/rocknsm
@@ -77,39 +88,39 @@ EOF
 mkdir -p /opt/rocknsm
 cd /opt/rocknsm
 tar --extract --strip-components=1 --auto-compress --file=$(ls /srv/rocknsm/support/SimpleRock-*.tar.gz|head -1)
-cd /opt/rocknsm/ansible; ./generate_defaults.sh
 
-# Clean Up
-rm -rf /root/hardening
+# Default to offline build and generate values
+mkdir -p /etc/rocknsm
+cat << 'EOF' > /etc/rocknsm/config.yml
+---
+rock_online_install: False
+EOF
 
-# rc.local
-# chmod +x /etc/rc.local
-
-# cat << EOF >> /root/clean_up.sh
+/opt/rocknsm/ansible/generate_defaults.sh
+#
+# cat << 'EOF' > /etc/NetworkManager/dispatcher.d/99-firstboot-issue-update
 # #!/bin/bash
-# ########################################
-# # Delete Anaconda Kickstart
-# ########################################
-# if [ -e /root/anaconda-ks.cfg ]; then
-# 	rm -f /root/anaconda-ks.cfg
+#
+# if [ -f /root/ks-pass.txt ]; then
+# PASS=$(cat /root/ks-pass.txt)
+# cat << EOS >> /etc/issue
+# =====================================================
+# Welcome to ROCK 2.0!
+#
+# We've taken the liberty to create an admin account
+# and autogenerate a login password. Please login with
+# the following:
+#
+#   Username: rockadmin
+#   Password: ${PASS}
+#
+# To clear this message from loading on boot, delete
+# the file /root/ks-pass.txt
+# =====================================================
+# EOS
+#
 # fi
 #
-# ########################################
-# # Disable Pre-Linking
-# # CCE-27078-5
-# ########################################
-# /usr/bin/sed -i 's/PRELINKING.*/PRELINKING=no/g' /etc/sysconfig/prelink
-# /bin/chattr +i /etc/sysconfig/prelink
-# /usr/sbin/prelink -ua &> /dev/null
-#
-# /usr/bin/sed -i '/clean_up.sh/d' /etc/rc.local
-# rm -f /root/clean_up.sh
-#
-# exit 0
-#
 # EOF
-# chmod 500 /root/clean_up.sh
-# echo "/root/clean_up.sh" >> /etc/rc.local
-
 
 %end
