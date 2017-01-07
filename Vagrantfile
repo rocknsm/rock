@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "bento/centos-7.2"
+  config.vm.box = "bento/centos-7.3"
 
   config.ssh.forward_agent = true
   config.ssh.username = 'vagrant'
@@ -23,8 +23,6 @@ Vagrant.configure(2) do |config|
     vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-vms"]
 
     # Forward exposed service ports - these are directly accesible on vmware
-    config.vm.network "forwarded_port", guest: 5601, host: 5601
-    config.vm.network "forwarded_port", guest: 9200, host: 9200
     config.vm.network "forwarded_port", guest: 80, host: 8000
   end
 
@@ -33,7 +31,6 @@ Vagrant.configure(2) do |config|
     v.vmx["numvcpus"] = 8
     v.vmx["ethernet1.noPromisc"]  = "false"
     v.vmx["ethernet2.noPromisc"]  = "false"
-    v.vmx["ethernet3.noPromisc"]  = "false"
 
     # Ensure vmware-tools are auto-updated when we update the kernel
     config.vm.provision "shell", inline: <<-SHELL
@@ -50,7 +47,7 @@ Vagrant.configure(2) do |config|
     yum -y install epel-release
     sed -i 's/^mirrorlist/#mirrorlist/; s/^#baseurl/baseurl/' /etc/yum.repos.d/{CentOS-Base.repo,epel.repo}
     yum -y update
-    yum -y install ansible vim git tmux @development
+    yum -y install ansible vim git tmux
   SHELL
 
   # Enable selinux
