@@ -1,4 +1,4 @@
-= ROCK NSM Beta 1 Notes
+= Getting Started with ROCK 2.0
 Derek Ditch <derek@rocknsm.io>
 ifdef::env-github[]
 :tip-caption: :bulb:

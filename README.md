@@ -4,6 +4,10 @@ This build was created and tested using CentOS 7.3. I pretty much guarantee that
 
 **BE ADVISED:**  This build process takes 3-10 minutes depending on your underlying hardware.  There will be times where it seems like it quit.  Be patient.  You'll know when it's done, for better or worse.
 
+### Differences in ROCK 2.0
+
+See [Getting Started with ROCK 2.0](docs/getting-started.adoc).
+
 ### Vagrant
 **NOTE:**   
 This Vagrantfile is configured to give the VM 8GB of RAM.  If your system can't do that you should buy a new system or adjust the `vm.memory` value.  Anything below 8 is going to run like poopoo. You will also need to have a host-only adapter configured named `vboxnet0`.
