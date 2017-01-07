@@ -1,7 +1,7 @@
 #!/bin/bash
 SCRIPT_PATH=$(dirname $(readlink -f $0))
 #export DEBUG=1
-ansible-playbook --inventory "${SCRIPT_PATH}/inventory/all-in-one.ini" --connection local --become --force-handlers "${SCRIPT_PATH}/simplerock.yml"
+ansible-playbook --inventory "${SCRIPT_PATH}/inventory/all-in-one.ini" --connection local --become --force-handlers "${SCRIPT_PATH}/rock.yml"
 if [ $? -eq 0 ]; then
   cat << 'EOF'
 ┌──────────────────────────────────────────────────────────────────────────────┐

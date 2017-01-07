@@ -428,9 +428,11 @@
     notify: reload systemd
 
   - name: Initialize bro scripts for workers
-    command: sudo -u {{ bro_user }} /opt/bro/bin/broctl install
+    command: /opt/bro/bin/broctl install
     args:
       creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
+    become: yes
+    become_user: "{{ bro_user }}"
 
   - name: Enable and start broctl
     service: name=broctl enabled=yes state=started
