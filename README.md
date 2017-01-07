@@ -6,7 +6,7 @@ This build was created and tested using CentOS 7.3. I pretty much guarantee that
 
 ### Differences in ROCK 2.0
 
-See [Getting Started with ROCK 2.0](docs/getting-started.adoc).
+See [Getting Started with ROCK 2.0](docs/guide/getting-started.adoc).
 
 ### Vagrant
 **NOTE:**   

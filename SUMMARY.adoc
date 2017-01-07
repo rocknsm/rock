@@ -1,4 +1,4 @@
 = Summary
 
 . link:README.md[Introduction]
-. link:docs/getting-started.adoc[Getting Started]
+. link:docs/guide/getting-started.adoc[Getting Started]
