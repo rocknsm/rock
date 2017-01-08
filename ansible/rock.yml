@@ -96,7 +96,8 @@
       line: 127.0.0.2  {{ rock_fqdn }}  {{ rock_hostname }}
 
   - name: Set system hostname
-    hostname: name="{{ rock_fqdn }}"
+    hostname: 
+      name: "{{ rock_fqdn }}"
 
     #######################################################
     ################## Setup Yum Repos ####################
@@ -174,6 +175,19 @@
       - { pkg: chrony, state: installed }
       - { pkg: firewalld, state: installed }
       - { pkg: postfix, state: absent }
+
+  - name: Ensure cache directory exists
+    file:
+      dest: "{{ rock_cache_dir }}"
+      state: directory
+      mode: 0755
+
+  - name: Download Pulled Pork
+    get_url:
+      url: "{{ pulledpork_url }}"
+      dest: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
+      mode: 0644
+    when: rock_online_install
 
   - name: Install Pulled Pork
     unarchive:
