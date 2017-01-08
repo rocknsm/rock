@@ -211,6 +211,12 @@
     ################ Configure firewall ###################
     #######################################################
 
+  - name: Enable and start firewalld
+    service:
+      name: firewalld
+      enabled: yes
+      state: started
+      
   - name: Configure firewalld
     firewalld:
       port: "{{ item[1].port }}"
