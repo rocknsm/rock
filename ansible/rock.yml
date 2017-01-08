@@ -96,7 +96,8 @@
       line: 127.0.0.2  {{ rock_fqdn }}  {{ rock_hostname }}
 
   - name: Set system hostname
-    hostname: name="{{ rock_fqdn }}"
+    hostname: 
+      name: "{{ rock_fqdn }}"
 
     #######################################################
     ################## Setup Yum Repos ####################
