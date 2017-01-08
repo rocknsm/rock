@@ -9,7 +9,7 @@ This build was created and tested using CentOS 7.3. I pretty much guarantee that
 See [Getting Started with ROCK 2.0](docs/guide/getting-started.adoc).
 
 ### Vagrant
-**NOTE:**   
+**NOTE:**
 This Vagrantfile is configured to give the VM 8GB of RAM.  If your system can't do that you should buy a new system or adjust the `vm.memory` value.  Anything below 8 is going to run like poopoo. You will also need to have a host-only adapter configured named `vboxnet0`.
 ``` 
 git clone https://github.com/rocknsm/rock.git
