@@ -23,7 +23,7 @@ Vagrant.configure(2) do |config|
     vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-vms"]
 
     # Forward exposed service ports - these are directly accesible on vmware
-    config.vm.network "forwarded_port", guest: 80, host: 8000
+    #config.vm.network "forwarded_port", guest: 80, host: 8000
   end
 
   config.vm.provider "vmware_fusion" do |v|

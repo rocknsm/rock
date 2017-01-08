@@ -74,8 +74,6 @@ extract_iso() {
 
 download_content() {
   echo "[2/4] Downloading offline snapshot."
-  # Copy XKCD dictionary
-  cp xkcd-dict.txt ${ROCK_CACHE_DIR}/support/
 
   # Download offline-snapshot
   cond_out offline-snapshot
@@ -107,6 +105,12 @@ EOF
   mount -o loop ${TMP_NEW}/images/efiboot.img ${TMP_EFIBOOT}
   cp ${TMP_NEW}/EFI/BOOT/grub.cfg ${TMP_EFIBOOT}/EFI/BOOT/grub.cfg
   umount ${TMP_EFIBOOT}
+
+  # Copy boot splash branding
+  cond_out cp ${SCRIPT_DIR}/images/splash_rock.png ${TMP_NEW}/isolinux/splash.png
+
+  # Copy branding image over
+  cond_out cp ${SCRIPT_DIR}/images/product.img ${TMP_NEW}/images/
 
   # Sync over offline content
   cond_out rsync --recursive --quiet ${ROCK_CACHE_DIR}/ ${TMP_NEW}/

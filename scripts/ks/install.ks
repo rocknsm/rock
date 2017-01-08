@@ -2,7 +2,7 @@
 install
 cdrom
 firstboot --disabled
-reboot --eject
+#reboot --eject
 
 # Configure Storage
 zerombr
@@ -19,7 +19,7 @@ bootloader --location=mbr
 services --enabled=ssh
 
 # Users
-rootpw --lock --plaintext ROCKadmin!1234
+# rootpw --lock --plaintext ROCKadmin!1234
 # user --name=rockadmin --gecos='ROCK admin account' --groups wheel --plaintext --password ROCKadmin!1234
 
 # Security
