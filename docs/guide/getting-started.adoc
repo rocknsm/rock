@@ -62,9 +62,9 @@ On that last note, we now have an ISO that _should_ contain everything you need 
 Download the ISO here:
 
 |===
-| Filename | https://transfer.sh/TODO[TODO]
-| Filesize | TODO
-| SHA256 | TODO
+| Filename | https://github.com/rocknsm/rock/releases/download/v2.0-beta/rocknsm-v2.0-beta.iso[rocknsm-v2.0-beta.iso]
+| Filesize | 967M
+| SHA256 | a1e1af5685c06b98d3e541a1cfca828266849ba78d5bdd766bcae4a797ee76e6
 |===
 
 I've tested the ISO booting mostly in a VMware VM, which uses BIOS. I've also burned it to a USB thumbdrive (I used the 16 GB USB3 from MicroCenter) and installed it in BIOS mode on my home test sensor. For now, you'll have to Google how to copy an ISO to a thumbdrive. I used `dd` on a Mac.
