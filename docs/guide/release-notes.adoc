@@ -1,4 +1,4 @@
-= Release Notes
+== Release Notes
 
 Some of the biggest changes with ROCK 2.0 are upgrading all the software to the latest versions. Here's a list.
 

@@ -1,22 +1,4 @@
-= Getting Started with ROCK 2.0
-Derek Ditch <derek@rocknsm.io>; Jeff Geiger <jeff@rocknsm.io>
-ifdef::env-github[]
-:tip-caption: :bulb:
-:note-caption: :information_source:
-:important-caption: :heavy_exclamation_mark:
-:caution-caption: :fire:
-:warning-caption: :warning:
-else::[]
-:icons: font 
-endif::[]
-:experimental:
-:toc:
-:toc-placement!:
-
-toc::[]
-
-
-== Intro
+== Getting Started with ROCK 2.0
 
 In an effort to get this into hands of people that will break it and or make it useful, I'm sharing this ISO and some notes about how to use it. Note this is a work in progress, and I will build upon these notes to make what will ultimately be the release notes. 
 

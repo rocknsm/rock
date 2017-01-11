@@ -1,4 +1,4 @@
-= Configuration
+== Configuration
 
 Edit `/etc/rocknsm/config.yml` to suit your needs. For simple all-in-one installs, the main points to configure are 
 
