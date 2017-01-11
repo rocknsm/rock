@@ -3,4 +3,5 @@
 . link:README.md[Introduction]
 . link:getting-started.adoc[Getting Started]
 . link:configuration.adoc[Configuration]
+. link:release-notes.adoc[Release Notes]
 

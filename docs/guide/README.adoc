@@ -1,4 +1,16 @@
-## Response Operation Collections Kit Reference Build
+= Response Operation Collections Kit
+Derek Ditch <derek@rocknsm.io>; Jeff Geiger <jeff@rocknsm.io>
+ifdef::env-github[]
+:tip-caption: :bulb:
+:note-caption: :information_source:
+:important-caption: :heavy_exclamation_mark:
+:caution-caption: :fire:
+:warning-caption: :warning:
+else::[]
+:icons: font 
+endif::[]
+:experimental:
+
 
 This build was created and tested using CentOS 7.3. I pretty much guarantee that it won't work with anything else other than RHEL 7.  Unless you have an operational need, I would suggest basing your system off of CentOS 7.3 (build 1611), as that is where the bulk of the testing of this has happened.
 
