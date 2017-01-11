@@ -1,6 +1,0 @@
-= Summary
-
-. link:README.md[Introduction]
-. link:docs/guide/getting-started.adoc[Getting Started]
-. link:docs/guide/configuration.adoc[Configuration]
-
