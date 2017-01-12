@@ -3,6 +3,7 @@
 ROCK_CACHE_DIR=/srv/rocknsm
 ROCK_REPO=dev
 ROCKSCRIPTS_BRANCH=devel
+ROCKDASHBOARDS_BRANCH=master
 ROCK_BRANCH=devel
 PULLEDPORK_RELEASE=0.7.2
 TMP_RPM_ROOT=$(mktemp -d)
@@ -102,6 +103,11 @@ EOF
   # ROCK-Scripts:
   curl -Ls -o "rock-scripts-$(echo ${ROCKSCRIPTS_BRANCH} | tr '/' '-').tar.gz" \
     "https://github.com/rocknsm/rock-scripts/archive/${ROCKSCRIPTS_BRANCH}.tar.gz"
+
+  echo "Downloading ROCK Dashboards..."
+  # ROCK-Dashboards:
+  curl -Ls -o "rock2-dashboards-$(echo ${ROCKDASHBOARDS_BRANCH} | tr '/' '-').tar.gz" \
+    "https://github.com/rocknsm/rock-dashboards/archive/${ROCKDASHBOARDS_BRANCH}.tar.gz"
 
   echo "Downloading SimpleROCK Snapshot..."
   curl -Ls -o "SimpleRock-$(echo ${ROCK_BRANCH} | tr '/' '-').tar.gz" \
