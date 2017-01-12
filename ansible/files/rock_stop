@@ -7,7 +7,7 @@ echo "Stopping Suricata..."
 systemctl stop suricata
 
 echo "Stopping Bro..."
-/opt/bro/bin/broctl stop
+systemctl stop broctl
 
 echo "Stopping Logstash..."
 systemctl stop logstash
