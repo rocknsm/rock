@@ -31,9 +31,9 @@ sleep 5
 systemctl status suricata | egrep "^\s*Active"
 
 echo "Starting Bro..."
-sudo -u bro /opt/bro/bin/broctl install; sudo -u bro /opt/bro/bin/broctl check && sudo -u bro /opt/bro/bin/broctl start
+systemctl start broctl
 sleep 5
-sudo -u bro /opt/bro/bin/broctl status
+systemctl status broctl | egrep "^\s*Active"
 
 #echo "Starting Stenographer..."
 #systemctl start stenographer

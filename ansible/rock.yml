@@ -619,13 +619,13 @@
 
   - name: Check stats of rules files
     stat:
-      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules }}"
+      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules"
     register: rules_file
     when: with_pulledpork
 
   - name: Create initial pulledpork rules-related files
     file:
-      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules }}"
+      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules"
       owner: root
       group: root
       mode: 0644

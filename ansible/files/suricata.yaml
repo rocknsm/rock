@@ -49,6 +49,7 @@ vars:
 
 default-rule-path: /etc/suricata/rules
 rule-files:
+ - pulledpork.rules      # Default file dropped by pulledpork in rules dir
 # - decoder-events.rules # available in suricata sources under rules dir
 # - stream-events.rules  # available in suricata sources under rules dir
  - http-events.rules    # available in suricata sources under rules dir
