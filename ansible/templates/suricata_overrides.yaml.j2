@@ -1,5 +1,13 @@
 %YAML 1.1
 ---
+rule-files:
+  - pulledpork.rules
+  - http-events.rules
+  - smtp-events.rules
+  - dns-events.rules
+  - tls-events.rules
+  - app-layer-events.rules
+  - files.rules
 af-packet:
 {% for iface in rock_monifs %}
   - interface: {{ iface }}
