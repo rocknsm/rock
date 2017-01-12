@@ -32,18 +32,9 @@ outputs:
             tagged-packets: yes
             xff:
               enabled: no
-        - http:
-            extended: yes
-        - dns:
-            query: yes
-            answer: yes
-        - tls:
-            extended: yes
         - files:
             force-magic: no
             force-md5: no
-        - smtp:
-        - ssh
         - stats:
             totals: yes
             threads: no
