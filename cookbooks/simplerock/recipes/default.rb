@@ -294,6 +294,17 @@ execute 'import_epel_key' do
   only_if '[ -f /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7 ]'
 end
 
+######################################################
+################### Install lsof #####################
+######################################################
+package 'lsof' do
+  action :install
+end
+
+execute 'install_lsof' do
+   command 'yum install lsof'
+end
+
 #######################################################
 ################ Install ROCK Repos ###################
 #######################################################
