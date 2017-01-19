@@ -1,5 +1,8 @@
 ## Response Operation Collections Kit Reference Build
 
+See the [ROCK 2.0 User Guide](docs/guide/README.adoc).
+
+
 This build was created and tested using CentOS 7.3. I pretty much guarantee that it won't work with anything else other than RHEL 7.  Unless you have an operational need, I would suggest basing your system off of CentOS 7.3 (build 1611), as that is where the bulk of the testing of this has happened.
 
 **BE ADVISED:**  This build process takes 3-10 minutes depending on your underlying hardware.  There will be times where it seems like it quit.  Be patient.  You'll know when it's done, for better or worse.

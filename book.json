@@ -1,3 +1,4 @@
 {
-    "root": "./docs/guide"
+    "root": "./docs/guide",
+    "structure.readme": "README.adoc"
 }
