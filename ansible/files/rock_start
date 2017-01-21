@@ -40,4 +40,9 @@ systemctl status broctl | egrep "^\s*Active"
 #sleep 5
 #systemctl status stenographer | egrep "^\s*Active"
 
+echo "Starting FSF..."
+systemctl start fsf
+sleep 5
+systemctl status fsf | egrep "^\s*Active"
+
 exit 0

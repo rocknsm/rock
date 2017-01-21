@@ -28,6 +28,7 @@ with_kibana: true
 with_zookeeper: true
 with_kafka: true
 with_nginx: true
+with_fsfserver: true
 
 rocknsm_package_list:
   - java-1.8.0-openjdk-headless
