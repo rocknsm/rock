@@ -788,7 +788,7 @@
       url: http://localhost:9200/_template/bro_index
       body: "{{ lookup('file', 'files/es-bro-mappings.json')}}"
       body_format: json
-    when: bro_mapping.status_code == 404
+    when: bro_mapping.status == 404
 
     ######################################################
     ################### Setup Logstash ###################
