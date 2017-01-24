@@ -6,9 +6,10 @@
 
 # interfaces that should be configured for sensor applications
 rock_monifs: 
-  {%- for item in rock_monifs %}
+  {% for item in rock_monifs %}
   - {{ item }}
-  {%- endfor %}
+  {% endfor %}
+
 # Secifies the hostname of the sensor
 rock_hostname: {{ rock_hostname }}
 # the FQDN
