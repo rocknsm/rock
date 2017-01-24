@@ -96,7 +96,7 @@
       line: 127.0.0.2  {{ rock_fqdn }}  {{ rock_hostname }}
 
   - name: Set system hostname
-    hostname: 
+    hostname:
       name: "{{ rock_fqdn }}"
 
     #######################################################
@@ -230,7 +230,7 @@
       name: firewalld
       enabled: yes
       state: started
-      
+
   - name: Configure firewalld
     firewalld:
       port: "{{ item[1].port }}"
@@ -771,7 +771,24 @@
   - name: Enable and start Elasticsearch
     service: name=elasticsearch state=started enabled=yes
     when: with_elasticsearch
-    notify: wait for elasticsearch to become ready
+
+  - name: Wait for Elasticsearch to become ready
+    wait_for: host=localhost port=9200
+
+  - name: Check for Bro mapping templates
+    uri:
+      method: GET
+      url: http://localhost:9200/_template/bro_index
+    failed_when: False
+    register: bro_mapping
+
+  - name: Load Bro Elasticsearch mapping templates
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/bro_index
+      body: "{{ lookup('file', 'files/es-bro-mappings.json')}}"
+      body_format: json
+    when: bro_mapping.status == 404
 
     ######################################################
     ################### Setup Logstash ###################
@@ -947,8 +964,7 @@
     - name: reload systemd
       command: systemctl daemon-reload
 
-    - name: wait for elasticsearch to become ready
-      wait_for: host=localhost port=9200
+
 
     - name: include kibana tasks
       include: kibana-tasks.yml
