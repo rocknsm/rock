@@ -777,14 +777,14 @@
 
   - name: Check for Bro mapping templates
     uri:
-      method: GET
+      method: "GET"
       url: http://localhost:9200/_template/bro_index
     failed_when: False
     register: bro_mapping
 
   - name: Load Bro Elasticsearch mapping templates
     uri:
-      method: PUT
+      method: "PUT"
       url: http://localhost:9200/_template/bro_index
       body: "{{ lookup('file', 'files/es-bro-mappings.json')}}"
       body_format: json
@@ -830,7 +830,61 @@
       - set suricata default index in kibana
     when: with_kibana
 
-    # TODO: Setup ROCK NSM dashboards
+  - name: Download ROCK Dashboards
+    get_url:
+      url: "{{ rock_dashboards_url }}"
+      dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      mode: 0644
+    when: rock_online_install
+
+  - name: Extract ROCK Dashboards
+    unarchive:
+      src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      dest: /opt
+      owner: root
+      group: root
+      creates: "/opt/rock-dashboards-{{ rock_dashboards_branch }}"
+      remote_src: yes
+    when: "{{ with_kibana }}"
+
+  - name: Query Kibana version
+    command: $(which rpm) --query kibana --queryformat "%{VERSION}"
+    register: kibana_version
+    changed_when: false
+
+  - name: Check current Kibana config
+    uri:
+      method: "GET"
+      url: "{{ es_url }}/.kibana/config/{{ kibana_version }}/_source"
+      return_content: true
+    register: kibana_cfg
+    changed_when: false
+
+  - name: Store Kibana config dict
+    set_fact:
+      kibana_config: "{{ kibana_cfg.json | from_json }}"
+
+  - name: Push Kibana config
+    command: >
+      /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/load.sh
+        -url {{ es_url }}
+    when: "{{ kibana_config.rock_config != rock_dashboards_version }}"
+
+  - name: Set default index to Bro
+    uri:
+      method: "PUT"
+      url: "{{ es_url }}/.kibana/config/{{ kibana_version }}"
+      body: "{{ kibana_cfg.json | combine({'defaultIndex': 'bro-*' })}}"
+      body_format: "json"
+    when: "{{ kibana_config.rock_config != rock_dashboards_version }}"
+
+  - name: "Set rockConfig to {{ rock_dashboards_version }}"
+    uri:
+      method: "PUT"
+      url: "{{ es_url }}/.kibana/config/{{ kibana_version }}"
+      body: "{{ kibana_cfg.json | combine({'rockConfig': rock_dashboards_version })}}"
+      body_format: "json"
+    when: "{{ kibana_config.rock_config != rock_dashboards_version }}"
 
     ######################################################
     ################### Setup nginx ######################
