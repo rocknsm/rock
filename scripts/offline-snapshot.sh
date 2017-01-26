@@ -101,16 +101,16 @@ EOF
 
   echo "Downloading ROCK Scripts..."
   # ROCK-Scripts:
-  curl -Ls -o "rock-scripts-$(echo ${ROCKSCRIPTS_BRANCH} | tr '/' '-').tar.gz" \
+  curl -Ls -o "rock-scripts_$(echo ${ROCKSCRIPTS_BRANCH} | tr '/' '-').tar.gz" \
     "https://github.com/rocknsm/rock-scripts/archive/${ROCKSCRIPTS_BRANCH}.tar.gz"
 
   echo "Downloading ROCK Dashboards..."
   # ROCK-Dashboards:
-  curl -Ls -o "rock2-dashboards-$(echo ${ROCKDASHBOARDS_BRANCH} | tr '/' '-').tar.gz" \
+  curl -Ls -o "rock-dashboards_$(echo ${ROCKDASHBOARDS_BRANCH} | tr '/' '-').tar.gz" \
     "https://github.com/rocknsm/rock-dashboards/archive/${ROCKDASHBOARDS_BRANCH}.tar.gz"
 
-  echo "Downloading SimpleROCK Snapshot..."
-  curl -Ls -o "SimpleRock-$(echo ${ROCK_BRANCH} | tr '/' '-').tar.gz" \
+  echo "Downloading ROCK Snapshot..."
+  curl -Ls -o "rock_$(echo ${ROCK_BRANCH} | tr '/' '-').tar.gz" \
     "https://github.com/rocknsm/SimpleRock/archive/${ROCK_BRANCH}.tar.gz"
 
   # Because I'm pedantic

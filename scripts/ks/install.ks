@@ -19,8 +19,8 @@ bootloader --location=mbr
 services --enabled=ssh
 
 # Users
-# rootpw --lock --plaintext ROCKadmin!1234
-# user --name=rockadmin --gecos='ROCK admin account' --groups wheel --plaintext --password ROCKadmin!1234
+rootpw --lock
+#user --name=rockadmin --gecos='ROCK admin account' --groups=wheel
 
 # Security
 firewall --enabled --service=ssh
@@ -87,7 +87,7 @@ EOF
 #######################################
 mkdir -p /opt/rocknsm
 cd /opt/rocknsm
-tar --extract --strip-components=1 --auto-compress --file=$(ls /srv/rocknsm/support/SimpleRock-*.tar.gz|head -1)
+tar --extract --strip-components=1 --auto-compress --file=$(ls /srv/rocknsm/support/rock_*.tar.gz|head -1)
 
 # Default to offline build and generate values
 mkdir -p /etc/rocknsm
@@ -97,6 +97,12 @@ rock_online_install: False
 EOF
 
 /opt/rocknsm/ansible/generate_defaults.sh
+
+# Install /etc/issue updater
+cp /opt/rocknsm/ansible/files/etc-issue.in /etc/issue.in
+cp /opt/rocknsm/ansible/files/nm-issue-update /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+chmod 755 /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+
 #
 # cat << 'EOF' > /etc/NetworkManager/dispatcher.d/99-firstboot-issue-update
 # #!/bin/bash

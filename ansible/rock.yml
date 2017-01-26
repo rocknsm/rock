@@ -840,51 +840,55 @@
   - name: Extract ROCK Dashboards
     unarchive:
       src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
-      dest: /opt
+      dest: /opt/rocknsm
       owner: root
       group: root
-      creates: "/opt/rock-dashboards-{{ rock_dashboards_branch }}"
+      creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
       remote_src: yes
     when: "{{ with_kibana }}"
 
-  - name: Query Kibana version
-    command: $(which rpm) --query kibana --queryformat "%{VERSION}"
-    register: kibana_version
-    changed_when: false
+  - name: Query Kibana package info
+    yum:
+      list: kibana
+    register: kibana_pkg
+
+  - name: Store installed kibana pkg info
+    set_fact:
+      kibana_info: "{{ kibana_pkg.results | selectattr('repo', 'match', 'installed') | first }}"
 
   - name: Check current Kibana config
     uri:
       method: "GET"
-      url: "{{ es_url }}/.kibana/config/{{ kibana_version }}/_source"
+      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}/_source"
       return_content: true
     register: kibana_cfg
     changed_when: false
 
   - name: Store Kibana config dict
     set_fact:
-      kibana_config: "{{ kibana_cfg.json | from_json }}"
+      kibana_config: "{{ kibana_cfg.json }}"
 
   - name: Push Kibana config
     command: >
       /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/load.sh
         -url {{ es_url }}
-    when: "{{ kibana_config.rock_config != rock_dashboards_version }}"
+    when: "{{ kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version }}"
 
   - name: Set default index to Bro
     uri:
       method: "PUT"
-      url: "{{ es_url }}/.kibana/config/{{ kibana_version }}"
+      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}"
       body: "{{ kibana_cfg.json | combine({'defaultIndex': 'bro-*' })}}"
       body_format: "json"
-    when: "{{ kibana_config.rock_config != rock_dashboards_version }}"
+    when: "{{ kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version }}"
 
-  - name: "Set rockConfig to {{ rock_dashboards_version }}"
+  - name: "Set rock_config to {{ rock_dashboards_version }}"
     uri:
       method: "PUT"
-      url: "{{ es_url }}/.kibana/config/{{ kibana_version }}"
-      body: "{{ kibana_cfg.json | combine({'rockConfig': rock_dashboards_version })}}"
+      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}"
+      body: "{{ kibana_cfg.json | combine({'rock_config': rock_dashboards_version })}}"
       body_format: "json"
-    when: "{{ kibana_config.rock_config != rock_dashboards_version }}"
+    when: "{{ kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version }}"
 
     ######################################################
     ################### Setup nginx ######################
