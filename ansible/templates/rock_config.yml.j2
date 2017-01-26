@@ -5,7 +5,11 @@
 # know what you are doing!
 
 # interfaces that should be configured for sensor applications
-rock_monifs: {{ rock_monifs | to_yaml }}
+rock_monifs: 
+  {% for item in rock_monifs %}
+  - {{ item }}
+  {% endfor %}
+
 # Secifies the hostname of the sensor
 rock_hostname: {{ rock_hostname }}
 # the FQDN
