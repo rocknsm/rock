@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ROCK_CACHE_DIR=/srv/rocknsm
-ROCK_REPO=dev
+ROCK_REPO=2
 ROCKSCRIPTS_BRANCH=devel
 ROCKDASHBOARDS_BRANCH=master
 ROCK_BRANCH=devel
