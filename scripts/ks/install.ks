@@ -53,11 +53,6 @@ auth --enableshadow --passalgo=sha512 --kickstart
 
 %post --nochroot --log=/mnt/sysimage/root/ks-post.log
 #!/bin/bash
-#
-# # Save password
-# mv /tmp/ks-pass.txt /mnt/sysimage/root/ks-pass.txt
-# chmod 0600 /mnt/sysimage/root/ks-pass.txt
-# cp /tmp/ks-user.txt /mnt/sysimage/root/ks-user.txt
 
 # Save packages to local repo
 mkdir -p /mnt/sysimage/srv/rocknsm
@@ -67,6 +62,8 @@ rsync -rP --exclude 'TRANS.TBL' /mnt/install/repo/{Packages,repodata,support} /m
 
 %post --log=/root/ks-post-chroot.log
 #!/bin/bash
+
+ROCK_DIR=/opt/rocknsm/rock
 
 # Allow sudo w/ tools like ansible, etc
 sed -i "s/^[^#].*requiretty/#Defaults requiretty/" /etc/sudoers
@@ -85,8 +82,7 @@ EOF
 #######################################
 # Extract current ROCK NSM scripts
 #######################################
-mkdir -p /opt/rocknsm/rock
-cd /opt/rocknsm/rock
+mkdir -p ${ROCK_DIR}; cd ${ROCK_DIR}
 tar --extract --strip-components=1 --auto-compress --file=$(ls /srv/rocknsm/support/rock_*.tar.gz|head -1)
 
 # Default to offline build and generate values
@@ -96,37 +92,11 @@ cat << 'EOF' > /etc/rocknsm/config.yml
 rock_online_install: False
 EOF
 
-/opt/rocknsm/ansible/generate_defaults.sh
+${ROCK_DIR}/ansible/generate_defaults.sh
 
 # Install /etc/issue updater
-cp /opt/rocknsm/ansible/files/etc-issue.in /etc/issue.in
-cp /opt/rocknsm/ansible/files/nm-issue-update /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+cp ${ROCK_DIR}/ansible/files/etc-issue.in /etc/issue.in
+cp ${ROCK_DIR}/ansible/files/nm-issue-update /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
 chmod 755 /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
-
-#
-# cat << 'EOF' > /etc/NetworkManager/dispatcher.d/99-firstboot-issue-update
-# #!/bin/bash
-#
-# if [ -f /root/ks-pass.txt ]; then
-# PASS=$(cat /root/ks-pass.txt)
-# cat << EOS >> /etc/issue
-# =====================================================
-# Welcome to ROCK 2.0!
-#
-# We've taken the liberty to create an admin account
-# and autogenerate a login password. Please login with
-# the following:
-#
-#   Username: rockadmin
-#   Password: ${PASS}
-#
-# To clear this message from loading on boot, delete
-# the file /root/ks-pass.txt
-# =====================================================
-# EOS
-#
-# fi
-#
-# EOF
 
 %end
