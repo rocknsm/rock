@@ -422,8 +422,6 @@
       state: present
     when: with_bro and with_kafka
 
-
-
   - name: Add bro to path and aliases
     copy:
       src: files/profile.d-bro.sh
