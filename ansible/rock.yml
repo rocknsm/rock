@@ -863,6 +863,10 @@
       return_content: true
     register: kibana_cfg
     changed_when: false
+    until: kibana_cfg.status == 200
+    retries: 10
+    delay: 3
+
 
   - name: Store Kibana config dict
     set_fact:
