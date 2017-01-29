@@ -883,9 +883,9 @@
     delay: 3
     when: "{{ with_kibana }}"
 
-  - name: Store Kibana config dict w/ rock_config version
+  - name: Store Kibana config dict
     set_fact:
-      kibana_config: "{{ kibana_cfg.json | combine({'rock_config': rock_dashboards_version }) }}"
+      kibana_config: "{{ kibana_cfg.json }}"
     when: "{{ with_kibana }}"
 
   - name: Configure Kibana templates
@@ -919,7 +919,12 @@
       kibana_config: "{{ kibana_config | combine({'defaultIndex': 'suricata-*' })}}"
     when: "{{ with_kibana and with_suricata and not with_bro }}"
 
-  - name: Set default Kibana index
+  - name: Update Kibana config dict w/ rock_config version
+    set_fact:
+      kibana_config: "{{ kibana_config | combine({'rock_config': rock_dashboards_version }) }}"
+    when: "{{ with_kibana }}"
+
+  - name: Push Kibana settings for index and rock_version
     uri:
       method: PUT
       url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}"
