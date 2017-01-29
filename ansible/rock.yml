@@ -250,8 +250,27 @@
     ######################################################
   - name: Configure GeoIP Update
     copy: src=files/GeoIP.conf dest=/etc/GeoIP.conf
-    notify:
-      - update geoip
+
+    # There's an issue w/ geoipupdate when env is empty
+  - name: Update GeoIP
+    shell: >
+      if [ "x$HTTP_PROXY" == "x" ]; then
+          unset HTTP_PROXY;
+      fi
+      if [ "x$http_proxy" == "x" ]; then
+          unset http_proxy;
+      fi
+      if [ "x$HTTPS_PROXY" == "x" ]; then
+          unset HTTPS_PROXY;
+      fi
+      if [ "x$https_proxy" == "x" ]; then
+          unset https_proxy;
+      fi
+      /usr/bin/geoipupdate
+    args:
+      creates: /usr/share/GeoIP/GeoLiteASNum.dat
+    register: result
+    failed_when: (result.rc != 0) and (result.rc != 1)
 
   - name: Create GeoIP symlinks
     file:
@@ -777,7 +796,7 @@
 
   - name: Check for Bro mapping templates
     uri:
-      method: GET
+      method: "GET"
       url: http://localhost:9200/_template/bro_index
     failed_when: False
     register: bro_mapping
@@ -822,15 +841,97 @@
 
   - name: Enable and start Kibana
     service: name=kibana state=started enabled=yes
-    notify:
-      - configure kibana templates
-      - configure suricata index in kibana
-      - configure bro index in kibana
-      - set bro default index in kibana
-      - set suricata default index in kibana
-    when: with_kibana
+    when: "{{ with_kibana }}"
 
-    # TODO: Setup ROCK NSM dashboards
+  - name: Download ROCK Dashboards
+    get_url:
+      url: "{{ rock_dashboards_url }}"
+      dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      mode: 0644
+    when: "{{ with_kibana and rock_online_install }}"
+
+  - name: Extract ROCK Dashboards
+    unarchive:
+      src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      dest: /opt/rocknsm
+      owner: root
+      group: root
+      creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+      remote_src: yes
+    when: "{{ with_kibana }}"
+
+  - name: Query Kibana package info
+    yum:
+      list: kibana
+    register: kibana_pkg
+    when: "{{ with_kibana }}"
+
+  - name: Store installed kibana pkg info
+    set_fact:
+      kibana_info: "{{ kibana_pkg.results | selectattr('repo', 'match', 'installed') | first }}"
+    when: "{{ with_kibana }}"
+
+  - name: Check current Kibana config
+    uri:
+      method: "GET"
+      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}/_source"
+      return_content: true
+    register: kibana_cfg
+    changed_when: false
+    until: kibana_cfg.status == 200
+    retries: 10
+    delay: 3
+    when: "{{ with_kibana }}"
+
+  - name: Store Kibana config dict
+    set_fact:
+      kibana_config: "{{ kibana_cfg.json }}"
+    when: "{{ with_kibana }}"
+
+  - name: Configure Kibana templates
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/kibana-config
+      body: >
+        { "order" : 0, "template" : ".kibana",
+          "settings" :
+            { "index.number_of_replicas" : "0",
+              "index.number_of_shards" : "1" },
+          "mappings" : { }, "aliases" : { } }
+      status_code: 200,201
+    when: "{{ with_kibana }}"
+
+  - name: Push Kibana dashboard config
+    command: >
+      /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/load.sh
+        -url {{ es_url }}
+    args:
+      chdir: /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/
+    when: "{{ with_kibana and (kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version) }}"
+
+  - name: Store default Kibana index to Bro
+    set_fact:
+      kibana_config: "{{ kibana_config | combine({'defaultIndex': 'bro-*' })}}"
+    when: "{{ with_kibana and with_bro }}"
+
+  - name: Store default Kibana index to Suricata
+    set_fact:
+      kibana_config: "{{ kibana_config | combine({'defaultIndex': 'suricata-*' })}}"
+    when: "{{ with_kibana and with_suricata and not with_bro }}"
+
+  - name: Update Kibana config dict w/ rock_config version
+    set_fact:
+      kibana_config: "{{ kibana_config | combine({'rock_config': rock_dashboards_version }) }}"
+    when: "{{ with_kibana }}"
+
+  - name: Push Kibana settings for index and rock_version
+    uri:
+      method: PUT
+      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}"
+      body: "{{ kibana_config }}"
+      body_format: "json"
+      status_code: 200,201
+    when: "{{ with_kibana }}"
 
     ######################################################
     ################### Setup nginx ######################
@@ -917,15 +1018,19 @@
     - name: force sync time
       command: >
         chronyc -a 'burst 3/4'; sleep 5; chronyc -a makestep
+
     - name: configure monitor interfaces
       shell: >
         for intf in {{ rock_monifs | join(' ')}}; do
           /sbin/ifup ${intf};
         done
+
     - name: sshd restart
       service: name=sshd state=restarted
+
     - name: es maintenance
       command: /usr/local/bin/es_cleanup.sh
+
     - name: create kafka bro topic
       command: >
         /opt/kafka/bin/kafka-topics.sh
@@ -934,6 +1039,7 @@
            --replication-factor 1
            --topic bro-raw
            --partitions 1
+
     - name: create kafka suricata  topic
       command: >
         /opt/kafka/bin/kafka-topics.sh
@@ -942,32 +1048,10 @@
            --replication-factor 1
          --topic suricata-raw
            --partitions 1
-      # There's an issue w/ geoipupdate when env is empty
-    - name: update geoip
-      shell: >
-        if [ "x$HTTP_PROXY" == "x" ]; then
-            unset HTTP_PROXY;
-        fi
-        if [ "x$http_proxy" == "x" ]; then
-            unset http_proxy;
-        fi
-        if [ "x$HTTPS_PROXY" == "x" ]; then
-            unset HTTPS_PROXY;
-        fi
-        if [ "x$https_proxy" == "x" ]; then
-            unset https_proxy;
-        fi
-        /usr/bin/geoipupdate
-      register: result
-      failed_when: (result.rc != 0) and (result.rc != 1)
 
     - name: reload systemd
       command: systemctl daemon-reload
 
-
-
-    - name: include kibana tasks
-      include: kibana-tasks.yml
 
   environment:
    http_proxy:  "{{ http_proxy }}"

@@ -1,7 +1,12 @@
 #!/bin/bash
 SCRIPT_PATH=$(dirname $(readlink -f $0))
-#export DEBUG=1
-ansible-playbook --inventory "${SCRIPT_PATH}/inventory/all-in-one.ini" --connection local --become --force-handlers "${SCRIPT_PATH}/rock.yml"
+VERBOSE_FLAGS=
+if [ "x${DEBUG}" != "x" ]; then
+  VERBOSE_FLAGS="-vvv"
+fi
+
+ansible-playbook --inventory "${SCRIPT_PATH}/inventory/all-in-one.ini" --connection local --become --force-handlers "${SCRIPT_PATH}/rock.yml" ${VERBOSE_FLAGS}
+
 if [ $? -eq 0 ]; then
   cat << 'EOF'
 ┌──────────────────────────────────────────────────────────────────────────────┐
