@@ -267,8 +267,9 @@
           unset https_proxy;
       fi
       /usr/bin/geoipupdate
+    args:
+      creates: /usr/share/GeoIP/GeoLiteASNum.dat
     register: result
-    creates: /usr/share/GeoIP/GeoLiteASNum.dat
     failed_when: (result.rc != 0) and (result.rc != 1)
 
   - name: Create GeoIP symlinks
@@ -840,14 +841,14 @@
 
   - name: Enable and start Kibana
     service: name=kibana state=started enabled=yes
-    when: with_kibana
+    when: "{{ with_kibana }}"
 
   - name: Download ROCK Dashboards
     get_url:
       url: "{{ rock_dashboards_url }}"
       dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
       mode: 0644
-    when: rock_online_install
+    when: "{{ with_kibana and rock_online_install }}"
 
   - name: Extract ROCK Dashboards
     unarchive:
@@ -863,10 +864,12 @@
     yum:
       list: kibana
     register: kibana_pkg
+    when: "{{ with_kibana }}"
 
   - name: Store installed kibana pkg info
     set_fact:
       kibana_info: "{{ kibana_pkg.results | selectattr('repo', 'match', 'installed') | first }}"
+    when: "{{ with_kibana }}"
 
   - name: Check current Kibana config
     uri:
@@ -878,10 +881,12 @@
     until: kibana_cfg.status == 200
     retries: 10
     delay: 3
+    when: "{{ with_kibana }}"
 
-  - name: Store Kibana config dict
+  - name: Store Kibana config dict w/ rock_config version
     set_fact:
-      kibana_config: "{{ kibana_cfg.json }}"
+      kibana_config: "{{ kibana_cfg.json | combine({'rock_config': rock_dashboards_version }) }}"
+    when: "{{ with_kibana }}"
 
   - name: Configure Kibana templates
     uri:
@@ -894,39 +899,34 @@
               "index.number_of_shards" : "1" },
           "mappings" : { }, "aliases" : { } }
       status_code: 200,201
+    when: "{{ with_kibana }}"
 
-  - name: Push Kibana config
+  - name: Push Kibana dashboard config
     command: >
       /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/load.sh
         -url {{ es_url }}
     args:
       chdir: /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/
-    when: "{{ kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version }}"
+    when: "{{ with_kibana and (kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version) }}"
 
-  - name: Set default Kibana index to Bro
+  - name: Store default Kibana index to Bro
+    set_fact:
+      kibana_config: "{{ kibana_config | combine({'defaultIndex': 'bro-*' })}}"
+    when: "{{ with_kibana and with_bro }}"
+
+  - name: Store default Kibana index to Suricata
+    set_fact:
+      kibana_config: "{{ kibana_config | combine({'defaultIndex': 'suricata-*' })}}"
+    when: "{{ with_kibana and with_suricata and not with_bro }}"
+
+  - name: Set default Kibana index
     uri:
       method: PUT
       url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}"
-      body: "{{ kibana_cfg.json | combine({'defaultIndex': 'bro-*' })}}"
+      body: "{{ kibana_config }}"
       body_format: "json"
       status_code: 200,201
-    when: "{{ with_bro }}"
-
-  - name: Set default Kibana index to Suricata
-    uri:
-      method: PUT
-      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}"
-      body: "{{ kibana_cfg.json | combine({'defaultIndex': 'suricata-*' })}}"
-      status_code: 200,201
-    when: "{{ (with_suricata and not with_bro) }}"
-
-
-  - name: "Set rock_config to {{ rock_dashboards_version }}"
-    uri:
-      method: PUT
-      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}"
-      body: "{{ kibana_cfg.json | combine({'rock_config': rock_dashboards_version })}}"
-      body_format: "json"
+    when: "{{ with_kibana }}"
 
     ######################################################
     ################### Setup nginx ######################
