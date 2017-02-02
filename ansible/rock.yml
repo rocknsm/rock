@@ -172,6 +172,7 @@
       - { pkg: zookeeper, test: "{{with_zookeeper}}", state: installed }
       - { pkg: kafka, test: "{{with_kafka}}", state: installed }
       - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
+      - { pkg: fsfserver, test: "{{with_fsfserver}}", state: installed }
       - { pkg: chrony, state: installed }
       - { pkg: firewalld, state: installed }
       - { pkg: postfix, state: absent }
@@ -381,7 +382,6 @@
     git:
       repo: "{{ bro_rockscripts_repo }}"
       dest: /opt/bro/share/bro/site/scripts/rock
-      depth: 1
       version: "{{ bro_rockscripts_branch }}"
     when: rock_online_install
 
@@ -402,6 +402,17 @@
       state: link
       force: yes
     when: not rock_online_install
+
+  - name: Update owner for ROCK NSM Bro scripts
+    file:
+      path: /opt/bro/share/bro/site/scripts/rock
+      owner: "{{ bro_user }}"
+      group: "{{ bro_group }}"
+      state: directory
+      recurse: yes
+      follow: yes
+    tags:
+      - bro_scripts
 
   - name: Add ROCK scripts to local.bro
     lineinfile:
@@ -831,6 +842,15 @@
       group: root
     when: with_logstash and with_suricata
 
+  - name: Configure Logstash to pickup the FSF scan.log
+    copy:
+      src: "files/logstash-fsf-es.conf"
+      dest: "/etc/logstash/conf.d/fsf-es.conf"
+      mode: 0644
+      owner: root
+      group: root
+    when: with_logstash and with_fsfserver
+
   - name: Enable and start Logstash
     service: name=logstash state=started enabled=yes
     when: with_logstash
@@ -962,6 +982,23 @@
   - name: Enable and start nginx
     service: name=nginx state=started enabled=yes
     when: with_nginx
+
+    #######################################################
+    ######################## FSF ##########################
+    #######################################################
+    
+  - name: Configure logrotate for FSF logs
+    copy:
+      src: files/logrotate-fsf.conf
+      dest: /etc/logrotate.d/fsf.conf
+      mode: 0644
+      owner: root
+      group: root
+    when: with_fsfserver
+
+  - name: Enable and start FSF
+    service: name=fsf state=started enabled=yes
+    when: with_fsfserver
 
     ######################################################
     ############### Setup ROCKNSM Scripts ################
