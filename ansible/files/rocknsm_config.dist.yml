@@ -99,6 +99,9 @@ suricata_group: suricata
 suricata_data_dir: "{{ rock_data_dir }}/suricata"
 pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
 pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
+fsf_user: fsf
+fsf_group: fsf
+fsf_data_dir: "{{ rock_data_dir }}/fsf"
 kafka_user: kafka
 kafka_group: kafka
 kafka_data_dir: "{{ rock_data_dir }}/kafka"
