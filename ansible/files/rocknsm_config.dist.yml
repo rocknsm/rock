@@ -30,6 +30,20 @@ with_kafka: true
 with_nginx: true
 with_fsfserver: true
 
+# Feature options - Don't flip these unless you know what you're doing
+enable_stenographer: false
+enable_bro: true
+enable_suricata: true
+enable_snort: false
+enable_pulledpork: true
+enable_logstash: true
+enable_elasticsearch: true
+enable_kibana: true
+enable_zookeeper: true
+enable_kafka: true
+enable_nginx: true
+enable_fsfserver: true
+
 rocknsm_package_list:
   - java-1.8.0-openjdk-headless
   - jq

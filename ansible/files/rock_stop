@@ -1,30 +1,59 @@
 #!/bin/bash
 
-echo "Stopping FSF..."
-systemctl stop fsf
 
-#echo "Stopping Stenographer..."
-#systemctl stop stenographer
+function feature_enabled() {
+  grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config;
+  return $?
+}
 
-echo "Stopping Suricata..."
-systemctl stop suricata
+if feature_enabled fsfserver; then
+  echo "Stopping FSF..."
+  systemctl stop fsf
+fi
 
-echo "Stopping Bro..."
-systemctl stop broctl
+if feature_enabled suricata; then
+  echo "Stopping Stenographer..."
+  systemctl stop stenographer
+fi
 
-echo "Stopping Logstash..."
-systemctl stop logstash
+if feature_enabled suricata; then
+  echo "Stopping Suricata..."
+  systemctl stop suricata
+fi
 
-echo "Stopping Kibana..."
-systemctl stop kibana
+if feature_enabled snort; then
+  echo "Stopping Snort..."
+  systemctl stop snortd
+fi
 
-echo "Stopping Elasticsearch..."
-systemctl stop elasticsearch
+if feature_enabled bro; then
+  echo "Stopping Bro..."
+  systemctl stop broctl
+fi
 
-echo "Stopping Kafka..."
-systemctl stop kafka
+if feature_enabled logstash; then
+  echo "Stopping Logstash..."
+  systemctl stop logstash
+fi
 
-echo "Stopping Zookeeper..."
-systemctl stop zookeeper
+if feature_enabled kibana; then
+  echo "Stopping Kibana..."
+  systemctl stop kibana
+fi
+
+if feature_enabled elasticsearch; then
+  echo "Stopping Elasticsearch..."
+  systemctl stop elasticsearch
+fi
+
+if feature_enabled kafka; then
+  echo "Stopping Kafka..."
+  systemctl stop kafka
+fi
+
+if feature_enabled zookeeper; then
+  echo "Stopping Zookeeper..."
+  systemctl stop zookeeper
+fi
 
 exit 0
