@@ -676,6 +676,32 @@
         {{ "/usr/bin/systemctl restart snortd;" if with_snort else None }}
     when: with_pulledpork
 
+    #######################################################
+    ######################## FSF ##########################
+    #######################################################
+
+  - name: Create FSF data dir
+    file:
+      path: "{{ fsf_data_dir }}"
+      mode: 0755
+      owner: "{{ fsf_user }}"
+      group: "{{ fsf_group }}"
+      state: directory
+    when: with_fsfserver
+
+  - name: Configure logrotate for FSF logs
+    copy:
+      src: files/logrotate-fsf.conf
+      dest: /etc/logrotate.d/fsf.conf
+      mode: 0644
+      owner: root
+      group: root
+    when: with_fsfserver
+
+  - name: Enable and start FSF
+    service: name=fsf state=started enabled=yes
+    when: with_fsfserver and enable_fsfserver
+
     ######################################################
     ################### Setup Zookeeper ##################
     ######################################################
@@ -982,23 +1008,6 @@
   - name: Enable and start nginx
     service: name=nginx state=started enabled=yes
     when: with_nginx
-
-    #######################################################
-    ######################## FSF ##########################
-    #######################################################
-    
-  - name: Configure logrotate for FSF logs
-    copy:
-      src: files/logrotate-fsf.conf
-      dest: /etc/logrotate.d/fsf.conf
-      mode: 0644
-      owner: root
-      group: root
-    when: with_fsfserver
-
-  - name: Enable and start FSF
-    service: name=fsf state=started enabled=yes
-    when: with_fsfserver
 
     ######################################################
     ############### Setup ROCKNSM Scripts ################
