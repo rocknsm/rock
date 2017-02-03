@@ -30,6 +30,20 @@ with_kafka: true
 with_nginx: true
 with_fsfserver: true
 
+# Feature options - Don't flip these unless you know what you're doing
+enable_stenographer: false
+enable_bro: true
+enable_suricata: true
+enable_snort: false
+enable_pulledpork: true
+enable_logstash: true
+enable_elasticsearch: true
+enable_kibana: true
+enable_zookeeper: true
+enable_kafka: true
+enable_nginx: true
+enable_fsfserver: true
+
 rocknsm_package_list:
   - java-1.8.0-openjdk-headless
   - jq
@@ -46,9 +60,9 @@ rocknsm_package_list:
   - nmap-ncat
   - logrotate
   - kernel-ml
-  - perl-LWP-Protocol-https 
-  - perl-Sys-Syslog 
-  - perl-Crypt-SSLeay 
+  - perl-LWP-Protocol-https
+  - perl-Sys-Syslog
+  - perl-Crypt-SSLeay
   - perl-Archive-Tar
 
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
@@ -71,7 +85,12 @@ bro_data_dir: "{{ rock_data_dir }}/bro"
 bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
 bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 bro_rockscripts_branch: devel
-bro_rockscripts_filename: "rock-scripts-{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
+bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
+rock_dashboards_repo: https://github.com/rocknsm/rock-dashboards.git
+rock_dashboards_branch: master
+rock_dashboards_url: "https://github.com/rocknsm/rock-dashboards/archive/{{ rock_dashboards_branch }}.tar.gz"
+rock_dashboards_filename: "rock-dashboards_{{ rock_dashboards_branch | replace('/', '-') }}.tar.gz"
+rock_dashboards_version: 2.0
 stenographer_user: stenographer
 stenographer_group: stenographer
 stenographer_data_dir: "{{ rock_data_dir }}/stenographer"
@@ -80,6 +99,9 @@ suricata_group: suricata
 suricata_data_dir: "{{ rock_data_dir }}/suricata"
 pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
 pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
+fsf_user: fsf
+fsf_group: fsf
+fsf_data_dir: "{{ rock_data_dir }}/fsf"
 kafka_user: kafka
 kafka_group: kafka
 kafka_data_dir: "{{ rock_data_dir }}/kafka"
@@ -90,6 +112,7 @@ es_data_dir: "{{ rock_data_dir }}/elasticsearch"
 es_cluster_name: rocknsm
 es_node_name: "{{ rock_hostname }}"
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
+es_url: "http://localhost:9200"
 es_memlock_override: |
   [Service]
   LimitMEMLOCK=infinity
