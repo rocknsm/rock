@@ -172,7 +172,7 @@
       - { pkg: zookeeper, test: "{{with_zookeeper}}", state: installed }
       - { pkg: kafka, test: "{{with_kafka}}", state: installed }
       - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
-      - { pkg: fsfserver, test: "{{with_fsfserver}}", state: installed }
+      - { pkg: fsf, test: "{{with_fsf}}", state: installed }
       - { pkg: chrony, state: installed }
       - { pkg: firewalld, state: installed }
       - { pkg: postfix, state: absent }
@@ -687,7 +687,7 @@
       owner: "{{ fsf_user }}"
       group: "{{ fsf_group }}"
       state: directory
-    when: with_fsfserver
+    when: with_fsf
 
   - name: Create FSF archive dir
     file:
@@ -696,7 +696,7 @@
       owner: "{{ fsf_user }}"
       group: "{{ fsf_group }}"
       state: directory
-    when: with_fsfserver
+    when: with_fsf
 
   - name: Configure logrotate for FSF logs
     copy:
@@ -705,7 +705,7 @@
       mode: 0644
       owner: root
       group: root
-    when: with_fsfserver
+    when: with_fsf
 
   - name: Configure fsf-server
     template:
@@ -714,7 +714,7 @@
       owner: "{{ fsf_user }}"
       group: "{{ fsf_group }}"
       mode: 0644
-    when: with_fsfserver
+    when: with_fsf
 
   - name: Configure fsf-client
     template:
@@ -723,11 +723,11 @@
       owner: "{{ fsf_user }}"
       group: "{{ fsf_group }}"
       mode: 0644
-    when: with_fsfserver
+    when: with_fsf
 
   - name: Enable and start FSF
     service: name=fsf state=started enabled=yes
-    when: with_fsfserver and enable_fsfserver
+    when: with_fsf and enable_fsfserver
 
     ######################################################
     ################### Setup Zookeeper ##################
@@ -902,7 +902,7 @@
       mode: 0644
       owner: root
       group: root
-    when: with_logstash and with_fsfserver
+    when: with_logstash and with_fsf
 
   - name: Enable and start Logstash
     service: name=logstash state=started enabled=yes

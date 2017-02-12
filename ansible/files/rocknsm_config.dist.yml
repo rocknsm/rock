@@ -28,7 +28,7 @@ with_kibana: true
 with_zookeeper: true
 with_kafka: true
 with_nginx: true
-with_fsfserver: true
+with_fsf: true
 
 # Feature options - Don't flip these unless you know what you're doing
 enable_stenographer: false
