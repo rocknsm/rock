@@ -61,7 +61,7 @@ if feature_enabled stenographer; then
   systemctl status stenographer | egrep "^\s*Active"
 fi
 
-if feature_enabled fsfserver; then
+if feature_enabled fsf; then
   echo "Starting FSF..."
   systemctl start fsf
   sleep 5

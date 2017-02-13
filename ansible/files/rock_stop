@@ -6,7 +6,7 @@ function feature_enabled() {
   return $?
 }
 
-if feature_enabled fsfserver; then
+if feature_enabled fsf; then
   echo "Stopping FSF..."
   systemctl stop fsf
 fi

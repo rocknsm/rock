@@ -42,7 +42,7 @@ enable_kibana: true
 enable_zookeeper: true
 enable_kafka: true
 enable_nginx: true
-enable_fsfserver: true
+enable_fsf: true
 
 rocknsm_package_list:
   - java-1.8.0-openjdk-headless
