@@ -727,7 +727,7 @@
 
   - name: Enable and start FSF
     service: name=fsf state=started enabled=yes
-    when: with_fsf and enable_fsfserver
+    when: with_fsf and enable_fsf
 
     ######################################################
     ################### Setup Zookeeper ##################
