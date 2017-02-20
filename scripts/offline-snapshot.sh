@@ -111,7 +111,7 @@ EOF
 
   echo "Downloading ROCK Snapshot..."
   curl -Ls -o "rock_$(echo ${ROCK_BRANCH} | tr '/' '-').tar.gz" \
-    "https://github.com/rocknsm/SimpleRock/archive/${ROCK_BRANCH}.tar.gz"
+    "https://github.com/rocknsm/rock/archive/${ROCK_BRANCH}.tar.gz"
 
   # Because I'm pedantic
   popd >/dev/null
