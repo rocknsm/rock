@@ -1,11 +1,11 @@
 ---
 # These are all the current variables that could affect
 # the configuration of ROCKNSM. Take care when modifying
-# these. The defaults should be used unless you really 
+# these. The defaults should be used unless you really
 # know what you are doing!
 
 # interfaces that should be configured for sensor applications
-rock_monifs: 
+rock_monifs:
   {% for item in rock_monifs %}
   - {{ item }}
   {% endfor %}
@@ -27,7 +27,7 @@ pulled_pork_oinkcode: {{ pulled_pork_oinkcode }}
 
 ########## Offline/Enterprise Network Options ##############
 
-# configure if this system may reach out to the internet 
+# configure if this system may reach out to the internet
 # (configured repos below) during configuration
 rock_online_install: {{ rock_online_install }}
 # (online) the URL for the EPEL repo mirror
@@ -65,3 +65,18 @@ with_kibana: {{ with_kibana }}
 with_zookeeper: {{ with_zookeeper }}
 with_kafka: {{ with_kafka }}
 with_nginx: {{ with_nginx }}
+with_fsf: {{ with_fsf }}
+
+# Enable service to run
+enable_stenographer: {{ enable_stenographer }}
+enable_bro: {{ enable_bro }}
+enable_suricata: {{ enable_suricata }}
+enable_snort: {{ enable_snort }}
+enable_pulledpork: {{ enable_pulledpork }}
+enable_logstash: {{ enable_logstash }}
+enable_elasticsearch: {{ enable_elasticsearch }}
+enable_kibana: {{ enable_kibana }}
+enable_zookeeper: {{ enable_zookeeper }}
+enable_kafka: {{ enable_kafka }}
+enable_nginx: {{ enable_nginx }}
+enable_fsf: {{ enable_fsf }}

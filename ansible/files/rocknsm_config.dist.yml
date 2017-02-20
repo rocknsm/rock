@@ -28,6 +28,21 @@ with_kibana: true
 with_zookeeper: true
 with_kafka: true
 with_nginx: true
+with_fsf: true
+
+# Feature options - Don't flip these unless you know what you're doing
+enable_stenographer: false
+enable_bro: true
+enable_suricata: true
+enable_snort: false
+enable_pulledpork: true
+enable_logstash: true
+enable_elasticsearch: true
+enable_kibana: true
+enable_zookeeper: true
+enable_kafka: true
+enable_nginx: true
+enable_fsf: false
 
 rocknsm_package_list:
   - java-1.8.0-openjdk-headless
@@ -84,6 +99,11 @@ suricata_group: suricata
 suricata_data_dir: "{{ rock_data_dir }}/suricata"
 pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
 pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
+fsf_user: fsf
+fsf_group: fsf
+fsf_data_dir: "{{ rock_data_dir }}/fsf"
+fsf_archive_dir: "{{ fsf_data_dir }}/archive"
+fsf_client_logfile: "{{ fsf_data_dir }}/client.log"
 kafka_user: kafka
 kafka_group: kafka
 kafka_data_dir: "{{ rock_data_dir }}/kafka"
