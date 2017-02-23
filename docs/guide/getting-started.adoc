@@ -1,6 +1,6 @@
 = Getting Started with ROCK 2.0
 
-In an effort to get this into hands of people that will break it and or make it useful, I'm sharing this ISO and some notes about how to use it. Note this is a work in progress, and I will build upon these notes to make what will ultimately be the release notes. 
+In an effort to get this into hands of people that will break it and or make it useful, I'm sharing this ISO and some notes about how to use it. Note this is a work in progress, and I will build upon these notes to make what will ultimately be the release notes.
 
 Last caveat, there's nothing secret here. Everything on the ISO is available in a repo, including the build scripts. I'm not going to go into how to build this, but a curious little rhino could likely figure it out without too much trouble poking around the source tree.
 
@@ -8,27 +8,15 @@ NOTE: I'm calling this BETA1, though it's not quite so formal.
 
 == TL;DR;
 
-Download the ISO indicated in <<Using the ISO>>, complete the installation and reboot. Upon login, run `/opt/rocknsm/ansible/deploy_rock.sh` to accept all the defaults.
+Download the ISO indicated in <<Using the ISO>>, complete the installation and reboot. Upon login, run `/opt/rocknsm/rock/ansible/deploy_rock.sh` to accept all the defaults.
 
 Read on for more details and configuration options.
-
-== Ch-cha-cha-changes
-
-> Time to face the change...
-
-
 
 == Installation
 
 === Using the ISO
 
-Download the ISO here:
-
-|===
-| Filename | https://github.com/rocknsm/rock/releases/download/v2.0-beta/rocknsm-v2.0-beta.iso[rocknsm-v2.0-beta.iso]
-| Filesize | 967M
-| SHA256 | a1e1af5685c06b98d3e541a1cfca828266849ba78d5bdd766bcae4a797ee76e6
-|===
+Download the ISO from the https://github.com/rocknsm/rock/releases[Releases page]
 
 I've tested the ISO booting mostly in a VMware VM, which uses BIOS. I've also burned it to a USB thumbdrive (I used the 16 GB USB3 from MicroCenter) and installed it in BIOS mode on my home test sensor. For now, you'll have to Google how to copy an ISO to a thumbdrive. I used `dd` on a Mac.
 
@@ -48,7 +36,7 @@ You're now ready for <<Configuration>>
 
 === Install from the repo
 
-You can also clone the https://github.com/rocknsm/rock/[ROCK] repository. The instructions for the ISO above use a snapshot of the `devel` repo. You can clone this repo and simply run the `./generate_defaults.sh` script in the `ansible` directory. This will generate the file `/etc/rocknsm/config.yml`.
+You can also clone the https://github.com/rocknsm/rock/[ROCK] repository. The instructions for the ISO above use a snapshot of the `devel` repo. You can clone this repo and simply run the `/opt/rocknsm/rock/ansible/generate_defaults.sh` script with `sudo`. This will generate the file `/etc/rocknsm/config.yml`.
 
 You're now ready for <<Configuration>>
 
@@ -71,12 +59,14 @@ with_nginx: False <1>
 ```
 <1> This disables nginx from installing or being configured. Note that it will not remove it if it is already present.
 
-Once you've completed flipping the bits as you see fit, simply run `/opt/rocknsm/ansible/deploy_rock.sh`. If everything is well, this should install all the components and give you a success banner.
+Once you've completed flipping the bits as you see fit, simply run `/opt/rocknsm/rock/ansible/deploy_rock.sh`. If everything is well, this should install all the components and give you a success banner.
 
 == Known Issues
 
 There's some listed on GitHub.
 
-. No dashboards in Kibana yet
+. Insufficient documentation
+. Still doing integration work with FSF
+. Still working on some additional health checks
 . ???
 . What have you found?
