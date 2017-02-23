@@ -4,8 +4,6 @@ In an effort to get this into hands of people that will break it and or make it 
 
 Last caveat, there's nothing secret here. Everything on the ISO is available in a repo, including the build scripts. I'm not going to go into how to build this, but a curious little rhino could likely figure it out without too much trouble poking around the source tree.
 
-NOTE: I'm calling this BETA1, though it's not quite so formal.
-
 == TL;DR;
 
 Download the ISO indicated in <<Using the ISO>>, complete the installation and reboot. Upon login, run `/opt/rocknsm/rock/ansible/deploy_rock.sh` to accept all the defaults.
