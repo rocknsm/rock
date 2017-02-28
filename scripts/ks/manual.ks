@@ -4,19 +4,13 @@ cdrom
 firstboot --disabled
 #reboot --eject
 
-# Configure Storage
-zerombr
-clearpart --all --initlabel
-autopart
-bootloader
-reqpart --add-boot
-
 # Configure OS
 timezone UTC
 lang en_US.UTF-8
 keyboard us
 network --bootproto=dhcp --noipv6 --activate
 unsupported_hardware
+
 services --enabled=ssh
 
 # Users

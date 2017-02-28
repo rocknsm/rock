@@ -5,6 +5,7 @@ VERSION="2.0"
 RELEASE="1"
 ARCH="x86_64"
 KICKSTART="ks.cfg"
+KICKSTART_MAN="ks_manual.cfg"
 TIMESTAMP=$(date +%FT%R)
 SCRIPT_DIR=$(dirname $(readlink -f $0))
 
@@ -89,6 +90,7 @@ add_content() {
   "version": "${VERSION}",
   "arch": "${ARCH}",
   "kickstart": "${KICKSTART}",
+  "kickstart_man": "${KICKSTART_MAN}",
   "build": "${TIMESTAMP}"
 }
 EOF
@@ -118,9 +120,18 @@ EOF
   # Create new repo metadata
   cond_out createrepo -g ${TMP_NEW}/repodata/comps.xml ${TMP_NEW}
 
-  # Generate flattened kickstart & add pre-inst hooks
+  # Generate flattened manual kickstart & add pre-inst hooks
   cond_out ksflatten -c ks/install.ks -o "${TMP_NEW}/${KICKSTART}"
   cat <<EOF >> "${TMP_NEW}/${KICKSTART}"
+
+# This seems to get removed w/ ksflatten
+%addon com_redhat_kdump --disable
+%end
+EOF
+
+# Generate flattened automated kickstart & add pre-inst hooks
+cond_out ksflatten -c ks/manual.ks -o "${TMP_NEW}/${KICKSTART_MAN}"
+cat <<EOF >> "${TMP_NEW}/${KICKSTART_MAN}"
 
 # This seems to get removed w/ ksflatten
 %addon com_redhat_kdump --disable

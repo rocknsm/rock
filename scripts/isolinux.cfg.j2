@@ -59,15 +59,21 @@ menu separator # insert an empty line
 menu separator # insert an empty line
 
 label linux
-  menu label ^Install {{ name }} {{ version }}
+  menu label ^Automated install of {{ name }} {{ version }}
   menu default
   kernel vmlinuz
-  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} quiet ks=cdrom:/{{ kickstart }}
+  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}/{{ kickstart }}
+
+label linux
+  menu label ^Custom install of {{ name }} {{ version }}
+  menu default
+  kernel vmlinuz
+  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}/{{ kickstart_man }}
 
 label check
-  menu label Test this ^media & install {{ name }} {{ version }}
+  menu label Test this ^media & automatic install of {{ name }} {{ version }}
   kernel vmlinuz
-  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} rd.live.check quiet ks=cdrom:/{{ kickstart }}
+  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} rd.live.check quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}/{{ kickstart }}
 
 menu separator # insert an empty line
 
