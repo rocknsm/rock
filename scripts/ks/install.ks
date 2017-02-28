@@ -9,7 +9,6 @@ zerombr
 clearpart --all --initlabel
 autopart
 bootloader
-reqpart --add-boot
 
 # Configure OS
 timezone UTC
