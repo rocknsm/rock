@@ -62,18 +62,17 @@ label linux
   menu label ^Automated install of {{ name }} {{ version }}
   menu default
   kernel vmlinuz
-  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}/{{ kickstart }}
+  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}:/{{ kickstart }}
 
-label linux
+label custom
   menu label ^Custom install of {{ name }} {{ version }}
-  menu default
   kernel vmlinuz
-  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}/{{ kickstart_man }}
+  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}:/{{ kickstart_man }}
 
 label check
-  menu label Test this ^media & automatic install of {{ name }} {{ version }}
+  menu label Test this ^media & custom install of {{ name }} {{ version }}
   kernel vmlinuz
-  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} rd.live.check quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}/{{ kickstart }}
+  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} rd.live.check quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}:/{{ kickstart_man }}
 
 menu separator # insert an empty line
 
@@ -89,7 +88,7 @@ label vesa
 	{{ name }} {{ version }}.
   endtext
   kernel vmlinuz
-  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} xdriver=vesa nomodeset quiet ks=cdrom:/{{ kickstart }}
+  append initrd=initrd.img inst.stage2=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }} xdriver=vesa nomodeset quiet ks=hd:LABEL={{ name }}\x20{{ version }}\x20{{ arch }}:/{{ kickstart_man }}
 
 label rescue
   menu indent count 5

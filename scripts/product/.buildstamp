@@ -1,0 +1,8 @@
+[Main]
+Product=ROCK NSM
+Version=2.0
+BugURL=http://github.com/rocksnm/rock
+IsFinal=True
+UUID=201612051317.x86_64
+[Compose]
+Lorax=19.6.78-1

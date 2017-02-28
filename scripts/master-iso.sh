@@ -104,15 +104,17 @@ EOF
     cat - > ${TMP_NEW}/EFI/BOOT/grub.cfg
 
   # Update efiboot img
-  mount -o loop ${TMP_NEW}/images/efiboot.img ${TMP_EFIBOOT}
-  cp ${TMP_NEW}/EFI/BOOT/grub.cfg ${TMP_EFIBOOT}/EFI/BOOT/grub.cfg
-  umount ${TMP_EFIBOOT}
+  cond_out mount -o loop ${TMP_NEW}/images/efiboot.img ${TMP_EFIBOOT}
+  cond_out cp ${TMP_NEW}/EFI/BOOT/grub.cfg ${TMP_EFIBOOT}/EFI/BOOT/grub.cfg
+  cond_out umount ${TMP_EFIBOOT}
 
   # Copy boot splash branding
   cond_out cp ${SCRIPT_DIR}/images/splash_rock.png ${TMP_NEW}/isolinux/splash.png
 
-  # Copy branding image over
-  cond_out cp ${SCRIPT_DIR}/images/product.img ${TMP_NEW}/images/
+  # Generate product image
+  cd ${SCRIPT_DIR}/product
+  cond_out find . | cpio --quiet -c -o | pigz -q -9c > ${TMP_NEW}/images/product.img
+  cd ${SCRIPT_DIR}
 
   # Sync over offline content
   cond_out rsync --recursive --quiet ${ROCK_CACHE_DIR}/ ${TMP_NEW}/

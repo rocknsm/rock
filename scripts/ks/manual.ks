@@ -2,6 +2,7 @@
 install
 cdrom
 firstboot --disabled
+eula --agreed
 #reboot --eject
 
 # Configure OS

@@ -2,13 +2,14 @@
 install
 cdrom
 firstboot --disabled
+eula --agreed
 #reboot --eject
 
 # Configure Storage
-zerombr
-clearpart --all --initlabel
-autopart
-bootloader
+ignoredisk --only-use=sda
+clearpart --all --initlabel --drives=sda
+autopart --type=lvm
+bootloader --location=mbr --boot-drive=sda
 
 # Configure OS
 timezone UTC
