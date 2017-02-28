@@ -5,6 +5,7 @@ VERSION="2.0"
 RELEASE="1"
 ARCH="x86_64"
 KICKSTART="ks.cfg"
+KICKSTART_MAN="ks_manual.cfg"
 TIMESTAMP=$(date +%FT%R)
 SCRIPT_DIR=$(dirname $(readlink -f $0))
 
@@ -89,6 +90,7 @@ add_content() {
   "version": "${VERSION}",
   "arch": "${ARCH}",
   "kickstart": "${KICKSTART}",
+  "kickstart_man": "${KICKSTART_MAN}",
   "build": "${TIMESTAMP}"
 }
 EOF
@@ -102,15 +104,17 @@ EOF
     cat - > ${TMP_NEW}/EFI/BOOT/grub.cfg
 
   # Update efiboot img
-  mount -o loop ${TMP_NEW}/images/efiboot.img ${TMP_EFIBOOT}
-  cp ${TMP_NEW}/EFI/BOOT/grub.cfg ${TMP_EFIBOOT}/EFI/BOOT/grub.cfg
-  umount ${TMP_EFIBOOT}
+  cond_out mount -o loop ${TMP_NEW}/images/efiboot.img ${TMP_EFIBOOT}
+  cond_out cp ${TMP_NEW}/EFI/BOOT/grub.cfg ${TMP_EFIBOOT}/EFI/BOOT/grub.cfg
+  cond_out umount ${TMP_EFIBOOT}
 
   # Copy boot splash branding
   cond_out cp ${SCRIPT_DIR}/images/splash_rock.png ${TMP_NEW}/isolinux/splash.png
 
-  # Copy branding image over
-  cond_out cp ${SCRIPT_DIR}/images/product.img ${TMP_NEW}/images/
+  # Generate product image
+  cd ${SCRIPT_DIR}/product
+  cond_out find . | cpio --quiet -c -o | pigz -q -9c > ${TMP_NEW}/images/product.img
+  cd ${SCRIPT_DIR}
 
   # Sync over offline content
   cond_out rsync --recursive --quiet ${ROCK_CACHE_DIR}/ ${TMP_NEW}/
@@ -118,9 +122,18 @@ EOF
   # Create new repo metadata
   cond_out createrepo -g ${TMP_NEW}/repodata/comps.xml ${TMP_NEW}
 
-  # Generate flattened kickstart & add pre-inst hooks
+  # Generate flattened manual kickstart & add pre-inst hooks
   cond_out ksflatten -c ks/install.ks -o "${TMP_NEW}/${KICKSTART}"
   cat <<EOF >> "${TMP_NEW}/${KICKSTART}"
+
+# This seems to get removed w/ ksflatten
+%addon com_redhat_kdump --disable
+%end
+EOF
+
+# Generate flattened automated kickstart & add pre-inst hooks
+cond_out ksflatten -c ks/manual.ks -o "${TMP_NEW}/${KICKSTART_MAN}"
+cat <<EOF >> "${TMP_NEW}/${KICKSTART_MAN}"
 
 # This seems to get removed w/ ksflatten
 %addon com_redhat_kdump --disable
