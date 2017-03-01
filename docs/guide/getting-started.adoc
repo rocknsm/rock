@@ -10,23 +10,72 @@ Download the ISO indicated in <<Using the ISO>>, complete the installation and r
 
 Read on for more details and configuration options.
 
+== Ch-cha-cha-changes
+
+> Turn and face the change...
+
 == Installation
 
 === Using the ISO
 
 Download the ISO from the https://github.com/rocknsm/rock/releases[Releases page]
 
-I've tested the ISO booting mostly in a VMware VM, which uses BIOS. I've also burned it to a USB thumbdrive (I used the 16 GB USB3 from MicroCenter) and installed it in BIOS mode on my home test sensor. For now, you'll have to Google how to copy an ISO to a thumbdrive. I used `dd` on a Mac.
+=== Install in VM Environment
 
-Boot the ISO. If you're installing in a VM, I recommend you disable the "consistent naming" of network interfaces, since it makes no sense in the VMware (or other hypervisor) universe. When the boot splash screen appears, press kbd:[Tab], and it will allow you to edit. Add the following:
+This section is based on using VMware Fusion on a Mac, but these steps provide a general template. I've tested the ISO booting mostly in a VMware VM, which uses BIOS. I've also burned it to a USB thumbdrive (I used the 16 GB USB3 from MicroCenter) and installed it in BIOS mode on my home test sensor.
 
+* Prep Install Media
+** `dd` command via terminal
 ```
-biosdevname=0 if.netnames=0
+diskutil list
+diskutil unmountDisk /dev/disk#
+sudo dd bs=8M if=path/to/rockiso of=/dev/disk#
 ```
 
-This will ensure you get interface names like `eth0`. If you have physical hardware, I _highly_ recommend that you do not use this function.
+NOTE: http://etcher.io[etcher.io] is a solid gui-based burning utility
 
-The installer will autorun and install according to the kickstart on the disk. During the installation process you will be prompted to create a user account. Ensure you create a user account with _Administrative_ permissions! For the purposes of documentation, I will use the account name of `rockadmin` for the administrative user. The `root` account is locked out by default, as you can do everything via `sudo`. Once complete, the installer will reboot and you will be presented with a login prompt.
+* New VM Setup
+
+** in the top left corner click add > new... then custom machine
+** select the Linux > RedHat Enterprise 64 template
+** create new virtual disk
+** name your VM, save
+
+Lets customize some settings, change based on hardware available.
+
+* Processors & Memory
+** Processors - 4 cores
+** Memory - 8192MB (8GB)
+
+* Hard Disk
+** increase the disk to 20GB
+** customize settings
+** save as name
+
+* Network Adapter
+** By default the vm is created with one interface - this will be for management.
+** lets add a second (listening) interface:
+*** add device (top right), net adapter, add, “private to my mac”
+
+* Boot device
+
+** click CD/DVD (IDE)
+** check the "Connect CD/DVD Drive" box
+** expand advanced options and browse to the latest ROCK iso
+
+* Install
+
+Once the above changes are made, we're ready to install:
+
+* click the "Start Up" button while holding the `esc` key
+* hit `tab` for full config options
+** add the following values, speparated by spaces: +
+*** `biosdevname=0` +
+*** `net.ifnames=0` This will ensure you get interface names like `eth0`. If you have physical hardware, I _highly_ recommend that you do not use this function. +
+*** `vga=773` +
+* ENTER, and ROCK install script will install
+* create _*admin*_ user acct
+* REBOOT when install process is complete
 
 TIP: The `root` account is locked by default and `rockadmin` has `sudo` access.
 
@@ -38,7 +87,22 @@ You can also clone the https://github.com/rocknsm/rock/[ROCK] repository. The in
 
 You're now ready for <<Configuration>>
 
+=== Updating
+
+NOTE: VMware Fusion will allow local ssh, while Virtualbox will require port forwarding
+
+Log in with the admin credentials used during the install process, and lets get this box current:
+```
+sudo yum update -y && reboot
+sudo yum install -y epel-release
+sudo yum install -y git ansible
+git clone https://github.com/rocknsm/rock.git
+cd rock
+sudo ./generate_defaults.sh
+```
+
 === Configuration
+
 
 If you wish to run an offline install (the ISO sets you up for this already) edit `/etc/rocknsm/config.yml` and change the following setting as shown:
 
@@ -63,8 +127,8 @@ Once you've completed flipping the bits as you see fit, simply run `/opt/rocknsm
 
 There's some listed on GitHub.
 
+. Best practice custom partitioning?
 . Insufficient documentation
 . Still doing integration work with FSF
 . Still working on some additional health checks
-. ???
-. What have you found?
+. What have you found???
