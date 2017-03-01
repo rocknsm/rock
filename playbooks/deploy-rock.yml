@@ -31,7 +31,14 @@
       owner: "{{ rock_data_user }}"
       group: "{{ rock_data_group }}"
       state: directory
-    when: false
+
+  - name: Create ROCK NSM directory
+    file:
+      path: "{{ rocknsm_dir }}"
+      mode: 0755
+      owner: root
+      group: root
+      state: directory
 
     ######################################################
     ######### Configure the monitoring interface #########
