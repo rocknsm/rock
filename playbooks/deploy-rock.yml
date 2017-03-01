@@ -290,6 +290,185 @@
       - { src: 'GeoLiteCountry.dat', dest: 'GeoIPCountry.dat' }
       - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
       - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
+      
+    ######################################################
+    ################### Setup Zookeeper ##################
+    ######################################################
+  - name: Install zookeeper service file
+    copy:
+      src: zookeeper.service
+      dest: /etc/systemd/system/zookeeper.service
+      mode: 0644
+      owner: root
+      group: root
+    when: with_zookeeper
+
+  - name: Enable and start zookeeper
+    service: name=zookeeper state=started enabled=yes
+    when: with_zookeeper
+
+    ######################################################
+    ##################### Setup Kafka ####################
+    ######################################################
+
+  - name: Create Kafka data dir
+    file:
+      path: "{{ kafka_data_dir }}"
+      mode: 0755
+      owner: "{{ kafka_user }}"
+      group: "{{ kafka_group }}"
+      state: directory
+    when: with_kafka
+
+  - name: Set kafka retention
+    lineinfile:
+      dest: "{{ kafka_config_path }}"
+      regexp: "log.retention.hours="
+      line:  "log.retention.hours=1"
+      state: present
+    when: with_kafka
+
+  - name: Set kafka data dir
+    lineinfile:
+      dest: "{{ kafka_config_path }}"
+      regexp: "log.dirs="
+      line: "log.dirs={{ kafka_data_dir }}"
+    when: with_kafka
+
+  - name: Enable and start kafka
+    service: name=kafka state=started enabled=yes
+    when: with_kafka
+
+    ######################################################
+    ################# Setup Elasticsearch ################
+    ######################################################
+  - name: Create Elasticsearch directory
+    file:
+      path: "{{ es_data_dir }}"
+      mode: 0755
+      owner: "{{ es_user }}"
+      group: "{{ es_group }}"
+      state: directory
+    when: with_elasticsearch
+
+  - name: Setup elasticsearch config
+    template:
+      src: templates/elasticsearch.yml.j2
+      dest: /etc/elasticsearch/elasticsearch.yml
+      owner: root
+      group: "{{ es_group }}"
+      mode: 0640
+    when: with_elasticsearch
+
+  - name: Create elasticsearch systemd override dir
+    file:
+      path: /etc/systemd/system/elasticsearch.service.d
+      owner: root
+      group: root
+      mode: 0755
+      state: directory
+    when: with_elasticsearch
+
+  - name: Enable elasticsearch memlock in service override
+    copy:
+      content: "{{ es_memlock_override }}"
+      dest: /etc/systemd/system/elasticsearch.service.d/override.conf
+      mode: 0644
+      owner: root
+      group: root
+    when: with_elasticsearch
+
+  - name: Setup elasticsearch data dir in sysconfig
+    lineinfile:
+      dest: /etc/sysconfig/elasticsearch
+      regexp: "DATA_DIR="
+      line: "DATA_DIR={{ es_data_dir }}"
+    when: with_elasticsearch
+
+  - name: Setup elasticsearch jvm options
+    template:
+      src: templates/es-jvm.options.j2
+      dest: /etc/elasticsearch/jvm.options
+      mode: 0640
+      owner: root
+      group: "{{ es_group }}"
+    when: with_elasticsearch
+
+  - name: Install ROCK Elasticsearch cleanup script
+    copy:
+      src: es_cleanup.sh
+      dest: /usr/local/bin/es_cleanup.sh
+      mode: 0755
+      owner: root
+      group: root
+    when: with_elasticsearch
+
+  - name: Set elasticsearch cleanup cron job
+    cron:
+      name: "ES maintenance"
+      cron_file: rocknsm_es_maintenance
+      hour: 0
+      minute: 1
+      user: root
+      job: /usr/local/bin/es_cleanup.sh > /dev/null 2>&1
+    when: with_elasticsearch
+
+  - name: Enable and start Elasticsearch
+    service: name=elasticsearch state=started enabled=yes
+    when: with_elasticsearch
+
+  - name: Wait for Elasticsearch to become ready
+    wait_for: host=localhost port=9200
+
+  - name: Check for Bro mapping templates
+    uri:
+      method: "GET"
+      url: http://localhost:9200/_template/bro_index
+    failed_when: False
+    register: bro_mapping
+
+  - name: Load Bro Elasticsearch mapping templates
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/bro_index
+      body: "{{ lookup('file', 'es-bro-mappings.json')}}"
+      body_format: json
+    when: bro_mapping.status == 404
+
+    ######################################################
+    ################### Setup Logstash ###################
+    ######################################################
+
+  - name: Install Bro-Kafka configuration for Logstash
+    copy:
+      src: logstash-kafka-bro.conf
+      dest: /etc/logstash/conf.d/kafka-bro.conf
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+    when: with_logstash and with_bro and with_kafka
+
+  - name: Configure Logstash to pickup suricata events
+    copy:
+      src: "logstash-suricata-es.conf"
+      dest: "/etc/logstash/conf.d/suricata-es.conf"
+      mode: 0644
+      owner: root
+      group: root
+    when: with_logstash and with_suricata
+
+  - name: Configure Logstash to pickup the FSF scan.log
+    copy:
+      src: "logstash-fsf-es.conf"
+      dest: "/etc/logstash/conf.d/fsf-es.conf"
+      mode: 0644
+      owner: root
+      group: root
+    when: with_logstash and with_fsf
+
+  - name: Enable and start Logstash
+    service: name=logstash state=started enabled=yes
+    when: with_logstash
 
     #######################################################
     ###################### Setup Bro  #####################
@@ -734,185 +913,6 @@
   - name: Enable and start FSF
     service: name=fsf state=started enabled=yes
     when: with_fsf and enable_fsf
-
-    ######################################################
-    ################### Setup Zookeeper ##################
-    ######################################################
-  - name: Install zookeeper service file
-    copy:
-      src: zookeeper.service
-      dest: /etc/systemd/system/zookeeper.service
-      mode: 0644
-      owner: root
-      group: root
-    when: with_zookeeper
-
-  - name: Enable and start zookeeper
-    service: name=zookeeper state=started enabled=yes
-    when: with_zookeeper
-
-    ######################################################
-    ##################### Setup Kafka ####################
-    ######################################################
-
-  - name: Create Kafka data dir
-    file:
-      path: "{{ kafka_data_dir }}"
-      mode: 0755
-      owner: "{{ kafka_user }}"
-      group: "{{ kafka_group }}"
-      state: directory
-    when: with_kafka
-
-  - name: Set kafka retention
-    lineinfile:
-      dest: "{{ kafka_config_path }}"
-      regexp: "log.retention.hours="
-      line:  "log.retention.hours=1"
-      state: present
-    when: with_kafka
-
-  - name: Set kafka data dir
-    lineinfile:
-      dest: "{{ kafka_config_path }}"
-      regexp: "log.dirs="
-      line: "log.dirs={{ kafka_data_dir }}"
-    when: with_kafka
-
-  - name: Enable and start kafka
-    service: name=kafka state=started enabled=yes
-    when: with_kafka
-
-    ######################################################
-    ################# Setup Elasticsearch ################
-    ######################################################
-  - name: Create Elasticsearch directory
-    file:
-      path: "{{ es_data_dir }}"
-      mode: 0755
-      owner: "{{ es_user }}"
-      group: "{{ es_group }}"
-      state: directory
-    when: with_elasticsearch
-
-  - name: Setup elasticsearch config
-    template:
-      src: templates/elasticsearch.yml.j2
-      dest: /etc/elasticsearch/elasticsearch.yml
-      owner: root
-      group: "{{ es_group }}"
-      mode: 0640
-    when: with_elasticsearch
-
-  - name: Create elasticsearch systemd override dir
-    file:
-      path: /etc/systemd/system/elasticsearch.service.d
-      owner: root
-      group: root
-      mode: 0755
-      state: directory
-    when: with_elasticsearch
-
-  - name: Enable elasticsearch memlock in service override
-    copy:
-      content: "{{ es_memlock_override }}"
-      dest: /etc/systemd/system/elasticsearch.service.d/override.conf
-      mode: 0644
-      owner: root
-      group: root
-    when: with_elasticsearch
-
-  - name: Setup elasticsearch data dir in sysconfig
-    lineinfile:
-      dest: /etc/sysconfig/elasticsearch
-      regexp: "DATA_DIR="
-      line: "DATA_DIR={{ es_data_dir }}"
-    when: with_elasticsearch
-
-  - name: Setup elasticsearch jvm options
-    template:
-      src: templates/es-jvm.options.j2
-      dest: /etc/elasticsearch/jvm.options
-      mode: 0640
-      owner: root
-      group: "{{ es_group }}"
-    when: with_elasticsearch
-
-  - name: Install ROCK Elasticsearch cleanup script
-    copy:
-      src: es_cleanup.sh
-      dest: /usr/local/bin/es_cleanup.sh
-      mode: 0755
-      owner: root
-      group: root
-    when: with_elasticsearch
-
-  - name: Set elasticsearch cleanup cron job
-    cron:
-      name: "ES maintenance"
-      cron_file: rocknsm_es_maintenance
-      hour: 0
-      minute: 1
-      user: root
-      job: /usr/local/bin/es_cleanup.sh > /dev/null 2>&1
-    when: with_elasticsearch
-
-  - name: Enable and start Elasticsearch
-    service: name=elasticsearch state=started enabled=yes
-    when: with_elasticsearch
-
-  - name: Wait for Elasticsearch to become ready
-    wait_for: host=localhost port=9200
-
-  - name: Check for Bro mapping templates
-    uri:
-      method: "GET"
-      url: http://localhost:9200/_template/bro_index
-    failed_when: False
-    register: bro_mapping
-
-  - name: Load Bro Elasticsearch mapping templates
-    uri:
-      method: PUT
-      url: http://localhost:9200/_template/bro_index
-      body: "{{ lookup('file', 'es-bro-mappings.json')}}"
-      body_format: json
-    when: bro_mapping.status == 404
-
-    ######################################################
-    ################### Setup Logstash ###################
-    ######################################################
-
-  - name: Install Bro-Kafka configuration for Logstash
-    copy:
-      src: logstash-kafka-bro.conf
-      dest: /etc/logstash/conf.d/kafka-bro.conf
-      mode: 0640
-      owner: "{{ logstash_user }}"
-      group: "{{ logstash_group }}"
-    when: with_logstash and with_bro and with_kafka
-
-  - name: Configure Logstash to pickup suricata events
-    copy:
-      src: "logstash-suricata-es.conf"
-      dest: "/etc/logstash/conf.d/suricata-es.conf"
-      mode: 0644
-      owner: root
-      group: root
-    when: with_logstash and with_suricata
-
-  - name: Configure Logstash to pickup the FSF scan.log
-    copy:
-      src: "logstash-fsf-es.conf"
-      dest: "/etc/logstash/conf.d/fsf-es.conf"
-      mode: 0644
-      owner: root
-      group: root
-    when: with_logstash and with_fsf
-
-  - name: Enable and start Logstash
-    service: name=logstash state=started enabled=yes
-    when: with_logstash
 
     ######################################################
     ################### Setup Kibana #####################
