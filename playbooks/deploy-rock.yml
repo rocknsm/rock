@@ -6,7 +6,7 @@
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
   tasks:
   - name: Get default settings
-    include_vars: files/rocknsm_config.dist.yml
+    include_vars: rocknsm_config.dist.yml
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true
@@ -152,12 +152,10 @@
     ############# Install/Remove Packages #################
     #######################################################
   - name: Configure packages
-    yum:
-      name: "{{ item.pkg }}"
-      state: "{{ item.state }}"
+    set_fact:
+      rocknsm_package_list: "{{ rocknsm_package_list }} + [ '{{ item.pkg }}']"
     when: (item.test) or (item.test is undefined)
     with_items:
-      - { pkg: "{{ rocknsm_package_list }}", state: installed }
       - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
       - { pkg: logstash, test: "{{with_logstash}}", state: installed }
       - { pkg: kibana, test: "{{with_kibana}}", state: installed }
@@ -175,7 +173,15 @@
       - { pkg: fsf, test: "{{with_fsf}}", state: installed }
       - { pkg: chrony, state: installed }
       - { pkg: firewalld, state: installed }
-      - { pkg: postfix, state: absent }
+      - { pkg: postfix, state: installed }
+
+  - name: Install packages
+    yum:
+      name: "{{ item.pkg }}"
+      state: "{{ item.state }}"
+    when: (item.test) or (item.test is undefined)
+    with_items:
+      - { pkg: "{{ rocknsm_package_list }}", state: installed }
 
   - name: Ensure cache directory exists
     file:
@@ -250,7 +256,7 @@
     ############## Configure GeoIP Databases #############
     ######################################################
   - name: Configure GeoIP Update
-    copy: src=files/GeoIP.conf dest=/etc/GeoIP.conf
+    copy: src=GeoIP.conf dest=/etc/GeoIP.conf
 
     # There's an issue w/ geoipupdate when env is empty
   - name: Update GeoIP
@@ -348,7 +354,7 @@
       group: root
   - name: Create bro networks.cfg
     copy:
-      src: files/bro-networks.cfg
+      src: bro-networks.cfg
       dest: /opt/bro/etc/networks.cfg
       mode: 0644
       owner: root
@@ -372,7 +378,7 @@
 
   - name: Add README to scripts dir
     copy:
-      src: files/bro-scripts-readme.txt
+      src: bro-scripts-readme.txt
       dest: /opt/bro/share/bro/site/scripts/README.txt
       mode: 0644
       owner: root
@@ -436,7 +442,7 @@
 
   - name: Add bro to path and aliases
     copy:
-      src: files/profile.d-bro.sh
+      src: profile.d-bro.sh
       dest: /etc/profile.d/bro.sh
       mode: 0644
       owner: root
@@ -512,7 +518,7 @@
 
   - name: Install stenographer service files
     copy:
-      src: "files/{{ item }}"
+      src: "{{ item }}"
       dest: "/etc/systemd/system/{{ item }}"
       mode: 0644
       owner: root
@@ -565,7 +571,7 @@
 
   - name: Install suricata service files
     copy:
-      src: "files/suricata.service"
+      src: "suricata.service"
       dest: "/etc/systemd/system/suricata.service"
       mode: 0644
       owner: root
@@ -603,7 +609,7 @@
 
   - name: Configure logrotate for suricata logs
     copy:
-      src: files/logrotate-suricata.conf
+      src: logrotate-suricata.conf
       dest: /etc/logrotate.d/suricata.conf
       mode: 0644
       owner: root
@@ -700,7 +706,7 @@
 
   - name: Configure logrotate for FSF logs
     copy:
-      src: files/logrotate-fsf.conf
+      src: logrotate-fsf.conf
       dest: /etc/logrotate.d/fsf.conf
       mode: 0644
       owner: root
@@ -734,7 +740,7 @@
     ######################################################
   - name: Install zookeeper service file
     copy:
-      src: files/zookeeper.service
+      src: zookeeper.service
       dest: /etc/systemd/system/zookeeper.service
       mode: 0644
       owner: root
@@ -834,7 +840,7 @@
 
   - name: Install ROCK Elasticsearch cleanup script
     copy:
-      src: files/es_cleanup.sh
+      src: es_cleanup.sh
       dest: /usr/local/bin/es_cleanup.sh
       mode: 0755
       owner: root
@@ -869,7 +875,7 @@
     uri:
       method: PUT
       url: http://localhost:9200/_template/bro_index
-      body: "{{ lookup('file', 'files/es-bro-mappings.json')}}"
+      body: "{{ lookup('file', 'es-bro-mappings.json')}}"
       body_format: json
     when: bro_mapping.status == 404
 
@@ -879,7 +885,7 @@
 
   - name: Install Bro-Kafka configuration for Logstash
     copy:
-      src: files/logstash-kafka-bro.conf
+      src: logstash-kafka-bro.conf
       dest: /etc/logstash/conf.d/kafka-bro.conf
       mode: 0640
       owner: "{{ logstash_user }}"
@@ -888,7 +894,7 @@
 
   - name: Configure Logstash to pickup suricata events
     copy:
-      src: "files/logstash-suricata-es.conf"
+      src: "logstash-suricata-es.conf"
       dest: "/etc/logstash/conf.d/suricata-es.conf"
       mode: 0644
       owner: root
@@ -897,7 +903,7 @@
 
   - name: Configure Logstash to pickup the FSF scan.log
     copy:
-      src: "files/logstash-fsf-es.conf"
+      src: "logstash-fsf-es.conf"
       dest: "/etc/logstash/conf.d/fsf-es.conf"
       mode: 0644
       owner: root
@@ -1021,7 +1027,7 @@
 
   - name: Install nginx base configuration
     copy:
-      src: files/nginx.conf
+      src: nginx.conf
       dest: /etc/nginx/nginx.conf
       mode: 0644
       owner: root
@@ -1042,7 +1048,7 @@
 
   - name: Install rock start script
     copy:
-      src: files/rock_start
+      src: rock_start
       dest: /usr/local/bin/rock_start
       mode: 0700
       owner: root
@@ -1050,7 +1056,7 @@
 
   - name: Install rock stop script
     copy:
-      src: files/rock_stop
+      src: rock_stop
       dest: /usr/local/bin/rock_stop
       mode: 0700
       owner: root
@@ -1058,7 +1064,7 @@
 
   - name: Install rock status script
     copy:
-      src: files/rock_status
+      src: rock_status
       dest: /usr/local/bin/rock_status
       mode: 0755
       owner: root
@@ -1070,7 +1076,7 @@
   ######################################################
   - name: Install ROCK NSM /etc/issue
     copy:
-      src: files/etc-issue.in
+      src: etc-issue.in
       dest: /etc/issue.in
       mode: 0644
       owner: root
@@ -1078,7 +1084,7 @@
 
   - name: NetworkManager ROCK NSM hook
     copy:
-      src: files/nm-issue-update
+      src: nm-issue-update
       dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
       mode: 0755
       owner: root
