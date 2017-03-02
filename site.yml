@@ -1,3 +1,0 @@
-#!/usr/bin/env ansible-playbook
-- include: playbooks/generate-defaults.yml
-- include: playbooks/deploy-rock.yml

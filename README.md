@@ -1,35 +1,28 @@
 ## Response Operation Collections Kit Reference Build
 
-See the [ROCK 2.0 User Guide](https://rocknsm.gitbooks.io/rocknsm-guide/content/).
-
-
-This build was created and tested using CentOS 7.3. I pretty much guarantee that it won't work with anything else other than RHEL 7.  Unless you have an operational need, I would suggest basing your system off of CentOS 7.3 (build 1611), as that is where the bulk of the testing of this has happened.
+This build was created and tested using CentOS 7.2. I pretty much guarantee that it won't work with anything else other than RHEL 7.  Unless you have an operational need, I would suggest basing your system off of CentOS 7.2 (build 1511), as that is where the bulk of the testing of this has happened.
 
 **BE ADVISED:**  This build process takes 3-10 minutes depending on your underlying hardware.  There will be times where it seems like it quit.  Be patient.  You'll know when it's done, for better or worse.
 
-### Differences in ROCK 2.0
-
-See [Getting Started with ROCK 2.0](docs/guide/getting-started.adoc).
-
 ### Vagrant
-**NOTE:**
+**NOTE:**   
 This Vagrantfile is configured to give the VM 8GB of RAM.  If your system can't do that you should buy a new system or adjust the `vm.memory` value.  Anything below 8 is going to run like poopoo. You will also need to have a host-only adapter configured named `vboxnet0`.
 ``` 
-git clone https://github.com/rocknsm/rock.git
-cd rock
+git clone https://github.com/CyberAnalyticDevTeam/SimpleRock.git
+cd SimpleRock
 vagrant up
 ```
 
 ### Physical/Virtual/Non-Vagrant
 **NOTE:**   
-The system you run this on should have at least 2 network interfaces and more than 8GB of RAM, with an OS (RHEL or CentOS 7) already installed.
+The system you run this on should have at least 2 network interfaces and more than 4GB of RAM, with an OS (RHEL or CentOS 7) already installed.
 ```
-sudo yum update -y && reboot
-sudo yum install -y epel-release
-sudo yum install -y git ansible
-git clone https://github.com/rocknsm/rock.git
-cd rock/ansible
-sudo ./deploy_rock.sh
+yum update -y && reboot
+sudo rpm -Uvh https://packages.chef.io/stable/el/7/chef-12.9.38-1.el7.x86_64.rpm
+sudo yum install git -y
+git clone https://github.com/CyberAnalyticDevTeam/SimpleRock.git
+cd SimpleRock
+sudo chef-client -z -r "recipe[simplerock]"
 ```
 
 ## Minimum Hardware Recommendations 
@@ -45,6 +38,7 @@ sudo ./deploy_rock.sh
   *  256GB, with 200+ of that dedicated to `/data`. Honestly, throw everything you can at it.  The higher the IOPS the better.
 *  Network
   *  The system needs at least 2 network interfaces, one for management and one for collection.
+
 
 **GOLDEN RULE:** If you throw hardware at it, ROCK will use it.  It will require some tuning to do so, but we'll be documenting that soon enough.
 
@@ -165,8 +159,12 @@ sudo netstat -planet | grep node
     
 IPADDRESS = The management interface of the box, or "localhost" if you did the vagrant build.
 
-http://IPADDRESS - Kibana
+http://IPADDRESS - Kibana & Marvel
 
+http://IPADDRESS/_plugin/hq - Elastic HQ (To watch the health of elasticsearch.)
+
+http://IPADDRESS/_plugin/sql - Query your ES data with SQL.   
+**NOTE:** When using the elasticsearch-sql plugin, you must set the address of your ES node in the upper right to `http://IPADDRESS:9200/`.
 
 ## Full Packet Capture
    
@@ -174,12 +172,12 @@ Google's Stenographer is installed and configured in this build.  However, it is
 
 ## THANKS
    
-This architecture is made possible by the efforts of the Missouri National Guard Cyber Team for donating talent and resources to further development.
+This architecture is made possible by the efforts of the Missouri National Guard Cyber Team, and especially Critical Stack and BroEZ for donating talent and resources to further development.
 
 
 ## Approach
-
-The Ansible playbook that drives this build strives not to use any external roles or other dependencies. The reasoning behind this is to make the rock playbook a "one-stop" reference for a manual build. This allows users to use the build process as a guide when doing larger scale production roll outs without having to decipher a labyrinth of dependencies.
+   
+The Chef recipe that drives this build strives not to use external recipes and cookbooks where possible.  The reasoning behind this is to make the simplerock recipe a "one-stop" reference for a manual build.  This allows users to use the build process as a guide when doing larger scale production roll outs without having to decypher a labrynth of dependencies.
 
 Templated config files have comment sections added near key config items with useful info.  They don't all have it, but they get added as remembered.
 
