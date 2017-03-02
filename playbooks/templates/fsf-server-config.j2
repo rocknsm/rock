@@ -1,0 +1,15 @@
+#!/usr/bin/env python
+#
+# Basic configuration attributes for scanner. Used as default
+# unless the user overrides them. 
+#
+
+SCANNER_CONFIG = { 'LOG_PATH' : '{{ fsf_data_dir }}',
+                   'YARA_PATH' : '/var/lib/yara-rules/rules.yara',
+                   'EXPORT_PATH' : '{{ fsf_archive_dir }}',
+                   'TIMEOUT' : 60,
+                   'PID_PATH': '/run/fsf/fsf.pid',
+                   'MAX_DEPTH' : 10 }
+
+SERVER_CONFIG = { 'IP_ADDRESS' : "localhost",
+                  'PORT' : 5800 }

@@ -1,0 +1,19 @@
+{
+"root": "./docs/guide",
+"plugins": [
+"addcssjs"
+],
+"structure": {
+"readme": "README.adoc",
+"summary": "SUMMARY.adoc"
+},
+"pdf": {
+"paperSize": "letter"
+},
+"pluginsConfig": {
+"addcssjs": {
+"js": ["styles/adoc/adoc.js"],
+"css": ["styles/adoc/adoc.css"]
+}
+}
+}
