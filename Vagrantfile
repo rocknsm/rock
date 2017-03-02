@@ -2,34 +2,57 @@
 # vi: set ft=ruby :
 
 Vagrant.configure(2) do |config|
-  #config.vm.box = "relativkreativ/centos-7-minimal"
-  config.vm.box = "bento/centos-7.2"
+  config.vm.box = "bento/centos-7.3"
+
   config.ssh.forward_agent = true
   config.ssh.username = 'vagrant'
   config.ssh.password = 'vagrant'
-  config.vm.network "forwarded_port", guest: 5601, host: 5601
-  config.vm.network "forwarded_port", guest: 9200, host: 9200
-  config.vm.network "forwarded_port", guest: 80, host: 8080
+
+
+  # Configure overall network interfaces
+  #config.vm.network "public_network", bridge: "en4: Apple USB Ethernet Adapter", auto_config: false
+  config.vm.network "public_network", bridge: "en0: Wi-Fi", auto_config: false
+  #config.vm.network "private_network", auto_config: false
+
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = 8192
+    vb.memory = 8704
     vb.cpus   = 4
     vb.customize ["modifyvm", :id, "--nic1", "nat"]
     vb.customize ["modifyvm", :id, "--nic2", "hostonly"]
     vb.customize ["modifyvm", :id, "--hostonlyadapter2", "vboxnet0"]
     vb.customize ["modifyvm", :id, "--nicpromisc2", "allow-vms"]
+
+    # Forward exposed service ports - these are directly accesible on vmware
+    #config.vm.network "forwarded_port", guest: 80, host: 8000
   end
 
-  #config.vm.provision "shell", inline: <<-SHELL
-     #hostnamectl set-hostname simplerockbuild.simplerock.lan
-     #echo -e "127.0.0.2\tsimplerockbuild.simplerock.lan\tsimplerockbuild" >> /etc/hosts
-#SHELL
+  config.vm.provider "vmware_fusion" do |v|
+    v.vmx["memsize"] = 8704
+    v.vmx["numvcpus"] = 8
+    v.vmx["ethernet1.noPromisc"]  = "false"
+    v.vmx["ethernet2.noPromisc"]  = "false"
 
-  config.vm.provision "chef_solo" do |chef|
-    chef.log_level = "info"
-    #chef.version = "12.3.0"
-    chef.cookbooks_path = "cookbooks" # path to your cookbooks
-    #chef.roles_path = "roles"
-    chef.add_recipe "simplerock"
-    #chef.node_name = "simplerockbuild"
+    # Ensure vmware-tools are auto-updated when we update the kernel
+    config.vm.provision "shell", inline: <<-SHELL
+      sed -i.bak 's/answer AUTO_KMODS_ENABLED_ANSWER no/answer AUTO_KMODS_ENABLED_ANSWER yes/g' /etc/vmware-tools/locations
+      sed -i 's/answer AUTO_KMODS_ENABLED no/answer AUTO_KMODS_ENABLED yes/g' /etc/vmware-tools/locations
+    SHELL
   end
+
+  # ansible required for ROCK 2.0 deployment
+  # git required to clone ROCK repo
+  # vim & tmux because of my sanity
+  config.vm.provision "shell", inline: <<-SHELL
+    yum -y install epel-release
+    sed -i 's/^mirrorlist/#mirrorlist/; s/^#baseurl/baseurl/' /etc/yum.repos.d/{CentOS-Base.repo,epel.repo}
+    yum -y update
+    yum -y install ansible vim git tmux
+  SHELL
+
+  # Enable selinux
+  config.vm.provision "shell", inline: <<-SHELL
+    sed -i 's/^SELINUX=.*/SELINUX=enforcing/' /etc/selinux/config
+    setenforce 1
+  SHELL
+
 end
