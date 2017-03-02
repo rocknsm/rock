@@ -130,7 +130,7 @@ if feature_enabled kafka; then
   kafka_pid=$(systemctl show -p MainPID kafka.service | cut -d= -f2)
   echo "kafka_pid: ${kafka_pid}"
   kafka_socket=$(sudo ss -ntp | grep "${kafka_pid}" | \
-	grep "${ZOOKEEPER_PORT}" | awk '{ print $4 }')
+	grep "${ZOOKEEPER_PORT}" | awk '{ print $4 }'| sed 's/::ffff://g')
   echo "Kafka socket: ${kafka_socket}"
   kafka_conns=$(echo "cons" | ncat ${ZOOKEEPER_HOST} ${ZOOKEEPER_PORT} | \
 	grep "${kafka_socket}" )
