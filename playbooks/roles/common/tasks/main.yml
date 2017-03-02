@@ -1,6 +1,0 @@
----
-# main.yml - Common tasks for ROCK
-- include: hostname.yml
-- include: epel.yml
-- include: pkginstall.yml
-- include: timedatectl.yml
