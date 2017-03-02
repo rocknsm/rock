@@ -42,7 +42,6 @@ Vagrant.configure(2) do |config|
   # ansible required for ROCK 2.0 deployment
   # git required to clone ROCK repo
   # vim & tmux because of my sanity
-  # @development to build hgfs module when you upgrade kernel
   config.vm.provision "shell", inline: <<-SHELL
     yum -y install epel-release
     sed -i 's/^mirrorlist/#mirrorlist/; s/^#baseurl/baseurl/' /etc/yum.repos.d/{CentOS-Base.repo,epel.repo}
@@ -56,17 +55,4 @@ Vagrant.configure(2) do |config|
     setenforce 1
   SHELL
 
-  #config.vm.provision "shell", inline: <<-SHELL
-     #hostnamectl set-hostname simplerockbuild.simplerock.lan
-     #echo -e "127.0.0.2\tsimplerockbuild.simplerock.lan\tsimplerockbuild" >> /etc/hosts
-#SHELL
-
-  #config.vm.provision "chef_solo" do |chef|
-  #  chef.log_level = "info"
-  #  #chef.version = "12.3.0"
-  #  chef.cookbooks_path = "cookbooks" # path to your cookbooks
-  #  #chef.roles_path = "roles"
-  #  chef.add_recipe "simplerock"
-  #  #chef.node_name = "simplerockbuild"
-  #end
 end
