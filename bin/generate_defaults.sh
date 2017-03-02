@@ -3,6 +3,7 @@
 SCRIPT_PATH=$(dirname $(readlink -f $0))
 TOPLEVEL=$(dirname ${SCRIPT_PATH})
 
+cd ${TOPLEVEL}
 ansible-playbook "${TOPLEVEL}/playbooks/generate-defaults.yml" 2>&1 1>/dev/null
 retVal=$?
 if [ $retVal -ne 0 ]; then

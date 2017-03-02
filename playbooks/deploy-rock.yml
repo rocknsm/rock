@@ -297,7 +297,7 @@
       - { src: 'GeoLiteCountry.dat', dest: 'GeoIPCountry.dat' }
       - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
       - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
-      
+
     ######################################################
     ################### Setup Zookeeper ##################
     ######################################################
@@ -426,6 +426,8 @@
 
   - name: Wait for Elasticsearch to become ready
     wait_for: host=localhost port=9200
+    notify:
+      - es maintenance
 
   - name: Check for Bro mapping templates
     uri:
