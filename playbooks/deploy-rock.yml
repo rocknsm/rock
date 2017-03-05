@@ -423,11 +423,11 @@
   - name: Enable and start Elasticsearch
     service: name=elasticsearch state=started enabled=yes
     when: with_elasticsearch
+    notify:
+      - es maintenance
 
   - name: Wait for Elasticsearch to become ready
     wait_for: host=localhost port=9200
-    notify:
-      - es maintenance
 
   - name: Check for Bro mapping templates
     uri:
@@ -524,6 +524,16 @@
       - logs
     when: with_bro
 
+  - name: Install broctl service file
+    template:
+      src: templates/broctl.service.j2
+      dest: /etc/systemd/system/broctl.service
+      owner: root
+      group: root
+      mode: 0644
+    when: with_bro
+    notify: reload systemd
+
   - name: Create Bro node.cfg
     template:
       src: templates/bro-node.cfg.j2
@@ -532,6 +542,8 @@
       owner: root
       group: root
     when: with_bro
+    notify: reload broctl
+
 
   - name: Create broctl.cfg
     template:
@@ -540,6 +552,9 @@
       mode: 0644
       owner: root
       group: root
+    when: with_bro
+    notify: reload broctl
+
   - name: Create bro networks.cfg
     copy:
       src: bro-networks.cfg
@@ -547,6 +562,8 @@
       mode: 0644
       owner: root
       group: root
+    when: with_bro
+    notify: reload broctl
 
   - name: Add bro custom scripts dir
     file:
@@ -555,6 +572,7 @@
       group: root
       mode: 0755
       state: directory
+    when: with_bro
 
   - name: Set permissions on broctl scripts dir
     file:
@@ -563,6 +581,7 @@
       group: "{{ bro_user }}"
       mode: 0755
       state: directory
+    when: with_bro
 
   - name: Add README to scripts dir
     copy:
@@ -571,13 +590,14 @@
       mode: 0644
       owner: root
       group: root
+    when: with_bro
 
   - name: Checkout ROCK Bro scripts
     git:
       repo: "{{ bro_rockscripts_repo }}"
       dest: /opt/bro/share/bro/site/scripts/rock
       version: "{{ bro_rockscripts_branch }}"
-    when: rock_online_install
+    when: with_bro and rock_online_install
 
   - name: Deploy offline ROCK Bro scripts
     unarchive:
@@ -587,7 +607,7 @@
       group: root
       creates: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
       remote_src: yes
-    when: not rock_online_install
+    when: with_bro and not rock_online_install
 
   - name: Symlink offline ROCK bro scripts
     file:
@@ -595,7 +615,7 @@
       dest: "/opt/bro/share/bro/site/scripts/rock"
       state: link
       force: yes
-    when: not rock_online_install
+    when: with_bro and not rock_online_install
 
   - name: Update owner for ROCK NSM Bro scripts
     file:
@@ -607,12 +627,14 @@
       follow: yes
     tags:
       - bro_scripts
+    when: with_bro
 
   - name: Add ROCK scripts to local.bro
     lineinfile:
       dest: /opt/bro/share/bro/site/local.bro
       line: "@load scripts/rock # ROCK NSM customizations"
       state: present
+    when: with_bro
 
   - name: Add AF_PACKET workaround to local.bro
     lineinfile:
@@ -635,6 +657,7 @@
       mode: 0644
       owner: root
       group: root
+    when: with_bro
 
   - name: Set bro capabilities
     capabilities:
@@ -644,6 +667,7 @@
     with_items:
       - "cap_net_raw+eip"
       - "cap_net_admin+eip"
+    when: with_bro
 
   - name: Set capstats capabilities
     capabilities:
@@ -653,6 +677,7 @@
     with_items:
       - "cap_net_raw+eip"
       - "cap_net_admin+eip"
+    when: with_bro
 
   - name: Set broctl cron
     cron:
@@ -661,15 +686,7 @@
       cron_file: rocknsm_broctl
       user: "{{ bro_user }}"
       job: "/opt/bro/bin/broctl cron >/dev/null 2>&1"
-
-  - name: Install broctl service file
-    template:
-      src: templates/broctl.service.j2
-      dest: /etc/systemd/system/broctl.service
-      owner: root
-      group: root
-      mode: 0644
-    notify: reload systemd
+    when: with_bro
 
   - name: Initialize bro scripts for workers
     command: /opt/bro/bin/broctl install
@@ -677,9 +694,11 @@
       creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
     become: yes
     become_user: "{{ bro_user }}"
+    when: with_bro
 
   - name: Enable and start broctl
     service: name=broctl enabled=yes state=started
+    when: with_bro and enable_bro
 
     ######################################################
     ################# Setup Stenographer #################
@@ -1118,6 +1137,9 @@
 
     - name: es maintenance
       command: /usr/local/bin/es_cleanup.sh
+
+    - name: reload broctl
+      service: name=broctl state=restarted
 
     - name: create kafka bro topic
       command: >

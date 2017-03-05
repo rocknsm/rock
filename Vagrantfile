@@ -27,10 +27,16 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_fusion" do |v|
+    v.gui = "true"
+
     v.vmx["memsize"] = 8704
     v.vmx["numvcpus"] = 8
+    v.vmx["ethernet0.present"] = "true"
+    v.vmx["ethernet0.startConnected"] = "true"
+    v.vmx["ethernet0.connectionType"] = "nat"
+    v.vmx["ethernet1.present"] = "true"
     v.vmx["ethernet1.noPromisc"]  = "false"
-    v.vmx["ethernet2.noPromisc"]  = "false"
+    v.vmx["ethernet1.startConnected"] = "true"
 
     # Ensure vmware-tools are auto-updated when we update the kernel
     config.vm.provision "shell", inline: <<-SHELL
