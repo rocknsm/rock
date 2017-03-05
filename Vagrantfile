@@ -27,7 +27,7 @@ Vagrant.configure(2) do |config|
   end
 
   config.vm.provider "vmware_fusion" do |v|
-    v.gui = "true"
+    #v.gui = "true"
 
     v.vmx["memsize"] = 8704
     v.vmx["numvcpus"] = 8
