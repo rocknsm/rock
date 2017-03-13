@@ -650,6 +650,13 @@
       state: present
     when: with_bro and with_kafka
 
+  - name: Enable the SMB Analyzer in local.bro
+    lineinfile:
+      dest: /opt/bro/share/bro/site/local.bro
+      line: "@load policy/protocols/smb # Enable Bro SMB Analyzer"
+      state: present
+    when: with_bro
+
   - name: Add bro to path and aliases
     copy:
       src: profile.d-bro.sh
