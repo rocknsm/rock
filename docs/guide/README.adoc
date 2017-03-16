@@ -210,6 +210,18 @@ http://IPADDRESS - Kibana
 === Full Packet Capture
 Google's Stenographer is installed and configured in this build. However, it is disabled by default. There are a few reasons for this: First, it can be too much for Vagrant builds on meager hardware. Second, you really need to make sure you've mounted /data over sufficient storage before you start saving full packets. Once you're ready to get nuts, enable and start the service with `systemctl enable stenographer.service` and then `systemctl start stenographer.service`. Stenographer is already stubbed into the `/usr/local/bin/rock_{start,stop,status}` scripts, you just need to uncomment it if you're going to use it.
 
+=== File Scanning Framework
+Emerson Electric Co's File Scanning Framework is installed and configured in this build to analyze files seen by bro that are of specific mime-types, however this service is disabled by default. There are two primary reasons for this: First, just like stenographer FSF can be too much for ROCK builds on meager hardware. Second, you should carefully consider what file types you want to extract and what additional yara rules you want to scan your extracted files with. If you choose to Enable FSF in /etc/rocknsm/config.yml, the default configuration will automatically scan any of the following file types seen by bro and log the results to Elasticsearch.
+ - application/pdf
+ - application/vnd.openxmlformats-officedocument.wordprocessingml.document
+ - application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+ - application/vnd.openxmlformats-officedocument.presentationml.presentation
+ - application/x-dosexec
+ - application/java-archive
+ - application/x-java-applet
+ - application/x-java-jnlp-file
+
+
 == THANKS
 This architecture is made possible by the efforts of the Missouri National Guard Cyber Team for donating talent and resources to further development.
 
