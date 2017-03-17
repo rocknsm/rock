@@ -311,7 +311,10 @@
     when: with_zookeeper
 
   - name: Enable and start zookeeper
-    service: name=zookeeper state=started enabled=yes
+    service:
+      name: zookeeper
+      state: "{{ 'started' if enable_zookeeper else 'stopped' }}"
+      enabled: "{{ enable_zookeeper }}"
     when: with_zookeeper
 
     ######################################################
@@ -343,7 +346,10 @@
     when: with_kafka
 
   - name: Enable and start kafka
-    service: name=kafka state=started enabled=yes
+    service:
+      name: kafka
+      state: "{{ 'started' if enable_kafka else 'stopped' }}"
+      enabled: "{{ enable_kafka }}"
     when: with_kafka
 
     ######################################################
@@ -421,7 +427,10 @@
     when: with_elasticsearch
 
   - name: Enable and start Elasticsearch
-    service: name=elasticsearch state=started enabled=yes
+    service:
+      name: elasticsearch
+      state: "{{ 'started' if enable_elasticsearch else 'stopped' }}"
+      enabled: "{{ enable_elasticsearch }}"
     when: with_elasticsearch
     notify:
       - es maintenance
@@ -476,7 +485,10 @@
     when: with_logstash and with_fsf
 
   - name: Enable and start Logstash
-    service: name=logstash state=started enabled=yes
+    service:
+      name: logstash
+      state: "{{ 'started' if enable_logstash else 'stopped' }}"
+      enabled: "{{ enable_logstash }}"
     when: with_logstash
 
     #######################################################
@@ -704,8 +716,11 @@
     when: with_bro
 
   - name: Enable and start broctl
-    service: name=broctl enabled=yes state=started
-    when: with_bro and enable_bro
+    service:
+      name: broctl
+      enabled: "{{ enable_bro }}"
+      state: "{{ 'started' if enable_bro else 'stopped' }}"
+    when: with_bro
 
     ######################################################
     ################# Setup Stenographer #################
@@ -749,8 +764,19 @@
       creates: /etc/stenographer/certs/client_key.pem
     when: with_stenographer
 
-  - name: Set Stenographer disabled by default
-    service: name=stenographer enabled=no state=stopped
+  - name: Configure Stenographer service
+    service:
+      name: stenographer
+      enabled: "{{ enable_stenographer }}"
+      state: "{{ 'started' if enable_stenographer else 'stopped' }}"
+    when: with_stenographer
+
+  - name: Configure Stenographer per-interface
+    service:
+      name: "stenographer@{{ item }}"
+      enabled: "{{ enable_stenographer }}"
+      state: "{{ 'started' if enable_stenographer else 'stopped' }}"
+    with_items: "{{ rock_monifs }}"
     when: with_stenographer
 
     ######################################################
@@ -818,7 +844,10 @@
     when: with_suricata
 
   - name: Enable and start suricata
-    service: name="suricata" enabled=yes state=started
+    service:
+      name: suricata
+      enabled: "{{ enable_suricata }}"
+      state: "{{ 'started' if enable_suricata else 'stopped' }}"
     when: with_suricata
 
   - name: Configure logrotate for suricata logs
@@ -946,16 +975,22 @@
     when: with_fsf
 
   - name: Enable and start FSF
-    service: name=fsf state=started enabled=yes
-    when: with_fsf and enable_fsf
+    service:
+      name: fsf
+      state: "{{ 'started' if enable_fsf else 'stopped' }}"
+      enabled: "{{ enable_fsf }}"
+    when: with_fsf
 
     ######################################################
     ################### Setup Kibana #####################
     ######################################################
 
   - name: Enable and start Kibana
-    service: name=kibana state=started enabled=yes
-    when: "{{ with_kibana }}"
+    service:
+      name: kibana
+      state: "{{ 'started' if enable_kibana else 'stopped' }}"
+      enabled: "{{ enable_kibana }}"
+    when: with_kibana
 
   - name: Download ROCK Dashboards
     get_url:
@@ -1074,7 +1109,10 @@
     when: with_nginx and with_kibana
 
   - name: Enable and start nginx
-    service: name=nginx state=started enabled=yes
+    service:
+      name: nginx
+      state: "{{ 'started' if enable_nginx else 'stopped' }}"
+      enabled: "{{ enable_nginx }}"
     when: with_nginx
 
     ######################################################
