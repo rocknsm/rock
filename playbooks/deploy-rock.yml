@@ -423,11 +423,10 @@
   - name: Enable and start Elasticsearch
     service: name=elasticsearch state=started enabled=yes
     when: with_elasticsearch
+    notify: es maintenance
 
   - name: Wait for Elasticsearch to become ready
     wait_for: host=localhost port=9200
-    notify:
-      - es maintenance
 
   - name: Check for Bro mapping templates
     uri:
