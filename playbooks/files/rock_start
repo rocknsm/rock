@@ -57,10 +57,9 @@ fi
 if feature_enabled stenographer; then
   echo "Starting Stenographer..."
   systemctl start stenographer
+  sleep 5
   for item in $(ls  /etc/stenographer/config* | awk -F. '/\./ { print $2 }')
   do
-    systemctl start stenographer@${item}
-    sleep 5
     systemctl status stenographer@${item} | egrep "^\s*Active" | cat <( echo -n "   ${item}: ") -
   done
 fi

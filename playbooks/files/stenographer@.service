@@ -33,5 +33,4 @@ ExecStart=/usr/bin/stenographer -config /etc/stenographer/config.%i
 ExecStopPost=/bin/pkill -9 stenotype
 
 [Install]
-WantedBy=multi-user.target
-
+WantedBy=stenographer.service
