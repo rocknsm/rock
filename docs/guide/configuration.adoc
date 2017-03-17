@@ -98,6 +98,10 @@ Generally, most of the options you'll want to change are near the top. The file 
 
 *NOTE*: While you theoretically _could_ install both Suricata and Snort, I guarantee that the automated deployment will not configure this as you were hoping.
 
+| with_fsf
+| `True`
+| Determines whether FSF will be installed and configured.
+
 | with_snort
 | `False`
 | Determines whether Snort will be installed and configured.
