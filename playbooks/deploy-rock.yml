@@ -161,7 +161,7 @@
   - name: Configure packages
     set_fact:
       rocknsm_package_list: "{{ rocknsm_package_list }} + [ '{{ item.pkg }}']"
-    when: (item.test) or (item.test is undefined)
+    when: (item.test is undefined) or (item.test)
     with_items:
       - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
       - { pkg: logstash, test: "{{with_logstash}}", state: installed }
@@ -186,7 +186,7 @@
     yum:
       name: "{{ item.pkg }}"
       state: "{{ item.state }}"
-    when: (item.test) or (item.test is undefined)
+    when: (item.test is undefined) or (item.test)
     with_items:
       - { pkg: "{{ rocknsm_package_list }}", state: installed }
 
