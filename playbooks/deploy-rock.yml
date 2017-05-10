@@ -156,13 +156,14 @@
 
   - name: Configure default CentOS online repos
     yum_repository:
-      name: "{{ item }}"
+      name: "{{ item.name }}"
       enabled: "{{ rock_online_install }}"
+      mirrorlist: "{{ item.mirror }}"
       file:  CentOS-Base.repo
     with_items:
-      - base
-      - updates
-      - extras
+      - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
+      - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
+      - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
     #######################################################
     ############# Install/Remove Packages #################
