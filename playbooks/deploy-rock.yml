@@ -158,6 +158,7 @@
     yum_repository:
       name: "{{ item.name }}"
       enabled: "{{ rock_online_install }}"
+      description: "CentOS-$releasever - {{ item.name | title }}"
       mirrorlist: "{{ item.mirror }}"
       file:  CentOS-Base.repo
     with_items:
