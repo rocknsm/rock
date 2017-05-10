@@ -393,7 +393,7 @@ yum_package 'broctl' do
   timeout 90
 end
 
-package ['tcpreplay', 'iptables-services', 'dkms', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'nginx', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https', 'kibana']
+package ['tcpreplay', 'iptables-services', 'dkms', 'broctl', 'kafka-bro-plugin', 'gperftools-libs', 'git', 'java-1.8.0-oracle', 'kafka', 'logstash', 'nginx', 'jq', 'policycoreutils-python', 'patch', 'vim', 'openssl-devel', 'zlib-devel', 'net-tools', 'lsof', 'htop', 'GeoIP-update', 'GeoIP-devel', 'GeoIP', 'kafkacat', 'stenographer', 'bats', 'nmap-ncat', 'snort', 'daq', 'perl-libwww-perl', 'perl-Crypt-SSLeay', 'perl-Archive-Tar', 'perl-Sys-Syslog', 'perl-LWP-Protocol-https', 'kibana', 'libselinux-python']
 
 ######################################################
 ################## Configure PF_RING #################
