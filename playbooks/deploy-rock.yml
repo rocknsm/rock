@@ -156,8 +156,8 @@
 
   - name: Configure default CentOS online repos
     yum_repository:
-      name: {{ item }}
-      enabled: {{ rock_online_install }}
+      name: "{{ item }}"
+      enabled: "{{ rock_online_install }}"
       file:  CentOS-Base.repo
     with_items:
       - base
