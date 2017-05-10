@@ -160,7 +160,7 @@
       enabled: "{{ rock_online_install }}"
       description: "CentOS-$releasever - {{ item.name | title }}"
       mirrorlist: "{{ item.mirror }}"
-      file:  CentOS-Base.repo
+      file:  CentOS-Base
     with_items:
       - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
       - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
