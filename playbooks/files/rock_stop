@@ -11,7 +11,7 @@ if feature_enabled fsf; then
   systemctl stop fsf
 fi
 
-if feature_enabled suricata; then
+if feature_enabled stenographer; then
   echo "Stopping Stenographer..."
   systemctl stop stenographer
 fi
