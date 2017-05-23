@@ -47,6 +47,13 @@ if feature_enabled suricata; then
   systemctl status suricata | egrep "^\s*Active"
 fi
 
+if feature_enabled snort; then
+  echo "Starting Snort..."
+  systemctl start snortd
+  sleep 5
+  systemctl status snortd | egrep "^\s*Active"
+fi
+
 if feature_enabled bro; then
   echo "Starting Bro..."
   systemctl start broctl
