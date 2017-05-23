@@ -2,7 +2,7 @@
 
 
 function feature_enabled() {
-  grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
+  grep -qiE "^with_$1: (true|yes)" /etc/rocknsm/config.yml;
   return $?
 }
 
