@@ -32,18 +32,18 @@ with_nginx: true
 with_fsf: true
 
 # Feature options - Don't flip these unless you know what you're doing
-enable_stenographer: false
-enable_bro: true
-enable_suricata: true
-enable_snort: false
-enable_pulledpork: true
-enable_logstash: true
-enable_elasticsearch: true
-enable_kibana: true
-enable_zookeeper: true
-enable_kafka: true
-enable_nginx: true
-enable_fsf: false
+enable_stenographer: "{{ with_stenographer }}"
+enable_bro: "{{ with_bro }}"
+enable_suricata: "{{ with_suricata }}"
+enable_snort: "{{ with_snort }}"
+enable_pulledpork: "{{ with_pulledpork }}"
+enable_logstash: "{{ with_logstash }}"
+enable_elasticsearch: "{{ with_elasticsearch }}"
+enable_kibana: "{{ with_kibana }}"
+enable_zookeeper: "{{ with_zookeeper }}"
+enable_kafka: "{{ with_kafka }}"
+enable_nginx: "{{ with_nginx }}"
+enable_fsf: "{{ with_fsf }}"
 
 rocknsm_package_list:
   - java-1.8.0-openjdk-headless
