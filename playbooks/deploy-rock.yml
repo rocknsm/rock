@@ -177,6 +177,7 @@
       - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
       - { pkg: logstash, test: "{{with_logstash}}", state: installed }
       - { pkg: kibana, test: "{{with_kibana}}", state: installed }
+      - { pkg: filebeat, test: "{{with_suricata}}", state: installed }
       - { pkg: nginx, test: "{{with_nginx}}", state: installed }
       - { pkg: bro, test: "{{with_bro}}", state: installed }
       - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
