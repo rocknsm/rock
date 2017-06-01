@@ -30,7 +30,8 @@ outputs:
   - eve-log:
       enabled: yes
       filetype: regular
-      filename: eve.json
+      filename: eve-%Y-%m-%d-%H.json
+      rotate-interval: hour
       types:
         - alert:
             http: yes
