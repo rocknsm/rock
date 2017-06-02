@@ -639,7 +639,6 @@
       repo: "{{ bro_rockscripts_repo }}"
       dest: /opt/bro/share/bro/site/scripts/rock
       version: "{{ bro_rockscripts_branch }}"
-      #update: no
     when: with_bro and rock_online_install
 
   - name: Deploy offline ROCK Bro scripts
