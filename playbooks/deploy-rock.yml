@@ -177,6 +177,7 @@
       - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
       - { pkg: logstash, test: "{{with_logstash}}", state: installed }
       - { pkg: kibana, test: "{{with_kibana}}", state: installed }
+      - { pkg: filebeat, test: "{{with_suricata or with_fsf}}", state: installed }
       - { pkg: nginx, test: "{{with_nginx}}", state: installed }
       - { pkg: bro, test: "{{with_bro}}", state: installed }
       - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
@@ -475,24 +476,27 @@
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
     when: with_logstash and with_bro and with_kafka
+    notify: Restart Logstash
 
-  - name: Configure Logstash to pickup suricata events
+  - name: Install Suricata-Kafka configuration for Logstash
     copy:
-      src: "logstash-suricata-es.conf"
-      dest: "/etc/logstash/conf.d/suricata-es.conf"
-      mode: 0644
-      owner: root
-      group: root
-    when: with_logstash and with_suricata
+      src: logstash-kafka-suricata.conf
+      dest: /etc/logstash/conf.d/kafka-suricata.conf
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+    when: with_logstash and with_suricata and with_kafka
+    notify: Restart Logstash
 
-  - name: Configure Logstash to pickup the FSF scan.log
+  - name: Install FSF-Kafka configuration for Logstash
     copy:
-      src: "logstash-fsf-es.conf"
-      dest: "/etc/logstash/conf.d/fsf-es.conf"
-      mode: 0644
-      owner: root
-      group: root
-    when: with_logstash and with_fsf
+      src: logstash-kafka-fsf.conf
+      dest: "/etc/logstash/conf.d/kafka-fsf.conf"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+    when: with_logstash and with_fsf and with_kafka
+    notify: Restart Logstash
 
   - name: Enable and start Logstash
     service:
@@ -500,6 +504,22 @@
       state: "{{ 'started' if enable_logstash else 'stopped' }}"
       enabled: "{{ enable_logstash }}"
     when: with_logstash
+
+    ######################################################
+    ################### Setup Filebeat ###################
+    ######################################################
+  - name: Add Filebeat configuration file
+    template:
+      src: filebeat.yml.j2
+      dest: /etc/filebeat/filebeat.yml
+    notify: Restart Filebeat
+
+  - name: Enable and start Filebeat
+    service:
+      name: filebeat
+      state: "{{ 'started' if enable_filebeat else 'stopped' }}"
+      enabled: "{{ enable_filebeat }}"
+    when: with_filebeat
 
     #######################################################
     ###################### Setup Bro  #####################
@@ -1220,8 +1240,27 @@
            --topic suricata-raw
            --partitions 1
 
+    - name: create kafka fsf topic
+      command: >
+        /opt/kafka/bin/kafka-topics.sh
+           --zookeeper 127.0.0.1:2181
+           --create
+           --replication-factor 1
+           --topic fsf-raw
+           --partitions 1
+
     - name: reload systemd
       command: systemctl daemon-reload
+
+    - name: Restart Logstash
+      service:
+        name: logstash
+        state: restarted
+
+    - name: Restart Filebeat
+      service:
+        name: filebeat
+        state: restarted
 
   environment:
    http_proxy:  "{{ http_proxy }}"
