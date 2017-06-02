@@ -495,7 +495,7 @@
       mode: 0640
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
-    when: with_logstash and with_fsf
+    when: with_logstash and with_fsf and with_kafka
     notify: Restart Logstash
 
   - name: Enable and start Logstash
