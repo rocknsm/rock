@@ -1,0 +1,61 @@
+#=========================== Filebeat prospectors =============================
+
+filebeat.prospectors:
+- input_type: log
+  paths:
+    - {{ rock_data_dir }}/suricata/eve.json
+  json.keys_under_root: true
+  fields:
+    kafka_topic: suricata-raw
+  fields_under_root: true
+- input_type: log
+  paths:
+    - {{ rock_data_dir }}/fsf/rockout.log
+  json.keys_under_root: true
+  fields:
+    kafka_topic: fsf-raw
+  fields_under_root: true
+processors:
+ - decode_json_fields:
+     fields: ["message","Scan Time", "Filename", "objects", "Source", "meta", "Alert" ,"Summary"]
+     process_array: true
+     max_depth: 10
+
+#================================ General =====================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+#name:
+
+# The tags of the shipper are included in their own field with each
+# transaction published.
+#tags: ["service-X", "web-tier"]
+
+# Optional fields that you can specify to add additional information to the
+# output.
+#fields:
+#  env: staging
+
+#================================ Outputs =====================================
+
+# Configure what outputs to use when sending the data collected by the beat.
+# Multiple outputs may be used.
+
+output.kafka:
+  hosts: ["localhost:9092"]
+
+  topic: 'suricata-raw'
+  required_acks: 1
+  compression: gzip
+  max_message_bytes: 1000000
+
+#================================ Logging =====================================
+
+# Sets log level. The default log level is info.
+# Available log levels are: critical, error, warning, info, debug
+#logging.level: debug
+
+# At debug level, you can selectively enable logging only for some components.
+# To enable all selectors use ["*"]. Examples of other selectors are "beat",
+# "publish", "service".
+#logging.selectors: ["*"]
