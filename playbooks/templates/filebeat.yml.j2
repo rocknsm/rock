@@ -44,7 +44,7 @@ processors:
 output.kafka:
   hosts: ["localhost:9092"]
 
-  topic: 'suricata-raw'
+  topic: '%{[kafka_topic]}'
   required_acks: 1
   compression: gzip
   max_message_bytes: 1000000

@@ -476,6 +476,7 @@
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
     when: with_logstash and with_bro and with_kafka
+    notify: Restart Logstash
 
   - name: Install Suricata-Kafka configuration for Logstash
     copy:
@@ -485,6 +486,7 @@
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
     when: with_logstash and with_suricata and with_kafka
+    notify: Restart Logstash
 
   - name: Install FSF-Kafka configuration for Logstash
     copy:
@@ -494,6 +496,7 @@
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
     when: with_logstash and with_fsf
+    notify: Restart Logstash
 
   - name: Enable and start Logstash
     service:
@@ -509,6 +512,7 @@
     template:
       src: filebeat.yml.j2
       dest: /etc/filebeat/filebeat.yml
+    notify: Restart Filebeat
 
   - name: Enable and start Filebeat
     service:
@@ -1248,6 +1252,16 @@
 
     - name: reload systemd
       command: systemctl daemon-reload
+
+    - name: Restart Logstash
+      service:
+        name: logstash
+        state: restarted
+
+    - name: Restart Filebeat
+      service:
+        name: filebeat
+        state: restarted
 
   environment:
    http_proxy:  "{{ http_proxy }}"
