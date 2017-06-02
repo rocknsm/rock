@@ -66,7 +66,6 @@
     #######################################################
     #################### Disable IPv6 #####################
     #######################################################
-
   - name: Disable IPv6 for all interfaces
     sysctl:
       name: net.ipv6.conf.all.disable_ipv6
@@ -155,6 +154,18 @@
       cost: 500
     when: not rock_online_install
 
+  - name: Configure default CentOS online repos
+    yum_repository:
+      name: "{{ item.name }}"
+      enabled: "{{ rock_online_install }}"
+      description: "CentOS-$releasever - {{ item.name | title }}"
+      mirrorlist: "{{ item.mirror }}"
+      file:  CentOS-Base
+    with_items:
+      - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
+      - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
+      - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
+
     #######################################################
     ############# Install/Remove Packages #################
     #######################################################
@@ -238,7 +249,6 @@
     #######################################################
     ################ Configure firewall ###################
     #######################################################
-
   - name: Enable and start firewalld
     service:
       name: firewalld
@@ -320,7 +330,6 @@
     ######################################################
     ##################### Setup Kafka ####################
     ######################################################
-
   - name: Create Kafka data dir
     file:
       path: "{{ kafka_data_dir }}"
@@ -437,6 +446,7 @@
 
   - name: Wait for Elasticsearch to become ready
     wait_for: host=localhost port=9200
+    when: with_elasticsearch
 
   - name: Check for Bro mapping templates
     uri:
@@ -444,6 +454,7 @@
       url: http://localhost:9200/_template/bro_index
     failed_when: False
     register: bro_mapping
+    when: (with_elasticsearch and with_bro)
 
   - name: Load Bro Elasticsearch mapping templates
     uri:
@@ -451,12 +462,11 @@
       url: http://localhost:9200/_template/bro_index
       body: "{{ lookup('file', 'es-bro-mappings.json')}}"
       body_format: json
-    when: bro_mapping.status == 404
+    when: (with_elasticsearch and with_bro) and bro_mapping.status == 404
 
     ######################################################
     ################### Setup Logstash ###################
     ######################################################
-
   - name: Install Bro-Kafka configuration for Logstash
     copy:
       src: logstash-kafka-bro.conf
@@ -678,6 +688,15 @@
       group: root
     when: with_bro
 
+  - name: Add broctl wrapper for admin use
+    copy:
+      src: broctl.sh
+      dest: /usr/sbin/broctl
+      mode: 0754
+      owner: root
+      group: root
+    when: with_bro
+
   - name: Set bro capabilities
     capabilities:
       path: /opt/bro/bin/bro
@@ -725,7 +744,6 @@
     ######################################################
     ################# Setup Stenographer #################
     ######################################################
-
   - name: Set stenographer config
     template:
       src: templates/stenographer-config.j2
@@ -782,7 +800,6 @@
     ######################################################
     ################## Setup Suricata ####################
     ######################################################
-
   - name: Create Suricata directories
     file:
       path: "{{ suricata_data_dir }}/"
@@ -909,7 +926,7 @@
       group: root
       mode: 0644
       state: touch
-    when: not rules_file.stat.exists and with_pulledpork
+    when: with_pulledpork and not rules_file.stat.exists
 
   - name: Schedule pulledpork to run daily
     cron:
@@ -928,7 +945,6 @@
     #######################################################
     ######################## FSF ##########################
     #######################################################
-
   - name: Create FSF data dir
     file:
       path: "{{ fsf_data_dir }}"
@@ -984,7 +1000,6 @@
     ######################################################
     ################### Setup Kibana #####################
     ######################################################
-
   - name: Enable and start Kibana
     service:
       name: kibana
@@ -997,7 +1012,7 @@
       url: "{{ rock_dashboards_url }}"
       dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
       mode: 0644
-    when: "{{ with_kibana and rock_online_install }}"
+    when: with_kibana and rock_online_install
 
   - name: Extract ROCK Dashboards
     unarchive:
@@ -1007,18 +1022,18 @@
       group: root
       creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
       remote_src: yes
-    when: "{{ with_kibana }}"
+    when: with_kibana
 
   - name: Query Kibana package info
     yum:
       list: kibana
     register: kibana_pkg
-    when: "{{ with_kibana }}"
+    when: with_kibana
 
   - name: Store installed kibana pkg info
     set_fact:
       kibana_info: "{{ kibana_pkg.results | selectattr('repo', 'match', 'installed') | first }}"
-    when: "{{ with_kibana }}"
+    when: with_kibana
 
   - name: Check current Kibana config
     uri:
@@ -1030,12 +1045,12 @@
     until: kibana_cfg.status == 200
     retries: 10
     delay: 3
-    when: "{{ with_kibana }}"
+    when: with_kibana
 
   - name: Store Kibana config dict
     set_fact:
       kibana_config: "{{ kibana_cfg.json }}"
-    when: "{{ with_kibana }}"
+    when: with_kibana
 
   - name: Configure Kibana templates
     uri:
@@ -1048,7 +1063,7 @@
               "index.number_of_shards" : "1" },
           "mappings" : { }, "aliases" : { } }
       status_code: 200,201
-    when: "{{ with_kibana }}"
+    when: with_kibana
 
   - name: Push Kibana dashboard config
     command: >
@@ -1056,22 +1071,22 @@
         -url {{ es_url }}
     args:
       chdir: /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/
-    when: "{{ with_kibana and (kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version) }}"
+    when: with_kibana and (kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version)
 
   - name: Store default Kibana index to Bro
     set_fact:
       kibana_config: "{{ kibana_config | combine({'defaultIndex': 'bro-*' })}}"
-    when: "{{ with_kibana and with_bro }}"
+    when: with_kibana and with_bro
 
   - name: Store default Kibana index to Suricata
     set_fact:
       kibana_config: "{{ kibana_config | combine({'defaultIndex': 'suricata-*' })}}"
-    when: "{{ with_kibana and with_suricata and not with_bro }}"
+    when: with_kibana and with_suricata and not with_bro
 
   - name: Update Kibana config dict w/ rock_config version
     set_fact:
       kibana_config: "{{ kibana_config | combine({'rock_config': rock_dashboards_version }) }}"
-    when: "{{ with_kibana }}"
+    when: with_kibana
 
   - name: Push Kibana settings for index and rock_version
     uri:
@@ -1080,12 +1095,11 @@
       body: "{{ kibana_config }}"
       body_format: "json"
       status_code: 200,201
-    when: "{{ with_kibana }}"
+    when: with_kibana
 
     ######################################################
     ################### Setup nginx ######################
     ######################################################
-
   - name: Install ROCK nginx configuration
     template:
       src: templates/nginx-rock.conf.j2
@@ -1105,7 +1119,10 @@
     when: with_nginx
 
   - name: Enable nginx to perform proxy connect
-    seboolean: name=httpd_can_network_connect state=yes persistent=yes
+    seboolean: 
+      name: httpd_can_network_connect
+      state: yes 
+      persistent: yes
     when: with_nginx and with_kibana
 
   - name: Enable and start nginx
@@ -1118,7 +1135,6 @@
     ######################################################
     ############### Setup ROCKNSM Scripts ################
     ######################################################
-
   - name: Install rock start script
     copy:
       src: rock_start
@@ -1173,7 +1189,7 @@
 
     - name: configure monitor interfaces
       shell: >
-        for intf in {{ rock_monifs | join(' ')}}; do
+        for intf in {{ rock_monifs | join(' ') }}; do
           /sbin/ifup ${intf};
         done
 
@@ -1195,18 +1211,17 @@
            --topic bro-raw
            --partitions 1
 
-    - name: create kafka suricata  topic
+    - name: create kafka suricata topic
       command: >
         /opt/kafka/bin/kafka-topics.sh
            --zookeeper 127.0.0.1:2181
            --create
            --replication-factor 1
-         --topic suricata-raw
+           --topic suricata-raw
            --partitions 1
 
     - name: reload systemd
       command: systemctl daemon-reload
-
 
   environment:
    http_proxy:  "{{ http_proxy }}"
