@@ -1,0 +1,183 @@
+#!/usr/bin/bats
+
+export ZOOKEEPER_HOST=127.0.0.1
+export ZOOKEEPER_PORT=2181
+export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
+	sed 's/interface=//; s/.*:://' | sort | uniq | paste -sd " " -)
+
+
+function feature_enabled() {
+  grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
+  return $?
+}
+
+#----------------------------------------------------------------------------
+#                               INTERFACE
+#----------------------------------------------------------------------------
+
+@test "Check each monitor interface is live" {
+  local timeout_sec=5
+  local timeout_pkt=5
+  local results=()
+
+  # Timeout after 5 seconds or 5 packets
+  for interface in $MON_IFS; do
+    packets_1=$(ethtool -S ${interface} | awk '/rx_packets/ {print $2}')
+    sleep ${timeout_sec}
+    packets_2=$(ethtool -S ${interface} | awk '/rx_packets/ {print $2}')
+    packets=$(echo `expr ${packets_2} - ${packets_1}`)
+    echo "${interface} had ${packets} packets in ${timeout_sec} secs."
+    [ $packets -gt 0 ]
+  done
+}
+
+@test "Check for interface errors" {
+  for interface in $MON_IFS; do
+    count=$(ethtool -S ${interface} | awk '/error/ && $2 > 0' | wc -l )
+    echo "${interface} had ${count} error types."
+    echo ">> Check \`ethtool -S ${interface} | awk '/error/' \`  << "
+    [ $count -eq 0 ]
+  done
+}
+
+@test "Check monitor interface for tx packets" {
+  for interface in $MON_IFS; do
+    pkts=$(ethtool -S ${interface} | awk '/tx_packets/ {print $2}')
+    echo "WARNING: Monitor interface ${interface} has sent ${pkts} packets".
+    [ $pkts -eq 0 ]
+  done
+}
+
+#----------------------------------------------------------------------------
+#                               BRO
+#----------------------------------------------------------------------------
+if feature_enabled bro; then
+
+@test "Check that broctl is running" {
+  # This will fail if a worker is crashed as well
+  sudo /opt/bro/bin/broctl status
+}
+
+@test "Check for bro-detected packet loss" {
+  local notice_log='/data/bro/logs/current/notice.log'
+  if [ ! -f "${notice_log}"]; then
+    skip "No notice.log to check for packet loss errors."
+  fi
+
+  capture_cnt=$(cat ${notice_log} | grep 'CaptureLoss::Too_Much_Loss'|wc -l)
+  drop_cnt=$(cat ${notice_log} | grep 'PacketFilter::Dropped_Packets'|wc -l)
+
+  if [ $capture_cnt > 0 ]; then
+    if [ $drop_cnt > 0 ]; then
+      echo "Sensor is dropping packets before Bro can process them."
+      [ $drop_cnt -eq 0 ]
+    else
+      echo "Packets are being dropped prior to sensor receiving them."
+      [ $capture_cnt -eq 0 ]
+    fi
+  fi
+}
+
+fi
+#----------------------------------------------------------------------------
+#                               SURICATA
+#----------------------------------------------------------------------------
+if feature_enabled suricata; then
+
+@test "Check that suricata is running" {
+  systemctl status suricata
+}
+
+fi
+#----------------------------------------------------------------------------
+##                               FSF
+##----------------------------------------------------------------------------
+
+@test "Check that FSF is running" {
+if feature_enabled fsf; then
+  systemctl status fsf
+fi
+}
+
+#----------------------------------------------------------------------------
+#                               ZOOKEEPER
+#----------------------------------------------------------------------------
+if feature_enabled zookeeper; then
+
+@test "Check that zookeeper is running" {
+  systemctl status zookeeper
+}
+
+@test "Check that zookeeper is listening" {
+  ss -lnt | grep ${ZOOKEEPER_PORT}
+}
+
+@test "Check that client can connect to zookeeper" {
+  echo "" | ncat  ${ZOOKEEPER_HOST} ${ZOOKEEPER_PORT}
+}
+
+fi
+#----------------------------------------------------------------------------
+#                               KAFKA
+#----------------------------------------------------------------------------
+if feature_enabled kafka; then
+
+@test "Check that kafka is running" {
+  systemctl status kafka
+}
+
+@test "Check that kafka is connected to zookeeper" {
+  kafka_pid=$(systemctl show -p MainPID kafka.service | cut -d= -f2)
+  echo "kafka_pid: ${kafka_pid}"
+  kafka_socket=$(sudo ss -ntp | grep "${kafka_pid}" | \
+	grep "${ZOOKEEPER_PORT}" | awk '{ print $4 }'| sed 's/::ffff://g')
+  echo "Kafka socket: ${kafka_socket}"
+  kafka_conns=$(echo "cons" | ncat ${ZOOKEEPER_HOST} ${ZOOKEEPER_PORT} | \
+	grep "${kafka_socket}" )
+  echo -e "Kafka Connections: \n ${kafka_conns}"
+  conn_count=$(echo ${kafka_conns} | wc -l )
+  echo "Number of Kafka Conns: ${conn_count}"
+  # It's possible this might need to be -ge
+  [ ${conn_count} -eq 1 ]
+}
+
+fi
+
+#----------------------------------------------------------------------------
+#                               LOGSTASH
+#----------------------------------------------------------------------------
+
+if feature_enabled logstash; then
+
+@test "Check that logstash is running" {
+  systemctl status logstash
+}
+
+fi
+#----------------------------------------------------------------------------
+#                               ELASTICSEARCH
+#----------------------------------------------------------------------------
+
+if feature_enabled elasticsearch; then
+
+@test "Check that elasticsearch is running" {
+  systemctl status elasticsearch
+}
+
+@test "Check that elasticsearch is green" {
+  result=$(curl -s http://localhost:9200/_cluster/health | jq '.status')
+  [ "${result}" == "\"green\"" ]
+}
+
+fi
+#----------------------------------------------------------------------------
+#                               KIBANA
+#----------------------------------------------------------------------------
+
+if feature_enabled kibana; then
+
+@test "Check that kibana is running" {
+  systemctl status kibana
+}
+
+fi

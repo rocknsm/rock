@@ -249,10 +249,10 @@ config paf_max: 16000
 ###################################################
 
 # path to dynamic preprocessor libraries
-dynamicpreprocessor directory /usr/lib64/snort-2.9.8.0_dynamicpreprocessor/
+dynamicpreprocessor directory /usr/lib64/snort-2.9.8.3_dynamicpreprocessor/
 
 # path to base preprocessor engine
-dynamicengine /usr/lib64/snort-2.9.8.0_dynamicengine/libsf_engine.so
+dynamicengine /usr/lib64/snort-2.9.8.3_dynamicengine/libsf_engine.so
 
 # path to dynamic rules libraries
 # dynamicdetection directory /usr/lib/snort_dynamicrules
@@ -526,8 +526,9 @@ preprocessor reputation: \
 #output unified2: filename merged.log, limit 128, nostamp, mpls_event_types, vlan_event_types
 
 # Additional configuration for specific types of installs
-output alert_unified2: filename snort.alert, limit 128, nostamp
+#output alert_unified2: filename snort.alert, limit 128, nostamp
 # output log_unified2: filename snort.log, limit 128, nostamp 
+output alert_unified2: filename snort.alert, limit 10
 
 # syslog
 # output alert_syslog: LOG_AUTH LOG_ALERT

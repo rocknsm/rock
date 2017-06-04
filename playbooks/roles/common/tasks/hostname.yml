@@ -1,0 +1,10 @@
+- name: Set hostname to FQDN
+  hostname: name={{ fq_hostname }}
+
+- name: Static entry in hosts file
+  lineinfile: 
+  args:
+    dest: /etc/hosts 
+    insertbefore: '^127\.0\.0\.1' 
+    state: present 
+    line: '{{ ansible_default_ipv4.address }} {{ fq_hostname }} {{ ansible_hostname }}'
