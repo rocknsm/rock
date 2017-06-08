@@ -1,6 +1,4 @@
-%global commit0 2ada2196a7ffcd578415b0565490fac821e60b84
-%global shortcommit0 %(c=%{commit0}; echo ${c:0:7}) 
-%global _rockdir /opt/rocknsm
+%global _rockdir /opt/rocknsm/rock
 
 Name:           rock
 Version:        2.0.5
@@ -9,7 +7,7 @@ Summary:        Network Security Monitoring collections platform
 
 License:        BSD
 URL:            http://rocknsm.io/
-Source0:        https://github.com/rocknsm/%{name}/archive/%{commit0}.tar.gz#/%{name}-%{shortcommit0}.tar.gz
+Source0:        https://github.com/rocknsm/%{name}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
 
 BuildArch:      noarch
 
@@ -48,7 +46,6 @@ cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 %attr(0755, root, root) %{_rockdir}/bin/deploy_rock.sh
 %attr(0755, root, root) %{_rockdir}/bin/generate_defaults.sh
-
 
 %changelog
 * Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.5-1
