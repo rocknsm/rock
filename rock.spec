@@ -9,7 +9,7 @@ Summary:        Network Security Monitoring collections platform
 
 License:        BSD
 URL:            http://rocknsm.io/
-Source0:        https://github.com/spartan782/%{name}/archive/%{commit0}.tar.gz#/%{name}-%{shortcommit0}.tar.gz
+Source0:        https://github.com/rocknsm/%{name}/archive/%{commit0}.tar.gz#/%{name}-%{shortcommit0}.tar.gz
 
 BuildArch:      noarch
 
