@@ -1,8 +1,12 @@
 #!/bin/bash
 
 function feature_enabled() {
-  grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
-  return $?
+  if grep -qiE "^with_$1: (true|yes)" /etc/rocknsm/config.yml; then
+    grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
+    return $?
+  else
+    return 1
+  fi
 }
 
 if feature_enabled zookeeper; then
@@ -45,6 +49,13 @@ if feature_enabled suricata; then
   systemctl start suricata
   sleep 5
   systemctl status suricata | egrep "^\s*Active"
+fi
+
+if feature_enabled snort; then
+  echo "Starting Snort..."
+  systemctl start snortd
+  sleep 5
+  systemctl status snortd | egrep "^\s*Active"
 fi
 
 if feature_enabled bro; then

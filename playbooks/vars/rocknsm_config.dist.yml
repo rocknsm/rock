@@ -18,6 +18,7 @@ pulledpork_rules:
   - { url: "http://talosintel.com/feeds/ip-filter.blf", file: "IPBLACKLIST", apikey: "open" }
 
 # Feature options - Don't flip these unless you know what you're doing
+# These control if the service is installed
 with_stenographer: true
 with_bro: true
 with_suricata: true
@@ -33,6 +34,7 @@ with_nginx: true
 with_fsf: true
 
 # Feature options - Don't flip these unless you know what you're doing
+# These control if the systemd service is enabled
 enable_stenographer: false
 enable_bro: true
 enable_suricata: true

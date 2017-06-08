@@ -5,10 +5,13 @@ export ZOOKEEPER_PORT=2181
 export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 	sed 's/interface=//; s/.*:://' | sort | uniq | paste -sd " " -)
 
-
 function feature_enabled() {
-  grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
-  return $?
+  if grep -qiE "^with_$1: (true|yes)" /etc/rocknsm/config.yml; then
+    grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
+    return $?
+  else
+    return 1
+  fi
 }
 
 #----------------------------------------------------------------------------
@@ -86,6 +89,16 @@ if feature_enabled suricata; then
 
 @test "Check that suricata is running" {
   systemctl status suricata
+}
+
+fi
+#----------------------------------------------------------------------------
+#                                SNORT
+#----------------------------------------------------------------------------
+if feature_enabled snort; then
+
+@test "Check that snort is running" {
+  systemctl status snortd
 }
 
 fi

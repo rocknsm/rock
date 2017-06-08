@@ -1,9 +1,12 @@
 #!/bin/bash
 
-
 function feature_enabled() {
-  grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
-  return $?
+  if grep -qiE "^with_$1: (true|yes)" /etc/rocknsm/config.yml; then
+    grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
+    return $?
+  else
+    return 1
+  fi
 }
 
 if feature_enabled fsf; then
@@ -11,7 +14,7 @@ if feature_enabled fsf; then
   systemctl stop fsf
 fi
 
-if feature_enabled suricata; then
+if feature_enabled stenographer; then
   echo "Stopping Stenographer..."
   systemctl stop stenographer
 fi
