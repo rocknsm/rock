@@ -3,7 +3,7 @@
 %global _rockdir /opt/rocknsm
 
 Name:           rock
-Version:        2.0.10
+Version:        2.0.5
 Release:        1%{?dist}
 Summary:        Network Security Monitoring collections platform
 
@@ -51,6 +51,8 @@ cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 
 %changelog
-* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.10-1
+* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.5-1
 - 
-
+Tito files added.
+rock.spec added.
+sign_rpm.sh added. 
