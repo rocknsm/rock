@@ -1,18 +1,17 @@
-%global commit0 0000000000000000000000000000000000000000
+%global commit0 2ada2196a7ffcd578415b0565490fac821e60b84
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7}) 
+%global _rockdir /opt/rocknsm
 
 Name:           rock
-Version:        2.0.9
+Version:        2.0.10
 Release:        1%{?dist}
 Summary:        Network Security Monitoring collections platform
 
 License:        BSD
 URL:            http://rocknsm.io/
-Source0:         https://github.com/spartan782/%{name}/archive/%{commit0}.tar.gz#/%{name}-%{shortcommit0}.tar.gz
+Source0:        https://github.com/spartan782/%{name}/archive/%{commit0}.tar.gz#/%{name}-%{shortcommit0}.tar.gz
 
-BuildArch: noarch
-
-%global _rockdir /opt/rocknsm/rock-%{version}
+BuildArch:      noarch
 
 Requires:       ansible
 Requires:       git
@@ -52,15 +51,6 @@ cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 
 %changelog
-* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.9-1
+* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.10-1
 - 
-
-* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.8-1
-- 
-redid spec file
-* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.7-1
-- new package built with tito
-tag 2.0.6
-* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.6-1
-- new package built with tito
 
