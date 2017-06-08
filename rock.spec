@@ -2,7 +2,7 @@
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7}) 
 
 Name:           rock
-Version:        2.0.8
+Version:        2.0.9
 Release:        1%{?dist}
 Summary:        Network Security Monitoring collections platform
 
@@ -12,7 +12,7 @@ Source0:         https://github.com/spartan782/%{name}/archive/%{commit0}.tar.gz
 
 BuildArch: noarch
 
-%global _rockdir /opt/rocknsm/rock-%{_release}
+%global _rockdir /opt/rocknsm/rock-%{version}
 
 Requires:       ansible
 Requires:       git
@@ -52,6 +52,9 @@ cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 
 %changelog
+* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.9-1
+- 
+
 * Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.8-1
 - 
 redid spec file
