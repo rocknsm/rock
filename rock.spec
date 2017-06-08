@@ -2,7 +2,7 @@
 %global shortcommit0 %(c=%{commit0}; echo ${c:0:7}) 
 
 Name:           rock
-Version:        2.0.6
+Version:        2.0.7
 Release:        1%{?dist}
 Summary:        Network Security Monitoring collections platform
 
@@ -50,6 +50,9 @@ cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 
 %changelog
+* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.7-1
+- new package built with tito
+tag 2.0.6
 * Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.6-1
 - new package built with tito
 
