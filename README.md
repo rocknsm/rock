@@ -1,5 +1,7 @@
 ## Response Operation Collections Kit Reference Build
 
+[![Join the chat at https://gitter.im/rocknsm/Lobby](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rocknsm/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+
 See the [ROCK 2.0 User Guide](https://rocknsm.gitbooks.io/rocknsm-guide/content/).
 
 
