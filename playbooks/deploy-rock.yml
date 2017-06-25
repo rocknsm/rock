@@ -697,6 +697,16 @@
       group: root
     when: with_bro
 
+  - name: Create bro utility symlinks
+    file:
+      src: "/opt/bro/bin/{{ item.src }}"
+      dest: "/usr/bin/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'bro', dest: 'bro' }
+      - { src: 'bro-cut', dest: 'bro-cut' }
+
   - name: Set bro capabilities
     capabilities:
       path: /opt/bro/bin/bro
