@@ -717,6 +717,16 @@
       group: root
     when: with_bro
 
+  - name: Create bro utility symlinks
+    file:
+      src: "/opt/bro/bin/{{ item.src }}"
+      dest: "/usr/bin/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'bro', dest: 'bro' }
+      - { src: 'bro-cut', dest: 'bro-cut' }
+
   - name: Set bro capabilities
     capabilities:
       path: /opt/bro/bin/bro
@@ -1178,6 +1188,17 @@
       mode: 0755
       owner: root
       group: root
+
+  - name: Create rock script symlinks
+    file:
+      src: "/usr/local/bin/{{ item.src }}"
+      dest: "/usr/sbin/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'rock_start', dest: 'rock_start' }
+      - { src: 'rock_stop', dest: 'rock_stop' }
+      - { src: 'rock_status', dest: 'rock_status' }
 
   # Training mode / Service mode not needed for AF_PACKET
   ######################################################
