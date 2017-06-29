@@ -5,7 +5,7 @@ server {
     server_name _;
 
     #auth_basic "Restricted Access";
-    #auth_basic_user_file /etc/nginx/htpasswd.users;
+    #auth_basic_user_file /etc/nginx/.htpasswd;
 
     location / {
         proxy_pass http://localhost:5601;

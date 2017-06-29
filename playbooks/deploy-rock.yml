@@ -1127,6 +1127,15 @@
       status_code: 200,201
     when: with_kibana
 
+  - name: Add the kibanapw shell function
+    copy:
+      src: profile.d-kibanapw.sh
+      dest: /etc/profile.d/kibanapw.sh
+      mode: 0644
+      owner: root
+      group: root
+    when: with_kibana
+
     ######################################################
     ################### Setup nginx ######################
     ######################################################
