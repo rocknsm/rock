@@ -13,9 +13,9 @@ done
 
 for item in ${indexes[*]}; do
   #Delete Logstash indexes from 60 days ago.
-  curl -sSL -XDELETE "${es_uri}/${item}-$(date -d '60 days ago' +%Y.%m.%d)" 2>&1
+  curl -sSL -XDELETE "${es_uri}/${item}-$(date -d '{{ elastic_delete_interval }} days ago' +%Y.%m.%d)" 2>&1
   #Close Logstash indexes from 15 days ago.
-  curl -sSL -XPOST "${es_uri}/${item}-$(date -d '15 days ago' +%Y.%m.%d)/_close" 2>&1
+  curl -sSL -XPOST "${es_uri}/${item}-$(date -d '{{ elastic_close_interval }} days ago' +%Y.%m.%d)/_close" 2>&1
 done
 
 #Make sure all indexes have replicas off
