@@ -117,6 +117,11 @@
       gpgcheck: yes
     when: rock_online_install
 
+  - name: Manually trust CentOS GPG key
+    shell: >
+      rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7
+    when: rock_online_install
+
   - name: Setup ELrepo Kernel repo
     yum_repository:
       name: elrepo-kernel
