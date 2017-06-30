@@ -17,6 +17,14 @@ pulledpork_rules:
   - { url: "https://rules.emergingthreats.net/", file: "emerging.rules.tar.gz", apikey: "open-nogpl" }
   - { url: "http://talosintel.com/feeds/ip-filter.blf", file: "IPBLACKLIST", apikey: "open" }
 
+#### Retention Configuration ####
+elastic_close_interval: 15
+elastic_delete_interval: 60
+kafka_retention: 168
+suricata_retention: 3
+bro_log_retention: 0
+bro_stats_retention: 0
+
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the service is installed
 with_stenographer: true

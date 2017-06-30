@@ -344,7 +344,7 @@
     lineinfile:
       dest: "{{ kafka_config_path }}"
       regexp: "log.retention.hours="
-      line:  "log.retention.hours=1"
+      line:  "log.retention.hours={{ kafka_retention }}"
       state: present
     when: with_kafka
 
@@ -418,8 +418,8 @@
     when: with_elasticsearch
 
   - name: Install ROCK Elasticsearch cleanup script
-    copy:
-      src: es_cleanup.sh
+    template:
+      src: templates/es_cleanup.sh.j2
       dest: /usr/local/bin/es_cleanup.sh
       mode: 0755
       owner: root
@@ -898,8 +898,8 @@
     when: with_suricata
 
   - name: Configure logrotate for suricata logs
-    copy:
-      src: logrotate-suricata.conf
+    template:
+      src: templates/logrotate-suricata.conf.j2
       dest: /etc/logrotate.d/suricata.conf
       mode: 0644
       owner: root
