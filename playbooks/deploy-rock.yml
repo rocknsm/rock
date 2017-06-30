@@ -268,7 +268,7 @@
       - "{{ rock_mgmt_nets }}"
       -
         - { port: "22/tcp" }
-        - { port: "80/tcp",  test: "{{ with_kibana }}" }
+        - { port: "443/tcp",  test: "{{ with_kibana }}" }
 
     ######################################################
     ############## Configure GeoIP Databases #############
@@ -1127,6 +1127,26 @@
       status_code: 200,201
     when: with_kibana
 
+  - name: Add the kibanapw shell function
+    copy:
+      src: profile.d-kibanapw.sh
+      dest: /etc/profile.d/kibanapw.sh
+      mode: 0644
+      owner: root
+      group: root
+    when: with_kibana
+
+  - name: Set initial Kibana credentials
+    shell: >
+      kibuser=$(getent passwd 1000 | awk -F: '{print $1}')
+      kibpw=$(xkcdpass -a rock)
+      echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README
+      printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/.htpasswd > /dev/null 2>&1
+    args:
+      creates: /etc/nginx/.htpasswd
+    when: with_kibana
+
+
     ######################################################
     ################### Setup nginx ######################
     ######################################################
@@ -1161,6 +1181,45 @@
       state: "{{ 'started' if enable_nginx else 'stopped' }}"
       enabled: "{{ enable_nginx }}"
     when: with_nginx
+
+  - name: Create easy-rsa working dir
+    file:
+      path: /opt/easy-rsa
+      state: directory
+      mode: 0750
+      owner: root
+      group: root
+    when: with_kibana and with_nginx
+
+  - name: Create working copy of easy-rsa
+    copy:
+      src: /usr/share/easy-rsa/2.0/
+      dest: /opt/easy-rsa/
+      mode: 0750
+      owner: root
+      group: root
+    when: with_kibana and with_nginx
+
+  - name: Apply easy-rsa vars template
+    template:
+      src: templates/easy-rsa-vars.j2
+      dest: /opt/easy-rsa/vars
+      mode: 0644
+    when: with_kibana and with_nginx
+
+  - name: Generate and copy Kibana keys
+    shell: >
+      cd /opt/easy-rsa
+      ./build-ca --batch nopass
+      ./build-dh --batch
+      ./build-key-server --batch {{ rock_hostname }}
+      cat keys/{{{ rock_hostname }}.crt,ca.crt} >> /etc/pki/bundle.crt
+      cp keys/{{ rock_hostname }}.key /etc/pki/bundle.key
+      cp keys/dh2048.pem /etc/pki/
+    args:
+      chdir: /opt/easy-rsa/
+      creates: /etc/pki/dh2048.pem
+    when: with_kibana and with_nginx
 
     ######################################################
     ############### Setup ROCKNSM Scripts ################
