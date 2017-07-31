@@ -3,17 +3,19 @@
   "template": "bro-*",
   "settings": {
     "analysis": {
+      "analyzer": {
         "on_dots": {
           "filter": "lowercase",
           "type": "custom",
           "tokenizer": "dots_tokenizer"
-        },
-        "tokenizer": {
-            "dots_tokenizer": {
-            "type": "pattern",
-            "pattern": "\\."
-            }
         }
+      },
+      "tokenizer": {
+        "dots_tokenizer": {
+          "type": "pattern",
+          "pattern": "\\."
+        }
+      }
     }
   },
   "mappings": {
