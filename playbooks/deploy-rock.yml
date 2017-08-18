@@ -1143,10 +1143,7 @@
 
   - name: Set initial Kibana credentials
     shell: >
-      kibuser=$(getent passwd 1000 | awk -F: '{print $1}')
-      kibpw=$(xkcdpass -a rock)
-      echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README
-      printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/.htpasswd > /dev/null 2>&1
+      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1 
     args:
       creates: /etc/nginx/.htpasswd
     when: with_kibana
@@ -1180,16 +1177,18 @@
       persistent: yes
     when: with_nginx and with_kibana
 
-  - name: Enable and start nginx
-    service:
-      name: nginx
-      state: "{{ 'started' if enable_nginx else 'stopped' }}"
-      enabled: "{{ enable_nginx }}"
-    when: with_nginx
-
   - name: Create easy-rsa working dir
     file:
       path: /opt/easy-rsa
+      state: directory
+      mode: 0750
+      owner: root
+      group: root
+    when: with_kibana and with_nginx
+
+  - name: Create easy-rsa keys dir
+    file:
+      path: /opt/easy-rsa/keys
       state: directory
       mode: 0750
       owner: root
@@ -1213,18 +1212,23 @@
     when: with_kibana and with_nginx
 
   - name: Generate and copy Kibana keys
-    shell: >
-      cd /opt/easy-rsa
-      ./build-ca --batch nopass
-      ./build-dh --batch
-      ./build-key-server --batch {{ rock_hostname }}
-      cat keys/{{{ rock_hostname }}.crt,ca.crt} >> /etc/pki/bundle.crt
-      cp keys/{{ rock_hostname }}.key /etc/pki/bundle.key
-      cp keys/dh2048.pem /etc/pki/
+    shell: 
+      cd /opt/easy-rsa ;
+      touch keys/index.txt ;
+      echo "1000" > keys/serial ;
+      source ./vars && ./build-ca --batch >> /tmp/build_certs.log 2>&1 ;
+      source ./vars && ./build-dh --batch >> /tmp/build_certs.log 2>&1 ;
+      source ./vars && ./build-key-server --batch {{ rock_hostname }} >> /tmp/build_certs.log 2>&1 ;
+      cat keys/{{ rock_hostname }}.crt >> /etc/pki/bundle.crt ;
+      cat keys/ca.crt >> /etc/pki/bundle.crt ;
+      cp keys/{{ rock_hostname }}.key /etc/pki/bundle.key ;
+      cp keys/dh2048.pem /etc/pki/ ;
     args:
       chdir: /opt/easy-rsa/
       creates: /etc/pki/dh2048.pem
     when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
 
     ######################################################
     ############### Setup ROCKNSM Scripts ################
@@ -1346,6 +1350,14 @@
       service:
         name: filebeat
         state: restarted
+
+    - name: Enable and start nginx
+      service:
+        name: nginx
+        state: "{{ 'started' if enable_nginx else 'stopped' }}"
+        enabled: "{{ enable_nginx }}"
+      when: with_nginx
+
 
   environment:
    http_proxy:  "{{ http_proxy }}"
