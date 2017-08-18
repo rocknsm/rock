@@ -1163,6 +1163,8 @@
       owner: root
       group: root
     when: with_nginx and with_kibana
+    notify:
+      - Enable and start nginx
 
   - name: Install nginx base configuration
     copy:
@@ -1179,13 +1181,6 @@
       state: yes 
       persistent: yes
     when: with_nginx and with_kibana
-
-  - name: Enable and start nginx
-    service:
-      name: nginx
-      state: "{{ 'started' if enable_nginx else 'stopped' }}"
-      enabled: "{{ enable_nginx }}"
-    when: with_nginx
 
   - name: Create easy-rsa working dir
     file:
@@ -1218,7 +1213,8 @@
       ./build-ca --batch nopass
       ./build-dh --batch
       ./build-key-server --batch {{ rock_hostname }}
-      cat keys/{{{ rock_hostname }}.crt,ca.crt} >> /etc/pki/bundle.crt
+      cat keys/{{ rock_hostname }}.crt >> /etc/pki/bundle.crt
+      cat keys/ca.crt >> /etc/pki/bundle.crt
       cp keys/{{ rock_hostname }}.key /etc/pki/bundle.key
       cp keys/dh2048.pem /etc/pki/
     args:
@@ -1346,6 +1342,14 @@
       service:
         name: filebeat
         state: restarted
+
+    - name: Enable and start nginx
+      service:
+        name: nginx
+        state: "{{ 'started' if enable_nginx else 'stopped' }}"
+        enabled: "{{ enable_nginx }}"
+      when: with_nginx
+
 
   environment:
    http_proxy:  "{{ http_proxy }}"
