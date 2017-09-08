@@ -28,7 +28,7 @@ sudo yum update -y && reboot
 sudo yum install -y epel-release
 sudo yum install -y git ansible
 git clone https://github.com/rocknsm/rock.git
-cd rock/ansible
+cd rock/bin
 sudo ./deploy_rock.sh
 ```
 
