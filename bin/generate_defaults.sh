@@ -4,7 +4,7 @@ SCRIPT_PATH=$(dirname $(readlink -f $0))
 TOPLEVEL=$(dirname ${SCRIPT_PATH})
 
 cd ${TOPLEVEL}
-ansible-playbook "${TOPLEVEL}/playbooks/generate-defaults.yml" 2>&1 1>/dev/null
+ansible-playbook "${TOPLEVEL}/playbooks/generate-defaults.yml"
 retVal=$?
 if [ $retVal -ne 0 ]; then
   echo "Dumping default variables failed! Verify you can run sudo without a password." 1>&2
