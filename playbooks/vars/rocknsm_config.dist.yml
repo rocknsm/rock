@@ -28,6 +28,7 @@ bro_stats_retention: 0
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the service is installed
 with_stenographer: true
+with_docket: true
 with_bro: true
 with_suricata: true
 with_snort: false
@@ -44,6 +45,7 @@ with_fsf: true
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the systemd service is enabled
 enable_stenographer: false
+enable_docket: false
 enable_bro: true
 enable_suricata: true
 enable_snort: false
@@ -95,6 +97,8 @@ rocknsm_local_baseurl: file:///srv/rocknsm
 bro_user: bro
 bro_group: bro
 bro_data_dir: "{{ rock_data_dir }}/bro"
+bro_sysconfig_dir: /etc/bro
+bro_site_dir: /usr/share/bro/site
 bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
 bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 bro_rockscripts_branch: master
