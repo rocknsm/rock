@@ -1,5 +1,5 @@
 
-It is recommened to put bro scripts in individual directories and use __load__.bro files.
+It is recommended to put bro scripts in individual directories and use __load__.bro files.
 
 Example:
 directory = scripts/something
