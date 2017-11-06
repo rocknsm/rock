@@ -544,7 +544,7 @@
       comment: "bro service account"
       createhome: no
       group: "{{ bro_group }}"
-      home: /opt/bro
+      home: /var/spool/bro
       shell: /sbin/nologin
       system: yes
       state: present
@@ -621,7 +621,7 @@
   - name: Create broctl.cfg
     template:
       src: templates/bro-broctl.cfg.j2
-      dest: {{ bro_sysconfig_dir }}/broctl.cfg"
+      dest: "{{ bro_sysconfig_dir }}/broctl.cfg"
       mode: 0644
       owner: root
       group: root
@@ -640,7 +640,7 @@
 
   - name: Add bro custom scripts dir
     file:
-      path: /scripts
+      path: "{{ bro_site_dir }}/scripts"
       owner: root
       group: root
       mode: 0755
@@ -760,7 +760,7 @@
   #
   - name: Set bro capabilities
     capabilities:
-      path: /opt/bro/bin/bro
+      path: /usr/bin/bro
       capability: "{{ item }}"
       state: present
     with_items:
@@ -770,7 +770,7 @@
 
   - name: Set capstats capabilities
     capabilities:
-      path: /opt/bro/bin/capstats
+      path: /usr/bin/capstats
       capability: "{{ item }}"
       state: present
     with_items:
