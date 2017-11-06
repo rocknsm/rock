@@ -7,7 +7,7 @@ if [ "x${DEBUG}" != "x" ]; then
 fi
 
 cd ${TOPLEVEL}
-ansible-playbook "${TOPLEVEL}/playbooks/deploy-rock.yml" ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/site.yml" ${VERBOSE_FLAGS}
 
 if [ $? -eq 0 ]; then
   cat << 'EOF'
