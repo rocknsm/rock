@@ -678,14 +678,14 @@
       dest: "{{ bro_site_dir }}/scripts/"
       owner: root
       group: root
-      creates: ""{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}""
+      creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
       remote_src: yes
     when: with_bro and not rock_online_install
 
   - name: Symlink offline ROCK bro scripts
     file:
-      src: ""{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}""
-      dest: ""{{ bro_site_dir }}/scripts/rock""
+      src: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+      dest: "{{ bro_site_dir }}/scripts/rock"
       state: link
       force: yes
     when: with_bro and not rock_online_install
