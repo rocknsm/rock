@@ -6,7 +6,7 @@ if [ "x${DEBUG}" != "x" ]; then
   VERBOSE_FLAGS="-vvv"
 fi
 
-cd ${TOPLEVEL}
+cd ${TOPLEVEL}/playbooks
 ansible-playbook "${TOPLEVEL}/site.yml" ${VERBOSE_FLAGS}
 
 if [ $? -eq 0 ]; then
