@@ -1299,6 +1299,14 @@
   ######################################################
   ############### ROCKNSM Customization ################
   ######################################################
+  - name: Set ROCK NSM Version
+    copy:
+      content: "{{ rock_version }}"
+      dest: /etc/rocknsm/rock-version
+      mode: 0644
+      owner: root
+      group: root
+
   - name: Install ROCK NSM /etc/issue
     copy:
       src: etc-issue.in
