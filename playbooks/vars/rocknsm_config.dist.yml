@@ -75,7 +75,6 @@ rocknsm_package_list:
   - tmux
   - nmap-ncat
   - logrotate
-  - kernel-ml
   - perl-LWP-Protocol-https
   - perl-Sys-Syslog
   - perl-Crypt-SSLeay
