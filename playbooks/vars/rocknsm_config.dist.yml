@@ -78,7 +78,6 @@ rocknsm_package_list:
   - perl-Crypt-SSLeay
   - perl-Archive-Tar
 
-epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 elrepo_baseurl: http://elrepo.org/linux/kernel/el7/x86_64/
 elrepo_gpgurl: https://www.elrepo.org/RPM-GPG-KEY-elrepo.org

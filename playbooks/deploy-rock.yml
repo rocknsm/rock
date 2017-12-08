@@ -7,6 +7,12 @@
   tasks:
   - name: Get default settings
     include_vars: rocknsm_config.dist.yml
+  - name: Get OS specific settings
+    include_vars: "{{ item }}"
+    with_first_found:
+      - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
+      - "{{ ansible_distribution }}.yml"
+    tags: vars
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true

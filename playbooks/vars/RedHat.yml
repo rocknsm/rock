@@ -1,0 +1,1 @@
+epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
