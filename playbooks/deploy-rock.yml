@@ -7,6 +7,12 @@
   tasks:
   - name: Get default settings
     include_vars: rocknsm_config.dist.yml
+  - name: Get OS specific settings
+    include_vars: "{{ item }}"
+    with_first_found:
+      - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
+      - "{{ ansible_distribution }}.yml"
+    tags: vars
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true
@@ -117,6 +123,11 @@
       gpgcheck: yes
     when: rock_online_install
 
+  - name: Manually trust CentOS GPG key
+    shell: >
+      rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7
+    when: rock_online_install
+
   - name: Setup ELrepo Kernel repo
     yum_repository:
       name: elrepo-kernel
@@ -177,6 +188,7 @@
       - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
       - { pkg: logstash, test: "{{with_logstash}}", state: installed }
       - { pkg: kibana, test: "{{with_kibana}}", state: installed }
+      - { pkg: filebeat, test: "{{with_suricata or with_fsf}}", state: installed }
       - { pkg: nginx, test: "{{with_nginx}}", state: installed }
       - { pkg: bro, test: "{{with_bro}}", state: installed }
       - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
@@ -267,7 +279,7 @@
       - "{{ rock_mgmt_nets }}"
       -
         - { port: "22/tcp" }
-        - { port: "80/tcp",  test: "{{ with_kibana }}" }
+        - { port: "443/tcp",  test: "{{ with_kibana }}" }
 
     ######################################################
     ############## Configure GeoIP Databases #############
@@ -343,7 +355,7 @@
     lineinfile:
       dest: "{{ kafka_config_path }}"
       regexp: "log.retention.hours="
-      line:  "log.retention.hours=1"
+      line:  "log.retention.hours={{ kafka_retention }}"
       state: present
     when: with_kafka
 
@@ -417,8 +429,8 @@
     when: with_elasticsearch
 
   - name: Install ROCK Elasticsearch cleanup script
-    copy:
-      src: es_cleanup.sh
+    template:
+      src: templates/es_cleanup.sh.j2
       dest: /usr/local/bin/es_cleanup.sh
       mode: 0755
       owner: root
@@ -475,24 +487,27 @@
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
     when: with_logstash and with_bro and with_kafka
+    notify: Restart Logstash
 
-  - name: Configure Logstash to pickup suricata events
+  - name: Install Suricata-Kafka configuration for Logstash
     copy:
-      src: "logstash-suricata-es.conf"
-      dest: "/etc/logstash/conf.d/suricata-es.conf"
-      mode: 0644
-      owner: root
-      group: root
-    when: with_logstash and with_suricata
+      src: logstash-kafka-suricata.conf
+      dest: /etc/logstash/conf.d/kafka-suricata.conf
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+    when: with_logstash and with_suricata and with_kafka
+    notify: Restart Logstash
 
-  - name: Configure Logstash to pickup the FSF scan.log
+  - name: Install FSF-Kafka configuration for Logstash
     copy:
-      src: "logstash-fsf-es.conf"
-      dest: "/etc/logstash/conf.d/fsf-es.conf"
-      mode: 0644
-      owner: root
-      group: root
-    when: with_logstash and with_fsf
+      src: logstash-kafka-fsf.conf
+      dest: "/etc/logstash/conf.d/kafka-fsf.conf"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+    when: with_logstash and with_fsf and with_kafka
+    notify: Restart Logstash
 
   - name: Enable and start Logstash
     service:
@@ -500,6 +515,22 @@
       state: "{{ 'started' if enable_logstash else 'stopped' }}"
       enabled: "{{ enable_logstash }}"
     when: with_logstash
+
+    ######################################################
+    ################### Setup Filebeat ###################
+    ######################################################
+  - name: Add Filebeat configuration file
+    template:
+      src: filebeat.yml.j2
+      dest: /etc/filebeat/filebeat.yml
+    notify: Restart Filebeat
+
+  - name: Enable and start Filebeat
+    service:
+      name: filebeat
+      state: "{{ 'started' if enable_filebeat else 'stopped' }}"
+      enabled: "{{ enable_filebeat }}"
+    when: with_filebeat
 
     #######################################################
     ###################### Setup Bro  #####################
@@ -697,6 +728,16 @@
       group: root
     when: with_bro
 
+  - name: Create bro utility symlinks
+    file:
+      src: "/opt/bro/bin/{{ item.src }}"
+      dest: "/usr/bin/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'bro', dest: 'bro' }
+      - { src: 'bro-cut', dest: 'bro-cut' }
+
   - name: Set bro capabilities
     capabilities:
       path: /opt/bro/bin/bro
@@ -868,8 +909,8 @@
     when: with_suricata
 
   - name: Configure logrotate for suricata logs
-    copy:
-      src: logrotate-suricata.conf
+    template:
+      src: templates/logrotate-suricata.conf.j2
       dest: /etc/logrotate.d/suricata.conf
       mode: 0644
       owner: root
@@ -1097,6 +1138,23 @@
       status_code: 200,201
     when: with_kibana
 
+  - name: Add the kibanapw shell function
+    copy:
+      src: profile.d-kibanapw.sh
+      dest: /etc/profile.d/kibanapw.sh
+      mode: 0644
+      owner: root
+      group: root
+    when: with_kibana
+
+  - name: Set initial Kibana credentials
+    shell: >
+      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1 
+    args:
+      creates: /etc/nginx/.htpasswd
+    when: with_kibana
+
+
     ######################################################
     ################### Setup nginx ######################
     ######################################################
@@ -1125,12 +1183,58 @@
       persistent: yes
     when: with_nginx and with_kibana
 
-  - name: Enable and start nginx
-    service:
-      name: nginx
-      state: "{{ 'started' if enable_nginx else 'stopped' }}"
-      enabled: "{{ enable_nginx }}"
-    when: with_nginx
+  - name: Create easy-rsa working dir
+    file:
+      path: /opt/easy-rsa
+      state: directory
+      mode: 0750
+      owner: root
+      group: root
+    when: with_kibana and with_nginx
+
+  - name: Create easy-rsa keys dir
+    file:
+      path: /opt/easy-rsa/keys
+      state: directory
+      mode: 0750
+      owner: root
+      group: root
+    when: with_kibana and with_nginx
+
+  - name: Create working copy of easy-rsa
+    copy:
+      src: /usr/share/easy-rsa/2.0/
+      dest: /opt/easy-rsa/
+      mode: 0750
+      owner: root
+      group: root
+    when: with_kibana and with_nginx
+
+  - name: Apply easy-rsa vars template
+    template:
+      src: templates/easy-rsa-vars.j2
+      dest: /opt/easy-rsa/vars
+      mode: 0644
+    when: with_kibana and with_nginx
+
+  - name: Generate and copy Kibana keys
+    shell: 
+      cd /opt/easy-rsa ;
+      touch keys/index.txt ;
+      echo "1000" > keys/serial ;
+      source ./vars && ./build-ca --batch >> /tmp/build_certs.log 2>&1 ;
+      source ./vars && ./build-dh --batch >> /tmp/build_certs.log 2>&1 ;
+      source ./vars && ./build-key-server --batch {{ rock_hostname }} >> /tmp/build_certs.log 2>&1 ;
+      cat keys/{{ rock_hostname }}.crt >> /etc/pki/bundle.crt ;
+      cat keys/ca.crt >> /etc/pki/bundle.crt ;
+      cp keys/{{ rock_hostname }}.key /etc/pki/bundle.key ;
+      cp keys/dh2048.pem /etc/pki/ ;
+    args:
+      chdir: /opt/easy-rsa/
+      creates: /etc/pki/dh2048.pem
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
 
     ######################################################
     ############### Setup ROCKNSM Scripts ################
@@ -1158,6 +1262,17 @@
       mode: 0755
       owner: root
       group: root
+
+  - name: Create rock script symlinks
+    file:
+      src: "/usr/local/bin/{{ item.src }}"
+      dest: "/usr/sbin/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'rock_start', dest: 'rock_start' }
+      - { src: 'rock_stop', dest: 'rock_stop' }
+      - { src: 'rock_status', dest: 'rock_status' }
 
   # Training mode / Service mode not needed for AF_PACKET
   ######################################################
@@ -1220,8 +1335,35 @@
            --topic suricata-raw
            --partitions 1
 
+    - name: create kafka fsf topic
+      command: >
+        /opt/kafka/bin/kafka-topics.sh
+           --zookeeper 127.0.0.1:2181
+           --create
+           --replication-factor 1
+           --topic fsf-raw
+           --partitions 1
+
     - name: reload systemd
       command: systemctl daemon-reload
+
+    - name: Restart Logstash
+      service:
+        name: logstash
+        state: restarted
+
+    - name: Restart Filebeat
+      service:
+        name: filebeat
+        state: restarted
+
+    - name: Enable and start nginx
+      service:
+        name: nginx
+        state: "{{ 'started' if enable_nginx else 'stopped' }}"
+        enabled: "{{ enable_nginx }}"
+      when: with_nginx
+
 
   environment:
    http_proxy:  "{{ http_proxy }}"
