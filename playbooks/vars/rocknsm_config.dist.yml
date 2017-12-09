@@ -72,11 +72,11 @@ rocknsm_package_list:
   - tmux
   - nmap-ncat
   - logrotate
-  - kernel-ml
   - perl-LWP-Protocol-https
   - perl-Sys-Syslog
   - perl-Crypt-SSLeay
   - perl-Archive-Tar
+  - easy-rsa
 
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7

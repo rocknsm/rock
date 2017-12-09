@@ -7,6 +7,12 @@
   tasks:
   - name: Get default settings
     include_vars: rocknsm_config.dist.yml
+  - name: Get OS specific settings
+    include_vars: "{{ item }}"
+    with_first_found:
+      - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
+      - "{{ ansible_distribution }}.yml"
+    tags: vars
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true
@@ -115,21 +121,13 @@
       baseurl: "{{ epel_baseurl }}"
       gpgkey:  "{{ epel_gpgurl }}"
       gpgcheck: yes
+      mirrorlist: https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch
     when: rock_online_install
 
   - name: Manually trust CentOS GPG key
     shell: >
       rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7
-    when: rock_online_install
-
-  - name: Setup ELrepo Kernel repo
-    yum_repository:
-      name: elrepo-kernel
-      description: ELrepo Kernel YUM repo
-      baseurl: "{{ elrepo_baseurl }}"
-      gpgkey:  "{{ elrepo_gpgurl }}"
-      gpgcheck: yes
-    when: rock_online_install
+    when: rock_online_install and ansible_distribution == "CentOS"
 
   - name: Setup Elastic repo
     yum_repository:
@@ -166,6 +164,7 @@
       description: "CentOS-$releasever - {{ item.name | title }}"
       mirrorlist: "{{ item.mirror }}"
       file:  CentOS-Base
+    when: ansible_distribution == "CentOS"
     with_items:
       - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
       - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
