@@ -11,6 +11,9 @@ The GitHub issue tracker is not the best place for questions for various reasons
 ## Contributing ?
 Please see the [CODING_GUIDELINES](./CODING_GUIDELINES.md) for information on style and general processes for contributing to this project.
 
+### Pull Requests
+Please make pull requests against the `devel` branch. When submitting them, try to follow the style documented in the `CODING_GUIDELINES` and run it through `ansible-lint` first. It doesn't have to be perfect, and eventually we can do that in an automated fashion, but we're not there quite yet. If you have expertise in CI/CD, we'd love your contributions!
+
 ## Bug to report ?
 You can report bugs or make enhancement requests at the RockNSM GitHub [issue page](https://github.com/rocknsm/rock/issues/) by filling out the issue template that will be presented.
 
