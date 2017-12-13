@@ -5,6 +5,20 @@ VERBOSE_FLAGS=
 if [ "x${DEBUG}" != "x" ]; then
   VERBOSE_FLAGS="-vvv"
 fi
+if [[ ! -e /etc/rocknsm/config.yml ]];then
+        echo "[-] You must run generate_defaults.sh prior to deploying for the first time. "
+        read -p "Would you like to generate the defaults now?  [y/n] " -n 1 -r
+        if [[ $REPLY =~ ^[Yy]$ ]];then
+                echo ''
+                /bin/bash generate_defaults.sh
+                echo "Please verify configuration settings in /etc/rocknsm/config.yml before re-running the deploy script."
+                sleep 3
+                exit
+        else
+                echo ''
+        exit
+        fi
+fi
 
 cd ${TOPLEVEL}
 ansible-playbook "${TOPLEVEL}/playbooks/deploy-rock.yml" ${VERBOSE_FLAGS}

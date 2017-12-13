@@ -1,6 +1,5 @@
 ### TODO List
 - [x] Change todo list to markdown, yay!
-- [ ] Need to combine generate defaults and deploy rock
 - [ ] Need to perform better default interface detection
 - [ ] Need to document rock_status
 - [ ] Need to figure out why the Configure packages task is taking so long to run
@@ -12,5 +11,3 @@
 - [ ] Need to enable stenographer and make sure it communicates with elastic
 - [ ] Need to add the ability to stenographer to pull down the PCAP
 - [ ] Need to make a decision about how we're going to handle the DAG
-- [ ] The roles for things like elasticsearch and bro could be more granular
-- [ ] Need to rename deploy_rock.yml to site.yml
