@@ -1,0 +1,16 @@
+### TODO List
+- [x] Change todo list to markdown, yay!
+- [ ] Need to combine generate defaults and deploy rock
+- [ ] Need to perform better default interface detection
+- [ ] Need to document rock_status
+- [ ] Need to figure out why the Configure packages task is taking so long to run
+- [ ] Need to update the documentation to say that 8GB is not enough
+- [ ] Build needs to intelligently check if there is enough memory
+- [ ] Build the roles - need to get with derek
+- [ ] Need to fix fsf in the offline install
+- [x] Add Docker into install
+- [ ] Need to enable stenographer and make sure it communicates with elastic
+- [ ] Need to add the ability to stenographer to pull down the PCAP
+- [ ] Need to make a decision about how we're going to handle the DAG
+- [ ] The roles for things like elasticsearch and bro could be more granular
+- [ ] Need to rename deploy_rock.yml to site.yml

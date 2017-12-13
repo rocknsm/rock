@@ -1,0 +1,17 @@
+######################################################
+################### Setup Filebeat ###################
+######################################################
+--- 
+- 
+  name: "Add Filebeat configuration file"
+  template: 
+    dest: /etc/filebeat/filebeat.yml
+    src: filebeat.yml.j2
+  notify: "Restart Filebeat"
+- 
+  name: "Enable and start Filebeat"
+  service: 
+    enabled: "{{ enable_filebeat }}"
+    name: filebeat
+    state: "{{ 'started' if enable_filebeat else 'stopped' }}"
+  when: with_filebeat

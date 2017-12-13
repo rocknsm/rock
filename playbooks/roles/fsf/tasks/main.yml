@@ -1,0 +1,55 @@
+  #######################################################
+  ######################## FSF ##########################
+  #######################################################
+---
+- name: Create FSF data dir
+  file:
+    path: "{{ fsf_data_dir }}"
+    mode: 0755
+    owner: "{{ fsf_user }}"
+    group: "{{ fsf_group }}"
+    state: directory
+  when: with_fsf
+
+- name: Create FSF archive dir
+  file:
+    path: "{{ fsf_archive_dir }}"
+    mode: 0755
+    owner: "{{ fsf_user }}"
+    group: "{{ fsf_group }}"
+    state: directory
+  when: with_fsf
+
+- name: Configure logrotate for FSF logs
+  copy:
+    src: logrotate-fsf.conf
+    dest: /etc/logrotate.d/fsf.conf
+    mode: 0644
+    owner: root
+    group: root
+  when: with_fsf
+
+- name: Configure fsf-server
+  template:
+    src: templates/fsf-server-config.j2
+    dest: /opt/fsf/fsf-server/conf/config.py
+    owner: "{{ fsf_user }}"
+    group: "{{ fsf_group }}"
+    mode: 0644
+  when: with_fsf
+
+- name: Configure fsf-client
+  template:
+    src: templates/fsf-client-config.j2
+    dest: /opt/fsf/fsf-client/conf/config.py
+    owner: "{{ fsf_user }}"
+    group: "{{ fsf_group }}"
+    mode: 0644
+  when: with_fsf
+
+- name: Enable and start FSF
+  service:
+    name: fsf
+    state: "{{ 'started' if enable_fsf else 'stopped' }}"
+    enabled: "{{ enable_fsf }}"
+  when: with_fsf
