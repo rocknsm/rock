@@ -2,6 +2,12 @@
 ################## Setup Suricata ####################
 ######################################################
 ---
+
+-
+  name: Install Suricata package
+  yum:
+    name: suricata
+    state: installed
 -
   name: Create Suricata directories
   file:

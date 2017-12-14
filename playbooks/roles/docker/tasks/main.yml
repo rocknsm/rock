@@ -1,0 +1,21 @@
+#######################################################
+######################  Docker      ###################
+#######################################################
+---
+- name: Start Docker
+  service:
+    name: docker
+    enabled: yes
+    state: started
+
+- name: Set Docker Virtual Memory
+  command: sysctl -w vm.max_map_count=262144
+  command: sed -i '/vm.max_map_count=/ d' /etc/sysctl.conf
+  command: echo "vm.max_map_count=262144" >> /etc/sysctl.conf
+
+- name: Install Docker Python modules
+  description: Allows for Docker integration to Ansible
+  command: pip install 'docker-py>=1.7.0'
+  ignore_errors: True
+  command: pip install 'docker-compose>=1.7.0'
+  ignore_errors: True

@@ -2,6 +2,9 @@
 ################### Setup Kibana #####################
 ######################################################
 ---
+
+- include: create_rock_directories.yml
+
 - name: Enable and start Kibana
   service:
     name: kibana

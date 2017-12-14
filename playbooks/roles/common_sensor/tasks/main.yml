@@ -1,3 +1,0 @@
----
-# These are all common tasks for a sensor
-- include: disable_ipv6.yml

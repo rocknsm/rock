@@ -2,6 +2,19 @@
 ##################### Setup Kafka ####################
 ######################################################
 ---
+
+-
+  name: Install Kafka package
+  yum:
+    name: kafka
+    state: installed
+    
+-
+  name: Install Kafkacat package
+  yum:
+    name: kafkacat
+    state: installed
+    
 - 
   name: Create Kafka data dir
   file:

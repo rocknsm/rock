@@ -11,12 +11,6 @@ rock_hostname: "{{ inventory_hostname_short }}"
 rock_fqdn: "{{ inventory_hostname }}"
 rock_mgmt_nets: [ "0.0.0.0/0" ]
 rock_cache_dir: /srv/rocknsm/support
-pulledpork_rules:
-  - { url: "https://snort.org/downloads/community/", file: "community-rules.tar.gz", apikey: "Community", test: "{{not with_suricata and with_snort}}" }
-  - { url: "https://www.snort.org/reg-rules/", file: "snortrules-snapshot.tar.gz", apikey: "796f26a2188c4c953ced38ff3ec899d8ae543350", test: "{{not with_suricata and with_snort}}" }
-  - { url: "https://rules.emergingthreats.net/", file: "emerging.rules.tar.gz", apikey: "open-nogpl" }
-  - { url: "http://talosintel.com/feeds/ip-filter.blf", file: "IPBLACKLIST", apikey: "open" }
-
 
 #### Retention Configuration ####
 
@@ -84,60 +78,4 @@ rocknsm_package_list:
   - perl-Crypt-SSLeay
   - perl-Archive-Tar
   - easy-rsa
-
-bro_user: bro
-bro_group: bro
-bro_data_dir: "{{ rock_data_dir }}/bro"
-bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
-bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
-bro_rockscripts_branch: master
-bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
-docker_baseurl: https://download.docker.com/linux/centos/7/$basearch/stable/
-docker_gpgurl: https://download.docker.com/linux/centos/gpg
-elastic_baseurl: https://artifacts.elastic.co/packages/5.x/yum
-elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-elrepo_baseurl: http://elrepo.org/linux/kernel/el7/x86_64/
-elrepo_gpgurl: https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
-epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
-es_user: elasticsearch
-es_group: elasticsearch
-es_data_dir: "{{ rock_data_dir }}/elasticsearch"
-es_cluster_name: rocknsm
-es_node_name: "{{ rock_hostname }}"
-es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
-es_url: "http://localhost:9200"
-es_memlock_override: |
-  [Service]
-  LimitMEMLOCK=infinity
-fsf_user: fsf
-fsf_group: fsf
-fsf_data_dir: "{{ rock_data_dir }}/fsf"
-fsf_archive_dir: "{{ fsf_data_dir }}/archive"
-fsf_client_logfile: "{{ fsf_data_dir }}/client.log"
-kafka_user: kafka
-kafka_group: kafka
-kafka_data_dir: "{{ rock_data_dir }}/kafka"
-kafka_config_path: /etc/kafka/server.properties
-logstash_user: logstash
-logstash_group: logstash
-pulledpork_release: 0.7.2
-pulledpork_url: "https://github.com/shirkdog/pulledpork/archive/{{ pulledpork_release }}.tar.gz"
-pulledpork_filename: "pulledpork-{{ pulledpork_release }}.tar.gz"
-pulledpork_engine_basepath: "/etc/{{ \"suricata\" if with_suricata else \"snort\" }}"
-pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
-pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
-rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
-rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
-rocknsm_local_baseurl: file:///srv/rocknsm
-rock_dashboards_repo: https://github.com/rocknsm/rock-dashboards.git
-rock_dashboards_branch: master
-rock_dashboards_url: "https://github.com/rocknsm/rock-dashboards/archive/{{ rock_dashboards_branch }}.tar.gz"
-rock_dashboards_filename: "rock-dashboards_{{ rock_dashboards_branch | replace('/', '-') }}.tar.gz"
-rock_dashboards_version: 2.0
-stenographer_user: stenographer
-stenographer_group: stenographer
-stenographer_data_dir: "{{ rock_data_dir }}/stenographer"
-suricata_user: suricata
-suricata_group: suricata
-suricata_data_dir: "{{ rock_data_dir }}/suricata"
+  

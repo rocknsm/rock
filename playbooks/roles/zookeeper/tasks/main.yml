@@ -3,6 +3,12 @@
 ######################################################
 ---
 -
+  name: Install Zookeeper package
+  yum:
+    name: zookeeper
+    state: installed
+    
+-
   name: Install zookeeper service file
   copy:
     src: zookeeper.service
