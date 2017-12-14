@@ -3,12 +3,17 @@
 ######################################################
 ---
 -
+  name: Install Stenographer package
+  yum:
+    name: stenographer
+    state: installed
+    
+-
   name: Set stenographer config
   template:
     src: templates/stenographer-config.j2
     dest: "/etc/stenographer/config.{{ item.1 }}"
   with_indexed_items: "{{ rock_monifs }}"
-  when: with_stenographer
 
 -
   name: Create Stenographer directories
@@ -21,7 +26,6 @@
   with_nested:
     - "{{ rock_monifs }}"
     - [ 'index', 'packets' ]
-  when: with_stenographer
 
 -
   name: Install stenographer service files
@@ -34,7 +38,6 @@
   with_items:
     - stenographer.service
     - stenographer@.service
-  when: with_stenographer
 
 -
   name: Generate stenographer keys
@@ -42,7 +45,6 @@
     /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
   args:
     creates: /etc/stenographer/certs/client_key.pem
-  when: with_stenographer
 
 -
   name: Configure Stenographer service
@@ -50,7 +52,6 @@
     name: stenographer
     enabled: "{{ enable_stenographer }}"
     state: "{{ 'started' if enable_stenographer else 'stopped' }}"
-  when: with_stenographer
 
 -
   name: Configure Stenographer per-interface
@@ -59,4 +60,3 @@
     enabled: "{{ enable_stenographer }}"
     state: "{{ 'started' if enable_stenographer else 'stopped' }}"
   with_items: "{{ rock_monifs }}"
-  when: with_stenographer

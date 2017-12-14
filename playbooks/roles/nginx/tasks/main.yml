@@ -2,6 +2,12 @@
   ################### Setup nginx ######################
   ######################################################
 ---
+-
+  name: Install Nginx package
+  yum:
+    name: elasticsearch
+    state: installed
+
 - name: Install ROCK nginx configuration
   template:
     src: templates/nginx-rock.conf.j2
@@ -9,7 +15,7 @@
     mode: 0644
     owner: root
     group: root
-  when: with_nginx and with_kibana
+  when: with_kibana
 
 - name: Install nginx base configuration
   copy:
@@ -18,14 +24,13 @@
     mode: 0644
     owner: root
     group: root
-  when: with_nginx
 
 - name: Enable nginx to perform proxy connect
   seboolean:
     name: httpd_can_network_connect
     state: yes
     persistent: yes
-  when: with_nginx and with_kibana
+  when: with_kibana
 
 - name: Create easy-rsa working dir
   file:
@@ -34,7 +39,7 @@
     mode: 0750
     owner: root
     group: root
-  when: with_kibana and with_nginx
+  when: with_kibana
 
 - name: Create easy-rsa keys dir
   file:
@@ -43,7 +48,7 @@
     mode: 0750
     owner: root
     group: root
-  when: with_kibana and with_nginx
+  when: with_kibana
 
 - name: Create working copy of easy-rsa
   copy:
@@ -52,14 +57,14 @@
     mode: 0750
     owner: root
     group: root
-  when: with_kibana and with_nginx
+  when: with_kibana
 
 - name: Apply easy-rsa vars template
   template:
     src: templates/easy-rsa-vars.j2
     dest: /opt/easy-rsa/vars
     mode: 0644
-  when: with_kibana and with_nginx
+  when: with_kibana
 
 - name: Generate and copy Kibana keys
   shell:

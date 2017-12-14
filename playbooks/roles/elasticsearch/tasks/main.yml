@@ -2,6 +2,11 @@
 ################# Setup Elasticsearch ################
 ######################################################
 ---
+-
+  name: Install Elasticsearch package
+  yum:
+    name: elasticsearch
+    state: installed
 - 
   name: Setup Elastic repo
   yum_repository:

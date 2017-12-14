@@ -2,6 +2,11 @@
 ################### Setup Filebeat ###################
 ######################################################
 --- 
+-
+  name: Install Filebeat package
+  yum:
+    name: filebeat
+    state: installed
 - 
   name: "Add Filebeat configuration file"
   template: 
@@ -14,4 +19,3 @@
     enabled: "{{ enable_filebeat }}"
     name: filebeat
     state: "{{ 'started' if enable_filebeat else 'stopped' }}"
-  when: with_filebeat

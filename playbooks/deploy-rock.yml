@@ -39,9 +39,25 @@
       
   - include_role:
       name: kafka
-  
-  
+      
+  - include_role:
+      name: elasticsearch  
+      
+  - include_role:
+      name: logstash
+      
+  - include_role:
+      name: filebeats
 
-
+  - include_role:
+      name: bro
+      
+  - include_role:
+      name: kibana
+      
+  # TODO NEEDS TO BE TESTED     
+#  - include_role:
+#      name: stenographer
+      
 
 

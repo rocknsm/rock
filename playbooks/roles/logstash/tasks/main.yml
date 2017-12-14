@@ -2,7 +2,14 @@
 ################### Setup Logstash ###################
 ######################################################
 --- 
-- 
+
+-
+  name: Install Logstash package
+  yum:
+    name: logstash
+    state: installed
+    
+-
   name: "Install Bro-Kafka configuration for Logstash"
   copy: 
     dest: /etc/logstash/conf.d/kafka-bro.conf

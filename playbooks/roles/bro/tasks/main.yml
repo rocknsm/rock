@@ -3,12 +3,29 @@
 #######################################################
 ---
 -
+  name: Install Bro Package
+  yum:
+    name: bro
+    state: installed
+    
+-
+  name: Install Bro plugin for af_packet
+  yum:
+    name: bro-plugin-af_packet
+    state: installed
+    
+-
+  name: Install Bro plugin for Kafka
+  yum:
+    name: bro-plugin-kafka
+    state: installed
+    
+-
   name: Create bro group
   group:
     name: "{{ bro_group }}"
     state: present
     system: yes
-  when: with_bro
 
 - 
   name: Create bro user and group
@@ -21,7 +38,6 @@
     shell: /sbin/nologin
     system: yes
     state: present
-  when: with_bro
 
 -
   name: Create Bro directories
@@ -35,7 +51,6 @@
     - "{{ bro_data_dir }}"
     - "{{ bro_data_dir }}/logs"
     - "{{ bro_data_dir }}/spool"
-  when: with_bro
 
 - 
   name: Create symlinks for wandering analysts
@@ -46,7 +61,6 @@
     force: yes
   with_items:
     - logs
-  when: with_bro
 
 - 
   name: Install broctl service file
@@ -67,7 +81,6 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
   notify: reload broctl
 
 
@@ -79,7 +92,6 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
   notify: reload broctl
 
 -
@@ -90,7 +102,6 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
   notify: reload broctl
 
 - 
@@ -101,7 +112,6 @@
     group: root
     mode: 0755
     state: directory
-  when: with_bro
 
 - 
   name: Set permissions on broctl scripts dir
@@ -111,7 +121,6 @@
     group: "{{ bro_user }}"
     mode: 0755
     state: directory
-  when: with_bro
 
 -
   name: Add README to scripts dir
@@ -121,7 +130,6 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
 
 -
   name: Checkout ROCK Bro scripts
@@ -129,7 +137,7 @@
     repo: "{{ bro_rockscripts_repo }}"
     dest: /opt/bro/share/bro/site/scripts/rock
     version: "{{ bro_rockscripts_branch }}"
-  when: with_bro and rock_online_install
+  when: rock_online_install
 
 -
   name: Deploy offline ROCK Bro scripts
@@ -140,16 +148,16 @@
     group: root
     creates: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
     remote_src: yes
-  when: with_bro and not rock_online_install
+  when: not rock_online_install
 
-- 
-  name: Symlink offline ROCK bro scripts
-  file:
-    src: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
-    dest: "/opt/bro/share/bro/site/scripts/rock"
-    state: link
-    force: yes
-  when: with_bro and not rock_online_install
+#- 
+#  name: Symlink offline ROCK bro scripts
+#  file:
+#    src: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+#    dest: "/opt/bro/share/bro/site/scripts/rock"
+#    state: link
+#    force: yes
+#  when: rock_online_install
 
 -
   name: Update owner for ROCK NSM Bro scripts
@@ -162,7 +170,6 @@
     follow: yes
   tags:
     - bro_scripts
-  when: with_bro
 
 -
   name: Add ROCK scripts to local.bro
@@ -170,7 +177,6 @@
     dest: /opt/bro/share/bro/site/local.bro
     line: "@load scripts/rock # ROCK NSM customizations"
     state: present
-  when: with_bro
 
 -
   name: Add AF_PACKET workaround to local.bro
@@ -178,7 +184,6 @@
     dest: /opt/bro/share/bro/site/local.bro
     line: "@load scripts/rock/plugins/afpacket"
     state: present
-  when: with_bro
 
 -
   name: Enable Bro Kafka output to local.bro
@@ -186,7 +191,7 @@
     dest: /opt/bro/share/bro/site/local.bro
     line: "@load scripts/rock/plugins/kafka"
     state: present
-  when: with_bro and with_kafka
+  when: with_kafka
 
 -
   name: Enable the SMB Analyzer in local.bro
@@ -194,7 +199,6 @@
     dest: /opt/bro/share/bro/site/local.bro
     line: "@load policy/protocols/smb # Enable Bro SMB Analyzer"
     state: present
-  when: with_bro
 
 -
   name: Add bro to path and aliases
@@ -204,7 +208,6 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
 
 -
   name: Add broctl wrapper for admin use
@@ -214,7 +217,6 @@
     mode: 0754
     owner: root
     group: root
-  when: with_bro
 
 -
   name: Set bro capabilities
@@ -225,7 +227,6 @@
   with_items:
     - "cap_net_raw+eip"
     - "cap_net_admin+eip"
-  when: with_bro
 
 -
   name: Set capstats capabilities
@@ -236,7 +237,6 @@
   with_items:
     - "cap_net_raw+eip"
     - "cap_net_admin+eip"
-  when: with_bro
 
 - 
   name: Set broctl cron
@@ -255,12 +255,10 @@
     creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
   become: yes
   become_user: "{{ bro_user }}"
-  when: with_bro
 
-- 
-  name: Enable and start broctl
-  service:
-    name: broctl
-    enabled: "{{ enable_bro }}"
-    state: "{{ 'started' if enable_bro else 'stopped' }}"
-  when: with_bro
+#- 
+#  name: Enable and start broctl
+#  service:
+#    name: broctl
+#    enabled: "{{ enable_bro }}"
+#    state: "{{ 'started' if enable_bro else 'stopped' }}"

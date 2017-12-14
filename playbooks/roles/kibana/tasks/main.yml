@@ -3,7 +3,13 @@
 ######################################################
 ---
 
-- include: create_rock_directories.yml
+- include: enable_firewall.yml
+
+-
+  name: Install Kibana package
+  yum:
+    name: kibana
+    state: installed
 
 - name: Enable and start Kibana
   service:
