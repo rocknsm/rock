@@ -14,7 +14,6 @@
   with_items: "{{ rock_monifs }}"
 - 
   name: "Configure local ifup script"
-  notify: "configure monitor interfaces"
   template: 
     dest: /sbin/ifup-local
     force: true
@@ -22,3 +21,4 @@
     mode: 493
     owner: root
     src: templates/ifup-local.j2
+  notify: "configure monitor interfaces"

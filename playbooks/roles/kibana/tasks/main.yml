@@ -16,14 +16,13 @@
     name: kibana
     state: "{{ 'started' if enable_kibana else 'stopped' }}"
     enabled: "{{ enable_kibana }}"
-  when: with_kibana
 
 - name: Download ROCK Dashboards
   get_url:
     url: "{{ rock_dashboards_url }}"
     dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
-  when: with_kibana and rock_online_install
+  when: rock_online_install
 
 - name: Extract ROCK Dashboards
   unarchive:
@@ -33,18 +32,15 @@
     group: root
     creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
     remote_src: yes
-  when: with_kibana
 
 - name: Query Kibana package info
   yum:
     list: kibana
   register: kibana_pkg
-  when: with_kibana
 
 - name: Store installed kibana pkg info
   set_fact:
     kibana_info: "{{ kibana_pkg.results | selectattr('repo', 'match', 'installed') | first }}"
-  when: with_kibana
 
 - name: Check current Kibana config
   uri:
@@ -56,12 +52,10 @@
   until: kibana_cfg.status == 200
   retries: 10
   delay: 3
-  when: with_kibana
 
 - name: Store Kibana config dict
   set_fact:
     kibana_config: "{{ kibana_cfg.json }}"
-  when: with_kibana
 
 - name: Configure Kibana templates
   uri:
@@ -82,22 +76,21 @@
       -url {{ es_url }}
   args:
     chdir: /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/
-  when: with_kibana and (kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version)
+  when: (kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version)
 
 - name: Store default Kibana index to Bro
   set_fact:
     kibana_config: "{{ kibana_config | combine({'defaultIndex': 'bro-*' })}}"
-  when: with_kibana and with_bro
+  when: with_bro
 
 - name: Store default Kibana index to Suricata
   set_fact:
     kibana_config: "{{ kibana_config | combine({'defaultIndex': 'suricata-*' })}}"
-  when: with_kibana and with_suricata and not with_bro
+  when: with_suricata and not with_bro
 
 - name: Update Kibana config dict w/ rock_config version
   set_fact:
     kibana_config: "{{ kibana_config | combine({'rock_config': rock_dashboards_version }) }}"
-  when: with_kibana
 
 - name: Push Kibana settings for index and rock_version
   uri:
@@ -106,7 +99,6 @@
     body: "{{ kibana_config }}"
     body_format: "json"
     status_code: 200,201
-  when: with_kibana
 
 - name: Add the kibanapw shell function
   copy:
@@ -115,11 +107,22 @@
     mode: 0644
     owner: root
     group: root
-  when: with_kibana
+    
+-
+  name: Install xkcdpass package
+  yum:
+    name: xkcdpass
+    state: installed
+    
+-
+  name: Install Nginx package
+  yum:
+    name: nginx
+    state: installed
 
 - name: Set initial Kibana credentials
   shell: >
     export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
   args:
     creates: /etc/nginx/.htpasswd
-  when: with_kibana
+    

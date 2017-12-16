@@ -5,7 +5,7 @@
 -
   name: Install Nginx package
   yum:
-    name: elasticsearch
+    name: nginx
     state: installed
 
 - name: Install ROCK nginx configuration

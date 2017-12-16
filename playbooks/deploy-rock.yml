@@ -31,8 +31,8 @@
       name: suricata
       
   # TODO: CURRENTLY BROKEN NEED TO FIX    
-  #- include_role:
-  #    name: docker
+  - include_role:
+      name: docker
   
   - include_role:
       name: zookeeper
@@ -52,12 +52,63 @@
   - include_role:
       name: bro
       
-  - include_role:
+  - name: kibana
+    include_role:
       name: kibana
       
   # TODO NEEDS TO BE TESTED     
 #  - include_role:
 #      name: stenographer
       
+  - include_role:
+      name: nginx
 
-
+  environment:
+   http_proxy:  "{{ http_proxy }}"
+   https_proxy: "{{ https_proxy }}"
+   HTTP_PROXY:  "{{ http_proxy }}"
+   HTTPS_PROXY: "{{ https_proxy }}"
+  #######################################################
+  #####################  Handlers  ######################
+  #######################################################
+# NOT CURRENTLY IN USE
+#  handlers:
+#    - name: force sync time
+#      command: >
+#        chronyc -a 'burst 3/4'; sleep 5; chronyc -a makestep
+#
+#    - name: configure monitor interfaces
+#      shell: >
+#        for intf in {{ rock_monifs | join(' ') }}; do
+#          /sbin/ifup ${intf};
+#        done
+#
+#    - name: create kafka bro topic
+#      command: >
+#        /opt/kafka/bin/kafka-topics.sh
+#           --zookeeper 127.0.0.1:2181
+#           --create
+#           --replication-factor 1
+#           --topic bro-raw
+#           --partitions 1
+#
+#    - name: create kafka suricata topic
+#      command: >
+#        /opt/kafka/bin/kafka-topics.sh
+#           --zookeeper 127.0.0.1:2181
+#           --create
+#           --replication-factor 1
+#           --topic suricata-raw
+#           --partitions 1
+#
+#    - name: create kafka fsf topic
+#      command: >
+#        /opt/kafka/bin/kafka-topics.sh
+#           --zookeeper 127.0.0.1:2181
+#           --create
+#           --replication-factor 1
+#           --topic fsf-raw
+#           --partitions 1
+#
+#    - name: reload systemd
+#      command: systemctl daemon-reload

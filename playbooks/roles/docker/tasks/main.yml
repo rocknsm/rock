@@ -2,6 +2,17 @@
 ######################  Docker      ###################
 #######################################################
 ---
+-
+  name: Install Docker package
+  yum:
+    name: docker-ce
+    state: installed
+-
+  name: Install Python2 PIP package
+  yum:
+    name: python2-pip
+    state: installed
+    
 - name: Start Docker
   service:
     name: docker

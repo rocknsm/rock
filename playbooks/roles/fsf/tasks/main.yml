@@ -2,6 +2,12 @@
   ######################## FSF ##########################
   #######################################################
 ---
+-
+  name: Install FSF package
+  yum:
+    name: fsf
+    state: installed
+    
 - name: Create FSF data dir
   file:
     path: "{{ fsf_data_dir }}"
@@ -9,7 +15,6 @@
     owner: "{{ fsf_user }}"
     group: "{{ fsf_group }}"
     state: directory
-  when: with_fsf
 
 - name: Create FSF archive dir
   file:
@@ -18,7 +23,6 @@
     owner: "{{ fsf_user }}"
     group: "{{ fsf_group }}"
     state: directory
-  when: with_fsf
 
 - name: Configure logrotate for FSF logs
   copy:
@@ -27,7 +31,6 @@
     mode: 0644
     owner: root
     group: root
-  when: with_fsf
 
 - name: Configure fsf-server
   template:
@@ -36,7 +39,6 @@
     owner: "{{ fsf_user }}"
     group: "{{ fsf_group }}"
     mode: 0644
-  when: with_fsf
 
 - name: Configure fsf-client
   template:
@@ -45,11 +47,9 @@
     owner: "{{ fsf_user }}"
     group: "{{ fsf_group }}"
     mode: 0644
-  when: with_fsf
 
 - name: Enable and start FSF
   service:
     name: fsf
     state: "{{ 'started' if enable_fsf else 'stopped' }}"
     enabled: "{{ enable_fsf }}"
-  when: with_fsf
