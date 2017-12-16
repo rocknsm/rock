@@ -27,10 +27,48 @@
   - include_role:
       name: common_sensor
       
+    ######################################################
+    ##################  GeoIP Databases  #################
+    ######################################################
+  - name: Configure GeoIP Update
+    copy: src=GeoIP.conf dest=/etc/GeoIP.conf
+
+    # There's an issue w/ geoipupdate when env is empty
+  - name: Update GeoIP
+    shell: >
+      if [ "x$HTTP_PROXY" == "x" ]; then
+          unset HTTP_PROXY;
+      fi
+      if [ "x$http_proxy" == "x" ]; then
+          unset http_proxy;
+      fi
+      if [ "x$HTTPS_PROXY" == "x" ]; then
+          unset HTTPS_PROXY;
+      fi
+      if [ "x$https_proxy" == "x" ]; then
+          unset https_proxy;
+      fi
+      /usr/bin/geoipupdate
+    args:
+      creates: /usr/share/GeoIP/GeoLiteASNum.dat
+    register: result
+    failed_when: (result.rc != 0) and (result.rc != 1)
+
+  - name: Create GeoIP symlinks
+    file:
+      src: "/usr/share/GeoIP/{{ item.src }}"
+      dest: "/usr/share/GeoIP/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'GeoLiteCity.dat', dest: 'GeoIPCity.dat' }
+      - { src: 'GeoLiteCountry.dat', dest: 'GeoIPCountry.dat' }
+      - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
+      - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
+      
   - include_role:
       name: suricata
-      
-  # TODO: CURRENTLY BROKEN NEED TO FIX    
+        
   - include_role:
       name: docker
   
@@ -60,14 +98,73 @@
 #  - include_role:
 #      name: stenographer
       
-  - include_role:
-      name: nginx
+#  - include_role:
+#      name: nginx
+   
+    ######################################################
+    #################  ROCKNSM Scripts  ##################
+    ######################################################
+  - name: Install rock start script
+    copy:
+      src: rock_start
+      dest: /usr/local/bin/rock_start
+      mode: 0700
+      owner: root
+      group: root
 
+  - name: Install rock stop script
+    copy:
+      src: rock_stop
+      dest: /usr/local/bin/rock_stop
+      mode: 0700
+      owner: root
+      group: root
+
+  - name: Install rock status script
+    copy:
+      src: rock_status
+      dest: /usr/local/bin/rock_status
+      mode: 0755
+      owner: root
+      group: root
+
+  - name: Create rock script symlinks
+    file:
+      src: "/usr/local/bin/{{ item.src }}"
+      dest: "/usr/sbin/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'rock_start', dest: 'rock_start' }
+      - { src: 'rock_stop', dest: 'rock_stop' }
+      - { src: 'rock_status', dest: 'rock_status' }
+
+  # Training mode / Service mode not needed for AF_PACKET
+  ######################################################
+  ############### ROCKNSM Customization ################
+  ######################################################
+  - name: Install ROCK NSM /etc/issue
+    copy:
+      src: etc-issue.in
+      dest: /etc/issue.in
+      mode: 0644
+      owner: root
+      group: root
+
+  - name: NetworkManager ROCK NSM hook
+    copy:
+      src: nm-issue-update
+      dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+      mode: 0755
+      owner: root
+      group: root
+      
   environment:
    http_proxy:  "{{ http_proxy }}"
    https_proxy: "{{ https_proxy }}"
    HTTP_PROXY:  "{{ http_proxy }}"
    HTTPS_PROXY: "{{ https_proxy }}"
+   
   #######################################################
   #####################  Handlers  ######################
   #######################################################
@@ -109,6 +206,3 @@
 #           --replication-factor 1
 #           --topic fsf-raw
 #           --partitions 1
-#
-#    - name: reload systemd
-#      command: systemctl daemon-reload
