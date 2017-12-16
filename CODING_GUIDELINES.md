@@ -163,7 +163,7 @@ When provisioning a server with environment variables add the environment variab
     dest: '/etc/environment'
     line: 'CATALINA_HOME={{ tomcat_home }}'
     state: 'present'
-  sudo: true
+  become: true
 ```
 
 ### Why?
