@@ -1,5 +1,14 @@
 %YAML 1.1
 ---
+
+#### Retention Configuration ####
+
+bro_log_retention: 0
+bro_stats_retention: 0
+
+
+#### Main Role Configuration ####
+
 bro_user: bro
 bro_group: bro
 bro_data_dir: "{{ rock_data_dir }}/bro"
@@ -7,5 +16,3 @@ bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) e
 bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 bro_rockscripts_branch: master
 bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
-bro_log_retention: 0
-bro_stats_retention: 0

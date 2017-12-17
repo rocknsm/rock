@@ -1,5 +1,13 @@
 %YAML 1.1
 ---
+
+#### Retention Configuration ####
+
+suricata_retention: 3
+
+
+#### Main Role Configuration ####
+
 # Pulled pork download information
 pulledpork_rules:
   - { url: "https://snort.org/downloads/community/", file: "community-rules.tar.gz", apikey: "Community", test: "{{not with_suricata and with_snort}}" }
@@ -20,4 +28,3 @@ suricata_user: suricata
 suricata_group: suricata
 suricata_data_dir: "{{ rock_data_dir }}/suricata"
 
-suricata_retention: 3

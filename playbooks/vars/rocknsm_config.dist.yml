@@ -13,31 +13,8 @@ rock_fqdn: "{{ inventory_hostname }}"
 rock_mgmt_nets: [ "0.0.0.0/0" ]
 rock_cache_dir: /srv/rocknsm/support
 
-#es_cluster_name: rocknsm
-#es_node_name: "{{ rock_hostname }}"
-#es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
-
-#es_memlock_override: |
-#  [Service]
-#  LimitMEMLOCK=infinity
-
 #### Retention Configuration ####
 # Moved all retention configuration variables into their respective roles var/main.yml
-
-# Moved into Bro role
-#bro_log_retention: 0   
-#bro_stats_retention: 0
-
-# Moved into Elastic role
-#elastic_close_interval: 15
-#elastic_delete_interval: 60
-
-# Moved into Kafka role
-#kafka_retention: 168
-
-# Moved into Suricata role
-#suricata_retention: 3
-
 
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the service is installed
