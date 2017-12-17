@@ -4,3 +4,5 @@ kafka_user: kafka
 kafka_group: kafka
 kafka_data_dir: "{{ rock_data_dir }}/kafka"
 kafka_config_path: /etc/kafka/server.properties
+
+kafka_retention: 168

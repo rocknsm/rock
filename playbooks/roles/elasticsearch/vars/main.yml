@@ -7,4 +7,8 @@ elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 es_user: elasticsearch
 es_group: elasticsearch
 es_data_dir: "{{ rock_data_dir }}/elasticsearch"
-  
+es_cluster_name: rocknsm
+elastic_close_interval: 15
+elastic_delete_interval: 60
+es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
+es_node_name: "{{ rock_hostname }}"
