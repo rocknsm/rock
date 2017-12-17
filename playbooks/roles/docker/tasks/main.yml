@@ -3,35 +3,31 @@
 #######################################################
 ---
 -
-  name: Install Docker package
+  name: 'Install Docker package'
   yum:
-    name: docker-ce
-    state: installed
--
-  name: Install Python2 PIP package
-  yum:
-    name: python2-pip
-    state: installed
+    name: 'docker-ce'
+    state: 'installed'
     
-- name: Start Docker
+- name: 'Start Docker'
   service:
-    name: docker
+    name: 'docker'
     enabled: yes
-    state: started
+    state: 'started'
 
 # Set Docker Virtual Memory
 - sysctl: 
-    name: vm.max_map_count
-    value: 262144
-    sysctl_file: /etc/sysctl.conf
+    name: 'vm.max_map_count'
+    value: '262144'
+    sysctl_file: '/etc/sysctl.conf'
     state: present
     sysctl_set: yes
 
-- name: Install python-docker-py
+- name: 'Install python-docker-py'
   yum: 
-    name: python-docker-py.noarch
-    state: installed
+    name: 'python-docker-py.noarch'
+    state: 'installed'
 
-- name: PIP Install docker_compose
-  shell: pip install 'docker-compose>=1.7.0' 
-  ignore_errors: True
+- name: 'Install docker_compose'
+  yum:
+    name: 'docker-compose.noarch' 
+    state: 'installed'
