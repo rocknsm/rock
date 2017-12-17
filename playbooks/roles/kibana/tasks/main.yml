@@ -3,10 +3,9 @@
 ######################################################
 ---
 
-- include: enable_firewall.yml
+- include_tasks: enable_firewall.yml
 
--
-  name: Install Kibana package
+- name: Install Kibana package
   yum:
     name: kibana
     state: installed

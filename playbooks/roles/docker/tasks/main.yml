@@ -19,13 +19,19 @@
     enabled: yes
     state: started
 
-- name: Set Docker Virtual Memory
-  command: "{{ item }}"
-  with_items:
-    sysctl -w vm.max_map_count=262144
-    sed -i '/vm.max_map_count=/ d' /etc/sysctl.conf
-    "vm.max_map_count=262144" >> /etc/sysctl.conf
+# Set Docker Virtual Memory
+- sysctl: 
+    name: vm.max_map_count
+    value: 262144
+    sysctl_file: /etc/sysctl.conf
+    state: present
+    sysctl_set: yes
 
-- name: Install Docker Python
-  shell: pip install 'docker-py>=1.7.0' 'docker-compose>=1.7.0'
+- name: Install python-docker-py
+  yum: 
+    name: python-docker-py.noarch
+    state: installed
+
+- name: PIP Install docker_compose
+  shell: pip install 'docker-compose>=1.7.0' 
   ignore_errors: True

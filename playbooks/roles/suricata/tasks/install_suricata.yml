@@ -3,13 +3,12 @@
 ######################################################
 ---
 
--
-  name: Install Suricata package
+- name: Install Suricata package
   yum:
     name: suricata
     state: installed
--
-  name: Create Suricata directories
+
+- name: Create Suricata directories
   file:
     path: "{{ suricata_data_dir }}/"
     mode: 0755
@@ -18,8 +17,7 @@
     state: directory
   when: with_suricata
 
--
-  name: Set suricata capabilities
+- name: Set suricata capabilities
   capabilities:
     path: /usr/sbin/suricata
     capability: "{{ item }}"
@@ -30,15 +28,13 @@
     - "cap_ipc_lock+eip"
   when: with_suricata
 
--
-  name: Remove suricata sysconfig file
+- name: Remove suricata sysconfig file
   file:
     path: /etc/sysconfig/suricata
     state: absent
   when: with_suricata
-
-- 
-  name: Install suricata service files
+ 
+- name: Install suricata service files
   copy:
     src: "suricata.service"
     dest: "/etc/systemd/system/suricata.service"
@@ -46,9 +42,8 @@
     owner: root
     group: root
   when: with_suricata
-
-- 
-  name: Install suricata overrides
+ 
+- name: Install suricata overrides
   template:
     src: templates/suricata_overrides.yaml.j2
     dest: /etc/suricata/rocknsm-overrides.yaml
@@ -57,8 +52,7 @@
     group: root
   when: with_suricata
 
--
-  name: Create IP reputation config dir
+- name: Create IP reputation config dir
   file:
     path: /etc/suricata/rules/iplists
     state: directory
@@ -67,24 +61,21 @@
     mode: 0755
   when: with_suricata
 
--
-  name: Set suricata overrides include in main config
+- name: Set suricata overrides include in main config
   lineinfile:
     dest: /etc/suricata/suricata.yaml
-    line: "include: rocknsm-overrides.yaml"
+    line: "import_tasks: rocknsm-overrides.yaml"
     state: present
   when: with_suricata
 
--
-  name: Enable and start suricata
+- name: Enable and start suricata
   service:
     name: suricata
     enabled: "{{ enable_suricata }}"
     state: "{{ 'started' if enable_suricata else 'stopped' }}"
   when: with_suricata
 
--
-  name: Configure logrotate for suricata logs
+- name: Configure logrotate for suricata logs
   template:
     src: templates/logrotate-suricata.conf.j2
     dest: /etc/logrotate.d/suricata.conf
