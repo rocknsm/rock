@@ -12,3 +12,6 @@ elastic_close_interval: 15
 elastic_delete_interval: 60
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
 es_node_name: "{{ rock_hostname }}"
+es_memlock_override: |
+  [Service]
+  LimitMEMLOCK=infinity

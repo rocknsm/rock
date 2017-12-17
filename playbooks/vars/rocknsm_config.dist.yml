@@ -1,5 +1,7 @@
 %YAML 1.1
 ---
+
+
 rock_online_install: true
 rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
 rock_data_dir: /data
@@ -16,9 +18,9 @@ rock_cache_dir: /srv/rocknsm/support
 #es_node_name: "{{ rock_hostname }}"
 #es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
 
-es_memlock_override: |
-  [Service]
-  LimitMEMLOCK=infinity
+#es_memlock_override: |
+#  [Service]
+#  LimitMEMLOCK=infinity
 
 #### Retention Configuration ####
 # Moved all retention configuration variables into their respective roles var/main.yml

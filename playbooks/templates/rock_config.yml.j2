@@ -4,13 +4,6 @@
 # these. The defaults should be used unless you really
 # know what you are doing!
 
-# include all role based variables
-include_vars:
-  dir: '../roles'
-  extensions:
-      - yml
-
-
 # interfaces that should be configured for sensor applications
 rock_monifs:
   {% for item in rock_monifs %}
@@ -22,6 +15,9 @@ rock_hostname: {{ rock_hostname }}
 
 # the FQDN
 rock_fqdn: {{ rock_fqdn }}
+
+# the number of CPUs that bro will use 
+bro_cpu: {{ bro_cpu }} 
 
 # name of elasticsearch cluster
 es_cluster_name: {{ es_cluster_name }}
