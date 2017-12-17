@@ -1,7 +1,6 @@
 %YAML 1.1
 ---
 
-
 rock_online_install: true
 rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
 rock_data_dir: /data

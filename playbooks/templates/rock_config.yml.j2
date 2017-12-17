@@ -4,12 +4,6 @@
 # these. The defaults should be used unless you really
 # know what you are doing!
 
-- name: Read in role variables
-  include_vars:
-    dir: roles
-    depth: 3
-    files_matching: 'vars/main.yml'
-
 # interfaces that should be configured for sensor applications
 rock_monifs:
   {% for item in rock_monifs %}
