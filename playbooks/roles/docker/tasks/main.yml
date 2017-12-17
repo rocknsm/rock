@@ -28,6 +28,10 @@
     state: 'installed'
 
 - name: 'Install docker_compose'
-  yum:
-    name: 'docker-compose.noarch' 
-    state: 'installed'
+# Broken 'python2-texttable.noarch 0:0.9.1-1.el7' dependency
+#  yum:
+#    name: 'docker-compose' 
+#    state: 'installed'
+# Work-around for broken dependency
+  shell: pip install 'docker-compose>=1.7.0'  
+  ignore_errors: True 
