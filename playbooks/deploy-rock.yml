@@ -5,18 +5,33 @@
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
   tasks:
+
   - name: Get default settings
     include_vars: rocknsm_config.dist.yml
+
+  - name: Apply override settings, if available
+    include_vars: /etc/rocknsm/config.yml
+    ignore_errors: true
+    failed_when: false
+
+  - name: Check for offline install
+    stat:
+      path= "{{ rock_cache_dir }}"
+    register: offline_install_check
+    when: not rock_online_install
+
+  - name: Offline install fail
+    fail:
+      msg: 'You are installing in \Offline Mode\ but do not have all the files required.  Please install from a new RockNSM.iso!  '
+    when: not rock_online_install and offline_install_check
+
   - name: Get OS specific settings
     include_vars: "{{ item }}"
     with_first_found:
       - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
       - "{{ ansible_distribution }}.yml"
     tags: vars
-  - name: Apply override settings, if available
-    include_vars: /etc/rocknsm/config.yml
-    ignore_errors: true
-    failed_when: false
+
   - name: Debug variables
     import_tasks: debug.yml
     when: rock_debug is defined and rock_debug
