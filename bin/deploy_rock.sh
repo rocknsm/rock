@@ -26,7 +26,7 @@ if [[ ! -e /etc/rocknsm/config.yml ]];then
                 exit
         else
                 echo ''
-        exit
+                exit
         fi
 fi
 
