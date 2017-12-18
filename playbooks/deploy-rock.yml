@@ -14,6 +14,13 @@
     ignore_errors: true
     failed_when: false
 
+  - name: Read in role variables
+    include_vars:
+      dir: 'roles/{{ item }}/vars'
+      files_matching: 'main.yml'
+    with_items:
+      - bro
+
   - name: Check for offline install
     stat:
       path: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
