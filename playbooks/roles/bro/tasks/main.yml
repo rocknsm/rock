@@ -150,7 +150,7 @@
     group: root
     creates: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
     remote_src: yes
-  when: with_bro and not rock_online_install and script_check_result == True
+  when: with_bro and not rock_online_install and script_check_result.stat.exists
  
 - name: Symlink offline ROCK bro scripts
   file:

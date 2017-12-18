@@ -16,14 +16,14 @@
 
   - name: Check for offline install
     stat:
-      path= "{{ rock_cache_dir }}"
-    register: offline_install_check
+      path: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
+    register: offline_files_present
     when: not rock_online_install
 
   - name: Offline install fail
     fail:
       msg: 'You are installing in \Offline Mode\ but do not have all the files required.  Please install from a new RockNSM.iso!  '
-    when: not rock_online_install and offline_install_check
+    when: not rock_online_install and not offline_files_present.stat.exists
 
   - name: Get OS specific settings
     include_vars: "{{ item }}"
