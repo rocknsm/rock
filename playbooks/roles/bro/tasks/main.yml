@@ -177,7 +177,7 @@
     dest: /opt/bro/share/bro/site/local.bro
     line: "@load scripts/rock # ROCK NSM customizations"
     state: present
-  when:with_bro
+  when: with_bro
 
 - name: Add AF_PACKET workaround to local.bro
   lineinfile:
