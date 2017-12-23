@@ -91,8 +91,8 @@
   - include_role:
       name: suricata
         
-  - include_role:
-      name: docker
+#  - include_role:
+#      name: docker
   
   - include_role:
       name: zookeeper
@@ -120,8 +120,8 @@
 #  - include_role:
 #      name: stenographer
       
-#  - include_role:
-#      name: nginx
+  - include_role:
+      name: nginx
    
     ######################################################
     #################  ROCKNSM Scripts  ##################
