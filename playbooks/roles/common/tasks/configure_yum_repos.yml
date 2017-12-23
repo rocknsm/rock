@@ -2,8 +2,8 @@
 ################## Setup Yum Repos ####################
 #######################################################
 --- 
-- 
-  name: "Setup EPEL repo"
+ 
+- name: "Setup EPEL repo"
   when: rock_online_install
   yum_repository: 
     baseurl: "{{ epel_baseurl }}"

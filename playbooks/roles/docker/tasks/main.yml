@@ -2,8 +2,17 @@
 ######################  Docker      ###################
 #######################################################
 ---
--
-  name: 'Install Docker package'
+
+- name: "Setup Docker repo"
+  when: rock_online_install
+  yum_repository: 
+    baseurl: "{{ docker_baseurl }}"
+    description: "Docker YUM repo"
+    gpgcheck: true
+    gpgkey: "{{ docker_gpgurl }}"
+    name: docker-ce
+
+- name: 'Install Docker package'
   yum:
     name: 'docker-ce'
     state: 'installed'
@@ -28,10 +37,6 @@
     state: 'installed'
 
 - name: 'Install docker_compose'
-# Broken 'python2-texttable.noarch 0:0.9.1-1.el7' dependency
-#  yum:
-#    name: 'docker-compose' 
-#    state: 'installed'
-# Work-around for broken dependency
-  shell: pip install 'docker-compose>=1.7.0'  
-  ignore_errors: True 
+  yum:
+    name: 'docker-compose' 
+    state: 'installed'
