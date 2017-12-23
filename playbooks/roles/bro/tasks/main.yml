@@ -12,7 +12,6 @@
   yum:
     name: bro-plugin-af_packet
     state: installed
-  when: 
   
 - name: Install Bro plugin for Kafka
   yum:
