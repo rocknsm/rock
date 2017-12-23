@@ -1,6 +1,9 @@
 ---
 # main.yml - Common tasks for ROCK
-- include: hostname.yml
-- include: epel.yml
-- include: pkginstall.yml
-- include: timedatectl.yml
+- include_tasks: create_rock_directories.yml
+- include_tasks: disable_ipv6.yml
+- include_tasks: set_hostname.yml
+- include_tasks: configure_yum_repos.yml
+- include_tasks: configure_ntp.yml
+- include_tasks: ensure_cache_directory_exists.yml
+- include_tasks: enable_firewall.yml

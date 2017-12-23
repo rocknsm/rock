@@ -1,0 +1,42 @@
+#######################################################
+######################  Docker      ###################
+#######################################################
+---
+
+- name: "Setup Docker repo"
+  when: rock_online_install
+  yum_repository: 
+    baseurl: "{{ docker_baseurl }}"
+    description: "Docker YUM repo"
+    gpgcheck: true
+    gpgkey: "{{ docker_gpgurl }}"
+    name: docker-ce
+
+- name: 'Install Docker package'
+  yum:
+    name: 'docker-ce'
+    state: 'installed'
+    
+- name: 'Start Docker'
+  service:
+    name: 'docker'
+    enabled: yes
+    state: 'started'
+
+# Set Docker Virtual Memory
+- sysctl: 
+    name: 'vm.max_map_count'
+    value: '262144'
+    sysctl_file: '/etc/sysctl.conf'
+    state: present
+    sysctl_set: yes
+
+- name: 'Install python-docker-py'
+  yum: 
+    name: 'python-docker-py.noarch'
+    state: 'installed'
+
+- name: 'Install docker_compose'
+  yum:
+    name: 'docker-compose' 
+    state: 'installed'

@@ -1,0 +1,118 @@
+######################################################
+################# Setup Elasticsearch ################
+######################################################
+---
+-
+  name: Install Elasticsearch package
+  yum:
+    name: elasticsearch
+    state: installed
+- 
+  name: Setup Elastic repo
+  yum_repository:
+    name: elastic-5.x
+    description: Elastic Stack repository for 5.x
+    baseurl: "{{ elastic_baseurl }}"
+    gpgkey:  "{{ elastic_gpgurl }}"
+    gpgcheck: no
+  when: rock_online_install
+- 
+  name: "Create Elasticsearch directory"
+  file: 
+    group: "{{ es_group }}"
+    mode: 493
+    owner: "{{ es_user }}"
+    path: "{{ es_data_dir }}"
+    state: directory
+  when: with_elasticsearch
+- 
+  name: "Setup elasticsearch config"
+  template: 
+    dest: /etc/elasticsearch/elasticsearch.yml
+    group: "{{ es_group }}"
+    mode: 416
+    owner: root
+    src: templates/elasticsearch.yml.j2
+  when: with_elasticsearch
+- 
+  name: "Create elasticsearch systemd override dir"
+  file: 
+    group: root
+    mode: 493
+    owner: root
+    path: /etc/systemd/system/elasticsearch.service.d
+    state: directory
+  when: with_elasticsearch
+- 
+  name: "Enable elasticsearch memlock in service override"
+  copy: 
+    content: "{{ es_memlock_override }}"
+    dest: /etc/systemd/system/elasticsearch.service.d/override.conf
+    group: root
+    mode: 420
+    owner: root
+  when: with_elasticsearch
+- 
+  name: "Setup elasticsearch data dir in sysconfig"
+  lineinfile: 
+    dest: /etc/sysconfig/elasticsearch
+    line: "DATA_DIR={{ es_data_dir }}"
+    regexp: DATA_DIR=
+  when: with_elasticsearch
+- 
+  name: "Setup elasticsearch jvm options"
+  template: 
+    dest: /etc/elasticsearch/jvm.options
+    group: "{{ es_group }}"
+    mode: 416
+    owner: root
+    src: templates/es-jvm.options.j2
+  when: with_elasticsearch
+- 
+  name: "Install ROCK Elasticsearch cleanup script"
+  template: 
+    dest: /usr/local/bin/es_cleanup.sh
+    group: root
+    mode: 493
+    owner: root
+    src: templates/es_cleanup.sh.j2
+  when: with_elasticsearch
+- 
+  name: "Set elasticsearch cleanup cron job"
+  cron: 
+    cron_file: rocknsm_es_maintenance
+    hour: 0
+    job: "/usr/local/bin/es_cleanup.sh > /dev/null 2>&1"
+    minute: 1
+    name: "ES maintenance"
+    user: root
+  when: with_elasticsearch
+- 
+  name: "Enable and start Elasticsearch"
+  notify: 
+    - "es maintenance"
+  service: 
+    enabled: "{{ enable_elasticsearch }}"
+    name: elasticsearch
+    state: "{{ 'started' if enable_elasticsearch else 'stopped' }}"
+  when: with_elasticsearch
+- 
+  name: "Wait for Elasticsearch to become ready"
+  wait_for: "host=localhost port=9200"
+  when: with_elasticsearch
+- 
+  name: "Check for Bro mapping templates"
+  failed_when: false
+  register: bro_mapping
+  uri: 
+    method: GET
+    url: "http://localhost:9200/_template/bro_index"
+  when: "(with_elasticsearch and with_bro)"
+- 
+  name: "Load Bro Elasticsearch mapping templates"
+  uri: 
+    body: "{{ lookup('file', 'es-bro-mappings.json')}}"
+    body_format: json
+    method: PUT
+    url: "http://localhost:9200/_template/bro_index"
+  when: "(with_elasticsearch and with_bro) and bro_mapping.status == 404"
