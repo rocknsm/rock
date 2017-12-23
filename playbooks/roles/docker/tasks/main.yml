@@ -1,0 +1,37 @@
+#######################################################
+######################  Docker      ###################
+#######################################################
+---
+-
+  name: 'Install Docker package'
+  yum:
+    name: 'docker-ce'
+    state: 'installed'
+    
+- name: 'Start Docker'
+  service:
+    name: 'docker'
+    enabled: yes
+    state: 'started'
+
+# Set Docker Virtual Memory
+- sysctl: 
+    name: 'vm.max_map_count'
+    value: '262144'
+    sysctl_file: '/etc/sysctl.conf'
+    state: present
+    sysctl_set: yes
+
+- name: 'Install python-docker-py'
+  yum: 
+    name: 'python-docker-py.noarch'
+    state: 'installed'
+
+- name: 'Install docker_compose'
+# Broken 'python2-texttable.noarch 0:0.9.1-1.el7' dependency
+#  yum:
+#    name: 'docker-compose' 
+#    state: 'installed'
+# Work-around for broken dependency
+  shell: pip install 'docker-compose>=1.7.0'  
+  ignore_errors: True 
