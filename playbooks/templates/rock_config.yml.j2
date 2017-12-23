@@ -4,7 +4,7 @@
 # these. The defaults should be used unless you really
 # know what you are doing!
 
-# interfaces that should be configured for sensor applications
+# Interfaces that should be configured for sensor applications.  Others (non-listed) may exist on your system and can be added below.
 rock_monifs:
   {% for item in rock_monifs %}
   - {{ item }}
@@ -12,18 +12,25 @@ rock_monifs:
 
 # Secifies the hostname of the sensor
 rock_hostname: {{ rock_hostname }}
-# the FQDN
+
+# The FQDN
 rock_fqdn: {{ rock_fqdn }}
-# the number of CPUs that bro will use
-bro_cpu: {{ bro_cpu }}
-# name of elasticsearch cluster
+
+# The number of CPUs that bro will use 
+bro_cpu: {{ bro_cpu }} 
+
+# Name of elasticsearch cluster
 es_cluster_name: {{ es_cluster_name }}
-# name of node in elasticsearch cluster
+
+# Name of node in elasticsearch cluster
 es_node_name: {{ es_node_name }}
-# how much memory to use for elasticsearch
+
+# How much memory to use for elasticsearch
 es_mem: {{ es_mem }}
-# (optional) personal configured key for pulled pork to pull latest sigs from snort.org
+
+# (optional) Personal configured key for pulled pork to pull latest sigs from snort.org
 pulled_pork_oinkcode: {{ pulled_pork_oinkcode }}
+
 
 ########## Offline/Enterprise Network Options ##############
 
