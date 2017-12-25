@@ -1,9 +1,11 @@
 ---
 - hosts: all
+
   vars:
     rock_debug: "{{ lookup('env', 'DEBUG') }}"
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    
   tasks:
 
   - name: Get default settings
