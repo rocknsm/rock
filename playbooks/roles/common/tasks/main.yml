@@ -1,5 +1,6 @@
 ---
 # main.yml - Common tasks for ROCK
+- include_tasks: install_common_packages.yml
 - include_tasks: create_rock_directories.yml
 - include_tasks: disable_ipv6.yml
 - include_tasks: set_hostname.yml
