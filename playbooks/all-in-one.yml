@@ -1,0 +1,3 @@
+---
+- import_playbook: server.yml
+- import_playbook: sensor.yml

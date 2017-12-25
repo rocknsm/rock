@@ -1,0 +1,50 @@
+---
+
+all:
+  hosts:
+    simplerockbuild.simplerock.lan:
+      ansible_hostname: 127.0.0.1
+      ansible_connection: local
+
+
+  #######################################################
+  #####################  Handlers  ######################
+  #######################################################
+# NOT CURRENTLY IN USE
+#  handlers:
+#    - name: force sync time
+#      command: >
+#        chronyc -a 'burst 3/4'; sleep 5; chronyc -a makestep
+#
+#    - name: configure monitor interfaces
+#      shell: >
+#        for intf in {{ rock_monifs | join(' ') }}; do
+#          /sbin/ifup ${intf};
+#        done
+#
+#    - name: create kafka bro topic
+#      command: >
+#        /opt/kafka/bin/kafka-topics.sh
+#           --zookeeper 127.0.0.1:2181
+#           --create
+#           --replication-factor 1
+#           --topic bro-raw
+#           --partitions 1
+#
+#    - name: create kafka suricata topic
+#      command: >
+#        /opt/kafka/bin/kafka-topics.sh
+#           --zookeeper 127.0.0.1:2181
+#           --create
+#           --replication-factor 1
+#           --topic suricata-raw
+#           --partitions 1
+#
+#    - name: create kafka fsf topic
+#      command: >
+#        /opt/kafka/bin/kafka-topics.sh
+#           --zookeeper 127.0.0.1:2181
+#           --create
+#           --replication-factor 1
+#           --topic fsf-raw
+#           --partitions 1
