@@ -6,7 +6,6 @@
 - name: Download Portainer
   docker_image:
     name: 'portainer/portainer'
-  when: containerized_install and with_portainer
 
 - name: Start Portainer
   docker_container:
@@ -21,4 +20,3 @@
       - '/opt/portainer:/data'
 # If your host is using SELinux
 #    privileged: yes
-  when: containerized_install and with_portainer

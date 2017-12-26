@@ -1,28 +1,14 @@
 ---
 - hosts: all
+
   tasks:
-  - name: Read in RockNSM variables
-    include_vars: 'rocknsm_config.dist.yml'
 
   - name: Read in role variables
     include_vars:
       dir: 'roles/{{ item }}/vars'
       files_matching: 'main.yml'
-    with_items:
-      - bro
-      - common
-      - common_sensor
-      - docker
-      - elasticsearch
-      - filebeats
-      - fsf
-      - kafka
-      - kibana
-      - logstash
-      - nginx
-      - stenographer
-      - suricata
-      - zookeeper
+    with_fileglob:
+      - "roles/*"
     register: result
 
   - name: Apply override settings, if available
