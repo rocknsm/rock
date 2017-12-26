@@ -1,24 +1,23 @@
 #!/bin/sh
 #
 #Info:
-#====
+########################
 #	file: generate_defaults.sh
 # 	name: Generate defaults Script
 #
 #
 # Description:
-# =================
+########################
 # Initializes the generate-defaults.yml playbook creating base file structure in /etc and listing available interfaces.
 #
 # Notes:
-# =====
+########################
 #
 #
-# Script Functions:
-# =====
-#
+# Functions:
+########################
 # Main function to call the generate playbook
-main() {
+Main() {
 
 	# Get the current directory of generate_defaults.sh (Ex: if deploy rock is in /root/rock/bin/generate_defaults.sh,
 	# this will return /root/rock/bin
@@ -45,9 +44,9 @@ main() {
 	
 	echo "Defaults generated. Adjust /etc/rocknsm/config.yml as needed."
 }
-
+#=======================
 # Interface function to input interfaces into /etc/rocknsm/config.yml
-add_interfaces() {
+Add_interfaces() {
 
         #Define useable network interfaces 
         INTERFACES=($(ip link show | grep '<BROADCAST,MULTICAST' | grep --invert-match 'nic' | awk '{print $2}' | tr --delete :))
@@ -61,7 +60,7 @@ add_interfaces() {
                 if ! ip -f inet addr show ${i} | grep --quiet inet; then
 				
                         if [ $COUNTER = 0 ];then
-                                delete_ansible_interfaces
+                                Delete_ansible_interfaces
                                 (( COUNTER++ ))
                         fi
 						
@@ -70,9 +69,9 @@ add_interfaces() {
                 fi
         done
 }
-
+#=======================
 # Delete Ansible auto generated interfaces from /etc/rocknsm/config.yml
-delete_ansible_interfaces() {
+Delete_ansible_interfaces() {
 
         while (grep -A 1 rock_monifs: /etc/rocknsm/config.yml | grep - > /dev/null); do
                 sed -i '/rock_monifs:/ {n;d}' /etc/rocknsm/config.yml
@@ -80,7 +79,7 @@ delete_ansible_interfaces() {
 
 }
 #
-#Script Running:
-# ====
-main
-add_interfaces
+#Script Execution:
+########################
+Main
+Add_interfaces

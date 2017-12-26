@@ -7,9 +7,6 @@
     
   tasks:
 
-  - name: Get default settings
-    include_vars: rocknsm_config.dist.yml
-
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true
@@ -84,6 +81,7 @@
       
   - include_role:
       name: docker
+    when: containerized_install
 
   - include_role:
       name: suricata        

@@ -42,7 +42,16 @@
       name: common
       
   - include_role:
-      name: docker    
+      name: docker
+    when: containerized_install
+
+  - include_role: 
+      name: harbor 
+    when: containerized_install and with_harbor
+ 
+  - include_role: 
+      name: portainer 
+    when: containerized_install and with_portainer  
 
   - include_role:
       name: zookeeper
