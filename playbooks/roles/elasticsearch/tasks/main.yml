@@ -2,11 +2,7 @@
 ################# Setup Elasticsearch ################
 ######################################################
 ---
--
-  name: Install Elasticsearch package
-  yum:
-    name: elasticsearch
-    state: installed
+
 - 
   name: Setup Elastic repo
   yum_repository:
@@ -16,6 +12,13 @@
     gpgkey:  "{{ elastic_gpgurl }}"
     gpgcheck: no
   when: rock_online_install
+  
+-
+  name: Install Elasticsearch package
+  yum:
+    name: elasticsearch
+    state: installed
+    
 - 
   name: "Create Elasticsearch directory"
   file: 

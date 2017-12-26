@@ -1,0 +1,20 @@
+---
+
+- name: Configure packages
+  set_fact:
+    rocknsm_package_list: "{{ rocknsm_package_list }} + [ '{{ item.pkg }}']"
+  when: (item.test is undefined) or (item.test)
+  with_items:
+    - { pkg: chrony, state: installed }
+# TODO: These lines need to be moved to the sensor common
+#    - { pkg: daq, test: "{{with_snort}}", state: installed }
+    - { pkg: postfix, state: installed }
+#    - { pkg: snort, test: "{{with_snort}}", state: installed }
+
+- name: Install packages
+  yum:
+    name: "{{ item.pkg }}"
+    state: "{{ item.state }}"
+  when: (item.test is undefined) or (item.test)
+  with_items:
+    - { pkg: "{{ rocknsm_package_list }}", state: installed }

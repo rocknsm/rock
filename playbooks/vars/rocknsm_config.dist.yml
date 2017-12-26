@@ -16,6 +16,10 @@ rock_cache_dir: /srv/rocknsm/support
 #### Retention Configuration ####
 # Moved all retention configuration variables into their respective roles var/main.yml
 
+#### Docker configuration variables ####
+# Install services with Docker whenever possible vs installing on bare metal.
+containerized_install: true
+
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the service is installed
 
@@ -24,10 +28,12 @@ with_docker: true
 with_elasticsearch: true
 with_filebeat: true
 with_fsf: true
+with_harbor: false
 with_kafka: true
 with_kibana: true
 with_logstash: true
 with_nginx: true
+with_portainer: true
 with_pulledpork: true
 with_snort: false
 with_stenographer: true
