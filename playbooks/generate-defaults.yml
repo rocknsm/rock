@@ -2,15 +2,7 @@
 - hosts: all
 
   tasks:
-
-  - name: Read in role variables
-    include_vars:
-      dir: 'roles/{{ item }}/vars'
-      files_matching: 'main.yml'
-    with_fileglob:
-      - "roles/*"
-    register: result
-
+  
   - name: Apply override settings, if available
     include_vars: '/etc/rocknsm/config.yml'
 
