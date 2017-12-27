@@ -100,7 +100,7 @@ EOF
 	fi
 }
 #=======================
-Stand-alone() {
+Stand_alone() {
 ansible-playbook "${TOPLEVEL}/playbooks/all-in-one.yml" ${VERBOSE_FLAGS}
 }
 #=======================
@@ -134,7 +134,7 @@ Mainmenu() {
 
 clear
 Header
-echo "+        [ 1 ] Install a Stand-alone system (everything on this box)   +"
+echo "+        [ 1 ] Install a Stand alone system (everything on this box)   +"
 echo "+                                                                      +"
 echo "+        [ 2 ] Server Install: only the services for a Server          +"
 echo "+                                                                      +"
@@ -148,7 +148,7 @@ echo "+                                                                      +"
 Footer
 read -p "Please make a Selection: " mainmenu_option
 case $mainmenu_option in
-	1) clear && Stand-alone;;
+	1) clear && Stand_alone;;
 	2) clear && Server;; 
 	3) clear && Sensor;;
 	x|X) clear && exit ;;
