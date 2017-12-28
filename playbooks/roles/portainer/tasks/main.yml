@@ -1,0 +1,22 @@
+#######################################################
+#################  Portainer Install ##################
+#######################################################
+---
+
+- name: Download Portainer
+  docker_image:
+    name: 'portainer/portainer'
+
+- name: Start Portainer
+  docker_container:
+    name: 'Portainer'
+    image: 'portainer/portainer'
+    state: started
+    restart_policy: always
+    published_ports:
+      - 9000:9000
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '/opt/portainer:/data'
+# If your host is using SELinux
+#    privileged: yes
