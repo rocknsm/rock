@@ -37,7 +37,7 @@
       group: root
       mode:  0755
       path: /etc/rocknsm
-
+      
   - name: Render template
     template:
       backup: yes
@@ -46,3 +46,14 @@
       owner: root
       group: root
       mode: 0644
+      
+  - name: Retrieve list of unconfigured ethernet interfaces
+    set_fact:
+     rock_monfs: "{% set rock_monfs = rock_monfs|default([]) + [hostvars[inventory_hostname]['ansible_' + item]['device']] %}{{ rock_monfs|list }}"
+    when:
+         - hostvars[inventory_hostname]['ansible_' + item]['ipv4'] is not defined
+         - hostvars[inventory_hostname]['ansible_' + item]['type'] == 'ether' 
+        #The line below is rendered reundant by the first check in the 'when' statement; but I've left it in for reference
+        #- hostvars[inventory_hostname]['ansible_' + item]['device'] != ansible_default_ipv4.interface       
+     with_items:
+       - "{{ hostvars[inventory_hostname]['ansible_interfaces'] }}"
