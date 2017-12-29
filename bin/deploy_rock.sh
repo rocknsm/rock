@@ -173,7 +173,29 @@ echo "+                                                                      +"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo ""
 }
+
+#Check if /etc/rocknsm/config.yml already exists.
+#If it does, warn the user that this script will overwrite that file, and ask if they want to continue.
+check_for_config_file(){
+	#Check if the file exists
+	if [ -f "/etc/rocknsm/config.yml" ]; then
+		echo "WARNING: The file '/etc/rocknsm/config.yml' already exists."
+		echo "Running this script will overwrite its contents."
+		echo "Are you sure you want to continue? Yes or No?"
+		read -p "[y/n]: " -n 1 -r
+		echo ""
+		if [[ $REPLY =~ ^[Yy]$ ]]; then
+			return
+			
+		else
+			echo "Exiting..."
+			exit 0
+		#Alternatively we can loop if the user does not actually answer Y|y|N|n.
+		#E.g. Please answer 'y' to continue or 'n' to quit.
+		#$_
+}
 #
 #Script Execution:
 ########################
+check_for_config_file
 Main
