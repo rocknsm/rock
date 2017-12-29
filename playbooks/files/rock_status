@@ -20,8 +20,6 @@ function feature_enabled() {
 
 @test "Check each monitor interface is live" {
   local timeout_sec=5
-  local timeout_pkt=5
-  local results=()
 
   # Timeout after 5 seconds or 5 packets
   for interface in $MON_IFS; do
@@ -49,7 +47,7 @@ function feature_enabled() {
     echo "WARNING: Monitor interface ${interface} has sent ${pkts} packets."
     echo "Minimal packets pasted on startup may be due to IPV6 at the kernal."
     echo "Disable IPv6 on the interface at the kernel layer."
-    [ $pkts -lt 0 ]
+    [ $pkts -eq 0 ]
   done
 }
 
