@@ -17,7 +17,7 @@
 # Functions:
 ########################
 # Main function to call the generate playbook
-Main() {
+main() {
 
 	# Get the current directory of generate_defaults.sh (Ex: if deploy rock is in /root/rock/bin/generate_defaults.sh,
 	# this will return /root/rock/bin
@@ -44,42 +44,27 @@ Main() {
 	
 	echo "Defaults generated. Adjust /etc/rocknsm/config.yml as needed."
 }
-#=======================
-# Interface function to input interfaces into /etc/rocknsm/config.yml
-Add_interfaces() {
 
-        #Define useable network interfaces 
-        INTERFACES=($(ip link show | grep '<BROADCAST,MULTICAST' | grep --invert-match 'nic' | awk '{print $2}' | tr --delete :))
-		
-        #Write new interfaces into the /etc/rocknsm/config.yml
-        COUNTER=0
-		
-        for i in "${INTERFACES[@]}"; do
-		
-                #Check for interfaces without a current IP address: If so delete Ansible auto generated interfaces.
-                if ! ip -f inet addr show ${i} | grep --quiet inet; then
-				
-                        if [ $COUNTER = 0 ];then
-                                Delete_ansible_interfaces
-                                (( COUNTER++ ))
-                        fi
-						
-                        #Write interface into /etc/rocknsm/config.yml
-                        sed -i "/rock_monifs:/a \ \ \ \ -\ ${i}" /etc/rocknsm/config.yml
-                fi
-        done
+#Check if /etc/rocknsm/config.yml already exists.
+#If it does, warn the user that this script will overwrite that file, and ask if they want to continue.
+check_for_config_file(){
+	#Check if the file exists
+	if [ -f "/etc/rocknsm/config.yml" ]; then
+		echo "WARNING: The file '/etc/rocknsm/config.yml' already exists."
+		echo "Running this script will overwrite its contents."
+		echo "Are you sure you want to continue? Yes or No?"
+		read -p "[y/n]: " -n 1 -r
+		echo ""
+		if [[ $REPLY =~ ^[Yy]$ ]]; then
+			return
+			
+		else
+			echo "Exiting..."
+			exit 0
+		#Alternatively we can loop if the user does not actually answer Y|y|N|n.
+		#E.g. Please answer 'y' to continue or 'n' to quit.
+		#$_
 }
-#=======================
-# Delete Ansible auto generated interfaces from /etc/rocknsm/config.yml
-Delete_ansible_interfaces() {
 
-        while (grep -A 1 rock_monifs: /etc/rocknsm/config.yml | grep - > /dev/null); do
-                sed -i '/rock_monifs:/ {n;d}' /etc/rocknsm/config.yml
-        done
-
-}
-#
-#Script Execution:
-########################
-Main
-Add_interfaces
+check_for_config_file
+main
