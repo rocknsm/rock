@@ -1,3 +1,0 @@
-#!/usr/bin/env ansible-playbook
-- import_tasks: playbooks/generate-defaults.yml
-- import_tasks: playbooks/deploy-rock.yml

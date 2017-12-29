@@ -1,25 +1,15 @@
 ---
 - hosts: all
+
   vars:
     rock_debug: "{{ lookup('env', 'DEBUG') }}"
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    
   tasks:
-
-  - name: Get default settings
-    include_vars: rocknsm_config.dist.yml
 
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
-    ignore_errors: true
-    failed_when: false
-
-  - name: Read in role variables
-    include_vars:
-      dir: 'roles/{{ item }}/vars'
-      files_matching: 'main.yml'
-    with_items:
-      - bro
 
   - name: Check for offline install
     stat:
@@ -45,72 +35,27 @@
 
   - include_role:
       name: common
-  
-  - include_role:
-      name: common_sensor
       
-    ######################################################
-    ##################  GeoIP Databases  #################
-    ######################################################
-  - name: Configure GeoIP Update
-    copy: src=GeoIP.conf dest=/etc/GeoIP.conf
-
-    # There's an issue w/ geoipupdate when env is empty
-  - name: Update GeoIP
-    shell: >
-      if [ "x$HTTP_PROXY" == "x" ]; then
-          unset HTTP_PROXY;
-      fi
-      if [ "x$http_proxy" == "x" ]; then
-          unset http_proxy;
-      fi
-      if [ "x$HTTPS_PROXY" == "x" ]; then
-          unset HTTPS_PROXY;
-      fi
-      if [ "x$https_proxy" == "x" ]; then
-          unset https_proxy;
-      fi
-      /usr/bin/geoipupdate
-    args:
-      creates: /usr/share/GeoIP/GeoLiteASNum.dat
-    register: result
-    failed_when: (result.rc != 0) and (result.rc != 1)
-
-  - name: Create GeoIP symlinks
-    file:
-      src: "/usr/share/GeoIP/{{ item.src }}"
-      dest: "/usr/share/GeoIP/{{ item.dest }}"
-      force: yes
-      state: link
-    with_items:
-      - { src: 'GeoLiteCity.dat', dest: 'GeoIPCity.dat' }
-      - { src: 'GeoLiteCountry.dat', dest: 'GeoIPCountry.dat' }
-      - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
-      - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
-      
-  - include_role:
-      name: suricata
-        
   - include_role:
       name: docker
-  
+    when: containerized_install
+
+  - include_role: 
+      name: harbor 
+    when: containerized_install and with_harbor
+ 
+  - include_role: 
+      name: portainer 
+    when: containerized_install and with_portainer  
+
   - include_role:
       name: zookeeper
-      
-  - include_role:
-      name: kafka
       
   - include_role:
       name: elasticsearch  
       
   - include_role:
       name: logstash
-      
-  - include_role:
-      name: filebeats
-
-  - include_role:
-      name: bro
       
   - name: kibana
     include_role:
@@ -120,8 +65,8 @@
 #  - include_role:
 #      name: stenographer
       
-#  - include_role:
-#      name: nginx
+  - include_role:
+      name: nginx
    
     ######################################################
     #################  ROCKNSM Scripts  ##################
@@ -187,44 +132,3 @@
    HTTP_PROXY:  "{{ http_proxy }}"
    HTTPS_PROXY: "{{ https_proxy }}"
    
-  #######################################################
-  #####################  Handlers  ######################
-  #######################################################
-# NOT CURRENTLY IN USE
-#  handlers:
-#    - name: force sync time
-#      command: >
-#        chronyc -a 'burst 3/4'; sleep 5; chronyc -a makestep
-#
-#    - name: configure monitor interfaces
-#      shell: >
-#        for intf in {{ rock_monifs | join(' ') }}; do
-#          /sbin/ifup ${intf};
-#        done
-#
-#    - name: create kafka bro topic
-#      command: >
-#        /opt/kafka/bin/kafka-topics.sh
-#           --zookeeper 127.0.0.1:2181
-#           --create
-#           --replication-factor 1
-#           --topic bro-raw
-#           --partitions 1
-#
-#    - name: create kafka suricata topic
-#      command: >
-#        /opt/kafka/bin/kafka-topics.sh
-#           --zookeeper 127.0.0.1:2181
-#           --create
-#           --replication-factor 1
-#           --topic suricata-raw
-#           --partitions 1
-#
-#    - name: create kafka fsf topic
-#      command: >
-#        /opt/kafka/bin/kafka-topics.sh
-#           --zookeeper 127.0.0.1:2181
-#           --create
-#           --replication-factor 1
-#           --topic fsf-raw
-#           --partitions 1

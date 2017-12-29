@@ -1,18 +1,44 @@
 #######################################################
-######################  Docker      ###################
+###################  Docker Install ###################
 #######################################################
 ---
--
-  name: 'Install Docker package'
+
+- name: "Setup Docker repo"
+  when: rock_online_install and containerized_install
+  yum_repository: 
+    baseurl: "{{ docker_baseurl }}"
+    description: "Docker YUM repo"
+    gpgcheck: true
+    gpgkey: "{{ docker_gpgurl }}"
+    name: docker-ce
+
+# create directories to move Docker images into central storage location
+- file:
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - '/opt/docker'
+    - '/etc/systemd/system/docker.service.d'
+    - '/opt/docker/image'
+    - '/opt/docker/containers'
+  when: containerized_install
+
+# create file to overrun Docker startup to change default image location
+- file:
+    path: '/etc/systemd/system/docker.service.d/docker.root.conf'
+    state: touch
+  when: containerized_install
+
+- name: 'Set Docker directories'
+  shell: 'echo "[Service]" > /etc/systemd/system/docker.service.d/docker.root.conf; echo "ExecStart=" >> /etc/systemd/system/docker.service.d/docker.root.conf; echo "ExecStart=/usr/bin/dockerd -g /opt/docker" >> /etc/systemd/system/docker.service.d/docker.root.conf'
+  when: containerized_install
+  notify: reload systemd
+
+- name: 'Install Docker package'
   yum:
     name: 'docker-ce'
     state: 'installed'
-    
-- name: 'Start Docker'
-  service:
-    name: 'docker'
-    enabled: yes
-    state: 'started'
+  when: containerized_install
 
 # Set Docker Virtual Memory
 - sysctl: 
@@ -21,17 +47,25 @@
     sysctl_file: '/etc/sysctl.conf'
     state: present
     sysctl_set: yes
+  when: containerized_install
+  notify: reload systemd
 
 - name: 'Install python-docker-py'
   yum: 
     name: 'python-docker-py.noarch'
     state: 'installed'
+  when: containerized_install
 
 - name: 'Install docker_compose'
-# Broken 'python2-texttable.noarch 0:0.9.1-1.el7' dependency
-#  yum:
-#    name: 'docker-compose' 
-#    state: 'installed'
-# Work-around for broken dependency
-  shell: pip install 'docker-compose>=1.7.0'  
-  ignore_errors: True 
+  yum:
+    name: 'docker-compose' 
+    state: 'installed'
+  when: containerized_install
+
+- name: 'Start Docker'
+  service:
+    name: 'docker'
+    enabled: yes
+    state: 'started'
+  when: containerized_install
+

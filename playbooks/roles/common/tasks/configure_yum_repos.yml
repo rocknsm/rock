@@ -2,8 +2,8 @@
 ################## Setup Yum Repos ####################
 #######################################################
 --- 
-- 
-  name: "Setup EPEL repo"
+ 
+- name: "Setup EPEL repo"
   when: rock_online_install
   yum_repository: 
     baseurl: "{{ epel_baseurl }}"
@@ -16,16 +16,6 @@
   name: "Manually trust CentOS GPG key"
   shell: "rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7\n"
   when: "rock_online_install and ansible_distribution == \"CentOS\""
-- 
-  name: "Setup ROCK NSM repo"
-  when: rock_online_install
-  yum_repository: 
-    baseurl: "{{ rocknsm_baseurl }}"
-    cost: 750
-    description: "ROCK NSM repository for devel"
-    gpgcheck: false
-    gpgkey: "{{ rocknsm_gpgurl }}"
-    name: rocknsm
 - 
   name: "Setup local offline repo"
   when: "not rock_online_install"
