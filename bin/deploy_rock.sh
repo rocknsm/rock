@@ -18,7 +18,7 @@
 # Functions
 #########################
 # Main function to call the deploy_rock.yml playbook
-Main() {
+main() {
     
 	# Get the current directory of deploy_rock.sh (Ex: if deploy rock is in /root/rock/bin/deploy_rock.sh,
 	# this will return /root/rock/bin
@@ -57,7 +57,7 @@ Main() {
 			
 			# Contains deploy_rock.sh's directory
         	DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-		Generate_config
+		generate_config
 	fi
 
 	cd "${TOPLEVEL}/playbooks"
@@ -100,20 +100,20 @@ EOF
 	fi
 }
 #=======================
-Stand_alone() {
+stand_alone() {
 ansible-playbook "${TOPLEVEL}/playbooks/all-in-one.yml" ${VERBOSE_FLAGS}
 }
 #=======================
-Server() {
+server() {
 ansible-playbook "${TOPLEVEL}/playbooks/server.yml" ${VERBOSE_FLAGS}
 }
 #=======================
-Sensor() {
+sensor() {
 ansible-playbook "${TOPLEVEL}/playbooks/sensor.yml" ${VERBOSE_FLAGS}
 }
 #=======================
 # Generate the /etc/rocknsm/config.yml 
-Generate_config() {
+generate_config() {
 
 echo "[-] You must run generate_defaults.sh prior to deploying for the first time. "
 read -p "Would you like to generate the defaults now?  [y/n] " -n 1 -r
@@ -136,9 +136,9 @@ clear
 Header
 echo "+        [ 1 ] Install a Stand alone system (everything on this box)   +"
 echo "+                                                                      +"
-echo "+        [ 2 ] Server Install: only the services for a Server          +"
+echo "+        [ 2 ] server Install: only the services for a server          +"
 echo "+                                                                      +"
-echo "+        [ 3 ] Sensor Install: only the services for a Sensor          +"
+echo "+        [ 3 ] sensor Install: only the services for a sensor          +"
 echo "+                                                                      +"
 echo "+                                                                      +"
 echo "+                                                                      +"
@@ -148,9 +148,9 @@ echo "+                                                                      +"
 Footer
 read -p "Please make a Selection: " mainmenu_option
 case $mainmenu_option in
-	1) clear && Stand_alone;;
-	2) clear && Server;; 
-	3) clear && Sensor;;
+	1) clear && stand_alone;;
+	2) clear && server;; 
+	3) clear && sensor;;
 	x|X) clear && exit ;;
 	*) echo "Invalid input" && sleep 1 && Mainmenu;;
 esac
@@ -174,28 +174,7 @@ echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo ""
 }
 
-#Check if /etc/rocknsm/config.yml already exists.
-#If it does, warn the user that this script will overwrite that file, and ask if they want to continue.
-check_for_config_file(){
-	#Check if the file exists
-	if [ -f "/etc/rocknsm/config.yml" ]; then
-		echo "WARNING: The file '/etc/rocknsm/config.yml' already exists."
-		echo "Running this script will overwrite its contents."
-		echo "Are you sure you want to continue? Yes or No?"
-		read -p "[y/n]: " -n 1 -r
-		echo ""
-		if [[ $REPLY =~ ^[Yy]$ ]]; then
-			return
-			
-		else
-			echo "Exiting..."
-			exit 0
-		#Alternatively we can loop if the user does not actually answer Y|y|N|n.
-		#E.g. Please answer 'y' to continue or 'n' to quit.
-		#$_
-}
 #
 #Script Execution:
 ########################
-check_for_config_file
-Main
+main
