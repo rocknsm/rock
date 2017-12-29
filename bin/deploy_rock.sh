@@ -197,5 +197,5 @@ check_for_config_file(){
 #
 #Script Execution:
 ########################
-Main
 check_for_config_file
+Main
