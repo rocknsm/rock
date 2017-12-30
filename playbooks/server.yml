@@ -15,24 +15,28 @@
 
   - include_role: 
       name: harbor 
-    when: containerized_install and with_harbor
+      when: containerized_install and with_harbor
  
   - include_role: 
       name: portainer 
-    when: containerized_install and with_portainer  
+      when: containerized_install and with_portainer  
 
   - include_role:
       name: zookeeper
+      when: with_zookeeper
       
   - include_role:
-      name: elasticsearch  
+      name: elasticsearch
+      when: with_elasticsearch      
       
   - include_role:
       name: logstash
+      when: with_logstash
       
   - name: kibana
     include_role:
       name: kibana
+      when: with_kibana
       
   # TODO NEEDS TO BE TESTED     
 #  - include_role:
@@ -40,4 +44,4 @@
       
   - include_role:
       name: nginx
-   
+      when: with_nginx

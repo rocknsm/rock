@@ -53,32 +53,31 @@
       
   - include_role:
       name: docker
-    when: containerized_install
+      when: containerized_install
 
   - include_role:
-      name: suricata        
+      name: suricata  
+      when: with_suricata      
 
   - include_role:
       name: zookeeper
+      when: with_zookeeper
       
   - include_role:
       name: kafka
+      when: with_kafka
       
   - include_role:
-      name: elasticsearch  
-      
-  - include_role:
-      name: logstash
+      name: elasticsearch
+      when: with_elasticsearch
       
   - include_role:
       name: filebeats
+      when: with_filebeats
 
   - include_role:
       name: bro
-      
-  - name: kibana
-    include_role:
-      name: kibana
+      when: with_bro
       
   # TODO NEEDS TO BE TESTED     
 #  - include_role:
@@ -86,4 +85,5 @@
       
   - include_role:
       name: nginx
+      when: with_nginx
    
