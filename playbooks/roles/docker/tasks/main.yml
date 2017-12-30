@@ -17,28 +17,21 @@
     path: '{{ item }}'
     state: directory
   with_items:
-    - '/opt/docker'
     - '/etc/systemd/system/docker.service.d'
-    - '/opt/docker/image'
-    - '/opt/docker/containers'
-  when: containerized_install
 
 # create file to overrun Docker startup to change default image location
 - file:
     path: '/etc/systemd/system/docker.service.d/docker.root.conf'
     state: touch
-  when: containerized_install
 
-- name: 'Set Docker directories'
-  shell: 'echo "[Service]" > /etc/systemd/system/docker.service.d/docker.root.conf; echo "ExecStart=" >> /etc/systemd/system/docker.service.d/docker.root.conf; echo "ExecStart=/usr/bin/dockerd -g /opt/docker" >> /etc/systemd/system/docker.service.d/docker.root.conf'
-  when: containerized_install
+- name: 'Set Docker service file'
+  shell: echo "[Service]" > /etc/systemd/system/docker.service.d/docker.root.conf; echo "ExecStart=" >> /etc/systemd/system/docker.service.d/docker.root.conf; echo "ExecStart=/usr/bin/dockerd -g {{ rocknsm_dir }}/docker" >> /etc/systemd/system/docker.service.d/docker.root.conf
   notify: reload systemd
 
 - name: 'Install Docker package'
   yum:
     name: 'docker-ce'
     state: 'installed'
-  when: containerized_install
 
 # Set Docker Virtual Memory
 - sysctl: 
@@ -47,25 +40,21 @@
     sysctl_file: '/etc/sysctl.conf'
     state: present
     sysctl_set: yes
-  when: containerized_install
   notify: reload systemd
 
 - name: 'Install python-docker-py'
   yum: 
     name: 'python-docker-py.noarch'
     state: 'installed'
-  when: containerized_install
 
 - name: 'Install docker_compose'
   yum:
     name: 'docker-compose' 
     state: 'installed'
-  when: containerized_install
 
 - name: 'Start Docker'
   service:
     name: 'docker'
     enabled: yes
     state: 'started'
-  when: containerized_install
 
