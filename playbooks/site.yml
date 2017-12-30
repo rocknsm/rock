@@ -50,24 +50,6 @@ all:
     with_suricata: true
     with_zookeeper: true
     
-    # Feature options - Don't flip these unless you know what you're doing
-    # These control if the systemd service is enabled
-    
-    enable_bro: true
-    enable_docker: true
-    enable_elasticsearch: true
-    enable_filebeat: true
-    enable_fsf: false
-    enable_kafka: true
-    enable_kibana: true
-    enable_logstash: true
-    enable_nginx: true
-    enable_pulledpork: true
-    enable_snort: false
-    enable_stenographer: false
-    enable_suricata: true
-    enable_zookeeper: true
-    
     rocknsm_package_list:
       - java-1.8.0-openjdk-headless
       - jq

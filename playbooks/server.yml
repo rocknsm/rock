@@ -11,7 +11,7 @@
       
   - include_role:
       name: docker
-    when: containerized_install
+      when: containerized_install
 
   - include_role: 
       name: harbor 
