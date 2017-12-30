@@ -38,40 +38,32 @@
   - name: 'Render rock_start template'
     template:
       backup: yes
-      src: rock_start.j2
-      dest: /usr/local/bin/rock_start
+      src: rock.service.j2
+      dest: /etc/systemd/system/rock.service
       owner: root
       group: root
-      mode: 0700
-      
-  - name: 'Render rock_stop template'
-    template:
-      backup: yes
-      src: rock_stop.j2
-      dest: /usr/local/bin/rock_stop
-      owner: root
-      group: root
-      mode: 0700
+      mode: 0644
 
-  - name: 'Render rock_status template'
-    template:
-      backup: yes
-      src: rock_status.j2
-      dest: /usr/local/bin/rock_status
-      owner: root
-      group: root
-      mode: 0755
+  # TODO - see https://github.com/grantcurell/rock/issues/26
+  #- name: 'Render rock_status template'
+  #  template:
+  #    backup: yes
+  #    src: rock_status.j2
+  #    dest: /usr/local/bin/rock_status
+  #    owner: root
+  #    group: root
+  #    mode: 0755
 
-  - name: Create rock script symlinks
-    file:
-      src: "/usr/local/bin/{{ item.src }}"
-      dest: "/usr/sbin/{{ item.dest }}"
-      force: yes
-      state: link
-    with_items:
-      - { src: 'rock_start', dest: 'rock_start' }
-      - { src: 'rock_stop', dest: 'rock_stop' }
-      - { src: 'rock_status', dest: 'rock_status' }
+  #- name: Create rock script symlinks
+  #  file:
+  #    src: "/usr/local/bin/{{ item.src }}"
+  #    dest: "/usr/sbin/{{ item.dest }}"
+  #    force: yes
+  #    state: link
+  #  with_items:
+  #    - { src: 'rock_start', dest: 'rock_start' }
+  #    - { src: 'rock_stop', dest: 'rock_stop' }
+  #    - { src: 'rock_status', dest: 'rock_status' }
       
   # Training mode / Service mode not needed for AF_PACKET
   ######################################################
