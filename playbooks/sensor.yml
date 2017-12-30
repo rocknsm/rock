@@ -1,7 +1,8 @@
 ---
-- hosts: sensors
 
 - import_playbook: all.yml
+
+- hosts: sensors
     
   tasks:
 
