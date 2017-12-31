@@ -22,7 +22,9 @@
 ################# Setup Kibana bare ##################
 ######################################################
 
-# TODO: None of the items below work with Docker containers yet.  Where required, they need updated and then moved into  "Setup Kibana container" to run.
+# TODO: None of the items below work with Docker containers yet.  
+#   Where required, they need updated and then moved into  "Setup Kibana container" to run.
+
 - name: Install Kibana package
   yum:
     name: kibana
@@ -146,18 +148,34 @@
     name: "docker.elastic.co/kibana/kibana:{{ kibana_ver }}"
   when: containerized_install and rock_online_install
 
-- name: 'Start Kibana container'
-  docker_container:
-    name: 'Kibana'
-    image: 'kibana/kibana'
-    state: started
-    restart_policy: always
-    published_ports:
-      - '5601:5601'
-    env:
-      - "ELASTICSEARCH_URL=http://{{ rock_hostname }}:9200"
-      - 'SERVER_HOST=0.0.0.0'
-      - 'SERVER_PORT=5601'
-      - 'xpack.security.enabled=false'
+- name: 'Install Kibana service file'
+  copy:
+    src: 'harbor.service'
+    dest: '/etc/systemd/system/kibana.service'
+    mode: 0644
+    owner: root
+    group: root
   when: containerized_install
 
+- name: 'Copy Kibana compose file'
+  copy:
+    src: 'kibana-compose.yml'
+    dest: "{{ rocknsm_dir }}/kibana/kibana-compose.yml"
+    mode: 0644
+    owner: root
+    group: root
+  when: containerized_install
+
+- name: 'Run kibana-compose.yml' 
+  tasks: 
+    - docker_service: 
+        project_src: "{{ rocknsm_dir }}/kibana/" 
+        files: 'kibana-compose.yml' 
+        state: present 
+  when: containerized_install
+
+- name: 'Enable Kibana service'
+  service: 
+    name: 'kibana'
+    enabled: yes
+  when: containerized_install
