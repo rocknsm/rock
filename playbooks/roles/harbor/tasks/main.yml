@@ -42,12 +42,13 @@
   shell: "bash {{ rocknsm_dir }}/harbor/install.sh" 
 
 - name: 'Install Harbor service file'
-  copy:
-    src: 'harbor.service'
+  template:
+    backup: yes
+    src: 'harbor.service.j2'
     dest: '/etc/systemd/system/harbor.service'
-    mode: 0644
     owner: root
     group: root
+    mode: 0644
 
 - name: 'Enable harbor service'
   service: 
