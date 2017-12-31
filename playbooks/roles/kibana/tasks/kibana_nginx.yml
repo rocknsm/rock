@@ -1,0 +1,30 @@
+---
+######################################################
+##################### Setup nginx ####################
+######################################################
+
+- name: Add the kibanapw shell function
+  copy:
+    src: profile.d-kibanapw.sh
+    dest: /etc/profile.d/kibanapw.sh
+    mode: 0644
+    owner: root
+    group: root
+
+# Crazy password generator    
+- name: Install xkcdpass package
+  yum:
+    name: xkcdpass
+    state: installed
+
+# Reverse proxy
+- name: Install Nginx package
+  yum:
+    name: nginx
+    state: installed
+
+- name: Set initial Kibana credentials
+  shell: >
+    export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
+  args:
+    creates: /etc/nginx/.htpasswd

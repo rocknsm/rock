@@ -1,0 +1,4 @@
+FROM "docker.elastic.co/kibana/kibana:{{ kibana_ver }}"
+COPY "profile.d-kibanapw.sh /etc/profile.d/kibanapw.sh"
+RUN "yum update && yum install -y xkcdpass nginx"
+EXPOSE 5601

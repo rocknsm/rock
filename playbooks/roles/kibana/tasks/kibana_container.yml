@@ -1,0 +1,64 @@
+---
+######################################################
+############### Setup Kibana container ###############
+######################################################
+    
+- name: 'Copy Kibana compose file'
+  template:
+    backup: yes 
+    src: 'kibana-dockerfile'
+    dest: "{{ rocknsm_dir }}/kibana/kibana-dockerfile"
+    mode: 0644
+    owner: root
+    group: root
+  when: rock_online_install
+
+# Install nginx and xkcdpass into Kibana container.
+- name: 'Download Kibana container'
+  docker_image:
+    pull: "docker.elastic.co/kibana/kibana:{{ kibana_ver }}"
+    state: present
+    path: "{{ rock_dir }}/kibana/"
+    docker file: 'kibana_dockerfile'
+  when: rock_online_install
+
+# Bare Kibana container 
+#- name: 'Download Kibana container'
+#  docker_image:
+#    name: "docker.elastic.co/kibana/kibana:{{ kibana_ver }}"
+#  when: rock_online_install
+
+- name: 'Install Kibana service file'
+  template: 
+    backup: yes 
+    src: 'kibana.service.j2' 
+    dest: '/etc/systemd/system/kibana.service' 
+    mode: 0644 
+    owner: root 
+    group: root 
+    mode: 0644 
+
+- name: 'Copy Kibana compose file'
+  template:
+    backup: yes 
+    src: 'kibana-compose.yml.j2'
+    dest: "{{ rocknsm_dir }}/kibana/kibana-compose.yml"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Run kibana-compose.yml' 
+  tasks: 
+    - docker_service: 
+        project_src: "{{ rocknsm_dir }}/kibana/" 
+        files: 'kibana-compose.yml' 
+        state: present 
+
+- name: 'Enable Kibana service'
+  service: 
+    name: 'kibana'
+    enabled: yes
+
+- name: Store installed kibana pkg info
+  set_fact:
+    kibana_info: {{ kibana_ver }}
