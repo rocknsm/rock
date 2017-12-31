@@ -3,7 +3,7 @@
 version: '2'
 services:
   kibana:
-    image: "kibana:PPTAGPP"
+    image: "kibana:{{ kibana_ver }}"
     network_mode: host
     ports:
       - "5601:5601"
@@ -11,7 +11,7 @@ services:
     volumes: 
       - "{{ rocknsm_dir }}/kibana:/data"
     environment:
-      - "ELASTICSEARCH_URL=http://dockervm.dmss:9200"
+      - "ELASTICSEARCH_URL=http://{{ rock_hostname }}:9200"
       - SERVER_HOST=0.0.0.0
       - SERVER_PORT=5601
       - xpack.security.enabled=false
