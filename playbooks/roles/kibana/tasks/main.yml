@@ -149,17 +149,20 @@
   when: containerized_install and rock_online_install
 
 - name: 'Install Kibana service file'
-  copy:
-    src: 'harbor.service'
-    dest: '/etc/systemd/system/kibana.service'
-    mode: 0644
-    owner: root
-    group: root
+  template: 
+    backup: yes 
+    src: 'kibana.service.j2' 
+    dest: '/etc/systemd/system/kibana.service' 
+    mode: 0644 
+    owner: root 
+    group: root 
+    mode: 0644 
   when: containerized_install
 
 - name: 'Copy Kibana compose file'
-  copy:
-    src: 'kibana-compose.yml'
+  template:
+    backup: yes 
+    src: 'kibana-compose.yml.j2'
     dest: "{{ rocknsm_dir }}/kibana/kibana-compose.yml"
     mode: 0644
     owner: root
