@@ -7,6 +7,11 @@ all:
       ansible_hostname: 127.0.0.1
       ansible_connection: local
       
+  roles:
+    - common
+    - { role: docker, when: containerized_install }
+    - { role: portainer, when: containerized_install and with_portainer }
+      
   vars:
     rock_online_install: true
     rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
@@ -82,6 +87,14 @@ all:
           ansible_hostname: 127.0.0.1
           ansible_connection: local
           
+      roles:
+        - common_sensor
+        - { role: suricata, when: with_suricata }
+        - { role: kafka when: with_kafka }
+        - { role: zookeeper, when: with_zookeeper }
+        - { role: filebeats, when: with_filebeats }
+        - { role: bro, when: with_bro }
+          
       vars:
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
         pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
@@ -99,6 +112,13 @@ all:
         simplerockbuild.simplerock.lan:
           ansible_hostname: 127.0.0.1
           ansible_connection: local
+          
+      roles:
+        - { role: harbor, when: containerized_install and with_harbor }
+        - { role: elasticsearch, when: with_elasticsearch }
+        - { role: logstash, when: with_logstash }
+        - { role: kibana, when: with_kibana }
+        - { role: nginx, when: with_nginx }
           
       vars:
         es_cluster_name: rocknsm
