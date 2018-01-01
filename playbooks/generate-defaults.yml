@@ -31,3 +31,14 @@
       owner: root
       group: root
       mode: 0644
+      
+  - name: 'define traditional ethernet facts'
+    set_fact:
+     rock_monifs: '{% set rock_monifs = rock_monifs|default([]) + [item] %}{{ rock_monifs|list }}'
+    when:
+         - hostvars[inventory_hostname]['ansible_' + item]['ipv4'] is not defined
+         - hostvars[inventory_hostname]['ansible_' + item]['type'] == 'ether'
+    with_items:
+       #ansible_interfaces separates words with '-', whereas the variables in hostvars are seperated with '_'
+       #Make the replacement below to properly look up the interfaces in the hostvars dictionary
+       - "{{ ansible_interfaces | regex_replace('-','_') }}"

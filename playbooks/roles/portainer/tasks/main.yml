@@ -17,6 +17,21 @@
       - 9000:9000
     volumes:
       - '/var/run/docker.sock:/var/run/docker.sock'
-      - '/opt/portainer:/data'
+      - "{{ rocknsm_dir }}/portainer:/data"
 # If your host is using SELinux
 #    privileged: yes
+
+- name: 'Install Portainer service file'
+  copy:
+    src: 'portainer.service'
+    dest: '/etc/systemd/system/portainer.service'
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Enable Portainer service'
+  service: 
+    name: 'portainer'
+    enabled: yes
+...
+

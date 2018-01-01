@@ -38,7 +38,7 @@ all:
     with_elasticsearch: true
     with_filebeat: true
     with_fsf: true
-    with_harbor: false
+    with_harbor: true
     with_kafka: true
     with_kibana: true
     with_logstash: true
