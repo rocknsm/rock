@@ -45,6 +45,7 @@ all:
     with_harbor: true
     with_kafka: true
     with_kibana: true
+    with_lighttpd: true
     with_logstash: true
     with_nginx: true
     with_portainer: true
@@ -62,10 +63,13 @@ all:
     enable_elasticsearch: true
     enable_filebeat: true
     enable_fsf: false
+    enable_harbor: true
     enable_kafka: true
     enable_kibana: true
+    enable_lighttpd: true
     enable_logstash: true
     enable_nginx: true
+    enable_portainer: true
     enable_pulledpork: true
     enable_snort: false
     enable_stenographer: false

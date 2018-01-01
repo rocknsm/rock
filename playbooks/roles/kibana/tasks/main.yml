@@ -12,3 +12,4 @@
 
 - include_tasks: 'kibana_nginx.yml'
   when: not containerized_install
+...

@@ -3,3 +3,4 @@
 
 #### Lightpd configuration variables ####
 lighttpd_port: '8080'
+...

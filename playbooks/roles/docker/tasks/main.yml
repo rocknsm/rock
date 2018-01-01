@@ -55,6 +55,10 @@
 - name: 'Start Docker'
   service:
     name: 'docker'
-    enabled: yes
     state: 'started'
 
+- name: 'Enable Docker service'
+  service:
+    name: 'docker'
+    enabled: yes
+  when: "{{ enable_docker }}"

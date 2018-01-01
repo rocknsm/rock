@@ -36,7 +36,9 @@
   service: 
     name: 'kibana'
     enabled: yes
+  when: "{{ enable_kibana }}"
 
 - name: Store installed kibana pkg info
   set_fact:
     kibana_info: {{ kibana_ver }}
+...

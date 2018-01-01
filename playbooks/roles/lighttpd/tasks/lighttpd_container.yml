@@ -15,7 +15,7 @@
 
 - name: 'Build lighttpd container'
   docker_image:
-    pull: "alpine"
+    pull: 'alpine'
     state: present
     path: "{{ rock_dir }}/lighttpd/"
     docker file: 'lighttpd-dockerfile'
@@ -49,3 +49,5 @@
   service: 
     name: 'lighttpd'
     enabled: yes
+  when: "{{ enable_lighttpd }}"
+...

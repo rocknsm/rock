@@ -46,7 +46,7 @@
 
   - include_role:
       name: lighttpd
-    when: not xpack_license
+    when: not xpack_license and with_lighttpd
 
   - include_role:
       name: zookeeper
@@ -59,6 +59,7 @@
 
   - include_role:
       name: kibana
+    when: "{{ with_kibana }}"
 
 # Must be the last running role so it ingests all other Docker images on load
   - include_role: 

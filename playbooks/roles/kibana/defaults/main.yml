@@ -15,3 +15,4 @@ es_url: "http://localhost:9200"
 # Which image version of Kibana this role is using.
 kibana_ver: '6.1.1'
 kibana_port: '5601'
+...
