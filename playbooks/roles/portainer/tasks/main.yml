@@ -33,6 +33,6 @@
   service: 
     name: 'portainer'
     enabled: yes
-  when: "{{ enable_portainer }}"
+  when: enable_portainer
 ...
 

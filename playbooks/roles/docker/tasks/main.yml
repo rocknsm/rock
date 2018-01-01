@@ -61,4 +61,4 @@
   service:
     name: 'docker'
     enabled: yes
-  when: "{{ enable_docker }}"
+  when: enable_docker

@@ -25,7 +25,7 @@
 - name: 'Build lighttpd container'
   docker_image:
     name: 'alpine/lighttpd'
-    pull: 'alpine'
+    pull: yes
     state: present
     path: "{{ rocknsm_dir }}/lighttpd/"
     dockerfile: 'lighttpd-dockerfile'
