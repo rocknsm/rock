@@ -18,7 +18,7 @@
     owner: "{{ logstash_user }}"
     src: logstash-kafka-bro.conf
   notify: "Restart Logstash"
-  when: "with_logstash and with_bro and with_kafka"
+  when: "with_bro and with_kafka"
 - 
   name: "Install Suricata-Kafka configuration for Logstash"
   copy: 
@@ -28,7 +28,7 @@
     owner: "{{ logstash_user }}"
     src: logstash-kafka-suricata.conf
   notify: "Restart Logstash"
-  when: "with_logstash and with_suricata and with_kafka"
+  when: "with_suricata and with_kafka"
 - 
   name: "Install FSF-Kafka configuration for Logstash"
   copy: 
@@ -38,11 +38,10 @@
     owner: "{{ logstash_user }}"
     src: logstash-kafka-fsf.conf
   notify: "Restart Logstash"
-  when: "with_logstash and with_fsf and with_kafka"
+  when: "with_fsf and with_kafka"
 - 
   name: "Enable and start Logstash"
   service: 
-    enabled: "{{ enable_logstash }}"
     name: logstash
-    state: "{{ 'started' if enable_logstash else 'stopped' }}"
-  when: with_logstash
+    enabled: yes
+    state: started

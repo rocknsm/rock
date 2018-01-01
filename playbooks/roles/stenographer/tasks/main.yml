@@ -50,8 +50,8 @@
   name: Configure Stenographer service
   service:
     name: stenographer
-    enabled: "{{ enable_stenographer }}"
-    state: "{{ 'started' if enable_stenographer else 'stopped' }}"
+    enabled: yes
+    state: started
 
 -
   name: Configure Stenographer per-interface
