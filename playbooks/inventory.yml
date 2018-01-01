@@ -1,3 +1,9 @@
+# The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
+# themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
+# function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
+# look at this inventory file and see the hosts that are part of the sensor group. When site.yml imports the sensors.yml
+# file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
+
 ---
 
 all:
