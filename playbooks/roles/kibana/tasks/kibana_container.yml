@@ -35,8 +35,7 @@
     dest: '/etc/systemd/system/kibana.service' 
     mode: 0644 
     owner: root 
-    group: root 
-    mode: 0644 
+    group: root  
 
 - name: 'Copy Kibana compose file'
   template:
@@ -48,11 +47,10 @@
     group: root
 
 - name: 'Run kibana-compose.yml' 
-  tasks: 
-    - docker_service: 
-        project_src: "{{ rocknsm_dir }}/kibana/" 
-        files: 'kibana-compose.yml' 
-        state: present 
+  docker_service: 
+    project_src: "{{ rocknsm_dir }}/kibana/" 
+    files: 'kibana-compose.yml' 
+    state: present 
 
 - name: 'Enable Kibana service'
   service: 
