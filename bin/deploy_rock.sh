@@ -61,7 +61,7 @@ main() {
 	fi
 
 	cd "${TOPLEVEL}/playbooks"
-	ansible-playbook "${TOPLEVEL}/playbooks/deploy-rock.yml" ${VERBOSE_FLAGS}
+	Mainmenu
 
 	if [ $? -eq 0 ]; then
 		cat << 'EOF'
@@ -96,13 +96,23 @@ main() {
 	│                                                                              │
 	└──────────────────────────────────────────────────────────────────────────────┘
 EOF
-
 	fi
 }
-
+#=======================
+stand_alone() {
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" ${VERBOSE_FLAGS}
+}
+#=======================
+server() {
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit server.yml ${VERBOSE_FLAGS}
+}
+#=======================
+sensor() {
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit sensor.yml ${VERBOSE_FLAGS}
+}
+#=======================
 # Generate the /etc/rocknsm/config.yml 
 generate_config() {
-
 echo "[-] You must run generate_defaults.sh prior to deploying for the first time. "
 read -p "Would you like to generate the defaults now?  [y/n] " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]];then
@@ -115,6 +125,48 @@ else
 	echo ''
 	exit
 fi
+}
+#=======================
+# Main menu to call all available install options be it a stand alone system or just a sensor.
+Mainmenu() {
+clear
+Header
+echo "+        [ 1 ] Install a Stand alone system (everything on this box)   +"
+echo "+                                                                      +"
+echo "+        [ 2 ] server Install: only the services for a server          +"
+echo "+                                                                      +"
+echo "+        [ 3 ] sensor Install: only the services for a sensor          +"
+echo "+                                                                      +"
+echo "+                                                                      +"
+echo "+                                                                      +"
+echo "+        [ X ] Exit Script                                             +"
+echo "+                                                                      +"
+echo "+                                                                      +"
+Footer
+read -p "Please make a Selection: " mainmenu_option
+case $mainmenu_option in
+	1) clear && stand_alone;;
+	2) clear && server;; 
+	3) clear && sensor;;
+	x|X) clear && exit ;;
+	*) echo "Invalid input" && sleep 1 && Mainmenu;;
+esac
+}
+#=======================
+Header() {
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "+                                                                      +"
+echo "+                   Deployment Configuration Options                   +"
+echo "+                                                                      +"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo "+                                                                      +"
+}
+#=======================
+Footer() {
+echo "+                                                                      +"
+echo "+                                                                      +"
+echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
+echo ""
 }
 #
 #Script Execution:

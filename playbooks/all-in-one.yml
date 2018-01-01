@@ -1,4 +1,0 @@
----
-- import_playbook: all.yml
-- import_playbook: server.yml
-- import_playbook: sensor.yml
