@@ -23,9 +23,6 @@ all:
     rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
     rocknsm_local_baseurl: file:///srv/rocknsm
     
-    #### Retention Configuration ####
-    # Moved all retention configuration variables into their respective roles var/main.yml
-    
     #### Docker configuration variables ####
     # Install services with Docker whenever possible vs installing on bare metal.
     containerized_install: true

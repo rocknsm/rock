@@ -3,8 +3,10 @@
 - hosts: servers
 
   roles:
-    - { role: harbor, when: containerized_install and with_harbor }
     - { role: elasticsearch, when: with_elasticsearch }
     - { role: logstash, when: with_logstash }
     - { role: kibana, when: with_kibana }
     - { role: nginx, when: with_nginx }
+    
+    # Harbor must run last so that it uploads all containers installed on the machine.
+    - { role: harbor, when: containerized_install and with_harbor }

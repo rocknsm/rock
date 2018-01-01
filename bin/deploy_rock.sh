@@ -104,11 +104,11 @@ ansible-playbook "${TOPLEVEL}/playbooks/site.yml" ${VERBOSE_FLAGS}
 }
 #=======================
 server() {
-ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit server.yml ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit servers ${VERBOSE_FLAGS}
 }
 #=======================
 sensor() {
-ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit sensor.yml ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit sensors ${VERBOSE_FLAGS}
 }
 #=======================
 # Generate the /etc/rocknsm/config.yml 
