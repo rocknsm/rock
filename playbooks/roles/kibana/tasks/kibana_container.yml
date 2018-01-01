@@ -17,6 +17,13 @@
     owner: root 
     group: root  
 
+- name: 'Create new directories'
+  file:
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - "{{ rocknsm_dir }}/kibana/data"
+
 - name: 'Copy Kibana compose file'
   template:
     backup: yes 

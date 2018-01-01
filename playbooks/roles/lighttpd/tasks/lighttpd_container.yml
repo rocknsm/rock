@@ -3,6 +3,15 @@
 ############## Setup Lighttpd container ##############
 ######################################################
 
+- name: 'Create new directories'
+  file:
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - "{{ rocknsm_dir }}/lighttpd/var/www"
+    - "{{ rocknsm_dir }}/lighttpd/var/log"
+    - "{{ rocknsm_dir }}/lighttpd/etc"
+
 - name: 'Copy lighttpd dockerfile'
   template:
     backup: yes 
