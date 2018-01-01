@@ -3,7 +3,7 @@
 version: '2'
 services:
   lighttpd:
-    image: "lighttpd"
+    image: 'alpine/lighttpd'
     network_mode: host
     ports:
       - "{{ lighttpd_port }}:{{ lighttpd_port }}"
