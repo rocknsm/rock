@@ -7,8 +7,6 @@ RUN apk add --update --no-cache \
 	lighttpd-mod_auth \
   && rm -rf /var/cache/apk/*
 
-COPY etc/lighttpd/* /etc/lighttpd/
-
 EXPOSE {{ lighttpd_port }}
 
 VOLUME ["/var/www/localhost"]
