@@ -1,0 +1,15 @@
+---
+######################################################
+################ Setup Lighttpd bare #################
+######################################################
+
+- name: Install lighttpd package
+  yum:
+    name: 'lighttpd'
+    state: installed
+
+- name: Enable and start Kibana
+  service:
+    name: 'lighttpd'
+    state: started
+    enabled: yes

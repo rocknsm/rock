@@ -1,0 +1,5 @@
+%YAML 1.1
+---
+
+#### Lightpd configuration variables ####
+lighttpd_port: '8080'

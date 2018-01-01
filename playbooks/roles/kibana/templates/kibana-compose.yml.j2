@@ -6,12 +6,12 @@ services:
     image: "kibana:{{ kibana_ver }}"
     network_mode: host
     ports:
-      - "5601:5601"
+      - "{{ kibana_port }}:{{ kibana_port }}"
     restart: "always"
     volumes: 
-      - "{{ rocknsm_dir }}/kibana:/data"
+      - "{{ rocknsm_dir }}/kibana/data:/data"
     environment:
-      - "ELASTICSEARCH_URL=http://{{ rock_hostname }}:9200"
+      - "ELASTICSEARCH_URL=http://localhost:9200"
       - SERVER_HOST=0.0.0.0
-      - SERVER_PORT=5601
-      - xpack.security.enabled=false
+      - SERVER_PORT="{{ kibana_port }}"
+      - xpack.security.enabled="{{ xpack_license }}"

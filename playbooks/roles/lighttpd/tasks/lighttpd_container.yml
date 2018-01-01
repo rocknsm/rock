@@ -1,0 +1,51 @@
+---
+######################################################
+############## Setup Lighttpd container ##############
+######################################################
+
+- name: 'Copy lighttpd dockerfile'
+  template:
+    backup: yes 
+    src: 'lighttpd-dockerfile.j2'
+    dest: "{{ rocknsm_dir }}/lighttpd/lighttpd-dockerfile"
+    mode: 0644
+    owner: root
+    group: root
+  when: rock_online_install
+
+- name: 'Build lighttpd container'
+  docker_image:
+    pull: "alpine"
+    state: present
+    path: "{{ rock_dir }}/lighttpd/"
+    docker file: 'lighttpd-dockerfile'
+  when: rock_online_install
+
+- name: 'Install Lighttpd service file'
+  template: 
+    backup: yes 
+    src: 'lighttpd.service.j2' 
+    dest: '/etc/systemd/system/lighttpd.service' 
+    mode: 0644 
+    owner: root 
+    group: root  
+
+- name: 'Copy Lighttpd compose file'
+  template:
+    backup: yes 
+    src: 'lighttpd-compose.yml.j2'
+    dest: "{{ rocknsm_dir }}/lighttpd/lighttpd-compose.yml"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Run lighttpd-compose.yml' 
+  docker_service: 
+    project_src: "{{ rocknsm_dir }}/lighttpd/" 
+    files: 'lighttpd-compose.yml' 
+    state: present 
+
+- name: 'Enable Lighttpd service'
+  service: 
+    name: 'lighttpd'
+    enabled: yes

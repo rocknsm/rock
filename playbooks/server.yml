@@ -44,10 +44,10 @@
       name: portainer 
     when: containerized_install and with_portainer
 
-  - include_role: 
-      name: harbor 
-    when: containerized_install and with_harbor
- 
+  - include_role:
+      name: lighttpd
+    when: not xpack_license
+
   - include_role:
       name: zookeeper
       
@@ -56,17 +56,20 @@
       
   - include_role:
       name: logstash
-      
-  - name: kibana
-    include_role:
+
+  - include_role:
       name: kibana
+
+# Must be the last running role so it ingests all other Docker images on load
+  - include_role: 
+      name: harbor 
+    when: containerized_install and with_harbor
+
       
   # TODO NEEDS TO BE TESTED     
 #  - include_role:
 #      name: stenographer
       
-  - include_role:
-      name: nginx
    
     ######################################################
     #################  ROCKNSM Scripts  ##################

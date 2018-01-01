@@ -1,0 +1,14 @@
+---
+
+version: '2'
+services:
+  lighttpd:
+    image: "lighttpd"
+    network_mode: host
+    ports:
+      - "{{ lighttpd_port }}:{{ lighttpd_port }}"
+    restart: "always"
+    volumes: 
+      - "{{ rocknsm_dir }}/lighttpd/var/www:/var/www/localhost"
+      - "{{ rocknsm_dir }}/lighttpd/etc:/etc/lighttpd"
+      - "{{ rocknsm_dir }}/lighttpd/var/log:/var/log/lighttpd"
