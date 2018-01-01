@@ -5,7 +5,6 @@
   roles:
     - common
     - { role: docker, when: containerized_install }
-    - { role: portainer, when: containerized_install and with_portainer }
 
 # TODO: Need to determine if we are going to do anything with these.    
 #  vars:
