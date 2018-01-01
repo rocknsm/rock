@@ -8,6 +8,45 @@
     name: bro
     state: installed
     
+    ######################################################
+    ##################  GeoIP Databases  #################
+    ######################################################
+  - name: Configure GeoIP Update
+    copy: src=GeoIP.conf dest=/etc/GeoIP.conf
+
+    # There's an issue w/ geoipupdate when env is empty
+  - name: Update GeoIP
+    shell: >
+      if [ "x$HTTP_PROXY" == "x" ]; then
+          unset HTTP_PROXY;
+      fi
+      if [ "x$http_proxy" == "x" ]; then
+          unset http_proxy;
+      fi
+      if [ "x$HTTPS_PROXY" == "x" ]; then
+          unset HTTPS_PROXY;
+      fi
+      if [ "x$https_proxy" == "x" ]; then
+          unset https_proxy;
+      fi
+      /usr/bin/geoipupdate
+    args:
+      creates: /usr/share/GeoIP/GeoLiteASNum.dat
+    register: result
+    failed_when: (result.rc != 0) and (result.rc != 1)
+
+  - name: Create GeoIP symlinks
+    file:
+      src: "/usr/share/GeoIP/{{ item.src }}"
+      dest: "/usr/share/GeoIP/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'GeoLiteCity.dat', dest: 'GeoIPCity.dat' }
+      - { src: 'GeoLiteCountry.dat', dest: 'GeoIPCountry.dat' }
+      - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
+      - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
+    
 - name: Install Bro plugin for af_packet
   yum:
     name: bro-plugin-af_packet
