@@ -27,7 +27,7 @@
     pull: 'alpine'
     state: present
     path: "{{ rocknsm_dir }}/lighttpd/"
-    docker file: 'lighttpd-dockerfile'
+    dockerfile: 'lighttpd-dockerfile'
   when: rock_online_install
 
 - name: 'Install Lighttpd service file'
