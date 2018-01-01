@@ -33,7 +33,7 @@ all:
     with_bro: true
     with_docker: true
     with_elasticsearch: true
-    with_filebeat: true
+    with_filebeats: true
     with_fsf: true
     with_harbor: true
     with_kafka: true
