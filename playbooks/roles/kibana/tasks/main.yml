@@ -13,8 +13,8 @@
 - name: Enable and start Kibana
   service:
     name: kibana
-    state: "{{ 'started' if enable_kibana else 'stopped' }}"
-    enabled: "{{ enable_kibana }}"
+    enabled: yes
+    state: started
 
 - name: Download ROCK Dashboards
   get_url:

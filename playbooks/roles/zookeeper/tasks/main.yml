@@ -16,12 +16,10 @@
     mode: 0644
     owner: root
     group: root
-  when: with_zookeeper
 
 -
   name: Enable and start zookeeper
   service:
     name: zookeeper
-    state: "{{ 'started' if enable_zookeeper else 'stopped' }}"
-    enabled: "{{ enable_zookeeper }}"
-  when: with_zookeeper
+    enabled: yes
+    state: started
