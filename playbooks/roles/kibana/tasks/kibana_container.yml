@@ -5,7 +5,7 @@
 
 - name: 'Download Kibana container'
   docker_image:
-    name: "docker.elastic.co/kibana/kibana:{{ kibana_ver }}"
+    name: "{{ kibana_container }}:{{ kibana_ver }}"
   when: rock_online_install
 
 - name: 'Install Kibana service file'
@@ -43,8 +43,5 @@
     name: 'kibana'
     enabled: yes
   when: enable_kibana
-
-- name: 'Store installed kibana pkg info'
-  set_fact:
-    kibana_info: "{{ kibana_ver }}"
 ...
+

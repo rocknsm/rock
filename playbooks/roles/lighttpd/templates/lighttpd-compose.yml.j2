@@ -3,7 +3,7 @@
 version: '2'
 services:
   lighttpd:
-    image: 'alpine/lighttpd'
+    image: 'centos/systemd'
     network_mode: host
     ports:
       - "{{ lighttpd_port }}:{{ lighttpd_port }}"

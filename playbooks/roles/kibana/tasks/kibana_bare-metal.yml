@@ -5,7 +5,7 @@
 
 - name: 'Install Kibana package'
   yum:
-    name: 'kibana'
+    name: "{{ kibana_yum }}.{{ kibana_ver }}"
     state: installed
 
 - name: 'Start Kibana'

@@ -16,4 +16,6 @@ es_url: "http://localhost:9200"
 kibana_ver: '6.1.1'
 kibana_port: '5601'
 kibana_ip: "{{ '0.0.0.0' if xpack_license else '127.0.0.1' }}"
+kibana_container: 'docker.elastic.co/kibana/kibana'
+kibana_yum: 'kibana'
 ...
