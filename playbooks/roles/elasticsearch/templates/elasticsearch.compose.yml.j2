@@ -1,0 +1,33 @@
+version: '2'
+services:
+  elastic-1:
+    image: "elasticsearch:PPTAGPP"
+    restart: "always"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    network_mode: host
+    volumes:
+      - PPINSTALLPP/var/elastic/node1:/usr/share/elasticsearch/data/"
+    environment:
+      - "ES_JAVA_OPTS=-Xms16G -Xmx16G -XX:-AssumeMP"
+      - cluster.name=cvah
+      - node.name=elastic-1
+      - xpack.security.enabled=false
+      - processors=8
+      - network.publish_host=_eth0_
+      - http.host=0.0.0.0
+      - transport.tcp.port=9300
+
+      # This option keeps JVM memory from being paged out to swap
+      - bootstrap.memory_lock=true
+
+      - discovery.zen.ping.unicast.hosts=elasticnodes.dmss:9300,elasticnodes.dmss:9301
+
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+
+    # This caps the amount of memory available to the container
+    mem_limit: 32g

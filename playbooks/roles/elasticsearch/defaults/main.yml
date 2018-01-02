@@ -20,3 +20,9 @@ es_node_name: "{{ rock_hostname }}"
 es_memlock_override: |
   [Service]
   LimitMEMLOCK=infinity
+  
+elastic_ver: '6.1.1'
+elastic_port: '5601'
+elastic_ip: "{{ '0.0.0.0' if xpack_license else '127.0.0.1' }}"
+elastic_container: 'docker.elastic.co/elastic/elastic'
+elastic_yum: 'elastic'
