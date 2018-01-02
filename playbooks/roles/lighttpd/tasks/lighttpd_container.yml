@@ -62,7 +62,7 @@
 - name: 'Copy proxy.conf file'
   template:
     src: 'proxy.conf.j2'
-    dest: "{{ rocknsm_dir }}/lighttpd/conf.d/proxy.conf"
+    dest: "{{ rocknsm_dir }}/lighttpd/etc/conf.d/proxy.conf"
     mode: 0644
     owner: root
     group: root
