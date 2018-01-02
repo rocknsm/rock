@@ -1,0 +1,16 @@
+# Dockerfile for lighttpd
+
+FROM alpine
+
+RUN apk add --update --no-cache \
+	lighttpd \
+	lighttpd-mod_auth \
+  && rm -rf /var/cache/apk/*
+
+EXPOSE {{ lighttpd_port }}
+
+VOLUME ["/var/www/localhost"]
+VOLUME ["/etc/lighttpd"]
+VOLUME ["/var/log/lighttpd"]
+
+CMD ["lighttpd", "-D", "-f", "/etc/lighttpd/lighttpd.conf"]

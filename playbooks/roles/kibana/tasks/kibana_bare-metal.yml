@@ -1,0 +1,29 @@
+---
+######################################################
+################# Setup Kibana bare ##################
+######################################################
+
+- name: 'Install Kibana package'
+  yum:
+    name: "{{ kibana_yum }}.{{ kibana_ver }}"
+    state: installed
+
+- name: 'Start Kibana'
+  service:
+    name: 'kibana'
+    state: started
+
+- name: 'Enable Kibana'
+  service:
+    name: 'kibana'
+    enabled: true
+
+- name: 'Query Kibana package info'
+  yum:
+    list: 'kibana'
+  register: kibana_pkg
+
+- name: 'Store installed kibana pkg info'
+  set_fact:
+    kibana_info: "{{ kibana_pkg.results | selectattr('repo', 'match', 'installed') | first }}"
+...

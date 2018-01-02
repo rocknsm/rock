@@ -1,0 +1,21 @@
+---
+######################################################
+################ Setup Lighttpd bare #################
+######################################################
+
+- name: 'Install lighttpd package'
+  yum:
+    name: 'lighttpd'
+    state: installed
+
+- name: 'Start Lighttpd'
+  service:
+    name: 'lighttpd'
+    state: started
+
+- name: 'Enable Lighttpd'
+  service:
+    name: 'lighttpd'
+    enabled: yes
+  when: "{{ enable_lighttpd }}"
+...

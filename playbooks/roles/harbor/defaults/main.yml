@@ -5,4 +5,5 @@
 # All Harbor configuration variables for Harbor install itself.  
 
 harbor_ver: '1.2.2'
+harbor_port: '80'
 
