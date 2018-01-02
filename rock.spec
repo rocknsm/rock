@@ -38,7 +38,7 @@ install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_rockdir}/bin/
 cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 # Install standalone scripts
-install -p -m 755 tools/pcap-2-bro.py %{buildroot}/%{_bindir}
+install -p -m 755 tools/pcap_2_bro.py %{buildroot}/%{_bindir}
 
 %files
 %defattr(0644, root, root, 0755)
@@ -49,4 +49,4 @@ install -p -m 755 tools/pcap-2-bro.py %{buildroot}/%{_bindir}
 
 %attr(0755, root, root) %{_rockdir}/bin/deploy_rock.sh
 %attr(0755, root, root) %{_rockdir}/bin/generate_defaults.sh
-%attr(0755, root, root) %{_bindir}/pcap-2-bro.py
+%attr(0755, root, root) %{_bindir}/pcap_2_bro.py
