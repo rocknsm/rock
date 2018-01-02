@@ -77,6 +77,10 @@ bro_stats_retention: {{ bro_stats_retention }}
 # Use Docker containers for RockNSM services when possible vs base metal install
 containerized_install: {{ containerized_install }}
 
+#### Elasticstack x-pack options ####
+# If you have licensing for x-pack set variable to true.
+xpack_license: false
+
 ### Advanced Feature Selection ######
 # Don't flip these unless you know what you're doing
 
@@ -87,6 +91,7 @@ with_fsf: {{ with_fsf }}
 with_harbor: {{ with_harbor }}
 with_kafka: {{ with_kafka }}
 with_kibana: {{ with_kibana }}
+with_lighttpd: {{ with_lighttpd }}
 with_logstash: {{ with_logstash }}
 with_nginx: {{ with_nginx }}
 with_portainer: {{ with_portainer }}
@@ -95,3 +100,26 @@ with_snort: {{ with_snort }}
 with_stenographer: {{ with_stenographer }}
 with_suricata: {{ with_suricata }}
 with_zookeeper: {{ with_zookeeper }}
+
+
+# Specify if a service is enabled on startup
+
+enable_bro: {{ enable_bro }}
+enable_docker: {{ enable_docker }}
+enable_elasticsearch: {{ enable_elasticsearch }}
+enable_fsf: {{ enable_fsf }}
+enable_harbor: {{ enable_harbor }}
+enable_kafka: {{ enable_kafka }}
+enable_kibana: {{ enable_kibana }}
+enable_lighttpd: {{ enable_lighttpd }}
+enable_logstash: {{ enable_logstash }}
+enable_nginx: {{ enable_nginx }}
+enable_portainer: {{ enable_portainer }}
+enable_pulledpork: {{ enable_pulledpork }}
+enable_snort: {{ enable_snort }}
+enable_stenographer: {{ enable_stenographer }}
+enable_suricata: {{ enable_suricata }}
+enable_zookeeper: {{ enable_zookeeper }}
+
+
+

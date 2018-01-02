@@ -39,7 +39,7 @@
   when: 'service_status.stat.exists'
 
 - name: 'Install Harbor'
-  shell: "bash {{ rocknsm_dir }}/harbor/install.sh" 
+  shell: "sh {{ rocknsm_dir }}/harbor/install.sh" 
 
 - name: 'Install Harbor service file'
   template:
@@ -54,7 +54,6 @@
   service: 
     name: 'harbor'
     enabled: yes
-    state: started
 
 - name: 'Copy images script'
   copy:
@@ -65,7 +64,7 @@
     group: root
 
 - name: 'Import existing Docker images into Harbor'
-  shell: "bash {{ rocknsm_dir }}/harbor/import_harbor_images.sh"
+  shell: "sh {{ rocknsm_dir }}/harbor/import_harbor_images.sh"
 
 - name: 'Zeroing import script passwords'
   replace: 
