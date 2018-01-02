@@ -49,22 +49,23 @@
     owner: root
     group: root
 
-- name: 'Copy lighttpd config files'
-  tasks:
-    - template:
-        backup: yes 
-        src: 'lighttpd.conf.j2'
-        dest: "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/lighttpd.conf"
-        mode: 0644
-        owner: root
-        group: root
-    - template:
-        backup: yes 
-        src: 'modules.conf.j2'
-        dest: "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/modules.conf"
-        mode: 0644
-        owner: root
-        group: root
+- name: 'Copy lighttpd.conf file'
+  template:
+    backup: yes 
+    src: 'lighttpd.conf.j2'
+    dest: "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/lighttpd.conf"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Copy modules.conf file'
+  template:
+    backup: yes 
+    src: 'modules.conf.j2'
+    dest: "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/modules.conf"
+    mode: 0644
+    owner: root
+    group: root
 
 - name: 'Run lighttpd-compose.yml' 
   docker_service: 
