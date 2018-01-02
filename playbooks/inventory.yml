@@ -32,6 +32,10 @@ all:
     #### Docker configuration variables ####
     # Install services with Docker whenever possible vs installing on bare metal.
     containerized_install: true
+
+    #### Elasticstack x-pack options ####
+    # If you have licensing for x-pack set variable to true.
+    xpack_license: false
     
     # Feature options - Don't flip these unless you know what you're doing
     # These control if the service is installed
