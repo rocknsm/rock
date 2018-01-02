@@ -11,8 +11,9 @@ services:
     volumes: 
       - "{{ rocknsm_dir }}/kibana/data:/data"
     environment:
-      - "ELASTICSEARCH_URL=http://localhost:9200"
+      - ELASTICSEARCH_URL="http://localhost:9200"
       - SERVER_HOST="{{ kibana_ip }}"
       - SERVER_PORT="{{ kibana_port }}"
       - xpack.security.enabled="{{ xpack_license }}"
+      - xpack.monitoring.ui.container.elasticsearch.enabled:"{{ xpack_license }}"
 ...

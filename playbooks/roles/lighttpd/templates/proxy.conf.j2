@@ -1,0 +1,8 @@
+$HTTP["url"] =~ "^/kibana" {
+         proxy.server = (
+                       "" => ( (
+                           "host" => "{{ kibana_ip }}",
+                         "port" => "{{ kibana_port }}"
+                         ) )
+        )
+}

@@ -14,7 +14,8 @@
     dest: '/etc/systemd/system/kibana.service' 
     mode: 0644 
     owner: root 
-    group: root  
+    group: root
+  notify: reload systemd  
 
 - name: 'Create new directories'
   file:

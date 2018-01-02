@@ -3,6 +3,18 @@
 ############## Setup Lighttpd container ##############
 ######################################################
 
+# Depending on the OS there may already be a httpd running
+- name: 'Check if pre-existing httpd service exists'
+  stat: 'path=/etc/init.d/httpd'
+  register: 'service_status'
+
+- name: 'Disable local http server'
+  service:
+    name: 'httpd'
+    enabled: no
+    state: 'stopped'
+  when: 'service_status.stat.exists'
+
 - name: 'Create new directories'
   file:
     path: '{{ item }}'
@@ -10,7 +22,7 @@
   with_items:
     - "{{ rocknsm_dir }}/lighttpd/var/www"
     - "{{ rocknsm_dir }}/lighttpd/var/log"
-    - "{{ rocknsm_dir }}/lighttpd/etc/lighttpd"
+    - "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/conf.d"
 
 - name: 'Copy lighttpd dockerfile'
   template:
@@ -36,12 +48,21 @@
     dest: '/etc/systemd/system/lighttpd.service' 
     mode: 0644 
     owner: root 
-    group: root  
+    group: root
+  notify: reload systemd  
 
 - name: 'Copy Lighttpd compose file'
   template:
     src: 'lighttpd-compose.yml.j2'
     dest: "{{ rocknsm_dir }}/lighttpd/lighttpd-compose.yml"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Copy proxy.conf file'
+  template:
+    src: 'proxy.conf.j2'
+    dest: "{{ rocknsm_dir }}/lighttpd/conf.d/proxy.conf"
     mode: 0644
     owner: root
     group: root
