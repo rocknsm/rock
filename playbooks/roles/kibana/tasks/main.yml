@@ -7,7 +7,5 @@
 
 - include_tasks: 'kibana_container.yml'
   when: containerized_install
-
-- include_tasks: 'kibana_nginx.yml'
-  when: not containerized_install
 ...
+

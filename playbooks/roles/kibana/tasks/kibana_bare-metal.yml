@@ -17,7 +17,6 @@
   service:
     name: 'kibana'
     enabled: true
-  when: "{{ enable_kibana }}"
 
 - name: 'Query Kibana package info'
   yum:

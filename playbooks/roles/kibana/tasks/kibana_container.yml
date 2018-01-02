@@ -42,6 +42,5 @@
   service: 
     name: 'kibana'
     enabled: yes
-  when: enable_kibana
 ...
 

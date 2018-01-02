@@ -39,11 +39,13 @@ all:
     with_bro: true
     with_docker: true
     with_elasticsearch: true
+    with_elk: false
     with_filebeats: true
     with_fsf: true
     with_harbor: true
     with_kafka: true
     with_kibana: true
+    with_lighttpd: true
     with_logstash: true
     with_nginx: true
     with_portainer: true
