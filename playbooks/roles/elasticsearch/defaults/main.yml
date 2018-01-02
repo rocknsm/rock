@@ -22,7 +22,7 @@ es_memlock_override: |
   LimitMEMLOCK=infinity
   
 elastic_ver: '6.1.1'
-elastic_port: '5601'
-elastic_ip: "{{ '0.0.0.0' if xpack_license else '127.0.0.1' }}"
+elastic_data_port: '9200'
+elastic_management_port: '9300'
 elastic_container: 'docker.elastic.co/elastic/elastic'
 elastic_yum: 'elastic'
