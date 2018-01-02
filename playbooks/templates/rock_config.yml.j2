@@ -52,6 +52,14 @@ bro_rockscripts_repo: {{ bro_rockscripts_repo }}
 # the git repo from which pulled pork should be installed
 pulled_pork_repo: {{ pulled_pork_repo }}
 
+#### Retention Configuration ####
+elastic_close_interval: {{ elastic_close_interval }}
+elastic_delete_interval: {{ elastic_delete_interval }}
+kafka_retention: {{ kafka_retention }}
+suricata_retention: {{ suricata_retention }}
+bro_log_retention: {{ bro_log_retention }}
+bro_stats_retention: {{ bro_stats_retention }}
+
 ### Advanced Feature Selection ######
 # Don't flip these unless you know what you're doing
 with_stenographer: {{ with_stenographer }}
