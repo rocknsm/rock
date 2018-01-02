@@ -37,6 +37,9 @@ install -p -m 755 bin/deploy_rock.sh %{buildroot}/%{_rockdir}/bin/
 install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_rockdir}/bin/
 cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
+# Install standalone scripts
+install -p -m 755 tools/pcap-2-bro.py %{buildroot}/%{_bindir}
+
 %files
 %defattr(0644, root, root, 0755)
 %{_rockdir}/playbooks/*
@@ -46,10 +49,4 @@ cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 %attr(0755, root, root) %{_rockdir}/bin/deploy_rock.sh
 %attr(0755, root, root) %{_rockdir}/bin/generate_defaults.sh
-
-%changelog
-* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.5-1
-- 
-Tito files added.
-rock.spec added.
-sign_rpm.sh added. 
+%attr(0755, root, root) %{_bindir}/pcap-2-bro.py
