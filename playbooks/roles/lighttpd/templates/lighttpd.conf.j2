@@ -85,12 +85,12 @@ include "modules.conf"
 ##  Basic Configuration
 ## ---------------------
 ##
-server.port = 80
+server.port = {{ lighttpd_port }}
 
 ##
 ## Use IPv6?
 ##
-server.use-ipv6 = "enable"
+#server.use-ipv6 = "enable"
 
 ##
 ## bind to a specific IP

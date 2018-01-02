@@ -3,16 +3,16 @@
 version: '2'
 services:
   kibana:
-    image: "kibana:{{ kibana_ver }}"
+    image: "docker.elastic.co/kibana/kibana:{{ kibana_ver }}"
     network_mode: host
     ports:
-      - "{{ kibana_port }}:{{ kibana_port }}"
+      - "{{ kibana_ip }}:{{ kibana_port }}:{{ kibana_port }}"
     restart: "always"
     volumes: 
       - "{{ rocknsm_dir }}/kibana/data:/data"
     environment:
       - "ELASTICSEARCH_URL=http://localhost:9200"
-      - SERVER_HOST=0.0.0.0
+      - SERVER_HOST="{{ kibana_ip }}"
       - SERVER_PORT="{{ kibana_port }}"
       - xpack.security.enabled="{{ xpack_license }}"
 ...

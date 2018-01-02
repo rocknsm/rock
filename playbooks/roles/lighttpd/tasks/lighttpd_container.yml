@@ -14,7 +14,6 @@
 
 - name: 'Copy lighttpd dockerfile'
   template:
-    backup: yes 
     src: 'lighttpd-dockerfile.j2'
     dest: "{{ rocknsm_dir }}/lighttpd/lighttpd-dockerfile"
     mode: 0644
@@ -33,7 +32,6 @@
 
 - name: 'Install Lighttpd service file'
   template: 
-    backup: yes 
     src: 'lighttpd.service.j2' 
     dest: '/etc/systemd/system/lighttpd.service' 
     mode: 0644 
@@ -42,7 +40,6 @@
 
 - name: 'Copy Lighttpd compose file'
   template:
-    backup: yes 
     src: 'lighttpd-compose.yml.j2'
     dest: "{{ rocknsm_dir }}/lighttpd/lighttpd-compose.yml"
     mode: 0644
@@ -51,7 +48,6 @@
 
 - name: 'Copy lighttpd.conf file'
   template:
-    backup: yes 
     src: 'lighttpd.conf.j2'
     dest: "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/lighttpd.conf"
     mode: 0644
@@ -60,7 +56,6 @@
 
 - name: 'Copy modules.conf file'
   template:
-    backup: yes 
     src: 'modules.conf.j2'
     dest: "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/modules.conf"
     mode: 0644

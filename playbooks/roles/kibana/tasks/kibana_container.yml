@@ -10,7 +10,6 @@
 
 - name: 'Install Kibana service file'
   template: 
-    backup: yes 
     src: 'kibana.service.j2' 
     dest: '/etc/systemd/system/kibana.service' 
     mode: 0644 
@@ -26,7 +25,6 @@
 
 - name: 'Copy Kibana compose file'
   template:
-    backup: yes 
     src: 'kibana-compose.yml.j2'
     dest: "{{ rocknsm_dir }}/kibana/kibana-compose.yml"
     mode: 0644
@@ -43,9 +41,9 @@
   service: 
     name: 'kibana'
     enabled: yes
-  when: "{{ enable_kibana }}"
+  when: enable_kibana
 
-- name: Store installed kibana pkg info
+- name: 'Store installed kibana pkg info'
   set_fact:
-    kibana_info: {{ kibana_ver }}
+    kibana_info: "{{ kibana_ver }}"
 ...

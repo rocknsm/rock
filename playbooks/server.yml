@@ -59,7 +59,7 @@
 
   - include_role:
       name: kibana
-    when: "{{ with_kibana }}"
+    when: with_kibana
 
 # Must be the last running role so it ingests all other Docker images on load
   - include_role: 
