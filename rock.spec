@@ -38,7 +38,7 @@ install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_rockdir}/bin/
 cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 # Install Stand alone Scripts
-install -p -m 755 tools/rock-genpwd.py %{buildroot}/usr/bin/
+install -p -m 755 tools/rock-genpwd.py %{buildroot}/%{_bindir}
 
 %files
 %defattr(0644, root, root, 0755)
@@ -49,4 +49,4 @@ install -p -m 755 tools/rock-genpwd.py %{buildroot}/usr/bin/
 
 %attr(0755, root, root) %{_rockdir}/bin/deploy_rock.sh
 %attr(0755, root, root) %{_rockdir}/bin/generate_defaults.sh
-%attr(0755, root, root) %{buildroot}/usr/bin/rock-genpwd.py
+%attr(0755, root, root) %{_bindir}/rock-genpwd.py
