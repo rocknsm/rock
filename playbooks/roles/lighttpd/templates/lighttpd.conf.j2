@@ -155,7 +155,7 @@ server.errorlog             = log_root + "/error.log"
 ## The debug options are moved into their own file.
 ## see conf.d/debug.conf for various options for request debugging.
 ##
-include "conf.d/debug.conf"
+#include "conf.d/debug.conf"
 
 ##
 #######################################################################
@@ -178,7 +178,7 @@ include "conf.d/debug.conf"
 ##
 ## linux-sysepoll is recommended on kernel 2.6.
 ##
-server.event-handler = "linux-sysepoll"
+#server.event-handler = "linux-sysepoll"
 
 ##
 ## The basic network interface for all platforms at the syscalls read()
@@ -356,7 +356,12 @@ $HTTP["url"] =~ "\.pdf$" {
 #$HTTP["host"] =~ "^www\.(.*)" {
 #  url.redirect            = ( "^/(.*)" => "http://%1/$1" )
 #}
-
+$HTTP["url"] =~ "^/kibana" {
+  $HTTP["host"] =~ ".*" {
+    url.redirect = ( "^/(.*)" => "http://%0:5601" )
+    url.redirect-code = 302
+  }
+}
 ##
 ## which extensions should not be handle via static-file transfer
 ##
@@ -385,12 +390,12 @@ static-file.exclude-extensions = ( ".php", ".pl", ".fcgi", ".scgi" )
 ##
 ## mimetype mapping
 ##
-include "conf.d/mime.conf"
+#include "conf.d/mime.conf"
 
 ##
 ## directory listing configuration
 ##
-include "conf.d/dirlisting.conf"
+#include "conf.d/dirlisting.conf"
 
 ##
 ## Should lighttpd follow symlinks?
