@@ -10,7 +10,7 @@
   with_items:
     - "{{ rocknsm_dir }}/lighttpd/var/www"
     - "{{ rocknsm_dir }}/lighttpd/var/log"
-    - "{{ rocknsm_dir }}/lighttpd/etc"
+    - "{{ rocknsm_dir }}/lighttpd/etc/lighttpd"
 
 - name: 'Copy lighttpd dockerfile'
   template:
@@ -49,6 +49,23 @@
     owner: root
     group: root
 
+- name: 'Copy lighttpd config files'
+  tasks:
+    - template:
+        backup: yes 
+        src: 'lighttpd.conf.j2'
+        dest: "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/lighttpd.conf"
+        mode: 0644
+        owner: root
+        group: root
+    - template:
+        backup: yes 
+        src: 'modules.conf.j2'
+        dest: "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/modules.conf"
+        mode: 0644
+        owner: root
+        group: root
+
 - name: 'Run lighttpd-compose.yml' 
   docker_service: 
     project_src: "{{ rocknsm_dir }}/lighttpd/" 
@@ -59,5 +76,5 @@
   service: 
     name: 'lighttpd'
     enabled: yes
-  when: "{{ enable_lighttpd }}"
+  when: enable_lighttpd
 ...
