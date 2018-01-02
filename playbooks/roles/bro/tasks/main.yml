@@ -235,5 +235,5 @@
 -  name: Enable and start broctl
    service:
      name: broctl
-     enabled: "{{ enable_bro }}"
-     state: "{{ 'started' if enable_bro else 'stopped' }}"
+     enabled: yes
+     state: started

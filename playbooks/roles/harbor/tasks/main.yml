@@ -54,7 +54,7 @@
   service: 
     name: 'harbor'
     enabled: yes
-  when: "{{ enable_harbor }}"
+  when: enable_harbor
 
 - name: 'Copy images script'
   copy:

@@ -16,6 +16,6 @@
 - 
   name: "Enable and start Filebeat"
   service: 
-    enabled: "{{ enable_filebeat }}"
+    enabled: yes
     name: filebeat
-    state: "{{ 'started' if enable_filebeat else 'stopped' }}"
+    state: started

@@ -96,25 +96,23 @@ main() {
 	│                                                                              │
 	└──────────────────────────────────────────────────────────────────────────────┘
 EOF
-
 	fi
 }
 #=======================
 stand_alone() {
-ansible-playbook "${TOPLEVEL}/playbooks/all-in-one.yml" ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" ${VERBOSE_FLAGS}
 }
 #=======================
 server() {
-ansible-playbook "${TOPLEVEL}/playbooks/server.yml" ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit servers ${VERBOSE_FLAGS}
 }
 #=======================
 sensor() {
-ansible-playbook "${TOPLEVEL}/playbooks/sensor.yml" ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit sensors ${VERBOSE_FLAGS}
 }
 #=======================
 # Generate the /etc/rocknsm/config.yml 
 generate_config() {
-
 echo "[-] You must run generate_defaults.sh prior to deploying for the first time. "
 read -p "Would you like to generate the defaults now?  [y/n] " -n 1 -r
 if [[ $REPLY =~ ^[Yy]$ ]];then
@@ -131,7 +129,6 @@ fi
 #=======================
 # Main menu to call all available install options be it a stand alone system or just a sensor.
 Mainmenu() {
-
 clear
 Header
 echo "+        [ 1 ] Install a Stand alone system (everything on this box)   +"
@@ -157,7 +154,6 @@ esac
 }
 #=======================
 Header() {
-
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+                                                                      +"
 echo "+                   Deployment Configuration Options                   +"
@@ -167,13 +163,11 @@ echo "+                                                                      +"
 }
 #=======================
 Footer() {
-
 echo "+                                                                      +"
 echo "+                                                                      +"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo ""
 }
-
 #
 #Script Execution:
 ########################
