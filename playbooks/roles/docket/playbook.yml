@@ -1,0 +1,12 @@
+---
+- hosts: docket:stenographer
+  become: true
+  vars:
+    docket_webserver_type: 'lighttpd'
+  roles:
+    - role: ansible-ntp
+    - role: ansible-timezone
+    - role: ansible-lighttpd
+      when: docket_web_server == "lighttpd"
+    - role: ansible-nginx
+      when: docket_web_server == "nginx"

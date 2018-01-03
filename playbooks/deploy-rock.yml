@@ -113,22 +113,13 @@
       name: epel
       description: EPEL YUM repo
       baseurl: "{{ epel_baseurl }}"
-      gpgkey:  "{{ epel_gpgurl }}"
+      gpgkey: "{{ epel_gpgurl }}"
       gpgcheck: yes
     when: rock_online_install
 
   - name: Manually trust CentOS GPG key
     shell: >
       rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7
-    when: rock_online_install
-
-  - name: Setup ELrepo Kernel repo
-    yum_repository:
-      name: elrepo-kernel
-      description: ELrepo Kernel YUM repo
-      baseurl: "{{ elrepo_baseurl }}"
-      gpgkey:  "{{ elrepo_gpgurl }}"
-      gpgcheck: yes
     when: rock_online_install
 
   - name: Setup Elastic repo
@@ -167,9 +158,9 @@
       mirrorlist: "{{ item.mirror }}"
       file:  CentOS-Base
     with_items:
-      - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
-      - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
-      - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
+    - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
+    - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
+    - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
     #######################################################
     ############# Install/Remove Packages #################
@@ -179,25 +170,27 @@
       rocknsm_package_list: "{{ rocknsm_package_list }} + [ '{{ item.pkg }}']"
     when: (item.test is undefined) or (item.test)
     with_items:
-      - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
-      - { pkg: logstash, test: "{{with_logstash}}", state: installed }
-      - { pkg: kibana, test: "{{with_kibana}}", state: installed }
-      - { pkg: filebeat, test: "{{with_suricata or with_fsf}}", state: installed }
-      - { pkg: nginx, test: "{{with_nginx}}", state: installed }
-      - { pkg: bro, test: "{{with_bro}}", state: installed }
-      - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
-      - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
-      - { pkg: stenographer, test: "{{with_stenographer}}", state: installed }
-      - { pkg: suricata, test: "{{with_suricata}}", state: installed }
-      - { pkg: snort, test: "{{with_snort}}", state: installed }
-      - { pkg: daq, test: "{{with_snort}}", state: installed }
-      - { pkg: zookeeper, test: "{{with_zookeeper}}", state: installed }
-      - { pkg: kafka, test: "{{with_kafka}}", state: installed }
-      - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
-      - { pkg: fsf, test: "{{with_fsf}}", state: installed }
-      - { pkg: chrony, state: installed }
-      - { pkg: firewalld, state: installed }
-      - { pkg: postfix, state: installed }
+    - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
+    - { pkg: logstash, test: "{{with_logstash}}", state: installed }
+    - { pkg: kibana, test: "{{with_kibana}}", state: installed }
+    - { pkg: filebeat, test: "{{with_suricata or with_fsf}}", state: installed }
+    - { pkg: nginx, test: "{{with_nginx}}", state: installed }
+    - { pkg: easy-rsa, test: "{{with_nginx}}", state: installed }
+    - { pkg: bro, test: "{{with_bro}}", state: installed }
+    - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
+    - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
+    - { pkg: stenographer, test: "{{with_stenographer}}", state: installed }
+    - { pkg: docket, test: "{{with_docket}}", state: installed }
+    - { pkg: suricata, test: "{{with_suricata}}", state: installed }
+    - { pkg: snort, test: "{{with_snort}}", state: installed }
+    - { pkg: daq, test: "{{with_snort}}", state: installed }
+    - { pkg: zookeeper, test: "{{with_zookeeper}}", state: installed }
+    - { pkg: kafka, test: "{{with_kafka}}", state: installed }
+    - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
+    - { pkg: fsf, test: "{{with_fsf}}", state: installed }
+    - { pkg: chrony, state: installed }
+    - { pkg: firewalld, state: installed }
+    - { pkg: postfix, state: installed }
 
   - name: Install packages
     yum:
@@ -274,6 +267,7 @@
       -
         - { port: "22/tcp" }
         - { port: "443/tcp",  test: "{{ with_kibana }}" }
+        - { port: "8443/tcp", test: "{{ with_docket }}" }
 
     ######################################################
     ############## Configure GeoIP Databases #############
@@ -533,7 +527,7 @@
       comment: "bro service account"
       createhome: no
       group: "{{ bro_group }}"
-      home: /opt/bro
+      home: /var/spool/bro
       shell: /sbin/nologin
       system: yes
       state: present
@@ -552,30 +546,54 @@
       - "{{ bro_data_dir }}/spool"
     when: with_bro
 
-  - name: Create symlinks for wandering analysts
+  - name: Create /opt/bro dir for wandering users
     file:
-      dest: "/opt/bro/{{ item }}"
-      src:  "{{ bro_data_dir }}/{{ item }}"
-      state: link
-      force: yes
-    with_items:
-      - logs
+      dest: "/opt/bro"
+      state: directory
     when: with_bro
 
-  - name: Install broctl service file
-    template:
-      src: templates/broctl.service.j2
-      dest: /etc/systemd/system/broctl.service
-      owner: root
-      group: root
-      mode: 0644
+  - name: Create note to wandering users
+    copy:
+      dest: "/opt/bro/README.md"
+      content: |
+        Hey! Where's my Bro?
+        =========================
+
+        RockNSM has aligned the Bro package to be inline with Fedora packaging
+        guidelines in an effort to push the package upstream for maintenance.
+        Fedora and EPEL have a great community and we believe others can benefit
+        from our hard work.
+
+        Here's where you can find your stuff:
+
+        Bro configuration files
+        -----------------------
+        /opt/bro/etc -> /etc/bro
+
+        Bro site scripts
+        -----------------------
+        /opt/bro/share/bro/site -> /usr/share/bro/site
+
+        Bro logs and spool dirs (same as previous ROCK iterations)
+        -----------------------
+        /opt/bro/logs -> /data/bro/logs
+        /opt/bro/spool -> /data/bro/spool
     when: with_bro
-    notify: reload systemd
+
+  # - name: Install broctl service file
+  #   template:
+  #     src: templates/broctl.service.j2
+  #     dest: /etc/systemd/system/broctl.service
+  #     owner: root
+  #     group: root
+  #     mode: 0644
+  #   when: with_bro
+  #   notify: reload systemd
 
   - name: Create Bro node.cfg
     template:
       src: templates/bro-node.cfg.j2
-      dest: /opt/bro/etc/node.cfg
+      dest: "{{ bro_sysconfig_dir }}/node.cfg"
       mode: 0644
       owner: root
       group: root
@@ -586,7 +604,7 @@
   - name: Create broctl.cfg
     template:
       src: templates/bro-broctl.cfg.j2
-      dest: /opt/bro/etc/broctl.cfg
+      dest: "{{ bro_sysconfig_dir }}/broctl.cfg"
       mode: 0644
       owner: root
       group: root
@@ -596,7 +614,7 @@
   - name: Create bro networks.cfg
     copy:
       src: bro-networks.cfg
-      dest: /opt/bro/etc/networks.cfg
+      dest: "{{ bro_sysconfig_dir }}/networks.cfg"
       mode: 0644
       owner: root
       group: root
@@ -605,26 +623,26 @@
 
   - name: Add bro custom scripts dir
     file:
-      path: /opt/bro/share/bro/site/scripts
+      path: "{{ bro_site_dir }}/scripts"
       owner: root
       group: root
       mode: 0755
       state: directory
     when: with_bro
 
-  - name: Set permissions on broctl scripts dir
-    file:
-      path: /opt/bro/share/broctl/scripts
-      owner: "{{ bro_user }}"
-      group: "{{ bro_user }}"
-      mode: 0755
-      state: directory
-    when: with_bro
+  # - name: Set permissions on broctl scripts dir
+  #   file:
+  #     path: /opt/bro/share/broctl/scripts
+  #     owner: "{{ bro_user }}"
+  #     group: "{{ bro_user }}"
+  #     mode: 0755
+  #     state: directory
+  #   when: with_bro
 
   - name: Add README to scripts dir
     copy:
       src: bro-scripts-readme.txt
-      dest: /opt/bro/share/bro/site/scripts/README.txt
+      dest: "{{ bro_site_dir }}/scripts/README.txt"
       mode: 0644
       owner: root
       group: root
@@ -633,31 +651,31 @@
   - name: Checkout ROCK Bro scripts
     git:
       repo: "{{ bro_rockscripts_repo }}"
-      dest: /opt/bro/share/bro/site/scripts/rock
+      dest: "{{ bro_site_dir }}/scripts/rock"
       version: "{{ bro_rockscripts_branch }}"
     when: with_bro and rock_online_install
 
   - name: Deploy offline ROCK Bro scripts
     unarchive:
       src: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
-      dest: /opt/bro/share/bro/site/scripts/
+      dest: "{{ bro_site_dir }}/scripts/"
       owner: root
       group: root
-      creates: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+      creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
       remote_src: yes
     when: with_bro and not rock_online_install
 
   - name: Symlink offline ROCK bro scripts
     file:
-      src: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
-      dest: "/opt/bro/share/bro/site/scripts/rock"
+      src: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+      dest: "{{ bro_site_dir }}/scripts/rock"
       state: link
       force: yes
     when: with_bro and not rock_online_install
 
   - name: Update owner for ROCK NSM Bro scripts
     file:
-      path: /opt/bro/share/bro/site/scripts/rock
+      path: "{{ bro_site_dir }}/scripts/rock"
       owner: "{{ bro_user }}"
       group: "{{ bro_group }}"
       state: directory
@@ -669,33 +687,33 @@
 
   - name: Add ROCK scripts to local.bro
     lineinfile:
-      dest: /opt/bro/share/bro/site/local.bro
+      dest: "{{ bro_site_dir }}/local.bro"
       line: "@load scripts/rock # ROCK NSM customizations"
       state: present
     when: with_bro
 
   - name: Add AF_PACKET workaround to local.bro
     lineinfile:
-      dest: /opt/bro/share/bro/site/local.bro
+      dest: "{{ bro_site_dir }}/local.bro"
       line: "@load scripts/rock/plugins/afpacket"
       state: present
     when: with_bro
 
   - name: Enable Bro Kafka output to local.bro
     lineinfile:
-      dest: /opt/bro/share/bro/site/local.bro
+      dest: "{{ bro_site_dir }}/local.bro"
       line: "@load scripts/rock/plugins/kafka"
       state: present
     when: with_bro and with_kafka
 
   - name: Enable the SMB Analyzer in local.bro
     lineinfile:
-      dest: /opt/bro/share/bro/site/local.bro
+      dest: "{{ bro_site_dir }}/local.bro"
       line: "@load policy/protocols/smb # Enable Bro SMB Analyzer"
       state: present
     when: with_bro
 
-  - name: Add bro to path and aliases
+  - name: Add bro aliases
     copy:
       src: profile.d-bro.sh
       dest: /etc/profile.d/bro.sh
@@ -713,19 +731,19 @@
       group: root
     when: with_bro
 
-  - name: Create bro utility symlinks
-    file:
-      src: "/opt/bro/bin/{{ item.src }}"
-      dest: "/usr/bin/{{ item.dest }}"
-      force: yes
-      state: link
-    with_items:
-      - { src: 'bro', dest: 'bro' }
-      - { src: 'bro-cut', dest: 'bro-cut' }
-
+  # - name: Create bro utility symlinks
+  #   file:
+  #     src: "/opt/bro/bin/{{ item.src }}"
+  #     dest: "/usr/bin/{{ item.dest }}"
+  #     force: yes
+  #     state: link
+  #   with_items:
+  #     - { src: 'bro', dest: 'bro' }
+  #     - { src: 'bro-cut', dest: 'bro-cut' }
+  #
   - name: Set bro capabilities
     capabilities:
-      path: /opt/bro/bin/bro
+      path: /usr/bin/bro
       capability: "{{ item }}"
       state: present
     with_items:
@@ -735,7 +753,7 @@
 
   - name: Set capstats capabilities
     capabilities:
-      path: /opt/bro/bin/capstats
+      path: /usr/bin/capstats
       capability: "{{ item }}"
       state: present
     with_items:
@@ -749,11 +767,11 @@
       minute: "*/5"
       cron_file: rocknsm_broctl
       user: "{{ bro_user }}"
-      job: "/opt/bro/bin/broctl cron >/dev/null 2>&1"
+      job: "/usr/bin/broctl cron >/dev/null 2>&1"
     when: with_bro
 
   - name: Initialize bro scripts for workers
-    command: /opt/bro/bin/broctl install
+    command: /usr/bin/broctl install
     args:
       creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
     become: yes
@@ -762,10 +780,10 @@
 
   - name: Enable and start broctl
     service:
-      name: broctl
+      name: bro
       enabled: "{{ enable_bro }}"
-      state: "{{ 'started' if enable_bro else 'stopped' }}"
     when: with_bro
+    notify: reload broctl
 
     ######################################################
     ################# Setup Stenographer #################
@@ -1134,7 +1152,7 @@
 
   - name: Set initial Kibana credentials
     shell: >
-      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1 
+      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
     args:
       creates: /etc/nginx/.htpasswd
     when: with_kibana
@@ -1162,9 +1180,9 @@
     when: with_nginx
 
   - name: Enable nginx to perform proxy connect
-    seboolean: 
+    seboolean:
       name: httpd_can_network_connect
-      state: yes 
+      state: yes
       persistent: yes
     when: with_nginx and with_kibana
 
@@ -1203,7 +1221,7 @@
     when: with_kibana and with_nginx
 
   - name: Generate and copy Kibana keys
-    shell: 
+    shell:
       cd /opt/easy-rsa ;
       touch keys/index.txt ;
       echo "1000" > keys/serial ;
@@ -1263,6 +1281,14 @@
   ######################################################
   ############### ROCKNSM Customization ################
   ######################################################
+  - name: Set ROCK NSM Version
+    copy:
+      content: "{{ rock_version }}"
+      dest: /etc/rocknsm/rock-version
+      mode: 0644
+      owner: root
+      group: root
+
   - name: Install ROCK NSM /etc/issue
     copy:
       src: etc-issue.in
@@ -1300,7 +1326,7 @@
       command: /usr/local/bin/es_cleanup.sh
 
     - name: reload broctl
-      service: name=broctl state=restarted
+      service: name=broctl state="{{ 'started' if enable_bro else 'stopped' }}"
 
     - name: create kafka bro topic
       command: >
