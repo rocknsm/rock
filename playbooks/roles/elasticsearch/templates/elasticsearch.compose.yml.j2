@@ -1,6 +1,6 @@
 version: '2'
 services:
-  elastic-1:
+  elastic:
     image: "{{ elastic_container }}:{{ elastic_ver }}"
     restart: "always"
     ports:
@@ -8,15 +8,17 @@ services:
       - "{{ elastic_management_port }}:{{ elastic_management_port }}"
     network_mode: host
     volumes:
-      - {{ rocknsm_dir }}/elastic/node1:/usr/share/elasticsearch/data/"
+      - "{{ es_data_dir }}:/usr/share/elasticsearch/data/"
+	    - "{{ elastic_config_file }}:/etc/elasticsearch/elasticsearch.yml"
+	    - "{{ elastic_override_dir }}:/etc/systemd/system/elasticsearch.service.d"
+	    - "{{ elastic_jvm_dir}}:{{ elastic_jvm_dir }}"
     environment:
-      - "ES_JAVA_OPTS=-Xms{{ es_mem }}G -Xmx{{ es_mem }}G -XX:-AssumeMP"
       - cluster.name={{ es_cluster_name }}
       - node.name={{ es_node_name }}
       - xpack.security.enabled=false
-      - processors=8
+      #- processors=8
       - network.publish_host=_eth0_
-      #- http.host=0.0.0.0
+      - http.host=0.0.0.0
       - transport.tcp.port={{ elastic_management_port }}
 
       # This option keeps JVM memory from being paged out to swap

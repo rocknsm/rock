@@ -28,6 +28,7 @@ all:
     rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
     rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
     rocknsm_local_baseurl: file:///srv/rocknsm
+    rock_compose_files: "{{ rocknsm_dir + '/compose_files' }}"
     
     #### Docker configuration variables ####
     # Install services with Docker whenever possible vs installing on bare metal.
