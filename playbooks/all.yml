@@ -35,9 +35,8 @@
       - "{{ ansible_distribution }}.yml"
     tags: vars
 
-  - name: Debug variables
-    import_tasks: debug.yml
-    when: rock_debug is defined and rock_debug
+  #- name: Debug variables
+  #  import_tasks: debug.yml
 
     ######################################################
     #################  ROCKNSM Scripts  ##################
