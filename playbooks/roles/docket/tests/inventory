@@ -1,0 +1,7 @@
+docket01    ansible_connection=local
+
+[docket]
+docket01
+
+[stenographer]
+docket01

@@ -1,0 +1,13 @@
+---
+stenographer_instances:
+  {{ docket_steno_instances | to_yaml }}
+
+# Flask config values
+DEBUG: {{ docket_debug }}
+TESTING: {{ docket_testing }}
+SECRET_KEY: {{ docket_secret }}
+SESSION_COOKIE_NAME: {{ docket_session_cookie }}
+USE_X_SENDFILE: {{ docket_sendfile }}
+LOGGER_NAME: {{ docket_logger }}
+CELERY_URL: {{ docket_celery_url }}
+SPOOL_DIR: {{ docket_spool_dir }}

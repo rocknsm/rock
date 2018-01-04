@@ -19,8 +19,8 @@ rock_fqdn: {{ rock_fqdn }}
 # The compose files folder
 rock_compose_files: {{ rock_compose_files }}
 
-# The number of CPUs that bro will use 
-bro_cpu: {{ bro_cpu }} 
+# The number of CPUs that bro will use
+bro_cpu: {{ bro_cpu }}
 
 # Name of elasticsearch cluster
 es_cluster_name: {{ es_cluster_name }}
@@ -86,9 +86,9 @@ xpack_license: false
 
 ### Advanced Feature Selection ######
 # Don't flip these unless you know what you're doing
-
 with_bro: {{ with_bro }}
 with_docker: {{ with_docker }}
+with_docket: {{ with_docket }}
 with_elasticsearch: {{ with_elasticsearch }}
 with_fsf: {{ with_fsf }}
 with_harbor: {{ with_harbor }}
@@ -103,6 +103,3 @@ with_snort: {{ with_snort }}
 with_stenographer: {{ with_stenographer }}
 with_suricata: {{ with_suricata }}
 with_zookeeper: {{ with_zookeeper }}
-
-
-

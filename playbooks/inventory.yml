@@ -12,8 +12,9 @@ all:
     simplerockbuild.simplerock.lan:
       ansible_hostname: 127.0.0.1
       ansible_connection: local
-      
+
   vars:
+    rock_version: 3.0
     rock_online_install: true
     rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
     rock_data_dir: /data
@@ -29,7 +30,7 @@ all:
     rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
     rocknsm_local_baseurl: file:///srv/rocknsm
     rock_compose_files: "{{ rocknsm_dir + '/compose_files' }}"
-    
+
     #### Docker configuration variables ####
     # Install services with Docker whenever possible vs installing on bare metal.
     containerized_install: true
@@ -37,12 +38,13 @@ all:
     #### Elasticstack x-pack options ####
     # If you have licensing for x-pack set variable to true.
     xpack_license: false
-    
+
     # Feature options - Don't flip these unless you know what you're doing
     # These control if the service is installed
-    
+
     with_bro: true
     with_docker: true
+    with_docket: true
     with_elasticsearch: true
     with_elk: false
     with_filebeats: true
@@ -59,7 +61,7 @@ all:
     with_stenographer: true
     with_suricata: true
     with_zookeeper: true
-    
+
     rocknsm_package_list:
       - java-1.8.0-openjdk-headless
       - jq
@@ -80,45 +82,43 @@ all:
       - perl-Crypt-SSLeay
       - perl-Archive-Tar
       - easy-rsa
-      
+
     epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
     epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
-      
+
   children:
-  
+
     sensors:
       hosts:
         simplerockbuild.simplerock.lan:
           ansible_hostname: 127.0.0.1
           ansible_connection: local
-          
+
       vars:
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
         pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
         bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
         pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
-        
+
         #### Retention Configuration ####
         kafka_retention: 168
         suricata_retention: 3
         bro_log_retention: 0
         bro_stats_retention: 0
-          
+
     servers:
       hosts:
         simplerockbuild.simplerock.lan:
           ansible_hostname: 127.0.0.1
           ansible_connection: local
-          
+
       vars:
         es_cluster_name: rocknsm
         es_node_name: "{{ rock_hostname }}"
         es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
         elastic_baseurl: https://artifacts.elastic.co/packages/5.x/yum
         elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-        
+
         #### Retention Configuration ####
         elastic_close_interval: 15
         elastic_delete_interval: 60
-
-
