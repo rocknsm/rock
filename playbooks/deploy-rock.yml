@@ -621,7 +621,7 @@
 
   - name: Set permissions on broctl scripts dir
     file:
-      path: {{ bro_prefix }}/share/broctl/scripts
+      path: "{{ bro_prefix }}/share/broctl/scripts"
       owner: "{{ bro_user }}"
       group: "{{ bro_user }}"
       mode: 0755
