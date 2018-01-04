@@ -3,19 +3,10 @@
 ######################################################
 ---
 
-- name: Setup Elastic repo
-  yum_repository:
-    name: elastic-5.x
-    description: Elastic Stack repository for 5.x
-    baseurl: "{{ elastic_baseurl }}"
-    gpgkey:  "{{ elastic_gpgurl }}"
-    gpgcheck: no
+- name: 'Download Elasticsearch container'
+  docker_image:
+    name: "{{ elastic_container }}:{{ elastic_ver }}"
   when: rock_online_install
-
-- name: Install Elasticsearch package
-  yum:
-    name: elasticsearch
-    state: installed
 
 - name: "Create Elasticsearch directory"
   file:
@@ -27,27 +18,19 @@
 
 - name: "Setup elasticsearch config"
   template:
-    dest: /etc/elasticsearch/elasticsearch.yml
+    dest: {{ elastic_config_file }}
     group: "{{ es_group }}"
     mode: 755
     owner: root
     src: templates/elasticsearch.yml.j2
 
-- name: "Create elasticsearch systemd override dir"
-  file:
-    group: root
+- name: "Setup elasticsearch config"
+  template:
+    dest: {{ rock_compose_files }}
+    group: "{{ es_group }}"
     mode: 755
     owner: root
-    path: /etc/systemd/system/elasticsearch.service.d
-    state: directory
-
-- name: "Enable elasticsearch memlock in service override"
-  copy:
-    content: "{{ es_memlock_override }}"
-    dest: /etc/systemd/system/elasticsearch.service.d/override.conf
-    group: root
-    mode: 644
-    owner: root
+    src: templates/elasticsearch.compose.yml.j2
 
 - name: "Setup elasticsearch data dir in sysconfig"
   lineinfile:
@@ -79,6 +62,14 @@
     minute: 1
     name: "ES maintenance"
     user: root
+
+- name: "Setup elasticsearch config"
+  template:
+    dest: /etc/systemd/system
+    group: "{{ es_group }}"
+    mode: 755
+    owner: root
+    src: templates/elasticsearch.service.j2
 
 - name: "Enable and start Elasticsearch"
   notify:
