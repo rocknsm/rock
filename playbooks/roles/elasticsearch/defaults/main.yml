@@ -20,11 +20,11 @@ es_node_name: "{{ rock_hostname }}"
 es_memlock_override: |
   [Service]
   LimitMEMLOCK=infinity
-  
+
 elastic_ver: '6.1.1'
 elastic_data_port: '9200'
 elastic_management_port: '9300'
-elastic_container: 'docker.elastic.co/elastic/elastic'
+elastic_container: 'docker.elastic.co/elasticsearch/elasticsearch'
 elastic_yum: 'elastic'
 elastic_config_file: '/etc/elasticsearch/elasticsearch.yml'
 elastic_override_dir: '/etc/systemd/system/elasticsearch.service.d'

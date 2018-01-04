@@ -63,21 +63,21 @@
     name: "ES maintenance"
     user: root
 
-- name: "Setup elasticsearch config"
+- name: "Setup elasticsearch service"
   template:
-    dest: /etc/systemd/system
+    dest: /etc/systemd/system/elasticsearch.service
     group: "{{ es_group }}"
     mode: 755
     owner: root
     src: templates/elasticsearch.service.j2
 
 - name: "Enable and start Elasticsearch"
-  notify:
-    - "es maintenance"
   service:
     enabled: yes
     name: elasticsearch
     state: started
+  notify:
+    - "es maintenance"
 
 - name: "Wait for Elasticsearch to become ready"
   wait_for: "host=localhost port=9200"
