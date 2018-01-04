@@ -97,6 +97,7 @@ rocknsm_local_baseurl: file:///srv/rocknsm
 bro_user: bro
 bro_group: bro
 bro_data_dir: "{{ rock_data_dir }}/bro"
+bro_prefix: /usr
 bro_sysconfig_dir: /etc/bro
 bro_site_dir: /usr/share/bro/site
 bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
