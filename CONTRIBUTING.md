@@ -6,6 +6,8 @@ We're super glad to have you helping out with the project. Before you submit cod
 
 We're just a handful of developers and engineers and probably need better communication mediums. For now, if you have questions, head over to the docs on http://rocknsm.io/ and see if that helps. If you still need help, visit our [mailing list](https://groups.google.com/forum/#!forum/rocknsm) at Google Groups. If you think you found a bug, please file an issue - better yet, submit a patch!
 
+The GitHub issue tracker is not the best place for questions for various reasons, but both the docs and the mailing list are very helpful places for those things.
+
 ## Contributing ?
 Please see the [CODING_GUIDELINES](./CODING_GUIDELINES.md) for information on style and general processes for contributing to this project.
 
