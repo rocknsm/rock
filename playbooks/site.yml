@@ -6,6 +6,6 @@
 
 ---
 
-- import_playbook: all.yml
+#- import_playbook: all.yml
 - import_playbook: servers.yml
 - import_playbook: sensors.yml

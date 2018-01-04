@@ -6,14 +6,14 @@
     - common
     - { role: docker, when: containerized_install }
 
-# TODO: Need to determine if we are going to do anything with these.    
+# TODO: Need to determine if we are going to do anything with these.
 #  vars:
 #    rock_debug: "{{ lookup('env', 'DEBUG') }}"
 #    http_proxy: "{{ lookup('env','http_proxy') }}"
 #    https_proxy: "{{ lookup('env', 'https_proxy') }}"
-    
+
   tasks:
-  
+
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
 
@@ -41,7 +41,7 @@
     ######################################################
     #################  ROCKNSM Scripts  ##################
     ######################################################
-      
+
   - name: 'Render rock_start template'
     template:
       backup: yes
@@ -71,7 +71,7 @@
   #    - { src: 'rock_start', dest: 'rock_start' }
   #    - { src: 'rock_stop', dest: 'rock_stop' }
   #    - { src: 'rock_status', dest: 'rock_status' }
-      
+
   # Training mode / Service mode not needed for AF_PACKET
   ######################################################
   ############### ROCKNSM Customization ################
@@ -91,8 +91,8 @@
       mode: 0755
       owner: root
       group: root
-  
-  # TODO: Need to determine if we're going to do anything with these  
+
+  # TODO: Need to determine if we're going to do anything with these
   #environment:
   # http_proxy:  "{{ http_proxy }}"
   # https_proxy: "{{ https_proxy }}"
