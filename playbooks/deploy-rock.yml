@@ -588,7 +588,7 @@
       owner: root
       group: root
     when: with_bro
-    notify: reload broctl
+    notify: reload bro
 
   - name: Create broctl.cfg
     template:
@@ -598,7 +598,7 @@
       owner: root
       group: root
     when: with_bro
-    notify: reload broctl
+    notify: reload bro
 
   - name: Create bro networks.cfg
     copy:
@@ -608,7 +608,7 @@
       owner: root
       group: root
     when: with_bro
-    notify: reload broctl
+    notify: reload bro
 
   - name: Add bro custom scripts dir
     file:
@@ -762,7 +762,7 @@
       name: bro
       enabled: "{{ enable_bro }}"
     when: with_bro
-    notify: reload broctl
+    notify: reload bro
 
     ######################################################
     ################# Setup Stenographer #################
@@ -1304,8 +1304,8 @@
     - name: es maintenance
       command: /usr/local/bin/es_cleanup.sh
 
-    - name: reload broctl
-      service: name=broctl state="{{ 'started' if enable_bro else 'stopped' }}"
+    - name: reload bro
+      service: name=bro state="{{ 'started' if enable_bro else 'stopped' }}"
 
     - name: create kafka bro topic
       command: >
