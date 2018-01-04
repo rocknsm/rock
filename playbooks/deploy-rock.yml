@@ -580,16 +580,6 @@
         /opt/bro/spool -> /data/bro/spool
     when: with_bro
 
-  # - name: Install broctl service file
-  #   template:
-  #     src: templates/broctl.service.j2
-  #     dest: /etc/systemd/system/broctl.service
-  #     owner: root
-  #     group: root
-  #     mode: 0644
-  #   when: with_bro
-  #   notify: reload systemd
-
   - name: Create Bro node.cfg
     template:
       src: templates/bro-node.cfg.j2
@@ -599,7 +589,6 @@
       group: root
     when: with_bro
     notify: reload broctl
-
 
   - name: Create broctl.cfg
     template:
@@ -630,14 +619,14 @@
       state: directory
     when: with_bro
 
-  # - name: Set permissions on broctl scripts dir
-  #   file:
-  #     path: /opt/bro/share/broctl/scripts
-  #     owner: "{{ bro_user }}"
-  #     group: "{{ bro_user }}"
-  #     mode: 0755
-  #     state: directory
-  #   when: with_bro
+  - name: Set permissions on broctl scripts dir
+    file:
+      path: {{ bro_prefix }}/share/broctl/scripts
+      owner: "{{ bro_user }}"
+      group: "{{ bro_user }}"
+      mode: 0755
+      state: directory
+    when: with_bro
 
   - name: Add README to scripts dir
     copy:
@@ -731,16 +720,6 @@
       group: root
     when: with_bro
 
-  # - name: Create bro utility symlinks
-  #   file:
-  #     src: "/opt/bro/bin/{{ item.src }}"
-  #     dest: "/usr/bin/{{ item.dest }}"
-  #     force: yes
-  #     state: link
-  #   with_items:
-  #     - { src: 'bro', dest: 'bro' }
-  #     - { src: 'bro-cut', dest: 'bro-cut' }
-  #
   - name: Set bro capabilities
     capabilities:
       path: /usr/bin/bro
