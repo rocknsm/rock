@@ -1,2 +1,47 @@
+######################################################
+##################### Setup Kafka ####################
+######################################################
 ---
-# tasks file for kafka
+
+-
+  name: Install Kafka package
+  yum:
+    name: kafka
+    state: installed
+    
+-
+  name: Install Kafkacat package
+  yum:
+    name: kafkacat
+    state: installed
+    
+- 
+  name: Create Kafka data dir
+  file:
+    path: "{{ kafka_data_dir }}"
+    mode: 0755
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+    state: directory
+
+- 
+  name: Set kafka retention
+  lineinfile:
+    dest: "{{ kafka_config_path }}"
+    regexp: "log.retention.hours="
+    line:  "log.retention.hours={{ kafka_retention }}"
+    state: present
+
+- 
+  name: Set kafka data dir
+  lineinfile:
+    dest: "{{ kafka_config_path }}"
+    regexp: "log.dirs="
+    line: "log.dirs={{ kafka_data_dir }}"
+
+- 
+  name: Enable and start kafka
+  service:
+    name: kafka
+    enabled: yes
+    state: started

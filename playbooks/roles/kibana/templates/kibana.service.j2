@@ -1,0 +1,14 @@
+[Unit]
+ Description = Kibana Container Service
+ 
+ Wants    = network.target
+ Requires = docker.service
+ 
+ [Service]
+ Type = simple
+
+ ExecStart = /usr/bin/docker-compose -f {{ rocknsm_dir }}/kibana/kibana-compose.yml up
+ ExecStop  = /usr/bin/docker-compose -f {{ rocknsm_dir }}/kibana/kibana-compose.yml down -v
+
+ [Install]
+ WantedBy = multi-user.target

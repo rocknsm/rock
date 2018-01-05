@@ -10,8 +10,7 @@ function update_issue() {
   . /etc/os-release
   OS_RELEASE="${NAME} ${VERSION}";
   IP_ADDR=$(ip route get 255.255.255.255 | awk '{print $6 " ("$4")"; exit}')
-  ROCK_VERSION=$(cat /etc/rocknsm/rock-version)
-  cat /etc/issue.in | sed "s/{{OS_RELEASE}}/${OS_RELEASE}/;s/{{IP_ADDR}}/${IP_ADDR}/;s/{{ROCK_VERSION}}/${ROCK_VERSION}/" > /etc/issue
+  cat /etc/issue.in | sed "s/{{OS_RELEASE}}/${OS_RELEASE}/;s/{{IP_ADDR}}/${IP_ADDR}/" > /etc/issue
 
   # Reset gettys where a user is not logged in
   GETTYS=$(systemctl list-units | grep "getty@" | grep -vE "$(who | awk '{ print $2 }'|paste -sd'|' )" | awk '{print $1}'|paste -s)

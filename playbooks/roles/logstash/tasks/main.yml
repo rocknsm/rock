@@ -1,0 +1,86 @@
+######################################################
+################### Setup Logstash ###################
+######################################################
+--- 
+
+-
+  name: Install Logstash package
+  yum:
+    name: logstash
+    state: installed
+    
+    ######################################################
+    ##################  GeoIP Databases  #################
+    ######################################################
+- name: Configure GeoIP Update
+  copy: src=GeoIP.conf dest=/etc/GeoIP.conf
+
+    # There's an issue w/ geoipupdate when env is empty
+- name: Update GeoIP
+  shell: >
+    if [ "x$HTTP_PROXY" == "x" ]; then
+        unset HTTP_PROXY;
+    fi
+    if [ "x$http_proxy" == "x" ]; then
+        unset http_proxy;
+    fi
+    if [ "x$HTTPS_PROXY" == "x" ]; then
+        unset HTTPS_PROXY;
+    fi
+    if [ "x$https_proxy" == "x" ]; then
+        unset https_proxy;
+    fi
+    /usr/bin/geoipupdate
+  args:
+    creates: /usr/share/GeoIP/GeoLiteASNum.dat
+  register: result
+  failed_when: (result.rc != 0) and (result.rc != 1)
+
+- name: Create GeoIP symlinks
+  file:
+    src: "/usr/share/GeoIP/{{ item.src }}"
+    dest: "/usr/share/GeoIP/{{ item.dest }}"
+    force: yes
+    state: link
+  with_items:
+    - { src: 'GeoLiteCity.dat', dest: 'GeoIPCity.dat' }
+    - { src: 'GeoLiteCountry.dat', dest: 'GeoIPCountry.dat' }
+    - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
+    - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
+    
+-
+  name: "Install Bro-Kafka configuration for Logstash"
+  copy: 
+    dest: /etc/logstash/conf.d/kafka-bro.conf
+    group: "{{ logstash_group }}"
+    mode: 416
+    owner: "{{ logstash_user }}"
+    src: logstash-kafka-bro.conf
+  notify: "Restart Logstash"
+  when: "with_bro and with_kafka"
+- 
+  name: "Install Suricata-Kafka configuration for Logstash"
+  copy: 
+    dest: /etc/logstash/conf.d/kafka-suricata.conf
+    group: "{{ logstash_group }}"
+    mode: 416
+    owner: "{{ logstash_user }}"
+    src: logstash-kafka-suricata.conf
+  notify: "Restart Logstash"
+  when: "with_suricata and with_kafka"
+- 
+  name: "Install FSF-Kafka configuration for Logstash"
+  copy: 
+    dest: /etc/logstash/conf.d/kafka-fsf.conf
+    group: "{{ logstash_group }}"
+    mode: 416
+    owner: "{{ logstash_user }}"
+    src: logstash-kafka-fsf.conf
+  notify: "Restart Logstash"
+  when: "with_fsf and with_kafka"
+- 
+  name: "Enable and start Logstash"
+  service: 
+    name: logstash
+    enabled: yes
+    state: started

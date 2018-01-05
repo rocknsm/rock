@@ -1,0 +1,15 @@
+######################################################
+################### Setup Zookeeper ##################
+######################################################
+---
+-
+  name: Install Zookeeper package
+  yum:
+    name: zookeeper
+    state: installed
+
+- name: Enable and start zookeeper
+  service:
+    name: zookeeper
+    enabled: yes
+    state: started

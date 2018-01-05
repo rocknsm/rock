@@ -1,0 +1,27 @@
+# Proxy Module.		
+server.modules += ("mod_proxy")	
+# Route the /api route through to Node.	
+#$HTTP["url"] =~ "^/api/" {	
+#  proxy.server = ("" => ((	
+#   "host" => "127.0.0.1",
+#   "port" => 8080	
+#  )))
+#}
+
+#=======================
+# Kibana forward
+$HTTP["url"] =~ "^/kibana" {
+ proxy.server = ( "" => (( 
+   "host" => "kibana",
+   "port" => "{{ kibana_port }}"
+)))
+}
+
+#=======================
+# Portainer forward
+$HTTP["url"] =~ "^/portainer" {
+ proxy.server = ( "" => (( 
+   "host" => "portainer",
+   "port" => "{{ portainer_port }}"
+)))
+}

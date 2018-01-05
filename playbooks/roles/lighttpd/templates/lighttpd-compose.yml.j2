@@ -1,0 +1,34 @@
+---
+
+version: '2'
+services:
+  lighttpd:
+    image: 'rocknsm/lighttpd'
+    container_name: 'lighttpd'
+    privileged: true
+    networks:
+      rocknsm_outside:
+        aliases: 
+          - 'proxy'
+      rocknsm_inside:
+        aliases: 
+          - 'proxy'
+    ports:
+      - "0.0.0.0:80:{{ lighttpd_port }}"
+    restart: "always"
+    volumes: 
+      # Lighttpd volumes 
+      - "{{ rocknsm_dir }}/lighttpd/var/www:/var/www/"
+      - "{{ rocknsm_dir }}/lighttpd/etc/lighttpd/:/etc/lighttpd/"
+      # Systemd volumes
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    environment:
+      - container=docker
+networks:
+  rocknsm_outside:
+    external:
+      name: 'rocknsm_outside'
+  rocknsm_inside:
+    external:
+      name: 'rocknsm_inside'
+...

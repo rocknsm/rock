@@ -1,3 +1,11 @@
-#!/usr/bin/env ansible-playbook
-- import_playbook: generate-defaults.yml
-- import_playbook: deploy-rock.yml
+# site.yml is the overall playbook, but all it does is include the other playbooks that are part of the site. For more
+# information about the structure see:
+# http://docs.ansible.com/ansible/latest/playbooks_best_practices.html
+# http://docs.ansible.com/ansible/latest/intro_inventory.html
+# We follow the guidance to include naming conventions there.
+
+---
+
+- import_playbook: all.yml
+- import_playbook: servers.yml
+- import_playbook: sensors.yml

@@ -1,0 +1,31 @@
+# Dockerfile for lighttpd
+
+FROM centos/systemd
+
+RUN yum install -y epel-release; \
+        yum update -y; \
+        yum install -y \
+	lighttpd \
+	lighttpd-mod_authn_mysql; \
+        rm -Rf /var/cache/yum/*; \
+        rm -f /lib/systemd/system/multi-user.target.wants/*;\
+        rm -f /etc/systemd/system/*.wants/*;\
+        rm -f /lib/systemd/system/local-fs.target.wants/*; \
+        rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+        rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+        rm -f /lib/systemd/system/basic.target.wants/*;\
+        rm -f /lib/systemd/system/anaconda.target.wants/*; \
+        systemctl enable lighttpd;
+
+EXPOSE {{ lighttpd_port }}
+
+# Setup for Lighttpd configuration
+VOLUME ["/var/www"]
+VOLUME ["/etc/lighttpd"]
+
+# Setup for Systemd
+VOLUME ["/sys/fs/cgroup"]
+
+CMD ["/usr/sbin/init"]
+
+

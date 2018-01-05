@@ -1,0 +1,12 @@
+%YAML 1.1
+---
+
+#### Docker configuration variables ####
+# All high level Docker configuration variables for Docker install itself.  
+# All image or container variables are stored in their particular role variables file.
+# These control how the docker service is installed and how services are installed using Docker.
+
+docker_baseurl: https://download.docker.com/linux/centos/7/$basearch/stable/
+docker_gpgurl: https://download.docker.com/linux/centos/gpg
+docker_container_dir: "{{ rocknsm_dir }}/docker/containers"
+docker_image_dir: "{{ rocknsm_dir }}/docker/images"

@@ -1,2 +1,30 @@
+%YAML 1.1
 ---
-# defaults file for suricata
+
+#### Retention Configuration ####
+
+suricata_retention: 3
+
+
+#### Main Role Configuration ####
+
+# Pulled pork download information
+pulledpork_rules:
+  - { url: "https://snort.org/downloads/community/", file: "community-rules.tar.gz", apikey: "Community", test: "{{not with_suricata and with_snort}}" }
+  - { url: "https://www.snort.org/reg-rules/", file: "snortrules-snapshot.tar.gz", apikey: "796f26a2188c4c953ced38ff3ec899d8ae543350", test: "{{not with_suricata and with_snort}}" }
+  - { url: "https://rules.emergingthreats.net/", file: "emerging.rules.tar.gz", apikey: "open-nogpl" }
+  - { url: "http://talosintel.com/feeds/ip-filter.blf", file: "IPBLACKLIST", apikey: "open" }
+  
+# Pulled pork configuration variables
+pulledpork_release: 0.7.2
+pulledpork_url: "https://github.com/shirkdog/pulledpork/archive/{{ pulledpork_release }}.tar.gz"
+pulledpork_filename: "pulledpork-{{ pulledpork_release }}.tar.gz"
+pulledpork_engine_basepath: "/etc/{{ \"suricata\" if with_suricata else \"snort\" }}"
+pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
+pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
+
+# Configure suricata specific variables
+suricata_user: suricata
+suricata_group: suricata
+suricata_data_dir: "{{ rock_data_dir }}/suricata"
+

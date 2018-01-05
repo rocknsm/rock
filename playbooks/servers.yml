@@ -1,0 +1,17 @@
+---
+
+- hosts: servers
+
+  pre_tasks:
+    - name: Apply override settings, if available
+      include_vars: /etc/rocknsm/config.yml
+
+  roles:
+    - { role: elasticsearch, when: with_elasticsearch }
+    - { role: logstash, when: with_logstash }
+    - { role: kibana, when: with_kibana }
+    - { role: lighttpd, when: with_lighttpd }
+    - { role: portainer, when: containerized_install and with_portainer }
+    
+    # Harbor must run last so that it uploads all containers installed on the machine.
+    - { role: harbor, when: containerized_install and with_harbor }

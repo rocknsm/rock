@@ -1,2 +1,62 @@
+######################################################
+################# Setup Stenographer #################
+######################################################
 ---
-# tasks file for stenographer
+-
+  name: Install Stenographer package
+  yum:
+    name: stenographer
+    state: installed
+    
+-
+  name: Set stenographer config
+  template:
+    src: templates/stenographer-config.j2
+    dest: "/etc/stenographer/config.{{ item.1 }}"
+  with_indexed_items: "{{ rock_monifs }}"
+
+-
+  name: Create Stenographer directories
+  file:
+    path: "{{ stenographer_data_dir }}/{{ item[0] }}/{{ item[1] }}"
+    mode: 0755
+    owner: "{{ stenographer_user }}"
+    group: "{{ stenographer_group }}"
+    state: directory
+  with_nested:
+    - "{{ rock_monifs }}"
+    - [ 'index', 'packets' ]
+
+-
+  name: Install stenographer service files
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: 0644
+    owner: root
+    group: root
+  with_items:
+    - stenographer.service
+    - stenographer@.service
+
+-
+  name: Generate stenographer keys
+  command: >
+    /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
+  args:
+    creates: /etc/stenographer/certs/client_key.pem
+
+-
+  name: Configure Stenographer service
+  service:
+    name: stenographer
+    enabled: yes
+    state: started
+
+-
+  name: Configure Stenographer per-interface
+  service:
+    name: "stenographer@{{ item }}"
+    enabled: "{{ enable_stenographer }}"
+    state: "{{ 'started' if enable_stenographer else 'stopped' }}"
+  with_items: "{{ rock_monifs }}"
