@@ -1,8 +1,0 @@
----
-# epel.yml - Install EPEL repo
-- name: Install EPEL
-  yum: name=epel-release state=installed
-  tags:
-    - epel
-    - pkginstall
-    - online_repos

@@ -1,0 +1,134 @@
+---
+- hosts: all
+
+  vars:
+    rock_debug: "{{ lookup('env', 'DEBUG') }}"
+    http_proxy: "{{ lookup('env','http_proxy') }}"
+    https_proxy: "{{ lookup('env', 'https_proxy') }}"
+    
+  tasks:
+
+  - name: Apply override settings, if available
+    include_vars: /etc/rocknsm/config.yml
+
+  - name: Check for offline install
+    stat:
+      path: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
+    register: offline_files_present
+    when: not rock_online_install
+
+  - name: Offline install fail
+    fail:
+      msg: 'You are installing in \Offline Mode\ but do not have all the files required.  Please install from a new RockNSM.iso!  '
+    when: not rock_online_install and not offline_files_present.stat.exists
+
+  - name: Get OS specific settings
+    include_vars: "{{ item }}"
+    with_first_found:
+      - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
+      - "{{ ansible_distribution }}.yml"
+    tags: vars
+
+  - name: Debug variables
+    import_tasks: debug.yml
+    when: rock_debug is defined and rock_debug
+
+  - include_role:
+      name: common
+      
+  - include_role:
+      name: docker
+    when: containerized_install
+
+  - include_role: 
+      name: harbor 
+    when: containerized_install and with_harbor
+ 
+  - include_role: 
+      name: portainer 
+    when: containerized_install and with_portainer  
+
+  - include_role:
+      name: zookeeper
+      
+  - include_role:
+      name: elasticsearch  
+      
+  - include_role:
+      name: logstash
+      
+  - name: kibana
+    include_role:
+      name: kibana
+      
+  # TODO NEEDS TO BE TESTED     
+#  - include_role:
+#      name: stenographer
+      
+  - include_role:
+      name: nginx
+   
+    ######################################################
+    #################  ROCKNSM Scripts  ##################
+    ######################################################
+  - name: Install rock start script
+    copy:
+      src: rock_start
+      dest: /usr/local/bin/rock_start
+      mode: 0700
+      owner: root
+      group: root
+
+  - name: Install rock stop script
+    copy:
+      src: rock_stop
+      dest: /usr/local/bin/rock_stop
+      mode: 0700
+      owner: root
+      group: root
+
+  - name: Install rock status script
+    copy:
+      src: rock_status
+      dest: /usr/local/bin/rock_status
+      mode: 0755
+      owner: root
+      group: root
+
+  - name: Create rock script symlinks
+    file:
+      src: "/usr/local/bin/{{ item.src }}"
+      dest: "/usr/sbin/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'rock_start', dest: 'rock_start' }
+      - { src: 'rock_stop', dest: 'rock_stop' }
+      - { src: 'rock_status', dest: 'rock_status' }
+
+  # Training mode / Service mode not needed for AF_PACKET
+  ######################################################
+  ############### ROCKNSM Customization ################
+  ######################################################
+  - name: Install ROCK NSM /etc/issue
+    copy:
+      src: etc-issue.in
+      dest: /etc/issue.in
+      mode: 0644
+      owner: root
+      group: root
+
+  - name: NetworkManager ROCK NSM hook
+    copy:
+      src: nm-issue-update
+      dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+      mode: 0755
+      owner: root
+      group: root
+      
+  environment:
+   http_proxy:  "{{ http_proxy }}"
+   https_proxy: "{{ https_proxy }}"
+   HTTP_PROXY:  "{{ http_proxy }}"
+   HTTPS_PROXY: "{{ https_proxy }}"
+   

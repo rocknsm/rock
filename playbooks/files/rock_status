@@ -5,10 +5,13 @@ export ZOOKEEPER_PORT=2181
 export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 	sed 's/interface=//; s/.*:://' | sort | uniq | paste -sd " " -)
 
-
 function feature_enabled() {
-  grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
-  return $?
+  if grep -qiE "^with_$1: (true|yes)" /etc/rocknsm/config.yml; then
+    grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
+    return $?
+  else
+    return 1
+  fi
 }
 
 #----------------------------------------------------------------------------
@@ -22,9 +25,9 @@ function feature_enabled() {
 
   # Timeout after 5 seconds or 5 packets
   for interface in $MON_IFS; do
-    packets_1=$(ethtool -S ${interface} | awk '/rx_packets/ {print $2}')
+    packets_1=$(ip -s link show ${interface} | awk '/RX/{getline;print $2;}')
     sleep ${timeout_sec}
-    packets_2=$(ethtool -S ${interface} | awk '/rx_packets/ {print $2}')
+    packets_2=$(ip -s link show ${interface} | awk '/RX/{getline;print $2;}')
     packets=$(echo `expr ${packets_2} - ${packets_1}`)
     echo "${interface} had ${packets} packets in ${timeout_sec} secs."
     [ $packets -gt 0 ]
@@ -33,18 +36,20 @@ function feature_enabled() {
 
 @test "Check for interface errors" {
   for interface in $MON_IFS; do
-    count=$(ethtool -S ${interface} | awk '/error/ && $2 > 0' | wc -l )
+    count=$(ip -s link show ${interface} | awk '/RX/{getline;print $3;}')
     echo "${interface} had ${count} error types."
-    echo ">> Check \`ethtool -S ${interface} | awk '/error/' \`  << "
+    echo ">> Check \`ip -s link show ${interface}\`  << "
     [ $count -eq 0 ]
   done
 }
 
 @test "Check monitor interface for tx packets" {
   for interface in $MON_IFS; do
-    pkts=$(ethtool -S ${interface} | awk '/tx_packets/ {print $2}')
-    echo "WARNING: Monitor interface ${interface} has sent ${pkts} packets".
-    [ $pkts -eq 0 ]
+    pkts=$(ip -s link show ${interface} | awk '/TX/{getline;print $2;}')
+    echo "WARNING: Monitor interface ${interface} has sent ${pkts} packets."
+    echo "Minimal packets pasted on startup may be due to IPV6 at the kernal."
+    echo "Disable IPv6 on the interface at the kernel layer."
+    [ $pkts -lt 0 ]
   done
 }
 
@@ -90,14 +95,26 @@ if feature_enabled suricata; then
 
 fi
 #----------------------------------------------------------------------------
+#                                SNORT
+#----------------------------------------------------------------------------
+if feature_enabled snort; then
+
+@test "Check that snort is running" {
+  systemctl status snortd
+}
+
+fi
+#----------------------------------------------------------------------------
 ##                               FSF
 ##----------------------------------------------------------------------------
+if feature_enabled fsf; then
 
 @test "Check that FSF is running" {
-if feature_enabled fsf; then
   systemctl status fsf
-fi
+
 }
+
+fi
 
 #----------------------------------------------------------------------------
 #                               ZOOKEEPER

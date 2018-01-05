@@ -1,0 +1,258 @@
+{
+  "order": 0,
+  "template": "bro-*",
+  "settings": {
+    "analysis": {
+      "analyzer": {
+        "on_dots": {
+          "filter": "lowercase",
+          "type": "custom",
+          "tokenizer": "dots_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "dots_tokenizer": {
+          "type": "pattern",
+          "pattern": "\\."
+        }
+      }
+    }
+  },
+  "mappings": {
+    "_default_": {
+      "dynamic_templates": [
+        {
+          "ip_addresses": {
+            "match_mapping_type": "string",
+            "match": "id_*_h",
+            "mapping": {
+              "type": "ip"
+            }
+          }
+        },
+        {
+          "record_uids": {
+            "match_mapping_type": "string",
+            "match": "uid",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        },
+        {
+          "strings_as_keywords": {
+            "match_mapping_type": "string",
+            "match": "*",
+            "mapping": {
+              "type": "keyword"
+            }
+          }
+        }
+      ],
+      "properties": {
+        "@version": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        }
+      }
+    },
+    "detection": {
+      "properties": {
+        "notice": {
+          "properties": {
+            "dst": {
+              "type": "ip"
+            },
+            "id_orig_h": {
+              "type": "ip"
+            },
+            "id_orig_p": {
+              "type": "long"
+            },
+            "id_resp_h": {
+              "type": "ip"
+            },
+            "id_resp_p": {
+              "type": "long"
+            },
+            "src": {
+              "type": "ip"
+            },
+            "msg": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "file": {
+      "properties": {
+        "files": {
+          "properties": {
+            "rx_hosts": {
+              "type": "ip"
+            },
+            "tx_hosts": {
+              "type": "ip"
+            }
+          }
+        }
+      }
+    },
+    "network": {
+      "properties": {
+        "@meta": {
+          "properties": {
+            "geoip_orig": {
+              "properties": {
+                "ip": {
+                  "type": "ip"
+                },
+                "location": {
+                  "type": "geo_point"
+                }
+              }
+            },
+            "geoip_resp": {
+              "properties": {
+                "ip": {
+                  "type": "ip"
+                },
+                "location": {
+                  "type": "geo_point"
+                }
+              }
+            },
+            "orig_host": {
+              "type": "ip"
+            },
+            "resp_host": {
+              "type": "ip"
+            }
+          }
+        },
+        "dhcp": {
+          "properties": {
+            "assigned_ip": {
+              "type": "ip"
+            }
+          }
+        },
+        "domain": {
+          "dynamic": "true",
+          "properties": {
+            "name": {
+              "type": "text",
+              "analyzer": "on_dots",
+              "fields": {
+                "raw": {
+                  "type": "keyword"
+                }
+              }
+            }
+          }
+        },        
+        "dns": {
+          "properties": {
+            "query": {
+              "type": "keyword",
+              "copy_to": "domain.name"
+            }
+          }
+        },        
+        "http": {
+          "properties": {
+            "user_agent": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            },
+            "host": {
+              "type": "keyword",
+              "copy_to": "domain.name"
+            }
+          }
+        },
+        "smtp": {
+          "properties": {
+            "user_agent": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "ssl": {
+          "properties": {
+            "server_name": {
+              "type": "keyword",
+              "copy_to": "domain.name"
+            }
+          }
+        },        
+        "syslog": {
+          "properties": {
+            "message": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        },
+        "sip": {
+          "properties": {
+            "user_agent": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "observations": {
+      "properties": {
+        "software": {
+          "properties": {
+            "unparsed_version": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
