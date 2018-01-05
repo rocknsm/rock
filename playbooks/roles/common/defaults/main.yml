@@ -8,6 +8,9 @@ rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
 rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
 rocknsm_local_baseurl: file:///srv/rocknsm
 
+#Common role variables
+common_mgnt_nets: "{{ rock_mgmt_nets }}" 
+
 rocknsm_package_list:
   - java-1.8.0-openjdk-headless
   - jq

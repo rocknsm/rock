@@ -63,14 +63,18 @@
     enabled: yes
 
 # Create Docker network connected to host for proxy
-- name: 'Create rocknsm network'
+- name: 'Create rocknsm_ouside network'
   docker_network:
     name: 'rocknsm_outside'
     driver: 'bridge'
 
 # Create Docker network with no host connectivity (secure network)
-- name: 'Create rocknsm network'
-  docker_network:
-    name: 'rocknsm_inside'
-    driver: 'bridge'
-    driver_options: 'internal'
+- name: 'Create rocknsm_inside network'
+#  docker_network:
+#    name: 'rocknsm_inside'
+#    driver: 'bridge' 
+#    internal: true
+# Current issue open.  Issue #54
+  shell: 'docker network create -d bridge --internal rocknsm_inside' 
+
+...

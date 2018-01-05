@@ -7,7 +7,7 @@
     state: enabled
     immediate: yes
   with_nested:
-    - "{{ rock_mgmt_nets }}"
+    - "{{ lighttpd_mgnt_nets }}"
     -
       - { port: "{{ lighttpd_port }}/tcp" }
 ...
