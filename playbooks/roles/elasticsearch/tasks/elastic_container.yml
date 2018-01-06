@@ -8,6 +8,16 @@
     name: "{{ elastic_container }}:{{ elastic_ver }}"
   when: rock_online_install
 
+- name: Create elasticsearch group
+  group:
+    name: elasticsearch
+    state: present
+
+- name: Add Elasticsearch user
+  name: elasticsearch
+  comment: "User for managing elasticsearch related things"
+  group: elasticsearch
+
 - name: "Create Elasticsearch directory"
   file:
     group: "{{ es_group }}"
