@@ -81,7 +81,7 @@
   register: docker_network_test
 - name: 'Create rocknsm_inside network'
   shell: 'docker network create -d bridge --internal rocknsm_inside' 
-  when: docker_network_test.stdout.find('rocknsm_inside') == 0 
+  when: docker_network_test.stdout.find('rocknsm_inside') == 1 
 #######
 
 # Allow containers to manage cgroups - needed for systemd init
