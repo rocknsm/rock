@@ -148,7 +148,7 @@
     repo: "{{ bro_rockscripts_repo }}"
     dest: "{{ bro_site_dir }}/scripts/rock"
     version: "{{ bro_rockscripts_branch }}"
-   and rock_online_install
+  when: rock_online_install
 
 - name: Deploy offline ROCK Bro scripts
   unarchive:
@@ -158,7 +158,7 @@
     group: root
     creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
     remote_src: yes
-   and not rock_online_install
+  when: not rock_online_install
 
 - name: Symlink offline ROCK bro scripts
   file:
@@ -166,7 +166,7 @@
     dest: "{{ bro_site_dir }}/scripts/rock"
     state: link
     force: yes
-   and not rock_online_install
+  when: not rock_online_install
 
 - name: Update owner for ROCK NSM Bro scripts
   file:
@@ -196,7 +196,7 @@
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/kafka"
     state: present
-   and with_kafka
+  when: with_kafka
 
 - name: Enable the SMB Analyzer in local.bro
   lineinfile:
@@ -270,7 +270,7 @@
     owner: root
     group: root
     mode: 0644
-  notify: reload systemd 
+  notify: reload systemd
 
 - name: Enable and start broctl
   service:

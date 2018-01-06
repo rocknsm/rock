@@ -6,8 +6,6 @@
 
 ---
 
-tasks:
-
 - hosts: all
 
   tasks:
