@@ -41,10 +41,10 @@ main() {
         	# This gets the name of the running script. In this case it is deploy_rock.sh
         	SOURCE="${BASH_SOURCE[0]}"
 
-			# The -h option checks to see if a file exists and is a symbolic link.
-			# The purpose of this code is to resolve deploy_rock.sh in case it is a symlink. At the end, the DIR
-			# variable will contain deploy_rock.sh's current directory. So if deploy_rock.sh is in /root/rock/bin
-			# that's what will be returned. If it has been symlinked, it will return the actual file path.
+			    # The -h option checks to see if a file exists and is a symbolic link.
+			    # The purpose of this code is to resolve deploy_rock.sh in case it is a symlink. At the end, the DIR
+			    # variable will contain deploy_rock.sh's current directory. So if deploy_rock.sh is in /root/rock/bin
+			    # that's what will be returned. If it has been symlinked, it will return the actual file path.
         	while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
 
         		DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"

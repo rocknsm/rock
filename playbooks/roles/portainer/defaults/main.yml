@@ -2,4 +2,7 @@
 ---
 
 #### Portainer configuration variables ####
-# All Portainer configuration variables for Portainer install itself.  
+# All Portainer configuration variables for Portainer install itself. 
+ 
+portainer_port: '9000'
+...

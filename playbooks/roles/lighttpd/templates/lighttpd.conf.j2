@@ -14,8 +14,8 @@
 ## chroot example aswell.
 ##
 var.log_root    = "/var/log/lighttpd"
-var.server_root = "/srv/www"
-var.state_dir   = "/var/run"
+var.server_root = "/var/www"
+var.state_dir   = "/var/run/"
 var.home_dir    = "/var/lib/lighttpd"
 var.conf_dir    = "/etc/lighttpd"
 
@@ -85,7 +85,7 @@ include "modules.conf"
 ##  Basic Configuration
 ## ---------------------
 ##
-server.port = {{ lighttpd_port }}
+server.port = "{{ lighttpd_port }}"
 
 ##
 ## Use IPv6?
