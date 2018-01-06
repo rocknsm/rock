@@ -104,11 +104,11 @@ ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --extra-vars "standalone=True"
 }
 #=======================
 server() {
-ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit servers ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --extra-vars "serverlocal=True" ${VERBOSE_FLAGS}
 }
 #=======================
 sensor() {
-ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit sensors ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --extra-vars "sensorlocal=True" ${VERBOSE_FLAGS}
 }
 #=======================
 # Generate the /etc/rocknsm/config.yml
@@ -131,17 +131,18 @@ fi
 Mainmenu() {
 clear
 Header
-echo "+        [ 1 ] Install a Stand alone system (everything on this box)   +"
-echo "+                                                                      +"
-echo "+        [ 2 ] server Install: only the services for a server          +"
-echo "+                                                                      +"
-echo "+        [ 3 ] sensor Install: only the services for a sensor          +"
-echo "+                                                                      +"
-echo "+                                                                      +"
-echo "+                                                                      +"
-echo "+        [ X ] Exit Script                                             +"
-echo "+                                                                      +"
-echo "+                                                                      +"
+echo "+        [ 1 ] Install a Stand alone system (everything on this box)        +"
+echo "+                                                                           +"
+echo "+        [ 2 ] Local Server Install: only the services for a server         +"
+echo "+                                                                           +"
+echo "+        [ 3 ] Local Sensor Install: only the services for a sensor         +"
+echo "+                                                                           +"
+echo "+        [ 4 ] Multinode Remote Install (not yet implemented)               +"
+echo "+                                                                           +"
+echo "+                                                                           +"
+echo "+        [ X ] Exit Script                                                  +"
+echo "+                                                                           +"
+echo "+                                                                           +"
 Footer
 read -p "Please make a Selection: " mainmenu_option
 case $mainmenu_option in
