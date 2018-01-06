@@ -91,14 +91,15 @@
 #
 #   notify: reload systemd
 
+# TODO: I should remove the magic path here
 - name: Create Bro node.cfg
   template:
     src: templates/bro-node.cfg.j2
-    dest: "{{ bro_sysconfig_dir }}/node.cfg"
+    dest: "/opt/bro/etc/node.cfg"
     mode: 0644
     owner: root
     group: root
-  notify: reload broctl
+  notify: reload bro
 
 - name: Create broctl.cfg
   template:
@@ -107,7 +108,7 @@
     mode: 0644
     owner: root
     group: root
-  notify: reload broctl
+  notify: reload bro
 
 - name: Create bro networks.cfg
   copy:
@@ -116,7 +117,7 @@
     mode: 0644
     owner: root
     group: root
-  notify: reload broctl
+  notify: reload bro
 
 - name: Add bro custom scripts dir
   file:
@@ -277,4 +278,4 @@
     name: bro
     enabled: "{{ enable_bro }}"
 
-  notify: reload broctl
+  notify: reload bro
