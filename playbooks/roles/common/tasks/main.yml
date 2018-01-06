@@ -49,15 +49,6 @@
     owner: root
     group: root
 
-# TODO: Should this be root?
-- name: "Create compose files directory"
-  file:
-    group: root
-    mode: 755
-    owner: root
-    path: "{{ rock_compose_files }}"
-    state: directory
-
 # main.yml - Common tasks for ROCK
 - include_tasks: configure_yum_repos.yml
 - include_tasks: configure_rock_repo.yml
@@ -68,3 +59,5 @@
 - include_tasks: configure_ntp.yml
 - include_tasks: ensure_cache_directory_exists.yml
 - include_tasks: enable_firewall.yml
+- include_tasks: docker.yml
+- include_tasks: install_chrony.yml

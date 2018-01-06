@@ -7,7 +7,7 @@
 # You will want to remount this to your "good" storage after the build.
 # This is just to make sure all the paths in the configs are proper.
 ###############  - file:
-- 
+-
   name: Create ROCK data dir
   file:
     path: "{{ rock_data_dir }}"
@@ -15,11 +15,20 @@
     owner: "{{ rock_data_user }}"
     group: "{{ rock_data_group }}"
     state: directory
-- 
+-
   name: Create ROCK NSM directory
   file:
     path: "{{ rocknsm_dir }}"
     mode: 0755
     owner: root
     group: root
+    state: directory
+
+# TODO: Should this be root?
+- name: "Create compose files directory"
+  file:
+    group: root
+    mode: 755
+    owner: root
+    path: "{{ rock_compose_files }}"
     state: directory
