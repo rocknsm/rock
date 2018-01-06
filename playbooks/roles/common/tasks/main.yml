@@ -1,14 +1,4 @@
 ---
-# main.yml - Common tasks for ROCK
-- include_tasks: configure_yum_repos.yml
-- include_tasks: configure_rock_repo.yml
-- include_tasks: install_common_packages.yml
-- include_tasks: create_rock_directories.yml
-- include_tasks: disable_ipv6.yml
-- include_tasks: set_hostname.yml
-- include_tasks: configure_ntp.yml
-- include_tasks: ensure_cache_directory_exists.yml
-- include_tasks: enable_firewall.yml
 
 - name: Apply override settings, if available
   include_vars: /etc/rocknsm/config.yml
@@ -58,3 +48,14 @@
     mode: 0755
     owner: root
     group: root
+
+# main.yml - Common tasks for ROCK
+- include_tasks: configure_yum_repos.yml
+- include_tasks: configure_rock_repo.yml
+- include_tasks: install_common_packages.yml
+- include_tasks: create_rock_directories.yml
+- include_tasks: disable_ipv6.yml
+- include_tasks: set_hostname.yml
+- include_tasks: configure_ntp.yml
+- include_tasks: ensure_cache_directory_exists.yml
+- include_tasks: enable_firewall.yml
