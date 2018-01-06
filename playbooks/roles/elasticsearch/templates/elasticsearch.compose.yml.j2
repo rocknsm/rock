@@ -9,9 +9,9 @@ services:
     network_mode: host
     volumes:
       - "{{ es_data_dir }}:/usr/share/elasticsearch/data/"
-	    - "{{ elastic_config_file }}:/etc/elasticsearch/elasticsearch.yml"
-	    - "{{ elastic_override_dir }}:/etc/systemd/system/elasticsearch.service.d"
-	    - "{{ elastic_jvm_dir}}:{{ elastic_jvm_dir }}"
+      - "{{ elastic_config_file }}:/etc/elasticsearch/elasticsearch.yml"
+      - "{{ elastic_override_dir }}:/etc/systemd/system/elasticsearch.service.d"
+      - "{{ elastic_jvm_dir}}:{{ elastic_jvm_dir }}"
     environment:
       - cluster.name={{ es_cluster_name }}
       - node.name={{ es_node_name }}
