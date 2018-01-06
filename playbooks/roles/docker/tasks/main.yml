@@ -79,7 +79,8 @@
 ####### Work-around for above task until bug is fixed from Ansible
 - shell: docker network ls | grep rocknsm_inside
   register: docker_network_test
-- shell: 'docker network create -d bridge --internal rocknsm_inside' 
+- name: 'Create rocknsm_inside network'
+  shell: 'docker network create -d bridge --internal rocknsm_inside' 
   when: docker_network_test.stdout == ""
 #######
 
