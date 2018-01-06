@@ -18,7 +18,7 @@
 
 - name: "Setup elasticsearch config"
   template:
-    dest: "{{ rock_compose_files }}"
+    dest: "{{ rock_compose_files }}/elasticsearch.compose.yml"
     group: "{{ es_group }}"
     mode: 755
     owner: "{{ es_user }}"
