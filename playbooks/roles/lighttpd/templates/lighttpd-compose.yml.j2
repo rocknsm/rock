@@ -5,7 +5,6 @@ services:
   lighttpd:
     image: 'rocknsm/lighttpd'
     container_name: 'lighttpd'
-    privileged: true
     networks:
       rocknsm_outside:
         aliases: 
