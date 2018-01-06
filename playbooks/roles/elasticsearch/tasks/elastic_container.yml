@@ -22,7 +22,7 @@
 - name: "Create Elasticsearch directory"
   file:
     group: 1000
-    mode: 755
+    mode: u+rw,g+rw
     owner: 1000
     path: "{{ es_data_dir }}"
     state: directory
@@ -30,7 +30,7 @@
 - name: "Create Elasticsearch configuration directory"
   file:
     group: 1000
-    mode: 755
+    mode: u+rw,g+rw
     owner: 1000
     path: "{{ es_config_dir }}"
     state: directory
@@ -85,24 +85,26 @@
     enabled: yes
     name: elasticsearch
     state: started
+    daemon-reload: yes
+  # TODO: This needs to be updated
   notify:
     - "es maintenance"
 
 - name: "Wait for Elasticsearch to become ready"
   wait_for: "host=localhost port=9200"
 
-- name: "Check for Bro mapping templates"
-  failed_when: false
-  register: bro_mapping
-  uri:
-    method: GET
-    url: "http://localhost:9200/_template/bro_index"
-  when: with_bro
+#- name: "Check for Bro mapping templates"
+#  failed_when: false
+#  register: bro_mapping
+#  uri:
+#    method: GET
+#    url: "http://localhost:9200/_template/bro_index"
+#  when: with_bro
 
-- name: "Load Bro Elasticsearch mapping templates"
-  uri:
-    body: "{{ lookup('file', 'es-bro-mappings.json')}}"
-    body_format: json
-    method: PUT
-    url: "http://localhost:9200/_template/bro_index"
-  when: "with_bro and bro_mapping.status == 404"
+#- name: "Load Bro Elasticsearch mapping templates"
+#  uri:
+#    body: "{{ lookup('file', 'es-bro-mappings.json')}}"
+#    body_format: json
+#    method: PUT
+#    url: "http://localhost:9200/_template/bro_index"
+#  when: "with_bro and bro_mapping.status == 404"
