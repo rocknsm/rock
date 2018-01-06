@@ -59,5 +59,4 @@
 - include_tasks: configure_ntp.yml
 - include_tasks: ensure_cache_directory_exists.yml
 - include_tasks: enable_firewall.yml
-- include_tasks: docker.yml
 - include_tasks: install_chrony.yml

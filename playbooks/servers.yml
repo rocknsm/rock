@@ -11,5 +11,6 @@
 
     # Containerized_install: if true, all services are docker containers. Otherwise, services installed bare metal
     - { role: docker, when: containerized_install }
+    
     # Harbor must run last so that it uploads all containers installed on the machine.
     - { role: harbor, when: containerized_install and with_harbor }

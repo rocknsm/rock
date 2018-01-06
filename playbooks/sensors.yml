@@ -4,6 +4,10 @@
   roles:
     - common
     - sensor-common
+
+    # Containerized_install: if true, all services are docker containers. Otherwise, services installed bare metal
+    - { role: docker, when: containerized_install }
+
     - { role: suricata, when: with_suricata }
     - { role: kafka, when: with_kafka }
     - { role: zookeeper, when: with_zookeeper }
