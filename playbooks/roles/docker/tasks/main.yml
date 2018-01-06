@@ -69,13 +69,19 @@
     driver: 'bridge'
 
 # Create Docker network with no host connectivity (secure network)
-- name: 'Create rocknsm_inside network'
+#- name: 'Create rocknsm_inside network'
 #  docker_network:
 #    name: 'rocknsm_inside'
 #    driver: 'bridge' 
 #    internal: true
 # Current issue open.  Issue #54
-  shell: 'docker network create -d bridge --internal rocknsm_inside' 
+
+####### Work-around for above task until bug is fixed from Ansible
+- shell: docker network ls | grep rocknsm_inside
+  register: docker_network_test
+- shell: 'docker network create -d bridge --internal rocknsm_inside' 
+  when: docker_network_test.stdout == ""
+#######
 
 # Allow containers to manage cgroups - needed for systemd init
 # This is way safer that running privileged containers
