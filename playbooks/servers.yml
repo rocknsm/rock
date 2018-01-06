@@ -1,11 +1,6 @@
 ---
 
 - hosts: servers
-
-  pre_tasks:
-    - name: Apply override settings, if available
-      include_vars: /etc/rocknsm/config.yml
-
   roles:
     - common
     - { role: elasticsearch, when: with_elasticsearch }

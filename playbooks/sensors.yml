@@ -1,14 +1,9 @@
 ---
 
 - hosts: sensors
-
-  pre_tasks:
-    - name: Apply override settings, if available
-      include_vars: /etc/rocknsm/config.yml
-
   roles:
     - common
-    - common_sensor
+    - sensor-common
     - { role: suricata, when: with_suricata }
     - { role: kafka, when: with_kafka }
     - { role: zookeeper, when: with_zookeeper }

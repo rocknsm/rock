@@ -100,15 +100,15 @@ EOF
 }
 #=======================
 stand_alone() {
-ansible-playbook "${TOPLEVEL}/playbooks/standalone.yml" ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --extra-vars "standalone=True" ${VERBOSE_FLAGS}
 }
 #=======================
 server() {
-ansible-playbook "${TOPLEVEL}/playbooks/servers.yml" ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit servers ${VERBOSE_FLAGS}
 }
 #=======================
 sensor() {
-ansible-playbook "${TOPLEVEL}/playbooks/sensors.yml" ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit sensors ${VERBOSE_FLAGS}
 }
 #=======================
 # Generate the /etc/rocknsm/config.yml
