@@ -3,8 +3,8 @@
 version: '2'
 services:
   kibana:
-    image: "{{ kibana_container }}:{{ kibana_ver }}"
-    network_mode: host
+    image: "{{ kibana_image }}:{{ kibana_ver }}"
+    container_name: 'kibana'
     ports:
       - "{{ kibana_ip }}:{{ kibana_port }}:{{ kibana_port }}"
     restart: "always"
@@ -16,4 +16,9 @@ services:
       - SERVER_PORT="{{ kibana_port }}"
       - xpack.security.enabled="{{ xpack_license }}"
       - xpack.monitoring.ui.container.elasticsearch.enabled:"{{ xpack_license }}"
+# Secure Docker network that cannot be connected to host directly
+networks:
+  default:
+    external:
+      name: 'rocknsm_inside'
 ...

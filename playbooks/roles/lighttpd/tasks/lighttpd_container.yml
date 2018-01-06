@@ -31,11 +31,10 @@
     mode: 0644
     owner: root
     group: root
-  when: rock_online_install
 
 - name: 'Build lighttpd container'
   docker_image:
-    name: 'alpine/lighttpd'
+    name: 'rocknsm/lighttpd'
     pull: yes
     state: present
     path: "{{ rocknsm_dir }}/lighttpd/"
@@ -93,5 +92,5 @@
   service: 
     name: 'lighttpd'
     enabled: yes
-  when: enable_lighttpd
 ...
+

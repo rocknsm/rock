@@ -1,7 +1,5 @@
 ---
 
-- include_tasks: 'enable_firewall.yml'
-
 - include_tasks: 'kibana_bare-metal.yml'
   when: not containerized_install
 

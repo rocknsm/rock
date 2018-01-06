@@ -5,7 +5,7 @@
 
 - name: 'Download Kibana container'
   docker_image:
-    name: "{{ kibana_container }}:{{ kibana_ver }}"
+    name: "{{ kibana_image }}:{{ kibana_ver }}"
   when: rock_online_install
 
 - name: 'Install Kibana service file'
@@ -15,7 +15,7 @@
     mode: 0644 
     owner: root 
     group: root
-  notify: reload systemd  
+  notify: reload systemd 
 
 - name: 'Create new directories'
   file:

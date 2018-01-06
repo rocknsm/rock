@@ -1,3 +1,4 @@
+---
 # The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
 # themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
 # function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
@@ -90,9 +91,7 @@ all:
 
     sensors:
       hosts:
-        simplerockbuild.simplerock.lan:
-          ansible_hostname: 127.0.0.1
-          ansible_connection: local
+        rocksensor1.lan:
 
       vars:
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
@@ -108,9 +107,7 @@ all:
 
     servers:
       hosts:
-        simplerockbuild.simplerock.lan:
-          ansible_hostname: 127.0.0.1
-          ansible_connection: local
+        rockserver1.lan:
 
       vars:
         es_cluster_name: rocknsm
@@ -120,5 +117,34 @@ all:
         elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
         #### Retention Configuration ####
+        elastic_close_interval: 15
+        elastic_delete_interval: 60
+
+    standalone:
+      hosts:
+        simplerockbuild.simplerock.lan:
+          ansible_hostname: 127.0.0.1
+          ansible_connection: local
+
+      vars:
+        #Server vars
+        es_cluster_name: rocknsm
+        es_node_name: "{{ rock_hostname }}"
+        es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
+        elastic_baseurl: https://artifacts.elastic.co/packages/5.x/yum
+        elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        #Sensor vars
+        bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
+        pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
+        bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
+        pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
+
+        #### Sensor retention Configuration ####
+        kafka_retention: 168
+        suricata_retention: 3
+        bro_log_retention: 0
+        bro_stats_retention: 0
+
+        #### Server retention Configuration ####
         elastic_close_interval: 15
         elastic_delete_interval: 60

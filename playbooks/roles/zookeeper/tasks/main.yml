@@ -7,18 +7,8 @@
   yum:
     name: zookeeper
     state: installed
-    
--
-  name: Install zookeeper service file
-  copy:
-    src: zookeeper.service
-    dest: /etc/systemd/system/zookeeper.service
-    mode: 0644
-    owner: root
-    group: root
 
--
-  name: Enable and start zookeeper
+- name: Enable and start zookeeper
   service:
     name: zookeeper
     enabled: yes
