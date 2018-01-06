@@ -14,9 +14,10 @@
     state: present
 
 - name: Add Elasticsearch user
-  name: elasticsearch
-  comment: "User for managing elasticsearch related things"
-  group: elasticsearch
+  user:
+    name: elasticsearch
+    comment: "User for managing elasticsearch related things"
+    group: elasticsearch
 
 - name: "Create Elasticsearch directory"
   file:
@@ -24,6 +25,14 @@
     mode: 755
     owner: "{{ es_user }}"
     path: "{{ es_data_dir }}"
+    state: directory
+
+- name: "Create Elasticsearch configuration directory"
+  file:
+    group: "{{ es_group }}"
+    mode: 755
+    owner: "{{ es_user }}"
+    path: "{{ es_config_dir }}"
     state: directory
 
 - name: "Setup elasticsearch config"
@@ -34,15 +43,9 @@
     owner: "{{ es_user }}"
     src: templates/elasticsearch.compose.yml.j2
 
-- name: "Setup elasticsearch data dir in sysconfig"
-  lineinfile:
-    dest: /etc/sysconfig/elasticsearch
-    line: "DATA_DIR={{ es_data_dir }}"
-    regexp: DATA_DIR=
-
 - name: "Setup elasticsearch jvm options"
   template:
-    dest: /etc/elasticsearch/jvm.options
+    dest: "{{ es_config_dir }}/jvm.options"
     group: "{{ es_group }}"
     mode: 755
     owner: root
