@@ -3,14 +3,15 @@
 - hosts: servers
   roles:
     - common
+
+    # Containerized_install: if true, all services are docker containers. Otherwise, services installed bare metal
+    - { role: docker, when: containerized_install }
+
     - { role: elasticsearch, when: with_elasticsearch }
     - { role: logstash, when: with_logstash }
     - { role: kibana, when: with_kibana }
     - { role: nginx, when: with_nginx }
     - { role: portainer, when: containerized_install and with_portainer }
 
-    # Containerized_install: if true, all services are docker containers. Otherwise, services installed bare metal
-    - { role: docker, when: containerized_install }
-    
     # Harbor must run last so that it uploads all containers installed on the machine.
     - { role: harbor, when: containerized_install and with_harbor }
