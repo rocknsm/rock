@@ -18,18 +18,10 @@
 
 - name: "Setup elasticsearch config"
   template:
-    dest: {{ elastic_config_file }}
+    dest: "{{ rock_compose_files }}"
     group: "{{ es_group }}"
     mode: 755
-    owner: root
-    src: templates/elasticsearch.yml.j2
-
-- name: "Setup elasticsearch config"
-  template:
-    dest: {{ rock_compose_files }}
-    group: "{{ es_group }}"
-    mode: 755
-    owner: root
+    owner: "{{ es_user }}"
     src: templates/elasticsearch.compose.yml.j2
 
 - name: "Setup elasticsearch data dir in sysconfig"
