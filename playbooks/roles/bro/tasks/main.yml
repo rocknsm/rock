@@ -101,19 +101,10 @@
     group: root
   notify: reload bro
 
-- name: Create broctl.cfg
-  template:
-    src: templates/bro-broctl.cfg.j2
-    dest: "{{ bro_sysconfig_dir }}/broctl.cfg"
-    mode: 0644
-    owner: root
-    group: root
-  notify: reload bro
-
 - name: Create bro networks.cfg
   copy:
     src: bro-networks.cfg
-    dest: "{{ bro_sysconfig_dir }}/networks.cfg"
+    dest: /opt/bro/etc/networks.cfg
     mode: 0644
     owner: root
     group: root

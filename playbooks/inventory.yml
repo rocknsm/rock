@@ -7,6 +7,11 @@
 
 all:
 
+  hosts: 
+    simplerockbuild.simplerock.lan:
+      ansible_hostname: 127.0.0.1
+      ansible_connection: local
+
   vars:
 
     #Common role variables
@@ -105,7 +110,7 @@ all:
 
     servers:
       # TODO: We will need these for the multinode install
-      #hosts:
+      # hosts:
       #  rockserver1.lan:
 
       vars:
