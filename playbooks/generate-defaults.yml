@@ -17,7 +17,7 @@
   # Useful for debugging, uncomment if you don't need it. This will post all
   # ansible related variables to the file /tmp/ansible.all
   - name: Dump all vars
-    action: template src=templates/dumpall.j2 dest=/tmp/ansible.all
+    action: template src=templates/dumpall.j2 dest=/tmp/ansible-generate-defaults.all
 
   # TODO: See https://github.com/tfplenum/rock/issues/28
   # The below will solve the problem for localhost, but it will not work with
