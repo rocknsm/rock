@@ -212,6 +212,7 @@
     owner: root
     group: root
 
+# THIS WAS COMMENTED OUT BY DCODE
 # - name: Create bro utility symlinks
 #   file:
 #     src: "/opt/bro/bin/{{ item.src }}"
@@ -222,51 +223,53 @@
 #     - { src: 'bro', dest: 'bro' }
 #     - { src: 'bro-cut', dest: 'bro-cut' }
 #
-- name: Set bro capabilities
-  capabilities:
-    path: /usr/bin/bro
-    capability: "{{ item }}"
-    state: present
-  with_items:
-    - "cap_net_raw+eip"
-    - "cap_net_admin+eip"
 
-- name: Set capstats capabilities
-  capabilities:
-    path: /usr/bin/capstats
-    capability: "{{ item }}"
-    state: present
-  with_items:
-    - "cap_net_raw+eip"
-    - "cap_net_admin+eip"
+# TODO: BELOW NEEDS TO BE FIXED
+#- name: Set bro capabilities
+#  capabilities:
+#    path: /usr/bin/bro
+#    capability: "{{ item }}"
+#    state: present
+#  with_items:
+#    - "cap_net_raw+eip"
+#    - "cap_net_admin+eip"
 
-- name: Set broctl cron
-  cron:
-    name: "broctl maintenance"
-    minute: "*/5"
-    cron_file: rocknsm_broctl
-    user: "{{ bro_user }}"
-    job: "/usr/bin/broctl cron >/dev/null 2>&1"
+#- name: Set capstats capabilities
+#  capabilities:
+#    path: /usr/bin/capstats
+#    capability: "{{ item }}"
+#    state: present
+#  with_items:
+#    - "cap_net_raw+eip"
+#    - "cap_net_admin+eip"
 
-- name: Initialize bro scripts for workers
-  command: /usr/bin/broctl install
-  args:
-    creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
-  become: yes
-  become_user: "{{ bro_user }}"
+#- name: Set broctl cron
+#  cron:
+#    name: "broctl maintenance"
+#    minute: "*/5"
+#    cron_file: rocknsm_broctl
+#    user: "{{ bro_user }}"
+#    job: "/usr/bin/broctl cron >/dev/null 2>&1"
 
-- name: Install broctl service file
-  template:
-    src: broctl.service.j2
-    dest: /etc/systemd/system/broctl.service
-    owner: root
-    group: root
-    mode: 0644
-  notify: reload systemd
+#- name: Initialize bro scripts for workers
+#  command: /usr/bin/broctl install
+#  args:
+#    creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
+#  become: yes
+#  become_user: "{{ bro_user }}"
 
-- name: Enable and start broctl
-  service:
-    name: bro
-    enabled: "{{ enable_bro }}"
+#- name: Install broctl service file
+#  template:
+#    src: broctl.service.j2
+#    dest: /etc/systemd/system/broctl.service
+#    owner: root
+#    group: root
+#    mode: 0644
+#  notify: reload systemd
 
-  notify: reload bro
+#- name: Enable and start broctl
+#  service:
+#    name: bro
+#    enabled: "{{ enable_bro }}"
+
+#  notify: reload bro
