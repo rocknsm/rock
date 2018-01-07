@@ -14,14 +14,20 @@
        #Make the replacement below to properly look up the interfaces in the hostvars dictionary
   #     - "{{ ansible_interfaces | regex_replace('-','_') }}"
 
+  # Useful for debugging, uncomment if you don't need it. This will post all
+  # ansible related variables to the file /tmp/ansible.all
+  - name: Dump all vars
+    action: template src=templates/dumpall.j2 dest=/tmp/ansible.all
+
   # TODO: See https://github.com/tfplenum/rock/issues/28
   # The below will solve the problem for localhost, but it will not work with
   # the multinode install.
   - name: Add localhost for generate defaults TEMPORARY
     add_host:
-      hostname: 127.0.0.1
-      groups: servers,sensors
+      name: simplerockbuild.simplerock.lan
+      ansible_hostname: 127.0.0.1
       ansible_connection: local
+      groups: servers,sensors
 
   - name: 'Create config directory'
     file:

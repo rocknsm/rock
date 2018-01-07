@@ -93,10 +93,10 @@ all:
 
     sensors:
       # TODO: We will need these for the multinode install
-      hosts:
-        rocksensor1.lan:
-          hostname: 127.0.0.1
-          ansible_connection: local
+      #hosts:
+      #  rocksensor1.lan:
+      #    hostname: 127.0.0.1
+      #    ansible_connection: local
 
       vars:
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
@@ -112,10 +112,10 @@ all:
 
     servers:
       # TODO: We will need these for the multinode install
-      hosts:
-        rockserver1.lan:
-          hostname: 127.0.0.1
-          ansible_connection: local
+      #hosts:
+      #  rockserver1.lan:
+      #    hostname: 127.0.0.1
+      #    ansible_connection: local
 
       vars:
         es_cluster_name: rocknsm
