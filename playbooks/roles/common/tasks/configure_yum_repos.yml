@@ -1,43 +1,51 @@
 #######################################################
 ################## Setup Yum Repos ####################
 #######################################################
---- 
- 
+---
+
 - name: "Setup EPEL repo"
-  when: rock_online_install
-  yum_repository: 
+  yum_repository:
     baseurl: "{{ epel_baseurl }}"
     description: "EPEL YUM repo"
     gpgcheck: true
     gpgkey: "{{ epel_gpgurl }}"
     mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
     name: epel
- 
+  when: rock_online_install
+
 - name: "Manually trust CentOS GPG key"
   shell: "rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7\n"
   when: "rock_online_install and ansible_distribution == \"CentOS\""
- 
+
 - name: "Setup local offline repo"
-  when: "not rock_online_install"
-  yum_repository: 
+  yum_repository:
     baseurl: "{{ rocknsm_local_baseurl }}"
     cost: 500
     description: "ROCKNSM Local Repository"
     gpgcheck: false
     name: rocknsm-local
- 
+  when: "not rock_online_install"
+
 - name: "Configure default CentOS online repos"
-  when: "ansible_distribution == \"CentOS\""
-  with_items:  
-    - mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra"
-      name: base 
-    - mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra"
-      name: updates 
-    - mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"
-      name: extras
-  yum_repository: 
+  yum_repository:
     description: "CentOS-$releasever - {{ item.name | title }}"
     enabled: "{{ rock_online_install }}"
     file: CentOS-Base
     mirrorlist: "{{ item.mirror }}"
     name: "{{ item.name }}"
+  with_items:
+  - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
+  - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
+  - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
+  when: "ansible_distribution == \"CentOS\""
+
+# This is also duplicated in elastic search role. Reducnancy is in case common role is not run.
+# TODO: I'm not sure this is where that needs to be
+-  name: Setup Elastic repo
+   yum_repository:
+     name: elastic-5.x
+     description: Elastic Stack repository for 5.x
+     baseurl: "{{ elastic_baseurl }}"
+     gpgkey:  "{{ elastic_gpgurl }}"
+     gpgcheck: no
+   when: rock_online_install

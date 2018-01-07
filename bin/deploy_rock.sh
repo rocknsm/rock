@@ -7,7 +7,7 @@
 #
 #
 # Description
-######################### 
+#########################
 # Deploys ROCKNSM using the playbook associated based of option of playbooks.
 #
 #
@@ -19,7 +19,7 @@
 #########################
 # Main function to call the deploy_rock.yml playbook
 main() {
-    
+
 	# Get the current directory of deploy_rock.sh (Ex: if deploy rock is in /root/rock/bin/deploy_rock.sh,
 	# this will return /root/rock/bin
 	SCRIPT_PATH=$(dirname $(readlink -f $0))
@@ -31,30 +31,30 @@ main() {
 	if [ "x${DEBUG}" != "x" ]; then
 		VERBOSE_FLAGS="-vvv"
 	fi
-	
+
 	# The purpose of the following conditional block is to ensure the user has run generate_defaults before running
 	# deploy_rock. If not, it will prompt them to do so.
-	
+
 	# The bash option -e checks if a file exists. This line checks to see if config.yml has already been generated.
 	if [[ ! -e /etc/rocknsm/config.yml ]]; then
-	
+
         	# This gets the name of the running script. In this case it is deploy_rock.sh
         	SOURCE="${BASH_SOURCE[0]}"
-			
-			# The -h option checks to see if a file exists and is a symbolic link. 
-			# The purpose of this code is to resolve deploy_rock.sh in case it is a symlink. At the end, the DIR
-			# variable will contain deploy_rock.sh's current directory. So if deploy_rock.sh is in /root/rock/bin
-			# that's what will be returned. If it has been symlinked, it will return the actual file path.
+
+			    # The -h option checks to see if a file exists and is a symbolic link.
+			    # The purpose of this code is to resolve deploy_rock.sh in case it is a symlink. At the end, the DIR
+			    # variable will contain deploy_rock.sh's current directory. So if deploy_rock.sh is in /root/rock/bin
+			    # that's what will be returned. If it has been symlinked, it will return the actual file path.
         	while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-			
+
         		DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
         		SOURCE="$(readlink "$SOURCE")"
-				
+
         		# If $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located.
-        		[[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE" 
-				
+        		[[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+
         	done
-			
+
 			# Contains deploy_rock.sh's directory
         	DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 		generate_config
@@ -100,18 +100,18 @@ EOF
 }
 #=======================
 stand_alone() {
-ansible-playbook "${TOPLEVEL}/playbooks/site.yml" ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --extra-vars "standalone=True" ${VERBOSE_FLAGS}
 }
 #=======================
 server() {
-ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit servers ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --extra-vars "serverlocal=True" ${VERBOSE_FLAGS}
 }
 #=======================
 sensor() {
-ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --limit sensors ${VERBOSE_FLAGS}
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --extra-vars "sensorlocal=True" ${VERBOSE_FLAGS}
 }
 #=======================
-# Generate the /etc/rocknsm/config.yml 
+# Generate the /etc/rocknsm/config.yml
 generate_config() {
 echo "[-] You must run generate_defaults.sh prior to deploying for the first time. "
 read -p "Would you like to generate the defaults now?  [y/n] " -n 1 -r
@@ -131,22 +131,23 @@ fi
 Mainmenu() {
 clear
 Header
-echo "+        [ 1 ] Install a Stand alone system (everything on this box)   +"
-echo "+                                                                      +"
-echo "+        [ 2 ] server Install: only the services for a server          +"
-echo "+                                                                      +"
-echo "+        [ 3 ] sensor Install: only the services for a sensor          +"
-echo "+                                                                      +"
-echo "+                                                                      +"
-echo "+                                                                      +"
-echo "+        [ X ] Exit Script                                             +"
-echo "+                                                                      +"
-echo "+                                                                      +"
+echo "+        [ 1 ] Install a Stand alone system (everything on this box)        +"
+echo "+                                                                           +"
+echo "+        [ 2 ] Local Server Install: only the services for a server         +"
+echo "+                                                                           +"
+echo "+        [ 3 ] Local Sensor Install: only the services for a sensor         +"
+echo "+                                                                           +"
+echo "+        [ 4 ] Multinode Remote Install (not yet implemented)               +"
+echo "+                                                                           +"
+echo "+                                                                           +"
+echo "+        [ X ] Exit Script                                                  +"
+echo "+                                                                           +"
+echo "+                                                                           +"
 Footer
 read -p "Please make a Selection: " mainmenu_option
 case $mainmenu_option in
 	1) clear && stand_alone;;
-	2) clear && server;; 
+	2) clear && server;;
 	3) clear && sensor;;
 	x|X) clear && exit ;;
 	*) echo "Invalid input" && sleep 1 && Mainmenu;;

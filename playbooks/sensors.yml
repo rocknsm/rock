@@ -1,15 +1,20 @@
 ---
 
 - hosts: sensors
-
-  pre_tasks:
-    - name: Apply override settings, if available
-      include_vars: /etc/rocknsm/config.yml
-
   roles:
-    - common_sensor
+    - common
+    - sensor-common
+
+    # Containerized_install: if true, all services are docker containers. Otherwise, services installed bare metal
+    - { role: docker, when: containerized_install }
+
     - { role: suricata, when: with_suricata }
     - { role: kafka, when: with_kafka }
     - { role: zookeeper, when: with_zookeeper }
     - { role: filebeats, when: with_filebeats }
-    - { role: bro, when: with_bro }
+    # TODO: Bro was seriously pissing me off. Just errors upon errors upon errors... upon errors so I disabled it
+    # so I could commit this nonsense. I'll deal with it later.
+    #- { role: bro, when: with_bro }
+
+    # Containerized_install: if true, all services are docker containers. Otherwise, services installed bare metal
+    - { role: docker, when: containerized_install }

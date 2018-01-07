@@ -1,0 +1,36 @@
+---
+# tasks file for rocknsm.docket
+
+- name: Install Docket
+  yum:
+    name: docket
+    state: installed
+
+- name: Configure firewalld
+  firewalld:
+    port: "{{ item[1].port }}"
+    source: "{{ item[0] }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_nested:
+    - "{{ rock_mgmt_nets }}"
+    -
+      - { port: "8443/tcp" }
+
+# Ensure `stenographer` and `nginx` groups exists
+- import_tasks: prereqs.yml
+
+# Install packages
+- import_tasks: install.yml
+
+# Generate/copy x509 client cert/keys and CA certs
+- import_tasks: crypto.yml
+
+# Configure docket app settings
+- import_tasks: docket_config.yml
+
+# Configure web server settings
+- import_tasks: lighttpd.yml
+
+# Enable / Activate Services

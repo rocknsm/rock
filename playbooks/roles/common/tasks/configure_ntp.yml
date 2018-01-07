@@ -1,23 +1,22 @@
 ######################################################
 ################### Configure Time ###################
 ######################################################
---- 
-- 
-  name: "Enable and start chrony"
-  service: 
+---
+- name: "Enable and start chrony"
+  service:
     enabled: true
     name: chronyd
     state: started
-- 
-  command: "/usr/bin/timedatectl set-timezone UTC"
+
+- command: "/usr/bin/timedatectl set-timezone UTC"
   name: "Set system timezone"
   when: "ansible_date_time.tz != \"UTC\""
-- 
-  changed_when: false
+
+- changed_when: false
   name: "Check if RTC set to UTC"
   register: chrony_local_utc
   shell: "timedatectl | awk '/RTC in local/ { print $5 }'"
-- 
-  command: "/usr/bin/timedatectl set-local-rtc no"
+
+- command: "/usr/bin/timedatectl set-local-rtc no"
   name: "Set system hardware clock to UTC"
   when: "chrony_local_utc == 'yes'"

@@ -1,0 +1,24 @@
+---
+- name: docket | configure lighttpd + uwsgi
+  template:
+    src: docket_lighttpd_scgi.conf.j2
+    dest: /etc/lighttpd/conf.d/scgi_docket.conf
+
+- name: docket | configure lighttpd TLS listener
+  template:
+    src: docket_lighttpd_vhost.conf.j2
+    dest: /etc/lighttpd/vhosts.d/docket.conf
+  notify: docket | restart lighttpd
+
+- name: docket | enable lighttpd vhosts
+  lineinfile:
+    path: /etc/lighttpd/lighttpd.conf
+    regexp: '^#\s*include_shell.*vhosts\.d/.*$'
+    line: include_shell "cat /etc/lighttpd/vhosts.d/*.conf"
+  notify: docket | restart lighttpd
+
+- name: docket | enable lighttpd service
+  service:
+    name: lighttpd
+    enabled: yes
+  notify: docket | restart lighttpd

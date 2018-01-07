@@ -1,10 +1,9 @@
+---
 # The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
 # themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
 # function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
 # look at this inventory file and see the hosts that are part of the sensor group. When site.yml imports the sensors.yml
 # file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
-
----
 
 all:
 
@@ -14,6 +13,11 @@ all:
       ansible_connection: local
 
   vars:
+
+    #Common role variables
+    common_mgnt_nets: "{{ rock_mgmt_nets }}"
+
+    rock_version: 3.0
     rock_online_install: true
     rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
     rock_data_dir: /data
@@ -28,6 +32,7 @@ all:
     rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
     rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
     rocknsm_local_baseurl: file:///srv/rocknsm
+    rock_compose_files: "{{ rocknsm_dir + '/compose_files' }}"
 
     #### Docker configuration variables ####
     # Install services with Docker whenever possible vs installing on bare metal.
@@ -42,6 +47,7 @@ all:
 
     with_bro: true
     with_docker: true
+    with_docket: true
     with_elasticsearch: true
     with_elk: false
     with_filebeats: true
@@ -51,7 +57,7 @@ all:
     with_kibana: true
     with_lighttpd: true
     with_logstash: true
-    with_nginx: false
+    with_nginx: true
     with_portainer: true
     with_pulledpork: true
     with_snort: false
@@ -86,10 +92,11 @@ all:
   children:
 
     sensors:
-      hosts:
-        simplerockbuild.simplerock.lan:
-          ansible_hostname: 127.0.0.1
-          ansible_connection: local
+      # TODO: We will need these for the multinode install
+      #hosts:
+      #  rocksensor1.lan:
+      #    hostname: 127.0.0.1
+      #    ansible_connection: local
 
       vars:
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
@@ -104,10 +111,11 @@ all:
         bro_stats_retention: 0
 
     servers:
-      hosts:
-        simplerockbuild.simplerock.lan:
-          ansible_hostname: 127.0.0.1
-          ansible_connection: local
+      # TODO: We will need these for the multinode install
+      #hosts:
+      #  rockserver1.lan:
+      #    hostname: 127.0.0.1
+      #    ansible_connection: local
 
       vars:
         es_cluster_name: rocknsm

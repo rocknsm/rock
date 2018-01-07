@@ -1,4 +1,54 @@
 ---
+
+- name: Apply override settings, if available
+  include_vars: /etc/rocknsm/config.yml
+
+- name: Check for offline install
+  stat:
+    path: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
+  register: offline_files_present
+  when: not rock_online_install
+
+- name: Offline install fail
+  fail:
+    msg: 'You are installing in \Offline Mode\ but do not have all the files required.  Please install from a new RockNSM.iso!  '
+  when: not rock_online_install and not offline_files_present.stat.exists
+
+- name: Get OS specific settings
+  include_vars: "{{ item }}"
+  with_first_found:
+    - "{{ ansible_distribution }}-{{ ansible_distribution_major_version}}.yml"
+    - "{{ ansible_distribution }}.yml"
+  tags: vars
+
+- name: 'Render rock_start template'
+  template:
+    backup: yes
+    src: rock.service.j2
+    dest: /etc/systemd/system/rock.service
+    owner: root
+    group: root
+    mode: 0644
+
+######################################################
+############### ROCKNSM Customization ################
+######################################################
+- name: Install ROCK NSM /etc/issue
+  copy:
+    src: etc-issue.in
+    dest: /etc/issue.in
+    mode: 0644
+    owner: root
+    group: root
+
+- name: NetworkManager ROCK NSM hook
+  copy:
+    src: nm-issue-update
+    dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+    mode: 0755
+    owner: root
+    group: root
+
 # main.yml - Common tasks for ROCK
 - include_tasks: configure_yum_repos.yml
 - include_tasks: configure_rock_repo.yml
@@ -9,3 +59,4 @@
 - include_tasks: configure_ntp.yml
 - include_tasks: ensure_cache_directory_exists.yml
 - include_tasks: enable_firewall.yml
+- include_tasks: install_chrony.yml

@@ -7,12 +7,12 @@
   yum:
     name: bro
     state: installed
-    
+
 - name: Install Bro plugin for af_packet
   yum:
     name: bro-plugin-af_packet
     state: installed
-  
+
 - name: Install Bro plugin for Kafka
   yum:
     name: bro-plugin-kafka
@@ -24,14 +24,14 @@
     name: "{{ bro_group }}"
     state: present
     system: yes
- 
+
 - name: Create bro user and group
   user:
     name: "{{ bro_user }}"
     comment: "bro service account"
     createhome: no
     group: "{{ bro_group }}"
-    home: /opt/bro
+    home: /var/spool/bro
     shell: /sbin/nologin
     system: yes
     state: present
@@ -47,42 +47,59 @@
     - "{{ bro_data_dir }}"
     - "{{ bro_data_dir }}/logs"
     - "{{ bro_data_dir }}/spool"
- 
-- name: Create symlinks for wandering analysts
-  file:
-    dest: "/opt/bro/{{ item }}"
-    src:  "{{ bro_data_dir }}/{{ item }}"
-    state: link
-    force: yes
-  with_items:
-    - logs
 
-- name: Install broctl service file
-  template:
-    src: broctl.service.j2
-    dest: /etc/systemd/system/broctl.service
-    owner: root
-    group: root
-    mode: 0644
-  notify: reload systemd
- 
+- name: Create /opt/bro dir for wandering users
+  file:
+    dest: "/opt/bro"
+    state: directory
+
+- name: Create note to wandering users
+  copy:
+    dest: "/opt/bro/README.md"
+    content: |
+      Hey! Where's my Bro?
+      =========================
+
+      RockNSM has aligned the Bro package to be inline with Fedora packaging
+      guidelines in an effort to push the package upstream for maintenance.
+      Fedora and EPEL have a great community and we believe others can benefit
+      from our hard work.
+
+      Here's where you can find your stuff:
+
+      Bro configuration files
+      -----------------------
+      /opt/bro/etc -> /etc/bro
+
+      Bro site scripts
+      -----------------------
+      /opt/bro/share/bro/site -> /usr/share/bro/site
+
+      Bro logs and spool dirs (same as previous ROCK iterations)
+      -----------------------
+      /opt/bro/logs -> /data/bro/logs
+      /opt/bro/spool -> /data/bro/spool
+
+
+# - name: Install broctl service file
+#   template:
+#     src: templates/broctl.service.j2
+#     dest: /etc/systemd/system/broctl.service
+#     owner: root
+#     group: root
+#     mode: 0644
+#
+#   notify: reload systemd
+
+# TODO: I should remove the magic path here
 - name: Create Bro node.cfg
   template:
-    src: bro-node.cfg.j2
-    dest: /opt/bro/etc/node.cfg
+    src: templates/bro-node.cfg.j2
+    dest: "/opt/bro/etc/node.cfg"
     mode: 0644
     owner: root
     group: root
-  notify: reload broctl
- 
-- name: Create broctl.cfg
-  template:
-    src: bro-broctl.cfg.j2
-    dest: /opt/bro/etc/broctl.cfg
-    mode: 0644
-    owner: root
-    group: root
-  notify: reload broctl
+  notify: reload bro
 
 - name: Create bro networks.cfg
   copy:
@@ -91,28 +108,29 @@
     mode: 0644
     owner: root
     group: root
-  notify: reload broctl
- 
+  notify: reload bro
+
 - name: Add bro custom scripts dir
   file:
-    path: /opt/bro/share/bro/site/scripts
+    path: "{{ bro_site_dir }}/scripts"
     owner: root
     group: root
     mode: 0755
     state: directory
- 
-- name: Set permissions on broctl scripts dir
-  file:
-    path: /opt/bro/share/broctl/scripts
-    owner: "{{ bro_user }}"
-    group: "{{ bro_user }}"
-    mode: 0755
-    state: directory
+
+# - name: Set permissions on broctl scripts dir
+#   file:
+#     path: /opt/bro/share/broctl/scripts
+#     owner: "{{ bro_user }}"
+#     group: "{{ bro_user }}"
+#     mode: 0755
+#     state: directory
+#
 
 - name: Add README to scripts dir
   copy:
     src: bro-scripts-readme.txt
-    dest: /opt/bro/share/bro/site/scripts/README.txt
+    dest: "{{ bro_site_dir }}/scripts/README.txt"
     mode: 0644
     owner: root
     group: root
@@ -120,36 +138,31 @@
 - name: Checkout ROCK Bro scripts
   git:
     repo: "{{ bro_rockscripts_repo }}"
-    dest: /opt/bro/share/bro/site/scripts/rock
+    dest: "{{ bro_site_dir }}/scripts/rock"
     version: "{{ bro_rockscripts_branch }}"
   when: rock_online_install
-
-- name: Check for pre-installed Bro script .tar.gz
-  stat:
-    path: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
-  register: script_check_result
 
 - name: Deploy offline ROCK Bro scripts
   unarchive:
     src: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
-    dest: /opt/bro/share/bro/site/scripts/
+    dest: "{{ bro_site_dir }}/scripts/"
     owner: root
     group: root
-    creates: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+    creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
     remote_src: yes
-  when: not rock_online_install and script_check_result.stat.exists
- 
+  when: not rock_online_install
+
 - name: Symlink offline ROCK bro scripts
   file:
-    src: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
-    dest: "/opt/bro/share/bro/site/scripts/rock"
+    src: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+    dest: "{{ bro_site_dir }}/scripts/rock"
     state: link
     force: yes
-  when: rock_online_install and script_check_result == True
+  when: not rock_online_install
 
 - name: Update owner for ROCK NSM Bro scripts
   file:
-    path: /opt/bro/share/bro/site/scripts/rock
+    path: "{{ bro_site_dir }}/scripts/rock"
     owner: "{{ bro_user }}"
     group: "{{ bro_group }}"
     state: directory
@@ -160,30 +173,30 @@
 
 - name: Add ROCK scripts to local.bro
   lineinfile:
-    dest: /opt/bro/share/bro/site/local.bro
+    dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock # ROCK NSM customizations"
     state: present
 
 - name: Add AF_PACKET workaround to local.bro
   lineinfile:
-    dest: /opt/bro/share/bro/site/local.bro
+    dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/afpacket"
     state: present
 
 - name: Enable Bro Kafka output to local.bro
   lineinfile:
-    dest: /opt/bro/share/bro/site/local.bro
+    dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/kafka"
     state: present
   when: with_kafka
 
 - name: Enable the SMB Analyzer in local.bro
   lineinfile:
-    dest: /opt/bro/share/bro/site/local.bro
+    dest: "{{ bro_site_dir }}/local.bro"
     line: "@load policy/protocols/smb # Enable Bro SMB Analyzer"
     state: present
 
-- name: Add bro to path and aliases
+- name: Add bro aliases
   copy:
     src: profile.d-bro.sh
     dest: /etc/profile.d/bro.sh
@@ -199,41 +212,64 @@
     owner: root
     group: root
 
-- name: Set bro capabilities
-  capabilities:
-    path: /opt/bro/bin/bro
-    capability: "{{ item }}"
-    state: present
-  with_items:
-    - "cap_net_raw+eip"
-    - "cap_net_admin+eip"
+# THIS WAS COMMENTED OUT BY DCODE
+# - name: Create bro utility symlinks
+#   file:
+#     src: "/opt/bro/bin/{{ item.src }}"
+#     dest: "/usr/bin/{{ item.dest }}"
+#     force: yes
+#     state: link
+#   with_items:
+#     - { src: 'bro', dest: 'bro' }
+#     - { src: 'bro-cut', dest: 'bro-cut' }
+#
 
-- name: Set capstats capabilities
-  capabilities:
-    path: /opt/bro/bin/capstats
-    capability: "{{ item }}"
-    state: present
-  with_items:
-    - "cap_net_raw+eip"
-    - "cap_net_admin+eip"
+# TODO: BELOW NEEDS TO BE FIXED
+#- name: Set bro capabilities
+#  capabilities:
+#    path: /usr/bin/bro
+#    capability: "{{ item }}"
+#    state: present
+#  with_items:
+#    - "cap_net_raw+eip"
+#    - "cap_net_admin+eip"
 
-- name: Set broctl cron
-  cron:
-    name: "broctl maintenance"
-    minute: "*/5"
-    cron_file: rocknsm_broctl
-    user: "{{ bro_user }}"
-    job: "/opt/bro/bin/broctl cron >/dev/null 2>&1"
+#- name: Set capstats capabilities
+#  capabilities:
+#    path: /usr/bin/capstats
+#    capability: "{{ item }}"
+#    state: present
+#  with_items:
+#    - "cap_net_raw+eip"
+#    - "cap_net_admin+eip"
 
-- name: Initialize bro scripts for workers
-  command: /opt/bro/bin/broctl install
-  args:
-    creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
-  become: yes
-  become_user: "{{ bro_user }}"
- 
--  name: Enable and start broctl
-   service:
-     name: broctl
-     enabled: yes
-     state: started
+#- name: Set broctl cron
+#  cron:
+#    name: "broctl maintenance"
+#    minute: "*/5"
+#    cron_file: rocknsm_broctl
+#    user: "{{ bro_user }}"
+#    job: "/usr/bin/broctl cron >/dev/null 2>&1"
+
+#- name: Initialize bro scripts for workers
+#  command: /usr/bin/broctl install
+#  args:
+#    creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
+#  become: yes
+#  become_user: "{{ bro_user }}"
+
+#- name: Install broctl service file
+#  template:
+#    src: broctl.service.j2
+#    dest: /etc/systemd/system/broctl.service
+#    owner: root
+#    group: root
+#    mode: 0644
+#  notify: reload systemd
+
+#- name: Enable and start broctl
+#  service:
+#    name: bro
+#    enabled: "{{ enable_bro }}"
+
+#  notify: reload bro
