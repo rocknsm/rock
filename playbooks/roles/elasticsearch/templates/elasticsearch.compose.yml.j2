@@ -1,12 +1,14 @@
+---
+
 version: '2'
 services:
   elastic:
     image: "{{ elastic_container }}:{{ elastic_ver }}"
     restart: "always"
     ports:
-      - "{{ elastic_data_port }}:{{ elastic_data_port }}"
+      # TODO: This line should no longer be needed with the backend networking
+      #- "{{ elastic_data_port }}:{{ elastic_data_port }}"
       - "{{ elastic_management_port }}:{{ elastic_management_port }}"
-    network_mode: host
     volumes:
       - "{{ es_data_dir }}:/usr/share/elasticsearch/data/"
       - "{{ es_config_dir}}/jvm.options:{{ es_config_dir }}/jvm.options"
@@ -15,9 +17,10 @@ services:
       - node.name={{ es_node_name }}
       - xpack.security.enabled=false
       #- processors=8
-      - network.publish_host=_eth0_
-      - http.host=0.0.0.0
-      - transport.tcp.port={{ elastic_management_port }}
+
+      # TODO: These should no longer be necessary with the new backend networking
+      #- http.host=0.0.0.0
+      #- transport.tcp.port={{ elastic_management_port }}
 
       # This option keeps JVM memory from being paged out to swap
       - bootstrap.memory_lock=true
@@ -31,3 +34,11 @@ services:
 
     # This caps the amount of memory available to the container
     mem_limit: {{ es_mem * 2 }}g
+
+# Secure Docker network that cannot be connected to host directly
+networks:
+  default:
+    external:
+      name: 'rocknsm_inside'
+
+...
