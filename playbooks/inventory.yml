@@ -7,10 +7,10 @@
 
 all:
 
-  hosts:
-    simplerockbuild.simplerock.lan:
-      ansible_hostname: 127.0.0.1
-      ansible_connection: local
+  #hosts:
+  #  simplerockbuild.simplerock.lan:
+  #    ansible_hostname: 127.0.0.1
+  #    ansible_connection: local
 
   vars:
 
@@ -93,10 +93,10 @@ all:
 
     sensors:
       # TODO: We will need these for the multinode install
-      #hosts:
-      #  rocksensor1.lan:
-      #    hostname: 127.0.0.1
-      #    ansible_connection: local
+      hosts:
+        rocksensor1.lan:
+          ansible_hostname: rocksensor1.lan
+          ansible_connection: ssh
 
       vars:
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
@@ -112,10 +112,10 @@ all:
 
     servers:
       # TODO: We will need these for the multinode install
-      #hosts:
-      #  rockserver1.lan:
-      #    hostname: 127.0.0.1
-      #    ansible_connection: local
+      hosts:
+        rockserver1.lan:
+          ansible_hostname: rockserver1.lan
+          ansible_connection: ssh
 
       vars:
         es_cluster_name: rocknsm
