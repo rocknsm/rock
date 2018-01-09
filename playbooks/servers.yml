@@ -10,7 +10,7 @@
     - { role: elasticsearch, when: with_elasticsearch }
     - { role: logstash, when: with_logstash }
     - { role: kibana, when: with_kibana }
-    - { role: nginx, when: with_nginx }
+    - { role: lighttpd, when: with_lighttpd }
     - { role: portainer, when: containerized_install and with_portainer }
 
     # Harbor must run last so that it uploads all containers installed on the machine.
