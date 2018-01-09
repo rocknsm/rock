@@ -57,7 +57,7 @@ all:
     with_kibana: true
     with_lighttpd: true
     with_logstash: true
-    with_nginx: true
+    with_nginx: false
     with_portainer: true
     with_pulledpork: true
     with_snort: false
