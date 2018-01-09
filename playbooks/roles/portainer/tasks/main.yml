@@ -15,8 +15,6 @@
     owner: root 
     group: root
   notify: reload systemd 
-# If your host is using SELinux
-#    privileged: yes
 
 - name: 'Create new directories'
   file:

@@ -1,10 +1,10 @@
 ######################################################
 ######### Configure the monitoring interface #########
 ######################################################
---- 
-- 
+---
+-
   name: "Set monitor interface config"
-  template: 
+  template:
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
     force: true
     group: root
@@ -12,13 +12,13 @@
     owner: root
     src: templates/ifcfg-monif.j2
   with_items: "{{ rock_monifs }}"
-- 
+-
   name: "Configure local ifup script"
-  template: 
+  template:
     dest: /sbin/ifup-local
     force: true
     group: root
-    mode: 493
+    mode: 755
     owner: root
     src: templates/ifup-local.j2
   notify: "configure monitor interfaces"

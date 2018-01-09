@@ -90,8 +90,9 @@
   notify:
     - "es maintenance"
 
-- name: "Wait for Elasticsearch to become ready"
-  wait_for: "host=localhost port=9200"
+# TODO: This needs to be fixed.
+#- name: "Wait for Elasticsearch to become ready"
+#  wait_for: "host=localhost port=9200"
 
 #- name: "Check for Bro mapping templates"
 #  failed_when: false
