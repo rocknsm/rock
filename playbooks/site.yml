@@ -10,13 +10,10 @@
 
   tasks:
 
-  - name: Apply override settings, if available
-    include_vars: /etc/rocknsm/config.yml
-
   # Useful for debugging, uncomment if you don't need it. This will post all
   # ansible related variables to the file /tmp/ansible.all
-  - name: Dump all vars
-    action: template src=templates/dumpall.j2 dest=/tmp/ansible-site.all
+  #- name: Dump all vars
+  #  action: template src=templates/dumpall.j2 dest=/tmp/ansible-site.all
 
   # When the system is run in the standalone configuration, this task will
   # add the localhost to both the servers and sensors groups

@@ -1,0 +1,7 @@
+---
+
+- include_tasks: 'enable_firewall.yml'
+
+- include_tasks: 'haproxy_container.yml'
+  when: containerized_install
+...

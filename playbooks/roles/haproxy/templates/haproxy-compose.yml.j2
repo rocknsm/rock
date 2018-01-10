@@ -1,0 +1,36 @@
+---
+
+version: '2'
+services:
+  haproxy:
+    image: 'haproxy:latest'
+    container_name: 'haproxy'
+    networks:
+      rocknsm_outside:
+        aliases: 
+          - 'proxy'
+      rocknsm_inside:
+        aliases: 
+          - 'proxy'
+    ports:
+{% if not with_lighttpd %}
+      - "0.0.0.0:80:80"
+      - "0.0.0.0:443:443"
+{% endif %}
+      - "0.0.0.0:{{ elastic_lb_port }}:{{ elastic_lb_port }}"
+    restart: "always"
+    volumes: 
+      - "{{ rocknsm_dir }}/haproxy/haproxy.conf:/usr/local/etc/haproxy/haproxy.cfg"
+      - "{{ rocknsm_dir }}/haproxy/ssl.pem:/etc/ssl/private/haproxy.ssl.pem"
+      # Systemd volumes
+      - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
+    environment:
+      - container=docker
+networks:
+  rocknsm_outside:
+    external:
+      name: 'rocknsm_outside'
+  rocknsm_inside:
+    external:
+      name: 'rocknsm_inside'
+...

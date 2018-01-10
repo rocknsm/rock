@@ -1,0 +1,75 @@
+---
+######################################################
+############## Setup Lighttpd container ##############
+######################################################
+
+# Depending on the OS there may already be a httpd running
+- name: 'Check if pre-existing httpd service exists'
+  stat: 'path=/etc/init.d/httpd'
+  register: 'service_status'
+
+- name: 'Disable local http server'
+  service:
+    name: 'httpd'
+    enabled: no
+    state: 'stopped'
+  when: 'service_status.stat.exists'
+
+- name: 'Create new directory'
+  file:
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - "{{ rocknsm_dir }}/haproxy"
+
+- name: 'Pull official haproxy from docker hub'
+  docker_image:
+    name: 'haproxy:latest'
+    state: present
+  when: rock_online_install
+
+- name: 'Install haproxy service file'
+  template: 
+    src: 'haproxy.service.j2' 
+    dest: '/etc/systemd/system/haproxy.service' 
+    mode: 0644 
+    owner: root 
+    group: root
+  notify: reload systemd  
+
+- name: 'Copy haproxy compose file'
+  template:
+    src: 'haproxy-compose.yml.j2'
+    dest: "{{ rocknsm_dir }}/haproxy/haproxy-compose.yml"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Copy haproxy.conf file'
+  template:
+    src: 'haproxy.conf.j2'
+    dest: "{{ rocknsm_dir }}/haproxy/haproxy.conf"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Generate haproxy ssl keys'
+  shell: |
+    openssl genrsa -out {{ rocknsm_dir }}/haproxy/ssl.key 2048
+    openssl req -new -key {{ rocknsm_dir }}/haproxy/ssl.key -out {{ rocknsm_dir }}/haproxy/ssl.csr -subj /CN=US
+    openssl x509 -req -days 365 -in {{ rocknsm_dir }}/haproxy/ssl.csr -signkey {{ rocknsm_dir }}/haproxy/ssl.key -out {{ rocknsm_dir }}/haproxy/ssl.crt
+    cat {{ rocknsm_dir }}/haproxy/ssl.crt > {{ rocknsm_dir }}/haproxy/ssl.pem
+    cat {{ rocknsm_dir }}/haproxy/ssl.key >> {{ rocknsm_dir }}/haproxy/ssl.pem
+
+- name: 'Run haproxy-compose.yml' 
+  docker_service: 
+    project_src: "{{ rocknsm_dir }}/haproxy/" 
+    files: 'haproxy-compose.yml' 
+    state: present 
+
+- name: 'Enable haproxy service'
+  service: 
+    name: 'haproxy'
+    enabled: yes
+...
+
