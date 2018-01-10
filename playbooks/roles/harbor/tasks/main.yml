@@ -21,7 +21,7 @@
         path: "{{ rocknsm_dir }}/harbor/harbor.cfg"
         regexp: '(\s+)db_password = root123(\s+.*)?$'
         replace: '\1db_password = password\2'
-    - replace: 
+    - replace:
         path: "{{ rocknsm_dir }}/harbor/harbor.cfg"
         regexp: '(\s+)harbor_admin_password = Harbor12345(\s+.*)?$'
         replace: '\1harbor_admin_password = password\2'
@@ -29,8 +29,8 @@
 - name: 'Fix Harbor docker-compose file'
   replace:
     path: "{{ rocknsm_dir }}/harbor/docker-compose.yml"
-    regexp: '(\s+)80:80\(\s+.*)?$'
-    replace: '\1{{ harbor_firewall_port }}:{{ harbor_port }}\2'
+    regexp: '(\s+)80:80(.*)$'
+    replace: '\1{{ harbor_firewall_port }}:{{ harbor_port }}\2' #this doesn't work because the variable name is not being expanded. Double qoutes doesn't seem to work either. NEEDS TO BE FIXED!
 
 # Depending on the OS there may already be a httpd running
 - name: 'Check if pre-existing httpd service exists'
@@ -45,7 +45,7 @@
   when: 'service_status.stat.exists'
 
 - name: 'Install Harbor'
-  shell: "sh {{ rocknsm_dir }}/harbor/install.sh" 
+  shell: "sh {{ rocknsm_dir }}/harbor/install.sh"
 
 - name: 'Install Harbor service file'
   template:
@@ -57,7 +57,7 @@
     mode: 0644
 
 - name: 'Enable harbor service'
-  service: 
+  service:
     name: 'harbor'
     enabled: yes
 
@@ -73,10 +73,9 @@
   shell: "sh {{ rocknsm_dir }}/harbor/import_harbor_images.sh"
 
 - name: 'Zeroing import script passwords'
-  replace: 
+  replace:
     path: "{{ rocknsm_dir }}/harbor/import_harbor_images.sh"
     regexp: '(\s+)docker login --username="admin" --password="password"(\s+.*)?$'
     replace: '\1docker login\2'
 
 ...
-

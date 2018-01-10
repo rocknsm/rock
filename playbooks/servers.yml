@@ -10,7 +10,7 @@
     - { role: elasticsearch, when: with_elasticsearch }
     - { role: logstash, when: with_logstash }
     - { role: kibana, when: with_kibana }
-    - { role: lighttpd, when: with_lighttpd }
+    #- { role: lighttpd, when: with_lighttpd } #disabled for now, haproxy looks like a great replacement
     - { role: haproxy, when: with_haproxy }
     - { role: portainer, when: containerized_install and with_portainer }
 

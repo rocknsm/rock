@@ -5,7 +5,7 @@ services:
   lighttpd:
     image: 'rocknsm/lighttpd'
     container_name: 'lighttpd'
-    privileged: true
+    privileged: true # so far this is a requirment for lighttpd to work. Feel free to figure out a more secure soultion to get rid of this 
     networks:
       rocknsm_outside:
         aliases: 

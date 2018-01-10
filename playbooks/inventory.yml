@@ -52,13 +52,12 @@ all:
     with_elk: false
     with_filebeats: true
     with_fsf: true
+    with_haproxy: true
     with_harbor: false
     with_kafka: true
     with_kibana: true
-    with_lighttpd: false
-    with_haproxy: true
+    #with_lighttpd: false #disabled for now, haproxy looks like a great replacement
     with_logstash: true
-    with_nginx: false
     with_portainer: true
     with_pulledpork: true
     with_snort: false
