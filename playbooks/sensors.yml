@@ -1,6 +1,7 @@
 ---
 
 - hosts: sensors
+
   roles:
     - common
     - sensor-common

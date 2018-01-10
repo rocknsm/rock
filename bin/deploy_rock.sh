@@ -32,34 +32,6 @@ main() {
 		VERBOSE_FLAGS="-vvv"
 	fi
 
-	# The purpose of the following conditional block is to ensure the user has run generate_defaults before running
-	# deploy_rock. If not, it will prompt them to do so.
-
-	# The bash option -e checks if a file exists. This line checks to see if config.yml has already been generated.
-	if [[ ! -e /etc/rocknsm/config.yml ]]; then
-
-        	# This gets the name of the running script. In this case it is deploy_rock.sh
-        	SOURCE="${BASH_SOURCE[0]}"
-
-			    # The -h option checks to see if a file exists and is a symbolic link.
-			    # The purpose of this code is to resolve deploy_rock.sh in case it is a symlink. At the end, the DIR
-			    # variable will contain deploy_rock.sh's current directory. So if deploy_rock.sh is in /root/rock/bin
-			    # that's what will be returned. If it has been symlinked, it will return the actual file path.
-        	while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
-
-        		DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-        		SOURCE="$(readlink "$SOURCE")"
-
-        		# If $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located.
-        		[[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
-
-        	done
-
-			# Contains deploy_rock.sh's directory
-        	DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-		generate_config
-	fi
-
 	cd "${TOPLEVEL}/playbooks"
 	Mainmenu
 
@@ -111,6 +83,10 @@ sensor() {
 ansible-playbook "${TOPLEVEL}/playbooks/site.yml" --extra-vars "sensorlocal=True" ${VERBOSE_FLAGS}
 }
 #=======================
+deploy() {
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" ${VERBOSE_FLAGS}
+}
+#=======================
 # Generate the /etc/rocknsm/config.yml
 generate_config() {
 echo "[-] You must run generate_defaults.sh prior to deploying for the first time. "
@@ -131,24 +107,25 @@ fi
 Mainmenu() {
 clear
 Header
-echo "+        [ 1 ] Install a Stand alone system (everything on this box)   +"
-echo "+                                                                      +"
-echo "+        [ 2 ] Local Server Install: only the services for a server    +"
-echo "+                                                                      +"
-echo "+        [ 3 ] Local Sensor Install: only the services for a sensor    +"
-echo "+                                                                      +"
-echo "+        [ 4 ] Multinode Remote Install (not yet implemented)          +"
-echo "+                                                                      +"
-echo "+                                                                      +"
-echo "+        [ X ] Exit Script                                             +"
-echo "+                                                                      +"
-echo "+                                                                      +"
+echo "+        [ 1 ] Install a Stand alone system (everything on this box)        +"
+echo "+                                                                           +"
+echo "+        [ 2 ] Local Server Install: only the services for a server         +"
+echo "+                                                                           +"
+echo "+        [ 3 ] Local Sensor Install: only the services for a sensor         +"
+echo "+                                                                           +"
+echo "+        [ 4 ] Multinode Remote Install                                     +"
+echo "+                                                                           +"
+echo "+                                                                           +"
+echo "+        [ X ] Exit Script                                                  +"
+echo "+                                                                           +"
+echo "+                                                                           +"
 Footer
 read -p "Please make a Selection: " mainmenu_option
 case $mainmenu_option in
 	1) clear && stand_alone;;
 	2) clear && server;;
 	3) clear && sensor;;
+	4) clear && deploy;;
 	x|X) clear && exit ;;
 	*) echo "Invalid input" && sleep 1 && Mainmenu;;
 esac

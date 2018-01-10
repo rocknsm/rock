@@ -4,6 +4,7 @@ version: '2'
 services:
   elastic:
     image: "{{ elastic_container }}:{{ elastic_ver }}"
+    container_name: "{{ rock_hostname }}"
     restart: "always"
     ports:
       # TODO: This line should no longer be needed with the backend networking

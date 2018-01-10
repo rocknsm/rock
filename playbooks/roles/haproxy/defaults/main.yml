@@ -1,0 +1,8 @@
+%YAML 1.1
+---
+
+#### HAProxy configuration variables ####
+haproxy_stats_port: '8080'
+elastic_lb_port: '9200'
+haproxy_mgnt_nets: "{{ rock_mgmt_nets }}"
+...
