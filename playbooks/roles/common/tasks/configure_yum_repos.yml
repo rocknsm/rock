@@ -39,13 +39,3 @@
   - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
   when: "ansible_distribution == \"CentOS\""
 
-# This is also duplicated in elastic search role. Reducnancy is in case common role is not run.
-# TODO: I'm not sure this is where that needs to be
--  name: Setup Elastic repo
-   yum_repository:
-     name: elastic-5.x
-     description: Elastic Stack repository for 5.x
-     baseurl: "{{ elastic_baseurl }}"
-     gpgkey:  "{{ elastic_gpgurl }}"
-     gpgcheck: no
-   when: rock_online_install

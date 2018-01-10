@@ -1,0 +1,17 @@
+[Unit]
+ Description = HAProxy Container Service
+ 
+ Wants    = network.target
+ Requires = docker.service
+ 
+ [Service]
+ Type = simple
+ 
+ ExecStartPre = /usr/sbin/iptables -I INPUT 1 -p tcp --dport {{ haproxy_stats_port }} -j ACCEPT; /usr/sbin/iptables -I INPUT 1 -p tcp --dport {{ elastic_lb_port }} -j ACCEPT;
+ ExecStart = /usr/bin/docker-compose -f {{ rocknsm_dir }}/haproxy/haproxy-compose.yml up
+ 
+ ExecStop  = /usr/bin/docker-compose -f {{ rocknsm_dir }}/haproxy/haproxy-compose.yml down -v
+ ExecStop = /usr/sbin/iptables -D INPUT -p tcp --dport {{ haproxy_stats_port }} -j ACCEPT; /usr/sbin/iptables -D INPUT -p tcp --dport {{ elastic_lb_port }} -j ACCEPT
+ 
+ [Install]
+ WantedBy = multi-user.target
