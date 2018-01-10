@@ -36,10 +36,11 @@ frontend http_frontend
   timeout connect 10s
   timeout client 1m
   timeout server 1m
-  acl haproxy hdr(host) -i haproxy.lan
-  acl elastic hdr(host) -i elastic.lan
-  acl kibana hdr(host) -i kibana.lan
-  acl portainer hdr(host) -i portainer.lan
+  acl haproxy path_beg -i /haproxy
+  acl elastic path_beg -i /api
+  acl kibana path_beg -i /kibana
+  acl portainer path_beg -i /portainer
+  reqrep ^(^\ :]*)\ /((haproxy)|(kibana)|(portainer))(.*) \1\ /\2
   use_backend haproxy if haproxy
   use_backend elastic if elastic
   use_backend kibana if kibana
@@ -48,10 +49,11 @@ frontend http_frontend
 
 frontend https_frontend
   bind *:443 ssl crt /etc/ssl/private/haproxy.ssl.pem
-  acl haproxy hdr(host) -i haproxy.lan
-  acl elastic hdr(host) -i elastic.lan
-  acl kibana hdr(host) -i kibana.lan
-  acl portainer hdr(host) -i portainer.lan
+  acl haproxy path_beg -i /haproxy
+  acl elastic path_beg -i /api
+  acl kibana path_beg -i /kibana
+  acl portainer path_beg -i /portainer
+  reqrep ^(^\ :]*)\ /((haproxy)|(kibana)|(portainer))(.*) \1\ /\2
   use_backend haproxy if haproxy
   use_backend elastic if elastic
   use_backend kibana if kibana

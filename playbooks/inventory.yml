@@ -42,6 +42,29 @@ all:
     # If you have licensing for x-pack set variable to true.
     xpack_license: false
 
+    # Feature options - Don't flip these unless you know what you're doing
+    # These control if the service is installed
+
+    with_bro: true
+    with_docker: true
+    with_docket: true
+    with_elasticsearch: true
+    with_elk: false
+    with_filebeats: true
+    with_fsf: true
+    with_haproxy: true
+    with_harbor: false
+    with_kafka: true
+    with_kibana: true
+    #with_lighttpd: false #disabled for now, haproxy looks like a great replacement
+    with_logstash: true
+    with_portainer: true
+    with_pulledpork: true
+    with_snort: false
+    with_stenographer: true
+    with_suricata: true
+    with_zookeeper: true
+
     rocknsm_package_list:
       - java-1.8.0-openjdk-headless
       - jq
@@ -76,28 +99,6 @@ all:
           ansible_connection: ssh
 
       vars:
-        containerized_install: true
-        with_bro: false
-        with_docker: true
-        with_docket: false
-        with_elasticsearch: false
-        with_elk: false
-        with_filebeats: true
-        with_fsf: true
-        with_harbor: false
-        with_kafka: true
-        with_kibana: false
-        with_lighttpd: false
-        with_logstash: false
-        with_nginx: false
-        with_portainer: false
-        with_pulledpork: true
-        with_snort: false
-        with_stenographer: true
-        with_suricata: true
-        with_zookeeper: true
-        with_haproxy: false
-
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
         pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
         bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
@@ -117,28 +118,6 @@ all:
           ansible_connection: ssh
 
       vars:
-        containerized_install: true
-        with_bro: false
-        with_docker: true
-        with_docket: false
-        with_elasticsearch: true
-        with_elk: false
-        with_filebeats: true
-        with_fsf: true
-        with_harbor: false
-        with_kafka: false
-        with_kibana: true
-        with_lighttpd: false
-        with_logstash: true
-        with_nginx: false
-        with_portainer: true
-        with_pulledpork: false
-        with_snort: false
-        with_stenographer: false
-        with_suricata: false
-        with_zookeeper: false
-        with_haproxy: true
-        
         es_cluster_name: rocknsm
         es_node_name: "{{ rock_hostname }}"
         es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
