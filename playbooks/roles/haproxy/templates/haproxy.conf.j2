@@ -13,7 +13,7 @@ defaults
   timeout server 50s
 
 listen stats
-{% if not with_lighttpd %} 
+{% if not with_lighttpd %}
   bind localhost:8080
 {% else %}
   bind *:8080
@@ -75,7 +75,6 @@ backend elastic
 {% endif%}
 {% endfor %}
 
-{% if not with_lighttpd %}
 backend kibana
   option redispatch
   redirect scheme https code 301 if !{ ssl_fc }
@@ -85,5 +84,3 @@ backend portainer
   option redispatch
   redirect scheme https code 301 if !{ ssl_fc }
   server portainer1 portainer:9000
-{% endif %}
-
