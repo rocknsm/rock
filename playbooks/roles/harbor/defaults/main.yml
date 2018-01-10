@@ -6,4 +6,4 @@
 
 harbor_ver: '1.2.2'
 harbor_port: '80'
-
+harbor_firewall_port: '81'

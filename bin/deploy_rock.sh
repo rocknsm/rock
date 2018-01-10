@@ -131,18 +131,18 @@ fi
 Mainmenu() {
 clear
 Header
-echo "+        [ 1 ] Install a Stand alone system (everything on this box)        +"
-echo "+                                                                           +"
-echo "+        [ 2 ] Local Server Install: only the services for a server         +"
-echo "+                                                                           +"
-echo "+        [ 3 ] Local Sensor Install: only the services for a sensor         +"
-echo "+                                                                           +"
-echo "+        [ 4 ] Multinode Remote Install (not yet implemented)               +"
-echo "+                                                                           +"
-echo "+                                                                           +"
-echo "+        [ X ] Exit Script                                                  +"
-echo "+                                                                           +"
-echo "+                                                                           +"
+echo "+        [ 1 ] Install a Stand alone system (everything on this box)   +"
+echo "+                                                                      +"
+echo "+        [ 2 ] Local Server Install: only the services for a server    +"
+echo "+                                                                      +"
+echo "+        [ 3 ] Local Sensor Install: only the services for a sensor    +"
+echo "+                                                                      +"
+echo "+        [ 4 ] Multinode Remote Install (not yet implemented)          +"
+echo "+                                                                      +"
+echo "+                                                                      +"
+echo "+        [ X ] Exit Script                                             +"
+echo "+                                                                      +"
+echo "+                                                                      +"
 Footer
 read -p "Please make a Selection: " mainmenu_option
 case $mainmenu_option in
