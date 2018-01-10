@@ -67,7 +67,6 @@ backend elastic
   option log-health-checks
   option redispatch
   balance roundrobin
-  redirect scheme https code 301 if !{ ssl_fc }
 {% for host in groups['servers'] %}
 {% if hostvars[host].with_elasticsearch %}
   server {{ hostvars[host].rock_hostname }} {{ hostvars[host].rock_hostname }}:9200 check
