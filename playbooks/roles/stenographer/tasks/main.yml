@@ -2,21 +2,19 @@
 ################# Setup Stenographer #################
 ######################################################
 ---
--
-  name: Install Stenographer package
+
+- name: Install Stenographer package
   yum:
     name: stenographer
     state: installed
-    
--
-  name: Set stenographer config
+
+- name: Set stenographer config
   template:
     src: templates/stenographer-config.j2
     dest: "/etc/stenographer/config.{{ item.1 }}"
   with_indexed_items: "{{ rock_monifs }}"
 
--
-  name: Create Stenographer directories
+- name: Create Stenographer directories
   file:
     path: "{{ stenographer_data_dir }}/{{ item[0] }}/{{ item[1] }}"
     mode: 0755
@@ -27,8 +25,7 @@
     - "{{ rock_monifs }}"
     - [ 'index', 'packets' ]
 
--
-  name: Install stenographer service files
+- name: Install stenographer service files
   copy:
     src: "{{ item }}"
     dest: "/etc/systemd/system/{{ item }}"
@@ -39,22 +36,19 @@
     - stenographer.service
     - stenographer@.service
 
--
-  name: Generate stenographer keys
+- name: Generate stenographer keys
   command: >
     /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
   args:
     creates: /etc/stenographer/certs/client_key.pem
 
--
-  name: Configure Stenographer service
+- name: Configure Stenographer service
   service:
     name: stenographer
     enabled: yes
     state: started
 
--
-  name: Configure Stenographer per-interface
+- name: Configure Stenographer per-interface
   service:
     name: "stenographer@{{ item }}"
     enabled: "{{ enable_stenographer }}"
