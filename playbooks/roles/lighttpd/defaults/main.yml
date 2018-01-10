@@ -3,5 +3,6 @@
 
 #### Lightpd configuration variables ####
 lighttpd_port: '8080'
+lighttpd_firewall_port: '80'
 lighttpd_mgnt_nets: "{{ rock_mgmt_nets }}"
 ...

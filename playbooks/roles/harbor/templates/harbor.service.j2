@@ -7,11 +7,11 @@ Requires = docker.service
 [Service]
 Type = simple
 
-ExecStartPre = /usr/sbin/iptables -I INPUT 1 -p tcp --dport {{ harbor_port }} -j ACCEPT
+ExecStartPre = /usr/sbin/iptables -I INPUT 1 -p tcp --dport {{ harbor_firewall_port }} -j ACCEPT
 ExecStart = /usr/bin/docker-compose -f {{ rocknsm_dir }}/harbor/docker-compose.yml up
 
 ExecStop  = /usr/bin/docker-compose -f {{ rocknsm_dir }}/harbor/docker-compose.yml down -v
-ExecStop = /usr/sbin/iptables -D INPUT -p tcp --dport {{ harbor_port }} -j ACCEPT
+ExecStop = /usr/sbin/iptables -D INPUT -p tcp --dport {{ harbor_firewall_port }} -j ACCEPT
 
 [Install]
 WantedBy = multi-user.target

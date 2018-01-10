@@ -26,6 +26,12 @@
         regexp: '(\s+)harbor_admin_password = Harbor12345(\s+.*)?$'
         replace: '\1harbor_admin_password = password\2'
 
+- name: 'Fix Harbor docker-compose file'
+  replace:
+    path: "{{ rocknsm_dir }}/harbor/docker-compose.yml"
+    regexp: '(\s+)80:80\(\s+.*)?$'
+    replace: '\1{{ harbor_firewall_port }}:{{ harbor_port }}\2'
+
 # Depending on the OS there may already be a httpd running
 - name: 'Check if pre-existing httpd service exists'
   stat: 'path=/etc/init.d/httpd'
