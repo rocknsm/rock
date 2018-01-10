@@ -7,10 +7,10 @@
 
 all:
 
-  #hosts:
-  #  simplerockbuild.simplerock.lan:
-  #    ansible_hostname: 127.0.0.1
-  #    ansible_connection: local
+  hosts:
+    simplerockbuild.simplerock.lan:
+      ansible_hostname: 127.0.0.1
+      ansible_connection: local
 
   vars:
 
@@ -41,30 +41,6 @@ all:
     #### Elasticstack x-pack options ####
     # If you have licensing for x-pack set variable to true.
     xpack_license: false
-
-    # Feature options - Don't flip these unless you know what you're doing
-    # These control if the service is installed
-
-    #with_bro: true
-    #with_docker: true
-    #with_docket: true
-    #with_elasticsearch: true
-    #with_elk: false
-    #with_filebeats: true
-    #with_fsf: true
-    #with_harbor: true
-    #with_kafka: true
-    #with_kibana: true
-    #with_lighttpd: false
-    #with_logstash: true
-    #with_nginx: false
-    #with_portainer: true
-    #with_pulledpork: true
-    #with_snort: false
-    #with_stenographer: true
-    #with_suricata: true
-    #with_zookeeper: true
-    #with_haproxy: true
 
     rocknsm_package_list:
       - java-1.8.0-openjdk-headless
@@ -152,7 +128,7 @@ all:
         with_harbor: false
         with_kafka: false
         with_kibana: true
-        with_lighttpd: true
+        with_lighttpd: false
         with_logstash: true
         with_nginx: false
         with_portainer: true
@@ -161,7 +137,7 @@ all:
         with_stenographer: false
         with_suricata: false
         with_zookeeper: false
-        with_haproxy: false
+        with_haproxy: true
         
         es_cluster_name: rocknsm
         es_node_name: "{{ rock_hostname }}"
