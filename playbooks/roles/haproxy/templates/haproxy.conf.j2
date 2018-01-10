@@ -1,0 +1,88 @@
+global 
+  log 127.0.0.1 local0 notice
+
+defaults
+  log global
+  mode http
+  option httplog
+  option dontlognull
+  option forwardfor
+  option http-server-close
+  timeout connect 5s
+  timeout client 50s
+  timeout server 50s
+
+listen stats
+{% if not with_lighttpd %} 
+  bind localhost:8080
+{% else %}
+  bind *:8080
+{% endif %}
+  stats enable
+  stats realm Haproxy\ Statistics
+  stats uri /
+  stats hide-version
+  stats auth admin:admin
+
+frontend elastic_frontend
+  bind *:9200
+  mode tcp
+  option tcplog
+  default_backend elastic
+
+{% if not with_lighttpd %}
+frontend http_frontend
+  bind *:80
+  timeout connect 10s
+  timeout client 1m
+  timeout server 1m
+  acl haproxy hdr(host) -i haproxy.lan
+  acl elastic hdr(host) -i elastic.lan
+  acl kibana hdr(host) -i kibana.lan
+  acl portainer hdr(host) -i portainer.lan
+  use_backend haproxy if haproxy
+  use_backend elastic if elastic
+  use_backend kibana if kibana
+  use_backend portainer if portainer
+  default_backend kibana
+
+frontend https_frontend
+  bind *:443 ssl crt /etc/ssl/private/haproxy.ssl.pem
+  acl haproxy hdr(host) -i haproxy.lan
+  acl elastic hdr(host) -i elastic.lan
+  acl kibana hdr(host) -i kibana.lan
+  acl portainer hdr(host) -i portainer.lan
+  use_backend haproxy if haproxy
+  use_backend elastic if elastic
+  use_backend kibana if kibana
+  use_backend portainer if portainer
+  default_backend kibana
+
+backend haproxy
+  redirect scheme https code 301 if !{ ssl_fc }
+  server haproxy1 localhost:8080
+{% endif %}
+
+backend elastic
+  option log-health-checks
+  option redispatch
+  balance roundrobin
+  redirect scheme https code 301 if !{ ssl_fc }
+{% for host in groups['servers'] %}
+{% if hostvars[host].with_elasticsearch %}
+  server {{ hostvars[host].rock_hostname }} {{ hostvars[host].rock_hostname }}:9200 check
+{% endif%}
+{% endfor %}
+
+{% if not with_lighttpd %}
+backend kibana
+  option redispatch
+  redirect scheme https code 301 if !{ ssl_fc }
+  server kibana1 kibana:5601
+
+backend portainer
+  option redispatch
+  redirect scheme https code 301 if !{ ssl_fc }
+  server portainer1 portainer:9000
+{% endif %}
+
