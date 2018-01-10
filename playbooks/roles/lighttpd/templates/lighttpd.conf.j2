@@ -19,16 +19,16 @@ var.state_dir   = "/var/run/"
 var.home_dir    = "/var/lib/lighttpd"
 var.conf_dir    = "/etc/lighttpd"
 
-## 
+##
 ## run the server chrooted.
-## 
+##
 ## This requires root permissions during startup.
 ##
 ## If you run Chrooted set the the variables to directories relative to
 ## the chroot dir.
 ##
 ## example chroot configuration:
-## 
+##
 #var.log_root    = "/logs"
 #var.server_root = "/"
 #var.state_dir   = "/run"
@@ -99,12 +99,12 @@ server.port = "{{ lighttpd_port }}"
 
 ##
 ## Run as a different username/groupname.
-## This requires root permissions during startup. 
+## This requires root permissions during startup.
 ##
 server.username  = "lighttpd"
 server.groupname = "lighttpd"
 
-## 
+##
 ## enable core files.
 ##
 #server.core-files = "disable"
@@ -112,7 +112,8 @@ server.groupname = "lighttpd"
 ##
 ## Document root
 ##
-server.document-root = server_root + "/htdocs"
+#server.document-root = server_root + "/htdocs"
+server.document-root = server_root + "/Rocknsm/"
 
 ##
 ## The value for the "Server:" response field.
@@ -141,14 +142,14 @@ server.pid-file = state_dir + "/lighttpd.pid"
 server.errorlog             = log_root + "/error.log"
 
 ##
-## If you want to log to syslog you have to unset the 
+## If you want to log to syslog you have to unset the
 ## server.errorlog setting and uncomment the next line.
 ##
 #server.errorlog-use-syslog = "enable"
 
 ##
 ## Access log config
-## 
+##
 #include "conf.d/access_log.conf"
 
 ##
@@ -183,7 +184,7 @@ server.errorlog             = log_root + "/error.log"
 ##
 ## The basic network interface for all platforms at the syscalls read()
 ## and write(). Every modern OS provides its own syscall to help network
-## servers transfer files as fast as possible 
+## servers transfer files as fast as possible
 ##
 ## sendfile       - is recommended for small files.
 ## writev         - is recommended for sending many large files
@@ -255,7 +256,7 @@ server.max-connections = 1024
 
 ##
 ## How many seconds to keep a keep-alive connection open,
-## until we consider it idle. 
+## until we consider it idle.
 ##
 ## Default: 5
 ##
@@ -291,7 +292,7 @@ server.max-connections = 1024
 #server.max-write-idle = 360
 
 ##
-##  Traffic Shaping 
+##  Traffic Shaping
 ## -----------------
 ##
 ## see /usr/share/doc/lighttpd/traffic-shaping.txt
@@ -300,7 +301,7 @@ server.max-connections = 1024
 ##
 ## Keep in mind that a limit below 32kB/s might actually limit the
 ## traffic to 32kB/s. This is caused by the size of the TCP send
-## buffer. 
+## buffer.
 ##
 ## per server:
 ##
@@ -391,7 +392,12 @@ static-file.exclude-extensions = ( ".php", ".pl", ".fcgi", ".scgi" )
 ## mimetype mapping
 ##
 #include "conf.d/mime.conf"
-
+mimetype.assign = (
+  ".html" => "text/html",
+  ".txt" => "text/plain",
+  ".jpg" => "image/jpeg",
+  ".png" => "image/png"
+)
 ##
 ## directory listing configuration
 ##
@@ -399,7 +405,7 @@ static-file.exclude-extensions = ( ".php", ".pl", ".fcgi", ".scgi" )
 
 ##
 ## Should lighttpd follow symlinks?
-## 
+##
 server.follow-symlink = "enable"
 
 ##
@@ -419,7 +425,7 @@ server.upload-dirs = ( "/var/tmp" )
 #######################################################################
 ##
 ##  SSL Support
-## ------------- 
+## -------------
 ##
 ## To enable SSL for the whole server you have to provide a valid
 ## certificate and have to enable the SSL engine.::

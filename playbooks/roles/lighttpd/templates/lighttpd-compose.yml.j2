@@ -5,6 +5,7 @@ services:
   lighttpd:
     image: 'rocknsm/lighttpd'
     container_name: 'lighttpd'
+    privileged: true
     networks:
       rocknsm_outside:
         aliases: 
@@ -13,7 +14,7 @@ services:
         aliases: 
           - 'proxy'
     ports:
-      - "0.0.0.0:80:{{ lighttpd_port }}"
+      - "0.0.0.0:{{ lighttpd_firewall_port }}:{{ lighttpd_port }}"
     restart: "always"
     volumes: 
       # Lighttpd volumes 

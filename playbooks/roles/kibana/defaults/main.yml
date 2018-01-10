@@ -15,7 +15,7 @@ es_url: "http://localhost:9200"
 # Which image version of Kibana this role is using.
 kibana_ver: '6.1.1'
 kibana_port: '5601'
-kibana_ip: "{{ '0.0.0.0' if xpack_license else '127.0.0.1' }}"
+kibana_ip: '0.0.0.0'
 kibana_image: 'docker.elastic.co/kibana/kibana'
 kibana_yum: 'kibana'
 ...

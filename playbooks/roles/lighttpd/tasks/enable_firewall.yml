@@ -9,5 +9,5 @@
   with_nested:
     - "{{ lighttpd_mgnt_nets }}"
     -
-      - { port: "{{ lighttpd_port }}/tcp" }
+      - { port: "{{ lighttpd_firewall_port }}/tcp" }
 ...
