@@ -1,11 +1,12 @@
 ---
-- 
-  name: "Setup ROCK NSM repo"
+
+- name: "Setup ROCK NSM repo"
   when: rock_online_install
-  yum_repository: 
+  yum_repository:
     baseurl: "{{ rocknsm_baseurl }}"
     cost: 750
     description: "ROCK NSM repository for devel"
     gpgcheck: false
     gpgkey: "{{ rocknsm_gpgurl }}"
     name: rocknsm
+  tags: 'repo'

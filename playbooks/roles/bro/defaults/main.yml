@@ -16,6 +16,6 @@ bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) e
 bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 bro_rockscripts_branch: master
 bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
-bro_sysconfig_dir: /etc/bro # This is not currently in use. dcode says bro should be installing in etc but it is not on ours
-bro_site_dir: /opt/bro/share/bro/site # TODO: This path was also incorrect. Dcode's version, but ours goes somewhere else
+bro_sysconfig_dir: /etc/bro
+bro_site_dir: /usr/share/bro/site
 bro_prefix: /usr

@@ -30,8 +30,10 @@ all:
     rock_fqdn: '{{ inventory_hostname }}'
     rock_mgmt_nets: [ "0.0.0.0/0" ]
     rock_cache_dir: /srv/rocknsm/support
-    rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
-    rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
+    #rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
+    #rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
+    rocknsm_baseurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/'
+    rocknsm_gpgurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg'
     rocknsm_local_baseurl: file:///srv/rocknsm
     rock_compose_files: "{{ rocknsm_dir + '/compose_files' }}"
 
