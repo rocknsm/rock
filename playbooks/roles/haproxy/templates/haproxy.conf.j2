@@ -13,11 +13,7 @@ defaults
   timeout server 50s
 
 listen stats
-{% if not with_lighttpd %}
   bind localhost:8080
-{% else %}
-  bind *:8080
-{% endif %}
   stats enable
   stats realm Haproxy\ Statistics
   stats uri /
@@ -30,7 +26,6 @@ frontend elastic_frontend
   option tcplog
   default_backend elastic
 
-{% if not with_lighttpd %}
 frontend http_frontend
   bind *:80
   timeout connect 10s
@@ -63,7 +58,6 @@ frontend https_frontend
 backend haproxy
   redirect scheme https code 301 if !{ ssl_fc }
   server haproxy1 localhost:8080
-{% endif %}
 
 backend elastic
   option log-health-checks
