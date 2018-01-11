@@ -41,7 +41,7 @@ all:
 
     #### Elasticstack x-pack options ####
     # If you have licensing for x-pack set variable to true.
-    xpack_license: false
+    xpack_license: 'false'
 
     # Feature options - Don't flip these unless you know what you're doing
     # These control if the service is installed
@@ -57,7 +57,7 @@ all:
     with_harbor: false
     with_kafka: true
     with_kibana: true
-    with_logstash: false # disabled until fixed
+    with_logstash: true
     with_portainer: true
     with_pulledpork: true
     with_snort: false

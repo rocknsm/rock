@@ -20,3 +20,5 @@ Vagrantfile.vmware
 pkg/
 repo/
 tmp/
+
+playbooks/roles/logstash/tasks/old-main\.yml
