@@ -9,7 +9,7 @@ all:
 
   hosts:
     simplerockbuild.simplerock.lan:
-      ansible_hostname: 127.0.0.1
+      ansible_hostname: simplerockbuild.simplerock.lan
       ansible_connection: local
 
   vars:
@@ -17,6 +17,7 @@ all:
     #Common role variables
     common_mgnt_nets: "{{ rock_mgmt_nets }}"
 
+    local_host_name: simplerockbuild.simplerock.lan
     rock_version: 3.0
     rock_online_install: true
     rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
@@ -56,7 +57,7 @@ all:
     with_harbor: false
     with_kafka: true
     with_kibana: true
-    with_logstash: true
+    with_logstash: false # disabled until fixed
     with_portainer: true
     with_pulledpork: true
     with_snort: false
@@ -92,10 +93,10 @@ all:
 
     sensors:
       # TODO: We will need these for the multinode install
-      hosts:
-        rocksensor1.lan:
-          ansible_hostname: rocksensor1.lan
-          ansible_connection: ssh
+      #hosts:
+      #  rocksensor1.lan:
+      #    ansible_hostname: rocksensor1.lan
+      #    ansible_connection: ssh
 
       vars:
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
@@ -111,10 +112,10 @@ all:
 
     servers:
       # TODO: We will need these for the multinode install
-      hosts:
-        rockserver1.lan:
-          ansible_hostname: rockserver1.lan
-          ansible_connection: ssh
+      #hosts:
+      #  rockserver1.lan:
+      #    ansible_hostname: rockserver1.lan
+      #    ansible_connection: ssh
 
       vars:
         es_cluster_name: rocknsm
