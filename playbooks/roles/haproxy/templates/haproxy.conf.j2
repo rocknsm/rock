@@ -20,6 +20,10 @@ listen stats
   stats hide-version
   stats auth admin:admin
 
+frontend portainer_frontend
+  bind *:8443 ssl crt /etc/ssl/private/haproxy.pem
+  default_backend portainer
+
 frontend elastic_frontend
   bind *:9200
   mode tcp
@@ -28,35 +32,28 @@ frontend elastic_frontend
 
 frontend http_frontend
   bind *:80
-  timeout connect 10s
-  timeout client 1m
-  timeout server 1m
   acl haproxy path_beg -i /haproxy
   acl elastic path_beg -i /api
   acl kibana path_beg -i /kibana
-  acl portainer path_beg -i /portainer
-  reqrep ^(^\ :]*)\ /((haproxy)|(kibana)|(portainer))(.*) \1\ /\2
   use_backend haproxy if haproxy
   use_backend elastic if elastic
   use_backend kibana if kibana
-  use_backend portainer if portainer
   default_backend kibana
 
 frontend https_frontend
-  bind *:443 ssl crt /etc/ssl/private/haproxy.ssl.pem
+  bind *:443 ssl crt /etc/ssl/private/haproxy.pem
   acl haproxy path_beg -i /haproxy
   acl elastic path_beg -i /api
   acl kibana path_beg -i /kibana
-  acl portainer path_beg -i /portainer
-  reqrep ^(^\ :]*)\ /((haproxy)|(kibana)|(portainer))(.*) \1\ /\2
   use_backend haproxy if haproxy
   use_backend elastic if elastic
   use_backend kibana if kibana
-  use_backend portainer if portainer
   default_backend kibana
 
 backend haproxy
   redirect scheme https code 301 if !{ ssl_fc }
+  reqrep ^([^\ :]*)\ /haproxy/(.*) \1\ /\2
+  reqrep ^([^\ :]*)\ /haproxy(.*) \1\ /\2
   server haproxy1 localhost:8080
 
 backend elastic
@@ -72,6 +69,8 @@ backend elastic
 backend kibana
   option redispatch
   redirect scheme https code 301 if !{ ssl_fc }
+  reqrep ^([^\ :]*)\ /kibana/(.*) \1\ /\2
+  reqrep ^([^\ :]*)\ /kibana(.*) \1\ /\2
   server kibana1 kibana:5601
 
 backend portainer

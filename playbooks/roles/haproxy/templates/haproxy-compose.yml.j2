@@ -19,7 +19,7 @@ services:
     restart: "always"
     volumes: 
       - "{{ rocknsm_dir }}/haproxy/haproxy.conf:/usr/local/etc/haproxy/haproxy.cfg"
-      - "{{ rocknsm_dir }}/haproxy/ssl.pem:/etc/ssl/private/haproxy.ssl.pem"
+      - "{{ rocknsm_dir }}/CA/private/haproxy.pem:/etc/ssl/private/haproxy.pem"
       # Systemd volumes
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
     environment:
