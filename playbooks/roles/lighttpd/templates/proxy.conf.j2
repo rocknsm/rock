@@ -1,6 +1,5 @@
 # Proxy Module.
 server.modules += ("mod_proxy")
-server.modules += ("mod_rewrite")
 # Route the /api route through to Node.
 #$HTTP["url"] =~ "^/api/" {
 #  proxy.server = ("" => ((
@@ -11,9 +10,8 @@ server.modules += ("mod_rewrite")
 
 #=======================
 # Kibana forward
-$HTTP["url"] =~ "^/kibana" {
+$HTTP["host"] =~ "kibana" {
   # this is a test, not sure if it works
-  url.rewrite-once = ("^/kibana/(.*)" => "/$1")
   proxy.server = ( "" => ((
     "host" => "kibana", "port" => "{{ kibana_port }}"
   )))
@@ -21,9 +19,7 @@ $HTTP["url"] =~ "^/kibana" {
 
 #=======================
 # Portainer forward
-$HTTP["url"] =~ "^/portainer" {
-# this is a test, not sure if it works
-  url.rewrite-once = ("^/portainer/(.*)" => "/$1")
+$HTTP["host"] =~ "portainer" {
   proxy.server = ( "" => ((
     "host" => "portainer", "port" => "{{ portainer_port }}"
 )))

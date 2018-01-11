@@ -357,12 +357,6 @@ $HTTP["url"] =~ "\.pdf$" {
 #$HTTP["host"] =~ "^www\.(.*)" {
 #  url.redirect            = ( "^/(.*)" => "http://%1/$1" )
 #}
-$HTTP["url"] =~ "^/kibana" {
-  $HTTP["host"] =~ ".*" {
-    url.redirect = ( "^/(.*)" => "http://%0:5601" )
-    url.redirect-code = 302
-  }
-}
 ##
 ## which extensions should not be handle via static-file transfer
 ##
