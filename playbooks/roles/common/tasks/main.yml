@@ -29,6 +29,7 @@
     group: root
 
 # main.yml - Common tasks for ROCK
+- include_tasks: minimum_hardware_check.yml
 - include_tasks: configure_yum_repos.yml
 - include_tasks: configure_rock_repo.yml
 - include_tasks: install_common_packages.yml
