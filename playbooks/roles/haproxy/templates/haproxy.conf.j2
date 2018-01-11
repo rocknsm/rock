@@ -13,11 +13,7 @@ defaults
   timeout server 50s
 
 listen stats
-{% if not with_lighttpd %} 
   bind localhost:8080
-{% else %}
-  bind *:8080
-{% endif %}
   stats enable
   stats realm Haproxy\ Statistics
   stats uri /
@@ -30,16 +26,16 @@ frontend elastic_frontend
   option tcplog
   default_backend elastic
 
-{% if not with_lighttpd %}
 frontend http_frontend
   bind *:80
   timeout connect 10s
   timeout client 1m
   timeout server 1m
-  acl haproxy hdr(host) -i haproxy.lan
-  acl elastic hdr(host) -i elastic.lan
-  acl kibana hdr(host) -i kibana.lan
-  acl portainer hdr(host) -i portainer.lan
+  acl haproxy path_beg -i /haproxy
+  acl elastic path_beg -i /api
+  acl kibana path_beg -i /kibana
+  acl portainer path_beg -i /portainer
+  reqrep ^(^\ :]*)\ /((haproxy)|(kibana)|(portainer))(.*) \1\ /\2
   use_backend haproxy if haproxy
   use_backend elastic if elastic
   use_backend kibana if kibana
@@ -48,10 +44,11 @@ frontend http_frontend
 
 frontend https_frontend
   bind *:443 ssl crt /etc/ssl/private/haproxy.ssl.pem
-  acl haproxy hdr(host) -i haproxy.lan
-  acl elastic hdr(host) -i elastic.lan
-  acl kibana hdr(host) -i kibana.lan
-  acl portainer hdr(host) -i portainer.lan
+  acl haproxy path_beg -i /haproxy
+  acl elastic path_beg -i /api
+  acl kibana path_beg -i /kibana
+  acl portainer path_beg -i /portainer
+  reqrep ^(^\ :]*)\ /((haproxy)|(kibana)|(portainer))(.*) \1\ /\2
   use_backend haproxy if haproxy
   use_backend elastic if elastic
   use_backend kibana if kibana
@@ -61,7 +58,6 @@ frontend https_frontend
 backend haproxy
   redirect scheme https code 301 if !{ ssl_fc }
   server haproxy1 localhost:8080
-{% endif %}
 
 backend elastic
   option log-health-checks
@@ -73,7 +69,6 @@ backend elastic
 {% endif%}
 {% endfor %}
 
-{% if not with_lighttpd %}
 backend kibana
   option redispatch
   redirect scheme https code 301 if !{ ssl_fc }
@@ -83,5 +78,3 @@ backend portainer
   option redispatch
   redirect scheme https code 301 if !{ ssl_fc }
   server portainer1 portainer:9000
-{% endif %}
-

@@ -1,6 +1,6 @@
 ---
 ######################################################
-############## Setup Lighttpd container ##############
+############## Setup HAProxy container ##############
 ######################################################
 
 # Depending on the OS there may already be a httpd running

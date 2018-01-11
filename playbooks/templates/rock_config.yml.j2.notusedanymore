@@ -91,12 +91,11 @@ with_docker: {{ with_docker }}
 with_docket: {{ with_docket }}
 with_elasticsearch: {{ with_elasticsearch }}
 with_fsf: {{ with_fsf }}
+with_haproxy: {{ with_haproxy }}
 with_harbor: {{ with_harbor }}
 with_kafka: {{ with_kafka }}
 with_kibana: {{ with_kibana }}
-with_lighttpd: {{ with_lighttpd }}
 with_logstash: {{ with_logstash }}
-with_nginx: {{ with_nginx }}
 with_portainer: {{ with_portainer }}
 with_pulledpork: {{ with_pulledpork }}
 with_snort: {{ with_snort }}
