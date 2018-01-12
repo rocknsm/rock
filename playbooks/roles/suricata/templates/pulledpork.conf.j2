@@ -1,31 +1,31 @@
 # Config file for pulledpork
 # Be sure to read through the entire configuration file
-# If you specify any of these items on the command line, it WILL take 
+# If you specify any of these items on the command line, it WILL take
 # precedence over any value that you specify in this file!
 {# I'm making the assumption here that a user will only configure
-   pulledpork if they have snort or suricata installed. This will 
+   pulledpork if they have snort or suricata installed. This will
    currently break otherwise. We could address this usecase fairly
-   easily if there is a need 
+   easily if there is a need
 #}
-{% if with_suricata %}
+{% if included_components.suricata.enabled %}
 {% set engine_basepath = "/etc/suricata" %}
-{% elif with_snort %}
+{% elif included_components.snort.enabled %}
 {% set engine_basepath = "/etc/snort" %}
 {% endif %}
 
 #######
-#######  The below section defines what your oinkcode is (required for 
-#######  VRT rules), defines a temp path (must be writable) and also 
-#######  defines what version of rules that you are getting (for your 
+#######  The below section defines what your oinkcode is (required for
+#######  VRT rules), defines a temp path (must be writable) and also
+#######  defines what version of rules that you are getting (for your
 #######  snort version and subscription etc...)
-####### 
+#######
 
-# You can specify one or as many rule_urls as you like, they 
+# You can specify one or as many rule_urls as you like, they
 # must appear as http://what.site.com/|rulesfile.tar.gz|1234567.  You can specify
 # each on an individual line, or you can specify them in a , separated list
 # i.e. rule_url=http://x.y.z/|a.tar.gz|123,http://z.y.z/|b.tar.gz|456
 # note that the url, rule file, and oinkcode itself are separated by a pipe |
-# i.e. url|tarball|123456789, 
+# i.e. url|tarball|123456789,
 #rule_url=https://www.snort.org/reg-rules/|snortrules-snapshot.tar.gz|<oinkcode>
 # NEW Community ruleset:
 #rule_url=https://snort.org/downloads/community/|community-rules.tar.gz|Community
@@ -68,19 +68,19 @@ ignore=deleted.rules,experimental.rules,local.rules
 # previous ignore line and uncomment the following!
 # ignore=deleted,experimental,local,decoder,preprocessor,sensitive-data
 
-# What is our temp path, be sure this path has a bit of space for rule 
+# What is our temp path, be sure this path has a bit of space for rule
 # extraction and manipulation, no trailing slash
 temp_path=/tmp
 
 #######
-#######  The below section is for rule processing.  This section is 
+#######  The below section is for rule processing.  This section is
 #######  required if you are not specifying the configuration using
-#######  runtime switches.  Note that runtime switches do SUPERSEED 
+#######  runtime switches.  Note that runtime switches do SUPERSEED
 #######  any values that you have specified here!
 #######
 
-# What path you want the .rules file containing all of the processed 
-# rules? (this value has changed as of 0.4.0, previously we copied 
+# What path you want the .rules file containing all of the processed
+# rules? (this value has changed as of 0.4.0, previously we copied
 # all of the rules, now we are creating a single large rules file
 # but still keeping a separate file for your so_rules!
 rule_path={{ engine_basepath }}/rules/pulledpork.rules
@@ -106,7 +106,7 @@ sid_msg={{ engine_basepath }}/sid-msg.map
 # specify version 2 if you are running barnyard2.2+.  Otherwise use 1
 sid_msg_version=1
 
-# Where do you want me to put the sid changelog?  This is a changelog 
+# Where do you want me to put the sid changelog?  This is a changelog
 # that pulledpork maintains of all new sids that are imported
 sid_changelog=/var/log/sid_changes.log
 # this value is optional
@@ -114,7 +114,7 @@ sid_changelog=/var/log/sid_changes.log
 #######
 #######  The below section is for so_rule processing only.  If you don't
 #######  need to use them.. then comment this section out!
-#######  Alternately, if you are not using pulledpork to process 
+#######  Alternately, if you are not using pulledpork to process
 #######  so_rules, you can specify -T at runtime to bypass this altogether
 #######
 
@@ -123,11 +123,11 @@ sid_changelog=/var/log/sid_changes.log
 #sorule_path=''
 
 # Path to the snort binary, we need this to generate the stub files
-snort_path={{ "/sbin/suricata" if with_suricata else "/usr/sbin/snort" }}
+snort_path={{ "/sbin/suricata" if included_components.suricata.enabled else "/usr/sbin/snort" }}
 
 # We need to know where your snort.conf file lives so that we can
 # generate the stub files
-#config_path={{ engine_basepath }}/{{ "suricata.yaml" if with_suricata else "snort.conf" }}
+#config_path={{ engine_basepath }}/{{ "suricata.yaml" if included_components.suricata.enabled else "snort.conf" }}
 
 ##### Deprecated - The stubs are now  categorically written to the  single rule file!
 # sostub_path=/usr/local/etc/snort/rules/so_rules.rules
@@ -161,7 +161,7 @@ black_list={{ engine_basepath }}/rules/iplists/default.blacklist
 IPRVersion={{ engine_basepath }}/rules/iplists
 
 # The following option tells snort where the snort_control tool is located.
-snort_control={{ "/usr/bin/snort_control" if with_snort else "" }}
+snort_control={{ "/usr/bin/snort_control" if included_components.snort.enabled else "" }}
 
 # What do you want to backup and archive?  This is a comma separated list
 # of file or directory values.  If a directory is specified, PP will recurse
@@ -176,8 +176,8 @@ snort_control={{ "/usr/bin/snort_control" if with_snort else "" }}
 # pp_backup.1295886020.tgz
 # backup_file=/tmp/pp_backup
 
-# Where do you want the signature docs to be copied, if this is commented 
-# out then they will not be copied / extracted.  Note that extracting them 
+# Where do you want the signature docs to be copied, if this is commented
+# out then they will not be copied / extracted.  Note that extracting them
 # will add considerable runtime to pulledpork.
 # docs=/path/to/base/www
 
@@ -195,7 +195,7 @@ snort_control={{ "/usr/bin/snort_control" if with_snort else "" }}
 # and so on...
 # pid_path=/var/run/snort_eth0.pid
 
-# This defines the version of snort that you are using, for use ONLY if the 
+# This defines the version of snort that you are using, for use ONLY if the
 # proper snort binary is not on the system that you are fetching the rules with
 # This value MUST contain all 4 minor version
 # numbers. ET rules are now also dependant on this, verify supported ET versions
@@ -203,7 +203,7 @@ snort_control={{ "/usr/bin/snort_control" if with_snort else "" }}
 #
 # Suricata users - set this to 'suricata-3.x.x' to process rule files
 # for suricata, this mimics the -S flag on the command line.
-{% if with_suricata %}
+{% if included_components.suricata.enabled %}
 snort_version=suricata
 {% else %}
 snort_version=2.9.0.0
@@ -218,12 +218,12 @@ disablesid=/etc/pulledpork/disablesid.conf
 # modifysid=/usr/local/etc/snort/modifysid.conf
 
 # What is the base ruleset that you want to use, please uncomment to use
-# and see the README.RULESETS for a description of the options.  
-# Note that setting this value will disable all ET rulesets if you are 
+# and see the README.RULESETS for a description of the options.
+# Note that setting this value will disable all ET rulesets if you are
 # Running such rulesets
 # ips_policy=security
 
-####### Remember, a number of these values are optional.. if you don't 
+####### Remember, a number of these values are optional.. if you don't
 ####### need to process so_rules, simply comment out the so_rule section
 ####### you can also specify -T at runtime to process only GID 1 rules.
 

@@ -86,19 +86,19 @@ xpack_license: false
 
 ### Advanced Feature Selection ######
 # Don't flip these unless you know what you're doing
-with_bro: {{ with_bro }}
-with_docker: {{ with_docker }}
-with_docket: {{ with_docket }}
-with_elasticsearch: {{ with_elasticsearch }}
-with_fsf: {{ with_fsf }}
-with_haproxy: {{ with_haproxy }}
-with_harbor: {{ with_harbor }}
-with_kafka: {{ with_kafka }}
-with_kibana: {{ with_kibana }}
-with_logstash: {{ with_logstash }}
-with_portainer: {{ with_portainer }}
-with_pulledpork: {{ with_pulledpork }}
-with_snort: {{ with_snort }}
-with_stenographer: {{ with_stenographer }}
-with_suricata: {{ with_suricata }}
-with_zookeeper: {{ with_zookeeper }}
+#with_bro: {{ with_bro }}
+#with_docker: {{ with_docker }}
+#with_docket: {{ with_docket }}
+#with_elasticsearch: {{ with_elasticsearch }}
+#with_fsf: {{ with_fsf }}
+#with_haproxy: {{ with_haproxy }}
+#with_harbor: {{ with_harbor }}
+#with_kafka: {{ with_kafka }}
+#with_kibana: {{ with_kibana }}
+#with_logstash: {{ with_logstash }}
+#with_portainer: {{ with_portainer }}
+#with_pulledpork: {{ with_pulledpork }}
+#with_snort: {{ with_snort }}
+#with_stenographer: {{ with_stenographer }}
+#with_suricata: {{ with_suricata }}
+#with_zookeeper: {{ with_zookeeper }}
