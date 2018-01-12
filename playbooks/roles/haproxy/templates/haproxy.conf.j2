@@ -1,4 +1,4 @@
-global 
+global
   log 127.0.0.1 local0 notice
 
 defaults
@@ -61,7 +61,7 @@ backend elastic
   option redispatch
   balance roundrobin
 {% for host in groups['servers'] %}
-{% if hostvars[host].with_elasticsearch %}
+{% if hostvars[host].included_components.elasticsearch.enabled %}
   server {{ hostvars[host].rock_hostname }} {{ hostvars[host].rock_hostname }}:9200 check
 {% endif%}
 {% endfor %}
