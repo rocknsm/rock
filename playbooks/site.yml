@@ -40,3 +40,4 @@
 
 - import_playbook: servers.yml
 - import_playbook: sensors.yml
+- import_playbook: configure_services.yml

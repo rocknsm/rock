@@ -1,0 +1,47 @@
+---
+- hosts: all
+
+  tasks:
+
+  #- name: 'define traditional ethernet facts'
+  #  set_fact:
+  #   rock_monifs: '{% set rock_monifs = rock_monifs|default([]) + [item] %}{{ rock_monifs|list }}'
+  #  when:
+  #       - hostvars[inventory_hostname]['ansible_' + item]['ipv4'] is not defined
+  #       - hostvars[inventory_hostname]['ansible_' + item]['type'] == 'ether'
+  #  with_items:
+       #ansible_interfaces separates words with '-', whereas the variables in hostvars are seperated with '_'
+       #Make the replacement below to properly look up the interfaces in the hostvars dictionary
+  #     - "{{ ansible_interfaces | regex_replace('-','_') }}"
+
+  # Useful for debugging, uncomment if you don't need it. This will post all
+  # ansible related variables to the file /tmp/ansible.all
+  - name: Dump all vars
+    action: template src=templates/dumpall.j2 dest=/tmp/ansible-generate-defaults.all
+
+  # TODO: See https://github.com/tfplenum/rock/issues/28
+  # The below will solve the problem for localhost, but it will not work with
+  # the multinode install.
+  - name: Add localhost for generate defaults TEMPORARY
+    add_host:
+      name: simplerockbuild.simplerock.lan
+      ansible_hostname: 127.0.0.1
+      ansible_connection: local
+      groups: servers,sensors
+
+  - name: 'Create config directory'
+    file:
+      state: directory
+      owner: root
+      group: root
+      mode:  0755
+      path: /etc/rocknsm
+
+  - name: 'Render template'
+    template:
+      backup: yes
+      src: rock_config.yml.j2
+      dest: /etc/rocknsm/config.yml
+      owner: root
+      group: root
+      mode: 0644

@@ -7,7 +7,7 @@
     dest: "/opt/pulledpork"
     state: link
     force: yes
-  when: with_pulledpork
+  when: included_components.pulledpork.enabled
 
 - name: Set pulledpork executable
   file:
@@ -15,7 +15,7 @@
     mode: 0755
     owner: root
     group: root
-  when: with_pulledpork
+  when: included_components.pulledpork.enabled
 
 - name: Create pulledpork config dir
   file:
@@ -24,7 +24,7 @@
     owner: root
     group: root
     state: directory
-  when: with_pulledpork
+  when: included_components.pulledpork.enabled
 
 - name: Configure pulledpork
   template:
@@ -33,13 +33,13 @@
     owner: root
     group: root
     mode: 0644
-  when: with_pulledpork
+  when: included_components.pulledpork.enabled
 
 - name: Check stats of rules files
   stat:
     path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules"
   register: rules_file
-  when: with_pulledpork
+  when: included_components.pulledpork.enabled
 
 - name: Create initial pulledpork rules-related files
   file:
@@ -48,7 +48,7 @@
     group: root
     mode: 0644
     state: touch
-  when: with_pulledpork and not rules_file.stat.exists
+  when: included_components.pulledpork.enabled and not rules_file.stat.exists
 
 - name: Schedule pulledpork to run daily
   cron:
@@ -60,6 +60,6 @@
     job: /opt/pulledpork/pulledpork.pl
       -c /etc/pulledpork/pulledpork.conf
       -l > /var/log/pulledpork.log 2>&1;
-      {{ "/usr/bin/systemctl kill -s USR2 suricata;" if with_suricata else None }}
-      {{ "/usr/bin/systemctl restart snortd;" if with_snort else None }}
-  when: with_pulledpork
+      {{ "/usr/bin/systemctl kill -s USR2 suricata;" if included_components.suricata.enabled else None }}
+      {{ "/usr/bin/systemctl restart snortd;" if included_components.snort.enabled else None }}
+  when: included_components.pulledpork.enabled

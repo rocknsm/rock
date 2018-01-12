@@ -1,18 +1,9 @@
 #!/usr/bin/bats
-
-export ZOOKEEPER_HOST=127.0.0.1
+{% if (sensorlocal is defined and sensorlocal) or (standalone is defined and standalone) %}
+export ZOOKEEPER_HOST={{ ansible_hostname }}
 export ZOOKEEPER_PORT=2181
 export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 	sed 's/interface=//; s/.*:://' | sort | uniq | paste -sd " " -)
-
-function feature_enabled() {
-  if grep -qiE "^with_$1: (true|yes)" /etc/rocknsm/config.yml; then
-    grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
-    return $?
-  else
-    return 1
-  fi
-}
 
 #----------------------------------------------------------------------------
 #                               INTERFACE
@@ -50,12 +41,11 @@ function feature_enabled() {
     [ $pkts -eq 0 ]
   done
 }
-
+{% endif %}
+{% if with_bro is defined and with_bro %}
 #----------------------------------------------------------------------------
 #                               BRO
 #----------------------------------------------------------------------------
-if feature_enabled bro; then
-
 @test "Check that broctl is running" {
   # This will fail if a worker is crashed as well
   sudo /opt/bro/bin/broctl status
@@ -80,45 +70,36 @@ if feature_enabled bro; then
     fi
   fi
 }
-
-fi
+{% endif %}
+{% if with_suricata is defined and with_suricata %}
 #----------------------------------------------------------------------------
 #                               SURICATA
 #----------------------------------------------------------------------------
-if feature_enabled suricata; then
-
 @test "Check that suricata is running" {
   systemctl status suricata
 }
-
-fi
+{% endif %}
+{% if with_snort is defined and with_snort %}
 #----------------------------------------------------------------------------
 #                                SNORT
 #----------------------------------------------------------------------------
-if feature_enabled snort; then
-
 @test "Check that snort is running" {
   systemctl status snortd
 }
-
-fi
+{% endif %}
+{% if with_fsf is defined and with_fsf %}
 #----------------------------------------------------------------------------
 ##                               FSF
 ##----------------------------------------------------------------------------
-if feature_enabled fsf; then
-
 @test "Check that FSF is running" {
   systemctl status fsf
 
 }
-
-fi
-
+{% endif %}
+{% if with_zookeeper is defined and with_zookeeper %}
 #----------------------------------------------------------------------------
 #                               ZOOKEEPER
 #----------------------------------------------------------------------------
-if feature_enabled zookeeper; then
-
 @test "Check that zookeeper is running" {
   systemctl status zookeeper
 }
@@ -130,13 +111,11 @@ if feature_enabled zookeeper; then
 @test "Check that client can connect to zookeeper" {
   echo "" | ncat  ${ZOOKEEPER_HOST} ${ZOOKEEPER_PORT}
 }
-
-fi
+{% endif %}
+{% if with_kafka is defined and with_kafka %}
 #----------------------------------------------------------------------------
 #                               KAFKA
 #----------------------------------------------------------------------------
-if feature_enabled kafka; then
-
 @test "Check that kafka is running" {
   systemctl status kafka
 }
@@ -156,25 +135,18 @@ if feature_enabled kafka; then
   [ ${conn_count} -eq 1 ]
 }
 
-fi
-
+{% endif %}
+{% if (serverlocal is defined and serverlocal) or (standalone is defined and standalone) %}
 #----------------------------------------------------------------------------
 #                               LOGSTASH
 #----------------------------------------------------------------------------
-
-if feature_enabled logstash; then
-
 @test "Check that logstash is running" {
   systemctl status logstash
 }
 
-fi
 #----------------------------------------------------------------------------
 #                               ELASTICSEARCH
 #----------------------------------------------------------------------------
-
-if feature_enabled elasticsearch; then
-
 @test "Check that elasticsearch is running" {
   systemctl status elasticsearch
 }
@@ -184,15 +156,10 @@ if feature_enabled elasticsearch; then
   [ "${result}" == "\"green\"" ]
 }
 
-fi
 #----------------------------------------------------------------------------
 #                               KIBANA
 #----------------------------------------------------------------------------
-
-if feature_enabled kibana; then
-
 @test "Check that kibana is running" {
   systemctl status kibana
 }
-
-fi
+{% endif %}
