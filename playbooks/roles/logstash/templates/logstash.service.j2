@@ -1,0 +1,17 @@
+[Unit]
+Description = Logstash Container Service Module
+
+Wants    = network.target
+Requires = docker.service
+
+[Service]
+Type = simple
+
+ExecStart = /usr/bin/docker-compose -p rock -f {{ rock_compose_files }}/logstash.compose.yml up
+ExecStop  = /usr/bin/docker-compose -p rock -f {{ rock_compose_files }}/logstash.compose.yml down
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy = multi-user.target

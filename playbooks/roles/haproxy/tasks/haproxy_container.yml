@@ -21,6 +21,11 @@
     state: directory
   with_items:
     - "{{ rocknsm_dir }}/haproxy"
+    - "{{ rocknsm_dir }}/CA"
+    - "{{ rocknsm_dir }}/CA/certs"
+    - "{{ rocknsm_dir }}/CA/crl"
+    - "{{ rocknsm_dir }}/CA/csr"
+    - "{{ rocknsm_dir }}/CA/private"
 
 - name: 'Pull official haproxy from docker hub'
   docker_image:
@@ -53,13 +58,40 @@
     owner: root
     group: root
 
-- name: 'Generate haproxy ssl keys'
+- name: 'Copy openssl.cnf file'
+  template:
+    src: 'openssl.cnf.j2'
+    dest: "{{ rocknsm_dir }}/CA/openssl.cnf"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Generate Root CA'
   shell: |
-    openssl genrsa -out {{ rocknsm_dir }}/haproxy/ssl.key 2048
-    openssl req -new -key {{ rocknsm_dir }}/haproxy/ssl.key -out {{ rocknsm_dir }}/haproxy/ssl.csr -subj /CN=US
-    openssl x509 -req -days 365 -in {{ rocknsm_dir }}/haproxy/ssl.csr -signkey {{ rocknsm_dir }}/haproxy/ssl.key -out {{ rocknsm_dir }}/haproxy/ssl.crt
-    cat {{ rocknsm_dir }}/haproxy/ssl.crt > {{ rocknsm_dir }}/haproxy/ssl.pem
-    cat {{ rocknsm_dir }}/haproxy/ssl.key >> {{ rocknsm_dir }}/haproxy/ssl.pem
+    rm -f {{ rocknsm_dir }}/CA/index.txt
+    touch {{ rocknsm_dir }}/CA/index.txt
+    echo 1000 > serial
+    openssl genrsa -out {{ rocknsm_dir }}/CA/private/ca.key 2048
+    chmod 400 {{ rocknsm_dir }}/CA/private/ca.key
+    openssl req -config {{ rocknsm_dir}}/CA/openssl.cnf -key {{ rocknsm_dir }}/CA/private/ca.key -new -x509 -days 365 -sha256 -extensions v3_ca -out {{ rocknsm_dir }}/CA/certs/ca.crt -subj /CN=RockNSM-CA
+    chmod 444 {{ rocknsm_dir }}/CA/certs/ca.crt
+
+- name: 'Generate haproxy SSL keys'
+  shell: |
+    openssl genrsa -out {{ rocknsm_dir }}/CA/private/haproxy.key 2048
+    openssl req -config {{ rocknsm_dir }}/CA/openssl.cnf -key {{ rocknsm_dir }}/CA/private/haproxy.key -new -sha256 -out {{ rocknsm_dir }}/CA/csr/haproxy.csr -subj /CN=haproxy.lan
+    openssl ca -batch -config {{ rocknsm_dir }}/CA/openssl.cnf -extensions server_cert -days 365 -notext -md sha256 -in {{ rocknsm_dir }}/CA/csr/haproxy.csr -out {{ rocknsm_dir }}/CA/certs/haproxy.crt
+    cat {{ rocknsm_dir }}/CA/certs/haproxy.crt > {{ rocknsm_dir }}/CA/private/haproxy.pem
+    cat {{ rocknsm_dir }}/CA/private/haproxy.key >> {{ rocknsm_dir }}/CA/private/haproxy.pem
+
+- name: 'Generate sensor SSL client keys'
+  shell: |
+    openssl genrsa -out {{ rocknsm_dir }}/CA/private/{{ item }}.key 2048
+    openssl req -new -key {{ rocknsm_dir }}/CA/private/{{ item }}.key -out {{ rocknsm_dir }}/CA/csr/{{ item }}.csr -subj /CN=US
+    openssl ca -batch -config {{ rocknsm_dir }}/CA/openssl.cnf -extensions usr_cert -days 365 -notext -md sha256 -in {{ rocknsm_dir }}/CA/csr/{{ item }}.csr -out {{ rocknsm_dir }}/CA/certs/{{ item }}.crt
+    cat {{ rocknsm_dir }}/CA/certs/{{ item }}.crt > {{ rocknsm_dir }}/CA/private/{{ item }}.pem
+    cat {{ rocknsm_dir }}/CA/private/{{ item }}.key >> {{ rocknsm_dir }}/CA/private/{{ item }}.pem
+  with_items: "{{ groups['sensors'] }}"
 
 - name: 'Run haproxy-compose.yml' 
   docker_service: 
