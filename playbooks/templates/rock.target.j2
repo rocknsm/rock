@@ -1,0 +1,8 @@
+#  This file is part of systemd.
+
+[Unit]
+Description=Rock start script
+Requires=multi-user.target
+Conflicts=rescue.service rescue.target
+After=multi-user.target rescue.service rescue.target
+AllowIsolate=True

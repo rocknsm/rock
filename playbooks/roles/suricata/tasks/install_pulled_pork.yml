@@ -1,18 +1,18 @@
---- 
-- 
-  get_url: 
+---
+-
+  get_url:
     dest: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
     mode: 420
     url: "{{ pulledpork_url }}"
   name: "Download Pulled Pork"
   when: rock_online_install
-- 
+-
   name: "Install Pulled Pork"
-  unarchive: 
+  unarchive:
     creates: "/opt/pulledpork-{{ pulledpork_release }}"
     dest: /opt
     group: root
     owner: root
     remote_src: true
     src: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
-  when: "{{ with_pulledpork }}"
+  when: "{{ included_components.pulledpork.enabled }}"

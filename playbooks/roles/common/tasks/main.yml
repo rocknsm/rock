@@ -1,14 +1,3 @@
----
-
-- name: 'Render rock_start template'
-  template:
-    backup: yes
-    src: rock.service.j2
-    dest: /etc/systemd/system/rock.service
-    owner: root
-    group: root
-    mode: 0644
-
 ######################################################
 ############### ROCKNSM Customization ################
 ######################################################
@@ -24,6 +13,14 @@
   copy:
     src: nm-issue-update
     dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Install rock_status script
+  template:
+    src: rock_status.j2
+    dest: /usr/local/bin/rock_status
     mode: 0755
     owner: root
     group: root

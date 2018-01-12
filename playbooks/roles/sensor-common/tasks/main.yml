@@ -19,7 +19,7 @@
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
     force: true
     group: root
-    mode: 420
+    mode: 755
     owner: root
     src: templates/ifcfg-monif.j2
   with_items: "{{ rock_monifs }}"
