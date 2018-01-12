@@ -90,17 +90,17 @@
   #notify:
   #  - "es maintenance"
 
-- name: "Wait for Elasticsearch to become ready"
-  wait_for: "host=localhost port=9200"
-  when: (standalone is defined and standalone)  or (serverlocal is defined and serverlocal) or (sensorlocal is defined and sensorlocal)
+#- name: "Wait for Elasticsearch to become ready"
+#  wait_for: "host=localhost port=9200"
+#  when: (standalone is defined and standalone)  or (serverlocal is defined and serverlocal) or (sensorlocal is defined and sensorlocal)
 
  #DWHARVE - CHANGE with_haproxy to new format after merge
 
-- name: "Wait for Elasticsearch to become ready"
-  wait_for: "host={{ hostvars[item].inventory_hostname }} port=9200"
-  when: hostvars[item].with_haproxy and (standalone is not defined or not standalone) and (serverlocal is not defined or not serverlocal) and (sensorlocal is not defined or not sensorlocal)
-  with_items:
-    - "{{ groups['servers'] }}"
+#- name: "Wait for Elasticsearch to become ready"
+#  wait_for: "host={{ hostvars[item].inventory_hostname }} port=9200"
+#  when: hostvars[item].with_haproxy and (standalone is not defined or not standalone) and (serverlocal is not defined or not serverlocal) and (sensorlocal is not defined or not sensorlocal)
+#  with_items:
+#    - "{{ groups['servers'] }}"
 
 #- name: "Check for Bro mapping templates"
 #  failed_when: false
