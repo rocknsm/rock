@@ -19,24 +19,25 @@
   # add the localhost to both the servers and sensors groups
   - name: Check for local standalone installation option
     add_host:
-      hostname: 127.0.0.1
+      hostname: "{{ local_host_name }}"
       groups: servers,sensors
       ansible_connection: local
     when: standalone is defined and standalone
 
   - name: Check for local server installation option
     add_host:
-      hostname: 127.0.0.1
+      hostname: "{{ local_host_name }}"
       groups: servers
       ansible_connection: local
     when: serverlocal is defined and serverlocal
 
   - name: Check for local sensor installation option
     add_host:
-      hostname: 127.0.0.1
+      hostname: "{{ local_host_name }}"
       groups: sensors
       ansible_connection: local
     when: sensorlocal is defined and sensorlocal
 
 - import_playbook: servers.yml
 - import_playbook: sensors.yml
+- import_playbook: configure_services.yml

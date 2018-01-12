@@ -1,0 +1,119 @@
+######################################################
+################# Setup Elasticsearch ################
+######################################################
+---
+
+- name: 'Download Elasticsearch container'
+  docker_image:
+    name: "{{ elastic_container }}:{{ elastic_ver }}"
+  when: rock_online_install
+
+- name: Create elasticsearch group
+  group:
+    name: elasticsearch
+    state: present
+
+- name: Add Elasticsearch user
+  user:
+    name: elasticsearch
+    comment: "User for managing elasticsearch related things"
+    group: elasticsearch
+
+- name: "Create Elasticsearch directory"
+  file:
+    group: 1000
+    mode: u+rw,g+rw
+    owner: 1000
+    path: "{{ es_data_dir }}"
+    state: directory
+
+- name: "Create Elasticsearch configuration directory"
+  file:
+    group: 1000
+    mode: u+rw,g+rw
+    owner: 1000
+    path: "{{ es_config_dir }}"
+    state: directory
+
+  #chown -R 1000:1000 /data/elasticsearch/
+#- name: Change permissions of Elasticsearch directory
+  #shell: chmod ug+wrx /data/elasticsearch/
+
+- name: "Setup elasticsearch config"
+  template:
+    dest: "{{ rock_compose_files }}/elasticsearch.compose.yml"
+    group: "{{ es_group }}"
+    mode: 755
+    owner: "{{ es_user }}"
+    src: templates/elasticsearch.compose.yml.j2
+
+- name: "Setup elasticsearch jvm options"
+  template:
+    dest: "{{ es_config_dir }}/jvm.options"
+    group: "{{ es_group }}"
+    mode: 755
+    owner: root
+    src: templates/es-jvm.options.j2
+
+- name: "Install ROCK Elasticsearch cleanup script"
+  template:
+    dest: /usr/local/bin/es_cleanup.sh
+    group: root
+    mode: 755
+    owner: root
+    src: templates/es_cleanup.sh.j2
+
+- name: "Set elasticsearch cleanup cron job"
+  cron:
+    cron_file: rocknsm_es_maintenance
+    hour: 0
+    job: "/usr/local/bin/es_cleanup.sh > /dev/null 2>&1"
+    minute: 1
+    name: "ES maintenance"
+    user: root
+
+- name: "Setup elasticsearch service"
+  template:
+    dest: /lib/systemd/system/elasticsearch.service
+    group: "{{ es_group }}"
+    mode: 755
+    owner: root
+    src: templates/elasticsearch.service.j2
+
+- name: "Enable and start Elasticsearch"
+  service:
+    enabled: yes
+    name: elasticsearch
+    state: started
+    daemon-reload: yes
+  # TODO: This needs to be updated
+  #notify:
+  #  - "es maintenance"
+
+- name: "Wait for Elasticsearch to become ready"
+  wait_for: "host=localhost port=9200"
+  when: (standalone is defined and standalone)  or (serverlocal is defined and serverlocal) or (sensorlocal is defined and sensorlocal)
+
+ #DWHARVE - CHANGE with_haproxy to new format after merge
+
+- name: "Wait for Elasticsearch to become ready"
+  wait_for: "host={{ hostvars[item].inventory_hostname }} port=9200"
+  when: hostvars[item].with_haproxy and (standalone is not defined or not standalone) and (serverlocal is not defined or not serverlocal) and (sensorlocal is not defined or not sensorlocal)
+  with_items:
+    - "{{ groups['servers'] }}"
+
+#- name: "Check for Bro mapping templates"
+#  failed_when: false
+#  register: bro_mapping
+#  uri:
+#    method: GET
+#    url: "http://localhost:9200/_template/bro_index"
+#  when: with_bro
+
+#- name: "Load Bro Elasticsearch mapping templates"
+#  uri:
+#    body: "{{ lookup('file', 'es-bro-mappings.json')}}"
+#    body_format: json
+#    method: PUT
+#    url: "http://localhost:9200/_template/bro_index"
+#  when: "with_bro and bro_mapping.status == 404"

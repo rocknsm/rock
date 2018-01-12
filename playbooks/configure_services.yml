@@ -1,0 +1,62 @@
+######################################################
+################ Configure Runlevel ##################
+######################################################
+---
+- hosts: all
+  vars:
+    services:
+
+  tasks:
+  - name: 'Render rock_start template'
+    template:
+      backup: yes
+      src: rock.target.j2
+      dest: /etc/systemd/system/rock.target
+      owner: root
+      group: root
+      mode: 0644
+
+  - name: 'Create rock.target.wants'
+    file:
+      path: /etc/systemd/system/rock.target.wants
+      state: directory
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: 'Add systemd rock.target wants'
+    file:
+      src: "{{ lookup('first_found', dict(files=['/etc/systemd/system/' + item + '.service', '/usr/lib/systemd/system/' + item + '.service'], skip=true)) }}"
+      dest: /etc/systemd/system/rock.target.wants/{{ item }}.service
+      state: link
+    when: included_components.{{ item }}.enabled
+    with_items: "{{ included_components.keys()|list}}"
+    ignore_errors: yes
+
+  - name: 'Check default runlevel'
+    command: systemctl get-default
+    register: runlevel
+
+  - name: 'Change default runlevel'
+    command: systemctl set-default rock.target
+    when: runlevel.stdout != "rock.target"
+
+  - name: 'Check current runlevel'
+    command: systemctl is-active rock.target
+    register: runlevel_active
+    failed_when: runlevel_active.rc != 3
+    ignore_errors: yes
+
+  - name: 'Switch to rock.target'
+    command: systemctl isolate rock.target
+    when: runlevel_active.stdout != "active"
+
+  - name: 'Add rock_start alias'
+    shell: echo 'alias rock_start="systemctl isolate rock.target"' | tee -a /home/*/.bashrc /root/.bashrc >> /etc/skel/.bashrc
+    args:
+      executable: /bin/bash
+
+  - name: 'Add rock_stop alias'
+    shell: echo 'alias rock_stop="systemctl stop -- $(systemctl show -p Wants rock.target | cut -d= -f2)"' | tee -a /home/*/.bashrc /root/.bashrc >> /etc/skel/.bashrc
+    args:
+      executable: /bin/bash

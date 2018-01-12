@@ -2,13 +2,24 @@
 ######### Configure the monitoring interface #########
 ######################################################
 ---
+- pause:
+    prompt: "Use interface: {{ item }} for monitoring? [y/n]"
+  register: "res"
+  with_items: "{{ rock_monifs }}"
+
+- name: "Parse interfaces"
+  set_fact: 
+    rock_monifs: "{{ rock_monifs | difference(item.item) }}"
+  when: item.user_input != 'y'
+  with_items: 
+    - "{{ res.results }}"
 
 - name: "Set monitor interface config"
   template:
     dest: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
     force: true
     group: root
-    mode: 420
+    mode: 755
     owner: root
     src: templates/ifcfg-monif.j2
   with_items: "{{ rock_monifs }}"

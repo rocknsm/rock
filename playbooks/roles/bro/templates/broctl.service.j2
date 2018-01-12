@@ -1,3 +1,8 @@
+## FLAG FOR POSSIBLE DELETION
+## This template is not in dcodes devel
+## The default for this file is used when
+## installing bro from rocknsm repo
+
 [Unit]
 Description=Bro Network Intrusion Detection System (NIDS)
 After=network.target
@@ -7,9 +12,8 @@ Type=forking
 User={{ bro_user }}
 Group={{ bro_group }}
 Environment=HOME={{ bro_data_dir }}/spool
-ExecStart=/opt/bro/bin/broctl deploy
-ExecStop=/opt/bro/bin/broctl stop
+ExecStart=/usr/bin/broctl deploy
+ExecStop=/usr/bin/broctl stop
 
 [Install]
 WantedBy=multi-user.target
-

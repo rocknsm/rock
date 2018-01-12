@@ -9,7 +9,7 @@ all:
 
   hosts:
     simplerockbuild.simplerock.lan:
-      ansible_hostname: 127.0.0.1
+      ansible_hostname: simplerockbuild.simplerock.lan
       ansible_connection: local
 
   vars:
@@ -17,6 +17,7 @@ all:
     #Common role variables
     common_mgnt_nets: "{{ rock_mgmt_nets }}"
 
+    local_host_name: simplerockbuild.simplerock.lan
     rock_version: 3.0
     rock_online_install: true
     rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
@@ -29,8 +30,10 @@ all:
     rock_fqdn: '{{ inventory_hostname }}'
     rock_mgmt_nets: [ "0.0.0.0/0" ]
     rock_cache_dir: /srv/rocknsm/support
-    rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
-    rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
+    #rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
+    #rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
+    rocknsm_baseurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/'
+    rocknsm_gpgurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg'
     rocknsm_local_baseurl: file:///srv/rocknsm
     rock_compose_files: "{{ rocknsm_dir + '/compose_files' }}"
 
@@ -40,30 +43,48 @@ all:
 
     #### Elasticstack x-pack options ####
     # If you have licensing for x-pack set variable to true.
-    xpack_license: false
+    xpack_license: 'false'
 
     # Feature options - Don't flip these unless you know what you're doing
     # These control if the service is installed
-
-    with_bro: true
-    with_docker: true
-    with_docket: true
-    with_elasticsearch: true
-    with_elk: false
-    with_filebeats: true
-    with_fsf: true
-    with_haproxy: true
-    with_harbor: false
-    with_kafka: true
-    with_kibana: true
-    with_logstash: true
-    with_portainer: true
-    with_pulledpork: true
-    with_snort: false
-    with_stenographer: true
-    with_suricata: true
-    with_zookeeper: true
-
+    included_components:
+      bro:
+        enabled: true
+      docker:
+        enabled: true
+      docket:
+        enabled: true
+      elasticsearch:
+        enabled: true
+      elk:
+        enabled: false
+      filebeats:
+        enabled: false
+      fsf:
+        enabled: true
+      haproxy:
+        enabled: true
+      harbor:
+        enabled: false
+      kafka:
+        enabled: true
+      kibana:
+        enabled: true
+      logstash:
+        enabled: false
+      portainer:
+        enabled: true
+      pulledpork:
+        enabled: true
+      snort:
+        enabled: false
+      stenographer:
+        enabled: true
+      suricata:
+        enabled: true
+      zookeeper:
+        enabled: true
+        
     rocknsm_package_list:
       - java-1.8.0-openjdk-headless
       - jq
@@ -92,10 +113,10 @@ all:
 
     sensors:
       # TODO: We will need these for the multinode install
-      hosts:
-        rocksensor1.lan:
-          ansible_hostname: rocksensor1.lan
-          ansible_connection: ssh
+      #hosts:
+      #  rocksensor1.lan:
+      #    ansible_hostname: rocksensor1.lan
+      #    ansible_connection: ssh
 
       vars:
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
@@ -111,10 +132,10 @@ all:
 
     servers:
       # TODO: We will need these for the multinode install
-      hosts:
-        rockserver1.lan:
-          ansible_hostname: rockserver1.lan
-          ansible_connection: ssh
+      #hosts:
+      #  rockserver1.lan:
+      #    ansible_hostname: rockserver1.lan
+      #    ansible_connection: ssh
 
       vars:
         es_cluster_name: rocknsm

@@ -1,0 +1,74 @@
+###
+---
+
+- name: 'Pull default Logstash Docker image'
+  docker_image:
+    name: "docker.elastic.co/logstash/logstash:{{ elastic_ver }}"
+  when: rock_online_install
+
+#- name: 'Build custom Logstash Docker image'
+#  docker_image:
+#    path: 'files'
+#    name: rock/logstash
+#    tag: 'latest'
+#    buildargs:
+#      LOGSTASH_VERSION: {{ elastic_ver }}
+
+- name: 'Create logstash group'
+  group:
+    name: "{{ logstash_group }}"
+    state: present
+
+- name: 'Add logstash user'
+  user:
+    name: "{{ logstash_user }}"
+    comment: "User for managing logstash related things"
+    group: "{{ logstash_group }}"
+
+- name: "Create Logstash data directory"
+  file:
+    group: 1000 
+    mode: u+rw,g+rw
+    owner: 1000
+    path: "{{ logstash_data_dir }}"
+    state: directory
+
+- name: "Create Logstash configuration directory"
+  file:
+    group: 1000
+    mode: u+rw,g+rw
+    owner: 1000
+    path: "{{ logstash_pipeline_dir }}"
+    state: directory
+
+- name: "Create Logstash log directory"
+  file:
+    group: 1000
+    mode: u+rw,g+rw
+    owner: 1000
+    path: "{{ logstash_log_dir }}"
+    state: directory
+
+### setup Service
+- name: "Setup Logstash compose config"
+  template:
+    dest: "{{ rock_compose_files }}/logstash.compose.yml"
+    group: "{{ logstash_group }}"
+    mode: 0755
+    owner: "{{ logstash_user }}"
+    src: templates/logstash.compose.yml.j2
+
+- name: "Setup logstash service"
+  template:
+    dest: /etc/systemd/system/logstash.service
+    group: "{{ logstash_group }}"
+    mode: 0755
+    owner: root
+    src: templates/logstash.service.j2
+
+- name: "Enable and start Logstash"
+  service:
+    enabled: yes
+    name: logstash
+    state: started
+    daemon-reload: yes
