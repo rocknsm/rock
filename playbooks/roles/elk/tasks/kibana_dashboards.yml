@@ -57,12 +57,12 @@
 - name: Store default Kibana index to Bro
   set_fact:
     kibana_config: "{{ kibana_config | combine({'defaultIndex': 'bro-*' })}}"
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Store default Kibana index to Suricata
   set_fact:
     kibana_config: "{{ kibana_config | combine({'defaultIndex': 'suricata-*' })}}"
-  when: with_suricata and not with_bro
+  when: included_components.suricata.enabled and not included_components.bro.enabled
 
 - name: Update Kibana config dict w/ rock_config version
   set_fact:
