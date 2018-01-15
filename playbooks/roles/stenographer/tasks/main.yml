@@ -7,7 +7,7 @@
   yum:
     name: stenographer
     state: installed
-    
+
 -
   name: Set stenographer config
   template:
@@ -57,6 +57,6 @@
   name: Configure Stenographer per-interface
   service:
     name: "stenographer@{{ item }}"
-    enabled: "{{ enable_stenographer }}"
-    state: "{{ 'started' if enable_stenographer else 'stopped' }}"
+    enabled: yes
+    state: started
   with_items: "{{ rock_monifs }}"

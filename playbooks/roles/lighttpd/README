@@ -1,3 +1,0 @@
-Lighttpd is a proxy server.
-
-RockNSM deployment of lighttpd allows for authentication of web traffic prior to connecting to services that do not have authentication built in.

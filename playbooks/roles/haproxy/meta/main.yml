@@ -2,4 +2,4 @@
 
 dependencies:
   - { role: common }
-  - { role: docker, when: containerized_install == true }
+  - { role: docker }
