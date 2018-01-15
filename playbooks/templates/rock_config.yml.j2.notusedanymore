@@ -86,19 +86,19 @@ xpack_license: false
 
 ### Advanced Feature Selection ######
 # Don't flip these unless you know what you're doing
-#with_bro: {{ with_bro }}
-#with_docker: {{ with_docker }}
-#with_docket: {{ with_docket }}
-#with_elasticsearch: {{ with_elasticsearch }}
-#with_fsf: {{ with_fsf }}
-#with_haproxy: {{ with_haproxy }}
-#with_harbor: {{ with_harbor }}
-#with_kafka: {{ with_kafka }}
-#with_kibana: {{ with_kibana }}
-#with_logstash: {{ with_logstash }}
-#with_portainer: {{ with_portainer }}
-#with_pulledpork: {{ with_pulledpork }}
-#with_snort: {{ with_snort }}
-#with_stenographer: {{ with_stenographer }}
-#with_suricata: {{ with_suricata }}
-#with_zookeeper: {{ with_zookeeper }}
+#included_components.bro.enabled: {{ included_components.bro.enabled }}
+#included_components.docker.enabled: {{ included_components.docker.enabled }}
+#included_components.docket.enabled: {{ included_components.docket.enabled }}
+#included_components.elasticsearch.enabled: {{ included_components.elasticsearch.enabled }}
+#included_components.fsf.enabled: {{ included_components.fsf.enabled }}
+#included_components.haproxy.enabled: {{ included_components.haproxy.enabled }}
+#included_components.harbor.enabled: {{ included_components.harbor.enabled }}
+#included_components.kafka.enabled: {{ included_components.kafka.enabled }}
+#included_components.kibana.enabled: {{ included_components.kibana.enabled }}
+#included_components.logstash.enabled: {{ included_components.logstash.enabled }}
+#included_components.portainer.enabled: {{ included_components.portainer.enabled }}
+#included_components.pulledpork.enabled: {{ included_components.pulledpork.enabled }}
+#included_components.snort.enabled: {{ included_components.snort.enabled }}
+#included_components.stenographer.enabled: {{ included_components.stenographer.enabled }}
+#included_components.suricata.enabled: {{ included_components.suricata.enabled }}
+#included_components.zookeeper.enabled: {{ included_components.zookeeper.enabled }}
