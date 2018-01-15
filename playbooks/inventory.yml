@@ -10,6 +10,7 @@ all:
   hosts:
     simplerockbuild.simplerock.lan:
       ansible_hostname: simplerockbuild.simplerock.lan
+      ansible_user: root
       ansible_connection: local
 
   vars:
@@ -37,9 +38,9 @@ all:
     rocknsm_local_baseurl: file:///srv/rocknsm
     rock_compose_files: "{{ rocknsm_dir + '/compose_files' }}"
 
-    #### Docker configuration variables ####
-    # Install services with Docker whenever possible vs installing on bare metal.
-    containerized_install: true
+    # This is now a global variable because it is drawn on by the sensor and
+    # the servers
+    elastic_ver: '6.1.1'
 
     #### Elasticstack x-pack options ####
     # If you have licensing for x-pack set variable to true.
@@ -58,8 +59,8 @@ all:
         enabled: true
       elk:
         enabled: false
-      filebeats:
-        enabled: false
+      filebeat:
+        enabled: true
       fsf:
         enabled: true
       haproxy:
@@ -84,7 +85,7 @@ all:
         enabled: true
       zookeeper:
         enabled: true
-        
+
     rocknsm_package_list:
       - java-1.8.0-openjdk-headless
       - jq
@@ -113,10 +114,11 @@ all:
 
     sensors:
       # TODO: We will need these for the multinode install
-      #hosts:
-      #  rocksensor1.lan:
-      #    ansible_hostname: rocksensor1.lan
-      #    ansible_connection: ssh
+      hosts:
+        rocksensor1.lan:
+          ansible_hostname: rocksensor1.lan
+          ansible_user: root
+          ansible_connection: ssh
 
       vars:
         bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
@@ -132,10 +134,10 @@ all:
 
     servers:
       # TODO: We will need these for the multinode install
-      #hosts:
-      #  rockserver1.lan:
-      #    ansible_hostname: rockserver1.lan
-      #    ansible_connection: ssh
+      hosts:
+        rockserver1.lan:
+          ansible_hostname: rockserver1.lan
+          ansible_connection: ssh
 
       vars:
         es_cluster_name: rocknsm

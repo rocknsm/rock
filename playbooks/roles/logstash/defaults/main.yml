@@ -7,5 +7,3 @@ logstash_data_dir: "{{ rock_data_dir }}/logstash"
 logstash_config_dir: "/etc/logstash"
 logstash_pipeline_dir: "{{ logstash_config_dir }}/conf.d"
 logstash_log_dir: "/var/log/logstash"
-elastic_ver: '6.1.1'
-
