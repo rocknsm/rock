@@ -32,4 +32,4 @@
     mode: 755
     owner: root
     src: templates/ifup-local.j2
-  notify: "configure monitor interfaces"
+  #notify: "configure monitor interfaces"
