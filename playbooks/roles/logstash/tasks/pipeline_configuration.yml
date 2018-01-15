@@ -10,7 +10,7 @@
     owner: 1000
     src: 'logstash-kafka-bro.conf'
   notify: "Restart Logstash"
-  when: "with_bro and with_kafka"
+  when: "included_components.bro.enabled and included_components.kafka.enabled"
 
 - name: "Install Suricata-Kafka configuration for Logstash"
   copy:
@@ -20,7 +20,7 @@
     owner: 1000
     src: 'logstash-kafka-suricata.conf'
   notify: "Restart Logstash"
-  when: "with_suricata and with_kafka"
+  when: "included_components.suricata.enabled and included_components.kafka.enabled"
 
 - name: "Install FSF-Kafka configuration for Logstash"
   copy:
@@ -30,4 +30,4 @@
     owner: 1000
     src: 'logstash-kafka-fsf.conf'
   notify: "Restart Logstash"
-  when: "with_fsf and with_kafka"
+  when: "included_components.fsf.enabled and included_components.kafka.enabled"

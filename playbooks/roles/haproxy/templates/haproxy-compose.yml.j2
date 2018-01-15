@@ -7,17 +7,18 @@ services:
     container_name: 'haproxy'
     networks:
       rocknsm_outside:
-        aliases: 
+        aliases:
           - 'proxy'
       rocknsm_inside:
-        aliases: 
+        aliases:
           - 'proxy'
     ports:
       - "0.0.0.0:80:80"
       - "0.0.0.0:443:443"
+      - "0.0.0.0:8443:8443"
       - "0.0.0.0:{{ elastic_lb_port }}:{{ elastic_lb_port }}"
     restart: "always"
-    volumes: 
+    volumes:
       - "{{ rocknsm_dir }}/haproxy/haproxy.conf:/usr/local/etc/haproxy/haproxy.cfg"
       - "{{ rocknsm_dir }}/CA/private/haproxy.pem:/etc/ssl/private/haproxy.pem"
       # Systemd volumes

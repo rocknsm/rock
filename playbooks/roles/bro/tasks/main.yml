@@ -17,14 +17,14 @@
   yum:
     name: bro-plugin-kafka
     state: installed
-  when: with_kafka
+  when: included_components.kafka.enabled
 
 - name: Create bro group
   group:
     name: "{{ bro_group }}"
     state: present
     system: yes
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Create bro user and add to bro group
   user:
@@ -36,7 +36,7 @@
     shell: /sbin/nologin
     system: yes
     state: present
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Create Bro directories
   file:
@@ -49,13 +49,13 @@
     - "{{ bro_data_dir }}"
     - "{{ bro_data_dir }}/logs"
     - "{{ bro_data_dir }}/spool"
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Create /opt/bro dir for wandering users
   file:
     dest: "/opt/bro"
     state: directory
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Create note to wandering users
   copy:
@@ -78,7 +78,7 @@
       -----------------------
       /opt/bro/logs -> /data/bro/logs
       /opt/bro/spool -> /data/bro/spool
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Create Bro node.cfg
   template:
@@ -87,7 +87,7 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
+  when: included_components.bro.enabled
   notify: reload bro
 
 - name: Create broctl.cfg
@@ -97,7 +97,7 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
+  when: included_components.bro.enabled
   notify: reload bro
 
 - name: Create bro networks.cfg
@@ -107,7 +107,7 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
+  when: included_components.bro.enabled
   notify: reload bro
 
 - name: Add bro custom scripts dir
@@ -117,7 +117,7 @@
     group: root
     mode: 0755
     state: directory
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Set permissions on broctl scripts dir
   file:
@@ -126,7 +126,7 @@
     group: "{{ bro_user }}"
     mode: 0755
     state: directory
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Add README to scripts dir
   copy:
@@ -135,14 +135,14 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Checkout ROCK Bro scripts
   git:
     repo: "{{ bro_rockscripts_repo }}"
     dest: "{{ bro_site_dir }}/scripts/rock"
     version: "{{ bro_rockscripts_branch }}"
-  when: with_bro and rock_online_install
+  when: included_components.bro.enabled and rock_online_install
 
 - name: Deploy offline ROCK Bro scripts
   unarchive:
@@ -152,7 +152,7 @@
     group: root
     creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
     remote_src: yes
-  when: with_bro and not rock_online_install
+  when: included_components.bro.enabled and not rock_online_install
 
 - name: Symlink offline ROCK bro scripts
   file:
@@ -160,7 +160,7 @@
     dest: "{{ bro_site_dir }}/scripts/rock"
     state: link
     force: yes
-  when: with_bro and not rock_online_install
+  when: included_components.bro.enabled and not rock_online_install
 
 - name: Update owner for ROCK NSM Bro scripts
   file:
@@ -172,35 +172,35 @@
     follow: yes
   tags:
     - bro_scripts
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Add ROCK scripts to local.bro
   lineinfile:
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock # ROCK NSM customizations"
     state: present
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Add AF_PACKET workaround to local.bro
   lineinfile:
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/afpacket"
     state: present
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Enable Bro Kafka output to local.bro
   lineinfile:
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/kafka"
     state: present
-  when: with_bro and with_kafka
+  when: included_components.bro.enabled and included_components.kafka.enabled
 
 - name: Enable the SMB Analyzer in local.bro
   lineinfile:
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load policy/protocols/smb # Enable Bro SMB Analyzer"
     state: present
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Add bro aliases
   copy:
@@ -209,7 +209,7 @@
     mode: 0644
     owner: root
     group: root
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Add broctl wrapper for admin use
   copy:
@@ -218,7 +218,7 @@
     mode: 0754
     owner: root
     group: root
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Set bro capabilities
   capabilities:
@@ -228,7 +228,7 @@
   with_items:
     - "cap_net_raw+eip"
     - "cap_net_admin+eip"
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Set capstats capabilities
   capabilities:
@@ -238,7 +238,7 @@
   with_items:
     - "cap_net_raw+eip"
     - "cap_net_admin+eip"
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Set broctl cron
   cron:
@@ -247,7 +247,7 @@
     cron_file: rocknsm_broctl
     user: "{{ bro_user }}"
     job: "/usr/bin/broctl cron >/dev/null 2>&1"
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Initialize bro scripts for workers
   command: /usr/bin/broctl install
@@ -255,7 +255,7 @@
     creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
   become: yes
   become_user: "{{ bro_user }}"
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: Enable and start broctl
   service:
@@ -263,7 +263,7 @@
     enabled: true
     #This set of variables not yet implemented in this version
     #enabled: "{{ enable_bro }}"
-  when: with_bro
+  when: included_components.bro.enabled
   notify: reload bro
 
 # THIS WAS COMMENTED OUT BY DCODE

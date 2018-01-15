@@ -15,4 +15,4 @@
     owner: root
     remote_src: true
     src: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
-  when: "{{ included_components.pulledpork.enabled }}"
+  when: included_components.pulledpork.enabled

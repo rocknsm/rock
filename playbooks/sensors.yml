@@ -9,8 +9,8 @@
     # Containerized_install: if true, all services are docker containers. Otherwise, services installed bare metal
     - { role: docker, when: containerized_install }
     - { role: suricata, when: included_components.suricata.enabled }
+    - { role: zookeeper, when: included_components.zookeeper.enabled } # Note: This must run before Kafka (Kafak connects to it on startup) 
     - { role: kafka, when: included_components.kafka.enabled }
-    - { role: zookeeper, when: included_components.zookeeper.enabled }
     - { role: filebeats, when: included_components.filebeats.enabled }
     # TODO: Bro was seriously pissing me off. Just errors upon errors upon errors... upon errors so I disabled it
     # so I could commit this nonsense. I'll deal with it later.
