@@ -84,55 +84,55 @@ Generally, most of the options you'll want to change are near the top. The file 
 | https://github.com/shirkdog/pulledpork.git
 | You could change this to your own fork of pulled pork or to a local git repository.
 
-| with_stenographer 
+| included_components.stenographer.enabled 
 | `True`
 | Determines whether Stenographer will be installed as the PCAP capture engine.
 
-| with_bro
+| included_components.bro.enabled
 | `True`
 | Determines whether Bro will be installed and configured.
 
-| with_suricata
+| included_components.suricata.enabled
 | `True`
 | Determines whether Suricata will be installed and configured. 
 
 *NOTE*: While you theoretically _could_ install both Suricata and Snort, I guarantee that the automated deployment will not configure this as you were hoping.
 
-| with_fsf
+| included_components.fsf.enabled
 | `True`
 | Determines whether FSF will be installed and configured.
 
-| with_snort
+| included_components.snort.enabled
 | `False`
 | Determines whether Snort will be installed and configured.
 
 *NOTE*: While you theoretically _could_ install both Snort and Suricata, I guarantee that the automated deployment will not configure this as you were hoping.
 
-| with_pulledpork
+| included_components.pulledpork.enabled
 | `True`
 | Deterimines whether Pulled Pork will be installed and configured for your IDS engine of choice (Suricata or Snort)
 
-| with_logstash
+| included_components.logstash.enabled
 | `True`
 | Determines whether Logstash will be installed and configured for the data pipeline.
 
 NOTE: I highly recommend leaving logstash even if you don't want the full ELK install. We've put a lot of work into processing the Bro logs with Logstash. If You'd like to split the data out to Splunk or some other SEIM, consider taking the feed after Logstash has processed it. See <<tuning, Tuning & Scaling>> for more discussion on options here.
 
-| with_elasticsearch
+| included_components.elasticsearch.enabled
 | `True`
 | Determines whether Elasticsearch will be installed and configured. See <<tuning, Tuning & Scaling>> for more discussion on options here.
 
-| with_kibana
+| included_components.kibana.enabled
 | `True`
 | Determines whether Kibana will be installed and configured. See <<tuning, Tuning & Scaling>> for more discussion on options here.
 
-| with_zookeeper
+| included_components.zookeeper.enabled
 | `True`
 | Determines whether Zookeeper will be installed and configured. See <<tuning, Tuning & Scaling>> for more discussion on options here.
 
 *NOTE*: Zookeeper is required to run Kafka, so if you install Kafka you should leave this to true, or be willing to manually configure Kafka to point to another Zookeeper.
 
-| with_kafka
+| included_components.kafka.enabled
 | `True`
 | Determines whether Kafka will be installed and configured. If `False`, the Bro configuration will be adjusted to disable Kafka logging.
 

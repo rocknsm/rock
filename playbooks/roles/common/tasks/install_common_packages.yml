@@ -7,9 +7,9 @@
   with_items:
     - { pkg: chrony, state: installed }
 # TODO: These lines need to be moved to the sensor common
-#    - { pkg: daq, test: "{{with_snort}}", state: installed }
+#    - { pkg: daq, test: "{{included_components.snort.enabled}}", state: installed }
     - { pkg: postfix, state: installed }
-#    - { pkg: snort, test: "{{with_snort}}", state: installed }
+#    - { pkg: snort, test: "{{included_components.snort.enabled}}", state: installed }
 
 - name: Install packages
   yum:

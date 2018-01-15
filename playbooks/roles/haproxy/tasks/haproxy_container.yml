@@ -26,6 +26,7 @@
     - "{{ rocknsm_dir }}/CA/crl"
     - "{{ rocknsm_dir }}/CA/csr"
     - "{{ rocknsm_dir }}/CA/private"
+    - "{{ rocknsm_dir }}/CA/newcerts"
 
 - name: 'Pull official haproxy from docker hub'
   docker_image:
@@ -34,13 +35,13 @@
   when: rock_online_install
 
 - name: 'Install haproxy service file'
-  template: 
-    src: 'haproxy.service.j2' 
-    dest: '/etc/systemd/system/haproxy.service' 
-    mode: 0644 
-    owner: root 
+  template:
+    src: 'haproxy.service.j2'
+    dest: '/etc/systemd/system/haproxy.service'
+    mode: 0644
+    owner: root
     group: root
-  notify: reload systemd  
+  notify: reload systemd
 
 - name: 'Copy haproxy compose file'
   template:
@@ -70,7 +71,7 @@
   shell: |
     rm -f {{ rocknsm_dir }}/CA/index.txt
     touch {{ rocknsm_dir }}/CA/index.txt
-    echo 1000 > serial
+    echo 1000 > {{rocknsm_dir}}/CA/serial
     openssl genrsa -out {{ rocknsm_dir }}/CA/private/ca.key 2048
     chmod 400 {{ rocknsm_dir }}/CA/private/ca.key
     openssl req -config {{ rocknsm_dir}}/CA/openssl.cnf -key {{ rocknsm_dir }}/CA/private/ca.key -new -x509 -days 365 -sha256 -extensions v3_ca -out {{ rocknsm_dir }}/CA/certs/ca.crt -subj /CN=RockNSM-CA
@@ -93,15 +94,14 @@
     cat {{ rocknsm_dir }}/CA/private/{{ item }}.key >> {{ rocknsm_dir }}/CA/private/{{ item }}.pem
   with_items: "{{ groups['sensors'] }}"
 
-- name: 'Run haproxy-compose.yml' 
-  docker_service: 
-    project_src: "{{ rocknsm_dir }}/haproxy/" 
-    files: 'haproxy-compose.yml' 
-    state: present 
+- name: 'Run haproxy-compose.yml'
+  docker_service:
+    project_src: "{{ rocknsm_dir }}/haproxy/"
+    files: 'haproxy-compose.yml'
+    state: present
 
 - name: 'Enable haproxy service'
-  service: 
+  service:
     name: 'haproxy'
     enabled: yes
 ...
-

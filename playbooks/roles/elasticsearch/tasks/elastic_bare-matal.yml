@@ -97,7 +97,7 @@
   uri:
     method: GET
     url: "http://localhost:9200/_template/bro_index"
-  when: with_bro
+  when: included_components.bro.enabled
 
 - name: "Load Bro Elasticsearch mapping templates"
   uri:
@@ -105,4 +105,4 @@
     body_format: json
     method: PUT
     url: "http://localhost:9200/_template/bro_index"
-  when: "with_bro and bro_mapping.status == 404"
+  when: "included_components.bro.enabled and bro_mapping.status == 404"

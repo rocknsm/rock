@@ -4,7 +4,7 @@ default_ca = CA_default
 
 [ CA_default ]
 # Directory and file locations.
-dir               = /root/ca
+dir               = {{ rocknsm_dir }}/CA
 certs             = $dir/certs
 crl_dir           = $dir/crl
 new_certs_dir     = $dir/newcerts
@@ -13,12 +13,12 @@ serial            = $dir/serial
 RANDFILE          = $dir/private/.rand
 
 # The root key and root certificate.
-private_key       = $dir/private/ca.key.pem
-certificate       = $dir/certs/ca.cert.pem
+private_key       = $dir/private/ca.key
+certificate       = $dir/certs/ca.crt
 
 # For certificate revocation lists.
 crlnumber         = $dir/crlnumber
-crl               = $dir/crl/ca.crl.pem
+crl               = $dir/crl/ca.crl
 crl_extensions    = crl_ext
 default_crl_days  = 30
 
@@ -127,4 +127,3 @@ subjectKeyIdentifier = hash
 authorityKeyIdentifier = keyid,issuer
 keyUsage = critical, digitalSignature
 extendedKeyUsage = critical, OCSPSigning
-

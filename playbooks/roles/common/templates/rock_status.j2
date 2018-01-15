@@ -42,7 +42,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
   done
 }
 {% endif %}
-{% if with_bro is defined and with_bro %}
+{% if included_components.bro.enabled is defined and included_components.bro.enabled %}
 #----------------------------------------------------------------------------
 #                               BRO
 #----------------------------------------------------------------------------
@@ -71,7 +71,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
   fi
 }
 {% endif %}
-{% if with_suricata is defined and with_suricata %}
+{% if included_components.suricata.enabled is defined and included_components.suricata.enabled %}
 #----------------------------------------------------------------------------
 #                               SURICATA
 #----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
   systemctl status suricata
 }
 {% endif %}
-{% if with_snort is defined and with_snort %}
+{% if included_components.snort.enabled is defined and included_components.snort.enabled %}
 #----------------------------------------------------------------------------
 #                                SNORT
 #----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
   systemctl status snortd
 }
 {% endif %}
-{% if with_fsf is defined and with_fsf %}
+{% if included_components.fsf.enabled is defined and included_components.fsf.enabled %}
 #----------------------------------------------------------------------------
 ##                               FSF
 ##----------------------------------------------------------------------------
@@ -96,7 +96,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
 
 }
 {% endif %}
-{% if with_zookeeper is defined and with_zookeeper %}
+{% if included_components.zookeeper.enabled is defined and included_components.zookeeper.enabled %}
 #----------------------------------------------------------------------------
 #                               ZOOKEEPER
 #----------------------------------------------------------------------------
@@ -112,7 +112,7 @@ export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
   echo "" | ncat  ${ZOOKEEPER_HOST} ${ZOOKEEPER_PORT}
 }
 {% endif %}
-{% if with_kafka is defined and with_kafka %}
+{% if included_components.kafka.enabled is defined and included_components.kafka.enabled %}
 #----------------------------------------------------------------------------
 #                               KAFKA
 #----------------------------------------------------------------------------
