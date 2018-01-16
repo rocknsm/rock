@@ -10,6 +10,7 @@ all:
   children:
 
     sensors:
+
       hosts:
         rocksensor1.lan:
           ansible_hostname: rocksensor1.lan
@@ -19,13 +20,13 @@ all:
     servers:
 
       children:
-
-        primary-servers:
+        
+        master:
           hosts:
             rockserver1.lan:
               ansible_hostname: rockserver1.lan
               ansible_user: root
               ansible_connection: ssh
 
-        secondary-servers:
+        ingest:
           # currently nothing here

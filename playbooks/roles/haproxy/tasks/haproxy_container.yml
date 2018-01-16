@@ -34,15 +34,6 @@
     state: present
   when: rock_online_install
 
-- name: 'Install haproxy service file'
-  template:
-    src: 'haproxy.service.j2'
-    dest: '/etc/systemd/system/haproxy.service'
-    mode: 0644
-    owner: root
-    group: root
-  notify: reload systemd
-
 - name: 'Copy haproxy compose file'
   template:
     src: 'haproxy-compose.yml.j2'
@@ -80,7 +71,7 @@
 - name: 'Generate haproxy SSL keys'
   shell: |
     openssl genrsa -out {{ rocknsm_dir }}/CA/private/haproxy.key 2048
-    openssl req -config {{ rocknsm_dir }}/CA/openssl.cnf -key {{ rocknsm_dir }}/CA/private/haproxy.key -new -sha256 -out {{ rocknsm_dir }}/CA/csr/haproxy.csr -subj /CN=haproxy.lan
+    openssl req -config {{ rocknsm_dir }}/CA/openssl.cnf -key {{ rocknsm_dir }}/CA/private/haproxy.key -new -sha256 -out {{ rocknsm_dir }}/CA/csr/haproxy.csr -subj /CN={{ inventory_hostname }}
     openssl ca -batch -config {{ rocknsm_dir }}/CA/openssl.cnf -extensions server_cert -days 365 -notext -md sha256 -in {{ rocknsm_dir }}/CA/csr/haproxy.csr -out {{ rocknsm_dir }}/CA/certs/haproxy.crt
     cat {{ rocknsm_dir }}/CA/certs/haproxy.crt > {{ rocknsm_dir }}/CA/private/haproxy.pem
     cat {{ rocknsm_dir }}/CA/private/haproxy.key >> {{ rocknsm_dir }}/CA/private/haproxy.pem
@@ -94,11 +85,21 @@
     cat {{ rocknsm_dir }}/CA/private/{{ item }}.key >> {{ rocknsm_dir }}/CA/private/{{ item }}.pem
   with_items: "{{ groups['sensors'] }}"
 
-- name: 'Run haproxy-compose.yml'
-  docker_service:
-    project_src: "{{ rocknsm_dir }}/haproxy/"
-    files: 'haproxy-compose.yml'
-    state: present
+- name: 'Install haproxy service file'
+  template:
+    src: 'haproxy.service.j2'
+    dest: '/etc/systemd/system/haproxy.service'
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Link haproxy service file'
+  file:
+    src: '/etc/systemd/system/haproxy.service'
+    dest: '/etc/systemd/system/rock.target.wants/harproxy.service'
+    owner: root
+    group: root
+    state: link
 
 - name: 'Enable haproxy service'
   systemd:
@@ -106,5 +107,5 @@
     enabled: yes
     state: started
     daemon_reload: yes
-    
+
 ...

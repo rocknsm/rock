@@ -49,7 +49,22 @@
     path: "{{ logstash_log_dir }}"
     state: directory
 
-### setup Service
+- name: 'Install Logstash service file'
+  template:
+    src: 'logstash.service.j2'
+    dest: '/etc/systemd/system/logstash.service'
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Link Logstash service file'
+  file:
+    src: '/etc/systemd/system/logstash.service'
+    dest: '/etc/systemd/system/rock.target.wants/logstash.service'
+    owner: root
+    group: root
+    state: link
+
 - name: "Setup Logstash compose config"
   template:
     dest: "{{ rock_compose_files }}/logstash.compose.yml"
@@ -57,14 +72,6 @@
     mode: 0755
     owner: "{{ logstash_user }}"
     src: templates/logstash.compose.yml.j2
-
-- name: "Setup logstash service"
-  template:
-    dest: /etc/systemd/system/logstash.service
-    group: "{{ logstash_group }}"
-    mode: 0755
-    owner: root
-    src: templates/logstash.service.j2
 
 - name: "Enable and start Logstash"
   systemd:

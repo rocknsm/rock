@@ -14,6 +14,14 @@
     mode: 0644
     owner: root
     group: root
+
+- name: 'Link Portainer service file'
+  file:
+    src: '/etc/systemd/system/portainer.service'
+    dest: '/etc/systemd/system/rock.target.wants/portainer.service'
+    owner: root
+    group: root
+    state: link
   notify: reload systemd
 
 - name: 'Create new directories'
@@ -43,5 +51,5 @@
     enabled: yes
     state: started
     daemon_reload: yes
-    
+
 ...
