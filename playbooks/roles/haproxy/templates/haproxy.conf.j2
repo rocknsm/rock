@@ -60,10 +60,8 @@ backend elastic
   option log-health-checks
   option redispatch
   balance roundrobin
-{% for host in groups['servers'] %}
-{% if hostvars[host].included_components.elasticsearch.enabled %}
+{% for host in groups['primary-servers'] %}
   server {{ hostvars[host].rock_hostname }} {{ hostvars[host].rock_hostname }}:9200 check
-{% endif%}
 {% endfor %}
 
 backend kibana

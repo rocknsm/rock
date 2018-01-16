@@ -2,17 +2,17 @@
 ######### Configure the monitoring interface #########
 ######################################################
 ---
-#- pause:
-#    prompt: "Use interface: {{ item }} for monitoring? [y/n]"
-#  register: "res"
-#  with_items: "{{ rock_monifs }}"
-#
-#- name: "Parse interfaces"
-#  set_fact:
-#    rock_monifs: "{{ rock_monifs | difference(item.item) }}"
-#  when: item.user_input != 'y'
-#  with_items:
-#    - "{{ res.results }}"
+- pause:
+    prompt: "Use interface: {{ item }} for monitoring? [y/n]"
+  register: "res"
+  with_items: "{{ rock_monifs }}"
+
+- name: "Parse interfaces"
+  set_fact:
+    rock_monifs: "{{ rock_monifs | difference(item.item) }}"
+  when: item.user_input != 'y'
+  with_items:
+    - "{{ res.results }}"
 
 - name: "Set monitor interface config"
   template:

@@ -86,28 +86,29 @@
     state: started
     daemon-reload: yes
 
-- name: "Wait for Elasticsearch to become ready"
-  wait_for: "host=localhost port=9200"
-  when: (standalone is defined and standalone)  or (serverlocal is defined and serverlocal) or (sensorlocal is defined and sensorlocal)
+- name: "Restart haproxy service"
+  systemd:
+    name: haproxy
+    state: restarted
+  when: "'primary-servers' in group_names"
 
-- name: "Wait for Elasticsearch to become ready"
-  wait_for: "host={{ hostvars[item].inventory_hostname }} port=9200"
-  when: hostvars[item].included_components.haproxy.enabled and (standalone is not defined or not standalone) and (serverlocal is not defined or not serverlocal) and (sensorlocal is not defined or not sensorlocal)
-  with_items:
-    - "{{ groups['servers'] }}"
+# TODO: This will not work because this port is not exposed
+#- name: "Wait for Elasticsearch to become ready"
+#  wait_for: "host={{ inventory_hostname }} port=9200"
+#  when: "'primary-servers' in group_names"
 
-#- name: "Check for Bro mapping templates"
-#  failed_when: false
-#  register: bro_mapping
-#  uri:
-#    method: GET
-#    url: "http://localhost:9200/_template/bro_index"
-#  when: included_components.bro.enabled
+- name: "Check for Bro mapping templates"
+  uri:
+    method: GET
+    url: "http://{{ inventory_hostname }}:9200/_template/bro_index"
+  failed_when: false
+  register: bro_mapping
+  when: "'primary-servers' in group_names"
 
-#- name: "Load Bro Elasticsearch mapping templates"
-#  uri:
-#    body: "{{ lookup('file', 'es-bro-mappings.json')}}"
-#    body_format: json
-#    method: PUT
-#    url: "http://localhost:9200/_template/bro_index"
-#  when: "included_components.bro.enabled and bro_mapping.status == 404"
+- name: "Load Bro Elasticsearch mapping templates"
+  uri:
+    body: "{{ lookup('file', 'es-bro-mappings.json')}}"
+    body_format: json
+    method: PUT
+    url: "http://{{ inventory_hostname }}:9200/_template/bro_index"
+  when: "'primary-servers' in group_names and bro_mapping is defined and bro_mapping is defined and bro_mapping.status == '404'"

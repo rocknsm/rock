@@ -1,7 +1,7 @@
 [Unit]
  Description = Kafka Container Service
 
- Wants    = network.target
+ Wants    = network.target zookeeper.service
  Requires = docker.service
 
  [Service]
