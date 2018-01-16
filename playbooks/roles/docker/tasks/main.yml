@@ -12,14 +12,14 @@
     name: docker-ce
 
 # create directories to move Docker images into central storage location
-- file:
-    path: '{{ item }}'
+- name: "Create Docker directories"
+  file:
+    path: '/etc/systemd/system/docker.service.d'
     state: directory
-  with_items:
-    - '/etc/systemd/system/docker.service.d'
 
-# create file to overrun Docker startup to change default image location
-- file:
+# create file to override Docker startup to change default image location
+- name: Change default docker image location
+  file:
     path: '/etc/systemd/system/docker.service.d/docker.root.conf'
     state: touch
 
@@ -33,7 +33,8 @@
     state: 'installed'
 
 # Set Docker Virtual Memory
-- sysctl:
+- name: Change virtual memory for the host
+  sysctl:
     name: 'vm.max_map_count'
     value: '262144'
     sysctl_file: '/etc/sysctl.conf'

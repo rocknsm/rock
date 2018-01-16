@@ -92,9 +92,10 @@
     state: restarted
   when: "'primary-servers' in group_names"
 
-- name: "Wait for Elasticsearch to become ready"
-  wait_for: "host={{ inventory_hostname }} port=9200"
-  when: "'primary-servers' in group_names"
+# TODO: This will not work because this port is not exposed
+#- name: "Wait for Elasticsearch to become ready"
+#  wait_for: "host={{ inventory_hostname }} port=9200"
+#  when: "'primary-servers' in group_names"
 
 - name: "Check for Bro mapping templates"
   uri:
