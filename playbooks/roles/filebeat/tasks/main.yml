@@ -18,7 +18,6 @@
   template:
     dest: "{{ filebeat_config_location }}/filebeat.yml"
     src: filebeat.yml.j2
-  notify: "Restart Filebeat"
 
 - name: 'Install Filebeat service file'
   template:
@@ -29,7 +28,7 @@
     group: root
 
 - name: 'Enable Filebeat service'
-  service:
+  systemd:
     name: 'filebeat'
     enabled: yes
     state: started

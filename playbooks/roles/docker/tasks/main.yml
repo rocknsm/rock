@@ -52,14 +52,10 @@
     state: 'installed'
 
 - name: 'Start Docker'
-  service:
+  systemd:
     name: 'docker'
     state: 'started'
-
-- name: 'Enable Docker service'
-  service:
-    name: 'docker'
-    enabled: yes
+    enabled: 'yes'
 
 # Create Docker network connected to host for proxy
 - name: 'Create rocknsm_ouside network'

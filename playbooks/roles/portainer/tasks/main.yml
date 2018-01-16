@@ -8,13 +8,13 @@
     name: 'portainer/portainer'
 
 - name: 'Copy Portainer service file'
-  template: 
-    src: 'portainer.service.j2' 
-    dest: '/etc/systemd/system/portainer.service' 
-    mode: 0644 
-    owner: root 
+  template:
+    src: 'portainer.service.j2'
+    dest: '/etc/systemd/system/portainer.service'
+    mode: 0644
+    owner: root
     group: root
-  notify: reload systemd 
+  notify: reload systemd
 
 - name: 'Create new directories'
   file:
@@ -31,15 +31,17 @@
     owner: root
     group: root
 
-- name: 'Run portainer-compose.yml' 
-  docker_service: 
-    project_src: "{{ rocknsm_dir }}/portainer/" 
-    files: 'portainer-compose.yml' 
-    state: present 
+- name: 'Run portainer-compose.yml'
+  docker_service:
+    project_src: "{{ rocknsm_dir }}/portainer/"
+    files: 'portainer-compose.yml'
+    state: present
 
 - name: 'Enable Portainer service'
-  service: 
+  systemd:
     name: 'portainer'
     enabled: yes
+    state: started
+    daemon_reload: yes
+    
 ...
-

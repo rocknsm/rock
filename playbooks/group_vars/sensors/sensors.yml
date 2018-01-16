@@ -1,0 +1,17 @@
+---
+  
+# Sensor install variables
+
+bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
+pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
+bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
+pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
+zookeeper_container_name: rock-zookeeper
+
+#### Retention Configuration ####
+kafka_retention: 168
+suricata_retention: 3
+bro_log_retention: 0
+bro_stats_retention: 0
+
+...
