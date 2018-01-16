@@ -11,7 +11,7 @@ services:
     volumes:
       - "{{ rocknsm_dir }}/kibana/data:/data"
     environment:
-      - ELASTICSEARCH_URL="https://{{ inventory_hostname }}"
+      - ELASTICSEARCH_URL="http://{{ rock_hostname }}:9200"
       - SERVER_HOST="{{ kibana_ip }}"
       - SERVER_PORT="{{ kibana_port }}"
       - SERVER_BASEPATH="/kibana"
