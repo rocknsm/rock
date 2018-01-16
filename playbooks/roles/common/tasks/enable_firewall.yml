@@ -7,9 +7,9 @@
   yum:
     name: firewalld
     state: installed
-    
+
 - name: Enable and start firewalld
-  service:
+  systemd:
     name: firewalld
     enabled: yes
     state: started

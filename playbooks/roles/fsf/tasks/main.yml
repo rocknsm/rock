@@ -7,7 +7,7 @@
   yum:
     name: fsf
     state: installed
-    
+
 - name: Create FSF data dir
   file:
     path: "{{ fsf_data_dir }}"
@@ -49,7 +49,8 @@
     mode: 0644
 
 - name: Enable and start FSF
-  service:
+  systemd:
     name: fsf
     enabled: yes
     state: started
+    daemon_reload: yes

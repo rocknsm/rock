@@ -30,7 +30,7 @@
   file:
     path: /etc/sysconfig/suricata
     state: absent
- 
+
 - name: Install suricata service files
   copy:
     src: "suricata.service"
@@ -38,7 +38,7 @@
     mode: 0644
     owner: root
     group: root
- 
+
 - name: Install suricata overrides
   template:
     src: templates/suricata_overrides.yaml.j2
@@ -61,11 +61,19 @@
     line: "import_tasks: rocknsm-overrides.yaml"
     state: present
 
+- name: Configure Suricata /var directory permissions
+  file:
+    path: /var/run/suricata
+    owner: suricata
+    group: suricata
+    mode: 755
+
 - name: Enable and start suricata
-  service:
+  systemd:
     name: suricata
     enabled: yes
     state: started
+    daemon_reload: yes
 
 - name: Configure logrotate for suricata logs
   template:

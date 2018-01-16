@@ -1,0 +1,37 @@
+######################################################
+################### Setup Filebeat ###################
+######################################################
+
+---
+
+- name: 'Download Filebeat container'
+  docker_image:
+    name: "{{ filebeat_image }}:{{ filebeat_ver }}"
+
+- name: 'Create filebeat directory'
+  file:
+    path: "{{ filebeat_config_location }}"
+    state: directory
+    mode: 0644
+
+- name: "Add Filebeat configuration file"
+  template:
+    dest: "{{ filebeat_config_location }}/filebeat.yml"
+    src: filebeat.yml.j2
+
+- name: 'Install Filebeat service file'
+  template:
+    src: 'filebeat.service.j2'
+    dest: '/etc/systemd/system/filebeat.service'
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Enable Filebeat service'
+  systemd:
+    name: 'filebeat'
+    enabled: yes
+    state: started
+    daemon_reload: yes
+
+...
