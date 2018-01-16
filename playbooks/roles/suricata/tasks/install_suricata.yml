@@ -39,6 +39,14 @@
     owner: root
     group: root
 
+- name: 'Link suricata service files'
+  file:
+    src: "/etc/systemd/system/suricata.service"
+    dest: "/etc/systemd/system/rock.target.wants/suricata.service"
+    owner: root
+    group: root
+    state: link
+
 - name: Install suricata overrides
   template:
     src: templates/suricata_overrides.yaml.j2

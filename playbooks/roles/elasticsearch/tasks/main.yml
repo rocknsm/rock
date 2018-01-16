@@ -73,11 +73,19 @@
 
 - name: "Setup elasticsearch service"
   template:
-    dest: /lib/systemd/system/elasticsearch.service
+    dest: /etc/systemd/system/elasticsearch.service
     group: "{{ es_group }}"
     mode: 755
     owner: root
     src: templates/elasticsearch.service.j2
+
+- name: "Link elasticsearch service"
+  file:
+    src: "/etc/systemd/system/elasticsearch.service"
+    dest: "/etc/systemd/system/rock.target.wants/elasticsearch.service"
+    group: "{{ es_group }}"
+    owner: "root"
+    state: link
 
 - name: "Enable and start Elasticsearch"
   systemd:
@@ -90,12 +98,12 @@
   systemd:
     name: haproxy
     state: restarted
-  when: "'primary-servers' in group_names"
+  when: "'master' in group_names"
 
 # TODO: This will not work because this port is not exposed
-#- name: "Wait for Elasticsearch to become ready"
-#  wait_for: "host={{ inventory_hostname }} port=9200"
-#  when: "'primary-servers' in group_names"
+- name: "Wait for Elasticsearch to become ready"
+  wait_for: "host={{ inventory_hostname }} port=9200"
+  when: "'master' in group_names"
 
 - name: "Check for Bro mapping templates"
   uri:
@@ -103,7 +111,7 @@
     url: "http://{{ inventory_hostname }}:9200/_template/bro_index"
   failed_when: false
   register: bro_mapping
-  when: "'primary-servers' in group_names"
+  when: "'master' in group_names"
 
 - name: "Load Bro Elasticsearch mapping templates"
   uri:
@@ -111,4 +119,4 @@
     body_format: json
     method: PUT
     url: "http://{{ inventory_hostname }}:9200/_template/bro_index"
-  when: "'primary-servers' in group_names and bro_mapping is defined and bro_mapping is defined and bro_mapping.status == '404'"
+  when: "'master' in group_names and bro_mapping is defined and bro_mapping.status == '404'"

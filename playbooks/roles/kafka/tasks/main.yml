@@ -38,6 +38,14 @@
     owner: root
     group: root
 
+- name: 'Link Kafka service file'
+  file:
+    src: '/etc/systemd/system/kafka.service'
+    dest: '/etc/systemd/system/rock.target.wants/kafka.service'
+    owner: root
+    group: root
+    state: link
+
 - name: 'Copy Kafka dockerfile'
   template:
     src: 'kafka-dockerfile.j2'

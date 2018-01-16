@@ -1,4 +1,5 @@
 ---
-dependencies: 
-  - { role: docker }
+dependencies:
+  - common
+  - docker
 ...

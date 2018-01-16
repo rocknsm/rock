@@ -27,6 +27,14 @@
     owner: root
     group: root
 
+- name: 'Link Filebeat service file'
+  file:
+    src: '/etc/systemd/system/filebeat.service'
+    dest: '/etc/systemd/system/rock.target.wants/filebeat.service'
+    owner: root
+    group: root
+    state: link
+
 - name: 'Enable Filebeat service'
   systemd:
     name: 'filebeat'
