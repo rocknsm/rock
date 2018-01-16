@@ -101,7 +101,10 @@
     state: present
 
 - name: 'Enable haproxy service'
-  service:
+  systemd:
     name: 'haproxy'
     enabled: yes
+    state: started
+    daemon_reload: yes
+    
 ...

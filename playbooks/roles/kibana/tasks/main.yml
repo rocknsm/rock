@@ -39,8 +39,10 @@
     state: present
 
 - name: 'Enable Kibana service'
-  service:
+  systemd:
     name: 'kibana'
     enabled: yes
+    state: started
+    daemon_reload: yes
 
 ...

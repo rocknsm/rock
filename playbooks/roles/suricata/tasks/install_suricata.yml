@@ -69,10 +69,11 @@
     mode: 755
 
 - name: Enable and start suricata
-  service:
+  systemd:
     name: suricata
     enabled: yes
     state: started
+    daemon_reload: yes
 
 - name: Configure logrotate for suricata logs
   template:
