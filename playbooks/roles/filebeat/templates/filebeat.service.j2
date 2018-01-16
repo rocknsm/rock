@@ -1,0 +1,17 @@
+[Unit]
+Description = Docker Service Module
+
+Wants    = network.target
+Requires = docker.service
+
+[Service]
+Type = simple
+
+ExecStart = /usr/bin/docker run --name {{ filebeat_container_name }} -v {{ filebeat_config_location }}/filebeat.yml:/usr/share/filebeat/filebeat.yml {{ filebeat_image }}:{{ filebeat_ver }}
+ExecStop  = /usr/bin/docker rm -f {{ filebeat_container_name }}
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy = multi-user.target

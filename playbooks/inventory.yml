@@ -7,145 +7,25 @@
 
 all:
 
-  hosts:
-    simplerockbuild.simplerock.lan:
-      ansible_hostname: simplerockbuild.simplerock.lan
-      ansible_user: root
-      ansible_connection: local
-
-  vars:
-
-    #Common role variables
-    common_mgnt_nets: "{{ rock_mgmt_nets }}"
-
-    local_host_name: simplerockbuild.simplerock.lan
-    rock_version: 3.0
-    rock_online_install: true
-    rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
-    rock_data_dir: /data
-    rocknsm_dir: /opt/rocknsm
-    rock_data_user: root
-    rock_data_group: root
-    rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface | default('lo') ])| list }}"
-    rock_hostname: '{{ inventory_hostname_short }}'
-    rock_fqdn: '{{ inventory_hostname }}'
-    rock_mgmt_nets: [ "0.0.0.0/0" ]
-    rock_cache_dir: /srv/rocknsm/support
-    #rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
-    #rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
-    rocknsm_baseurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/'
-    rocknsm_gpgurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg'
-    rocknsm_local_baseurl: file:///srv/rocknsm
-    rock_compose_files: "{{ rocknsm_dir + '/compose_files' }}"
-
-    #### Docker configuration variables ####
-    # Install services with Docker whenever possible vs installing on bare metal.
-    containerized_install: true
-
-    #### Elasticstack x-pack options ####
-    # If you have licensing for x-pack set variable to true.
-    xpack_license: 'false'
-
-    # Feature options - Don't flip these unless you know what you're doing
-    # These control if the service is installed
-    included_components:
-      bro:
-        enabled: true
-      docker:
-        enabled: true
-      docket:
-        enabled: true
-      elasticsearch:
-        enabled: true
-      elk:
-        enabled: false
-      filebeats:
-        enabled: false
-      fsf:
-        enabled: true
-      haproxy:
-        enabled: true
-      harbor:
-        enabled: false
-      kafka:
-        enabled: true
-      kibana:
-        enabled: true
-      logstash:
-        enabled: false
-      portainer:
-        enabled: true
-      pulledpork:
-        enabled: true
-      snort:
-        enabled: false
-      stenographer:
-        enabled: true
-      suricata:
-        enabled: true
-      zookeeper:
-        enabled: true
-
-    rocknsm_package_list:
-      - java-1.8.0-openjdk-headless
-      - jq
-      - GeoIP
-      - GeoIP-update
-      - tcpreplay
-      - tcpdump
-      - bats
-      - policycoreutils-python
-      - htop
-      - vim
-      - git
-      - tmux
-      - nmap-ncat
-      - logrotate
-      - perl-LWP-Protocol-https
-      - perl-Sys-Syslog
-      - perl-Crypt-SSLeay
-      - perl-Archive-Tar
-      - easy-rsa
-
-    epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
-    epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
-
   children:
 
     sensors:
-      # TODO: We will need these for the multinode install
       hosts:
         rocksensor1.lan:
           ansible_hostname: rocksensor1.lan
           ansible_user: root
           ansible_connection: ssh
 
-      vars:
-        bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
-        pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
-        bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
-        pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
-
-        #### Retention Configuration ####
-        kafka_retention: 168
-        suricata_retention: 3
-        bro_log_retention: 0
-        bro_stats_retention: 0
-
     servers:
-      # TODO: We will need these for the multinode install
-      hosts:
-        rockserver1.lan:
-          ansible_hostname: rockserver1.lan
-          ansible_connection: ssh
 
-      vars:
-        es_cluster_name: rocknsm
-        es_node_name: "{{ rock_hostname }}"
-        es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
-        elastic_baseurl: https://artifacts.elastic.co/packages/5.x/yum
-        elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+      children:
 
-        #### Retention Configuration ####
-        elastic_close_interval: 15
-        elastic_delete_interval: 60
+        primary-servers:
+          hosts:
+            rockserver1.lan:
+              ansible_hostname: rockserver1.lan
+              ansible_user: root
+              ansible_connection: ssh
+
+        secondary-servers:
+          # currently nothing here

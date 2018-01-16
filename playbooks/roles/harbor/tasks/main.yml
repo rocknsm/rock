@@ -57,9 +57,11 @@
     mode: 0644
 
 - name: 'Enable harbor service'
-  service:
+  systemd:
     name: 'harbor'
     enabled: yes
+    state: started
+    daemon_reload: yes
 
 - name: 'Copy images script'
   copy:
