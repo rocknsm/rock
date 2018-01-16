@@ -80,14 +80,11 @@
     src: templates/elasticsearch.service.j2
 
 - name: "Enable and start Elasticsearch"
-  service:
+  systemd:
     enabled: yes
     name: elasticsearch
     state: started
     daemon-reload: yes
-  # TODO: This needs to be updated
-  #notify:
-  #  - "es maintenance"
 
 - name: "Wait for Elasticsearch to become ready"
   wait_for: "host=localhost port=9200"

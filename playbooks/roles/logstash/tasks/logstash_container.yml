@@ -27,7 +27,7 @@
 
 - name: "Create Logstash data directory"
   file:
-    group: 1000 
+    group: 1000
     mode: u+rw,g+rw
     owner: 1000
     path: "{{ logstash_data_dir }}"
@@ -67,7 +67,7 @@
     src: templates/logstash.service.j2
 
 - name: "Enable and start Logstash"
-  service:
+  systemd:
     enabled: yes
     name: logstash
     state: started
