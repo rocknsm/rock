@@ -86,6 +86,10 @@
     state: started
     daemon-reload: yes
 
+- name: 'Wait for Kafka service to start'
+  pause:
+    seconds: 20
+
 # TODO: Need to add a dependency on zookeeper
 - name: create kafka bro topic
   command: >
