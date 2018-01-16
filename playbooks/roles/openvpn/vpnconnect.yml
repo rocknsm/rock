@@ -9,7 +9,7 @@
 
   # Create a blank file
   - name: Creates a blank file to place OpenVPN config
-    file: path="{{ remote_file_path }}" state=touch owner=root group=root mode=0644    
+    file: path="{{ remote_file_path }}" state=touch owner=root group=root mode=0644
 
   # Sets remote path
   - stat: path="{{ remote_file_path }}"

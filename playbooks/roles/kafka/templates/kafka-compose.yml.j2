@@ -1,0 +1,19 @@
+---
+
+version: '2'
+services:
+  kafka:
+    image: rocknsm/kafka
+    container_name: {{ kafka_container_name }}
+    ports:
+      - {{ kafka_port }}:{{ kafka_port }}
+    volumes:
+      - {{ kafka_data_dir }}:/tmp/kafka-logs
+      - {{ kafka_dir }}/server.properties:{{ kafka_install_dir }}/config/server.properties
+
+networks:
+  default:
+    external:
+      name: 'rocknsm_inside'
+
+...

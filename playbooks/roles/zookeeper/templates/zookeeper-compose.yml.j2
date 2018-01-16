@@ -1,0 +1,19 @@
+---
+
+version: '2'
+services:
+  zookeeper:
+    image: {{ zookeeper_container }}:{{ zookeeper_ver }}
+    container_name: {{ zookeeper_container_name }}
+    ports:
+      - {{ zookeeper_port }}:{{ zookeeper_port }}
+    volumes:
+      - {{ zookeeper_data_dir }}:/data
+      - {{ zookeeper_dir }}/zoo.cfg:/conf/zoo.cfg
+
+networks:
+  default:
+    external:
+      name: 'rocknsm_inside'
+
+...

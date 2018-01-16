@@ -1,0 +1,18 @@
+# The main difference between primary and secondary servers is that the primary
+# server will run things like portainer and harbor. The secondary servers are
+# only there to provide extra elasticsearch computing power.
+
+---
+
+- hosts: primary-servers
+  roles:
+    - common
+    - docker
+    - elasticsearch
+    - logstash
+    - kibana
+    - haproxy
+    - portainer
+
+    # Harbor must run last so that it uploads all containers installed on the machine.
+    - harbor
