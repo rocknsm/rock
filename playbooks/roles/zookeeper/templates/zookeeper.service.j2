@@ -1,8 +1,8 @@
 [Unit]
  Description = Zookeeper Container Service
 
- Wants    = network.target
- Requires = docker.service kafka.service
+ Wants    = network.target kafka.service
+ Requires = docker.service
 
  [Service]
  Type = simple
