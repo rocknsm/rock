@@ -141,13 +141,13 @@
     creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
     remote_src: yes
 
-- name: Symlink offline ROCK bro scripts
-  file:
-    src: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
-    dest: "{{ bro_site_dir }}/scripts/rock"
-    state: link
-    force: yes
-  when: not rock_online_install
+#- name: Symlink offline ROCK bro scripts
+#  file:
+#    src: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+#    dest: "{{ bro_site_dir }}/scripts/rock"
+#    state: link
+#    force: yes
+#  when: not rock_online_install
 
 - name: Update owner for ROCK NSM Bro scripts
   file:
