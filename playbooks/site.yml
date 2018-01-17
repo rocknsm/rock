@@ -20,11 +20,10 @@
 # add it back in for roles which apply to your servers or anything requiring
 # the gathered facts will fail.
 # WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-- hosts: common
   roles:
     - common
 
-- hosts: sensor-common
+- hosts: sensors
   roles:
     - sensor-common
   gather_facts: no
