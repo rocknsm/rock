@@ -3,6 +3,9 @@
 #######################################################
 ---
 
+- debug:
+    msg: "{{ rock_monifs }}"
+
 - name: Install Bro package
   yum:
     name: bro
@@ -17,7 +20,6 @@
   yum:
     name: bro-plugin-kafka
     state: installed
-  when: included_components.kafka.enabled
 
 - name: Create bro group
   group:
@@ -141,7 +143,6 @@
     group: root
     creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
     remote_src: yes
-  when: included_components.bro.enabled and not rock_online_install
 
 - name: Symlink offline ROCK bro scripts
   file:
@@ -179,7 +180,6 @@
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/kafka"
     state: present
-  when: included_components.bro.enabled and included_components.kafka.enabled
 
 - name: Enable the SMB Analyzer in local.bro
   lineinfile:
@@ -237,9 +237,9 @@
   become_user: "{{ bro_user }}"
 
 - name: Enable and start broctl
-  service:
+  systemd:
     name: bro
     enabled: true
     #This set of variables not yet implemented in this version
     #enabled: "{{ enable_bro }}"
-  notify: reload bro
+    daemon_reload: yes
