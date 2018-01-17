@@ -65,6 +65,10 @@ all:
       children:
         sensors:
 
+    harbor:
+      children:
+        master-servers:
+
     # Broad categories for convienience
     sensors:
 
