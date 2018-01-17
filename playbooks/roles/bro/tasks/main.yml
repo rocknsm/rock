@@ -243,14 +243,3 @@
     #This set of variables not yet implemented in this version
     #enabled: "{{ enable_bro }}"
   notify: reload bro
-
-# THIS WAS COMMENTED OUT BY DCODE
-# - name: Create bro utility symlinks
-#   file:
-#     src: "/opt/bro/bin/{{ item.src }}"
-#     dest: "/usr/bin/{{ item.dest }}"
-#     force: yes
-#     state: link
-#   with_items:
-#     - { src: 'bro', dest: 'bro' }
-#     - { src: 'bro-cut', dest: 'bro-cut' }
