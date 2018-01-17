@@ -7,8 +7,8 @@ Requires = docker.service
 [Service]
 Type = simple
 
-ExecStart = /usr/bin/docker run --name {{ filebeat_container_name }} -v {{ filebeat_config_location }}/filebeat.yml:/usr/share/filebeat/filebeat.yml {{ filebeat_image }}:{{ filebeat_ver }}
-ExecStop  = /usr/bin/docker rm -f {{ filebeat_container_name }}
+ExecStart = /usr/bin/docker-compose -f {{ rock_compose_files }}/filebeat-compose.yml.j2 up
+ExecStop  = /usr/bin/docker-compose -f {{ rock_compose_files }}/filebeat-compose.yml.j2 down
 
 Restart=always
 RestartSec=3

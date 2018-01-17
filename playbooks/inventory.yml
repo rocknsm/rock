@@ -9,7 +9,65 @@ all:
 
   children:
 
+    # Role specific breakout
+
+    common:
+      children:
+        sensors:
+        servers:
+
+    sensor-common:
+      children:
+        sensors:
+
+    bro:
+      children:
+        sensors:
+
+    docker:
+      children:
+        sensors:
+        servers:
+
+    kibana:
+      children:
+        servers:
+
+    portainer:
+      children:
+        master-servers:
+
+    haproxy:
+      children:
+        master-servers:
+
+    elasticsearch:
+      children:
+        servers:
+
+    logstash:
+      children:
+        servers:
+
+    suricata:
+      children:
+        sensors:
+
+    filebeat:
+      children:
+        sensors:
+
+    zookeeper:
+      children:
+        sensors:
+
+    kafka:
+      children:
+        sensors:
+
+    # Broad categories for convienience
     sensors:
+
       hosts:
         rocksensor1.lan:
           ansible_hostname: rocksensor1.lan
@@ -20,12 +78,12 @@ all:
 
       children:
 
-        primary-servers:
+        master-servers:
           hosts:
             rockserver1.lan:
               ansible_hostname: rockserver1.lan
               ansible_user: root
               ansible_connection: ssh
 
-        secondary-servers:
+        ingest:
           # currently nothing here

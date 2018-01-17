@@ -5,7 +5,6 @@
 # We follow the guidance to include naming conventions there.
 
 ---
-
 - hosts: all
 
   tasks:
@@ -15,7 +14,94 @@
   #- name: Dump all vars
   #  action: template src=templates/dumpall.j2 dest=/tmp/ansible-site.all
 
-- import_playbook: primary-servers.yml
-- import_playbook: sensors.yml
-- import_playbook: secondary_servers.yml
-- import_playbook: configure_services.yml
+# WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+# This should include all hosts and therefore is the only task on which gather_facts
+# will run. If for whatever reason you don't include the common role you MUST
+# add it back in for roles which apply to your servers or anything requiring
+# the gathered facts will fail.
+# WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+- hosts: common
+  roles:
+    - common
+
+- hosts: sensor-common
+  roles:
+    - sensor-common
+  gather_facts: no
+
+- hosts: docker
+  roles:
+    - docker
+  gather_facts: no
+
+# kibana and portainer must come before haproxy as haproxy cannot run without
+# being able to contact at least one of each backend servers (1 kibana, 1 portainer,
+# 1 elasticsearch)
+- hosts: kibana
+  roles:
+    - kibana
+  gather_facts: no
+
+- hosts: portainer
+  roles:
+    - portainer
+  gather_facts: no
+
+# haproxy must come before elasticsearch. The host running ansible will not
+# beable to contact elasticsearch without haproxy running, this is required
+# for elasticsearch's main tasks to complete. Adding haproxy to elasticsearch's
+# dependencies is not an option due to ansible installing haproxy on every host
+# that elasticsearch is assigned to.
+- hosts: haproxy
+  roles:
+    - haproxy
+  gather_facts: no
+
+- hosts: elasticsearch
+  roles:
+    - elasticsearch
+  gather_facts: no
+
+- hosts: logstash
+  roles:
+    - logstash
+  gather_facts: no
+
+- hosts: sensors
+  roles:
+    - sensor-common
+  gather_facts: no
+
+- hosts: bro
+  roles:
+    - bro
+  gather_facts: no
+
+- hosts: suricata
+  roles:
+    - suricata
+  gather_facts: no
+
+- hosts: filebeat
+  roles:
+    - filebeat
+  gather_facts: no
+
+- hosts: zookeeper
+  roles:
+    - zookeeper
+  gather_facts: no
+
+- hosts: kafka
+  roles:
+    - kafka
+  gather_facts: no
+
+# Harbor must run last so that it uploads all containers installed on the machine.
+# Harbor has compose file issue, disabling for now
+- hosts: harbor
+  roles:
+    - harbor
+  gather_facts: no
+
+...

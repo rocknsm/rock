@@ -9,13 +9,20 @@
   when: rock_online_install
 
 - name: 'Install Kibana service file'
-  template: 
-    src: 'kibana.service.j2' 
-    dest: '/etc/systemd/system/kibana.service' 
-    mode: 0644 
-    owner: root 
+  template:
+    src: 'kibana.service.j2'
+    dest: '/etc/systemd/system/kibana.service'
+    mode: 0644
+    owner: root
     group: root
-  notify: reload systemd 
+
+- name: 'Link Kibana service file'
+  file:
+    src: '/etc/systemd/system/kibana.service'
+    dest: '/etc/systemd/system/rock.target.wants/kibana.service'
+    owner: root
+    group: root
+    state: link
 
 - name: 'Create new directories'
   file:
@@ -32,15 +39,10 @@
     owner: root
     group: root
 
-- name: 'Run kibana-compose.yml' 
-  docker_service: 
-    project_src: "{{ rocknsm_dir }}/kibana/" 
-    files: 'kibana-compose.yml' 
-    state: present 
-
 - name: 'Enable Kibana service'
-  service: 
+  service:
     name: 'kibana'
     enabled: yes
+    state: started
+    daemon_reload: yes
 ...
-

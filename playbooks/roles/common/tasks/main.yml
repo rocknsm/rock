@@ -17,6 +17,41 @@
     owner: root
     group: root
 
+- name: 'Render rock_start template'
+  template:
+    backup: yes
+    src: rock.target.j2
+    dest: /etc/systemd/system/rock.target
+    owner: root
+    group: root
+    mode: 0644
+
+- name: 'Create rock.target.wants'
+  file:
+    path: /etc/systemd/system/rock.target.wants
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: 'Check default runlevel'
+  command: systemctl get-default
+  register: runlevel
+
+- name: 'Change default runlevel'
+  command: systemctl set-default rock.target
+  when: runlevel.stdout != "rock.target"
+
+- name: 'Check current runlevel'
+  command: systemctl is-active rock.target
+  register: runlevel_active
+  failed_when: runlevel_active.rc != 3
+  ignore_errors: yes
+
+- name: 'Switch to rock.target'
+  command: systemctl isolate rock.target
+  when: runlevel_active.stdout != "active"
+
 - name: Install rock_status script
   template:
     src: rock_status.j2

@@ -1,14 +1,14 @@
 #=========================== Filebeat prospectors =============================
 
 filebeat.prospectors:
-- input_type: log
+- type: log
   paths:
-    - {{ rock_data_dir }}/suricata/eve.json
+    - /var/log/suricata/eve.json
   json.keys_under_root: true
   fields:
     kafka_topic: suricata-raw
   fields_under_root: true
-- input_type: log
+- type: log
   paths:
     - {{ rock_data_dir }}/fsf/rockout.log
   json.keys_under_root: true
@@ -42,7 +42,10 @@ processors:
 # Multiple outputs may be used.
 
 output.kafka:
-  hosts: ["localhost:9092"]
+  hosts: ["rock-kafka:9092"]
+
+  # Need this line to enable event timestamps
+  version: 0.10
 
   topic: '%{[kafka_topic]}'
   required_acks: 1
