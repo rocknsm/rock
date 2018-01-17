@@ -106,12 +106,12 @@
   systemd:
     name: haproxy
     state: restarted
-  when: "'master' in group_names"
+  when: "'master-servers' in group_names"
 
 # TODO: This will not work because this port is not exposed
 - name: "Wait for Elasticsearch to become ready"
   wait_for: "host={{ inventory_hostname }} port=9200"
-  when: "'master' in group_names"
+  when: "'master-servers' in group_names"
 
 - name: "Check for Bro mapping templates"
   uri:
@@ -119,7 +119,7 @@
     url: "http://{{ inventory_hostname }}:9200/_template/bro_index"
   failed_when: false
   register: bro_mapping
-  when: "'master' in group_names"
+  when: "'master-servers' in group_names"
 
 - name: "Load Bro Elasticsearch mapping templates"
   uri:
@@ -127,4 +127,4 @@
     body_format: json
     method: PUT
     url: "http://{{ inventory_hostname }}:9200/_template/bro_index"
-  when: "'master' in group_names and bro_mapping is defined and bro_mapping.status == '404'"
+  when: "'master-servers' in group_names and bro_mapping is defined and bro_mapping.status == '404'"
