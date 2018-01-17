@@ -27,25 +27,25 @@
 
 - name: "Create Logstash data directory"
   file:
-    group: "{{ logstash_group }}"
+    group: 1000
     mode: u+rw,g+rw
-    owner: "{{ logstash_user }}"
+    owner: 1000
     path: "{{ logstash_data_dir }}"
     state: directory
 
 - name: "Create Logstash configuration directory"
   file:
-    group: "{{ logstash_group }}"
+    group: 1000
     mode: u+rw,g+rw
-    owner: "{{ logstash_user }}"
+    owner: 1000
     path: "{{ logstash_pipeline_dir }}"
     state: directory
 
 - name: "Create Logstash log directory"
   file:
-    group: "{{ logstash_group }}"
+    group: 1000
     mode: u+rw,g+rw
-    owner: "{{ logstash_user }}"
+    owner: 1000
     path: "{{ logstash_log_dir }}"
     state: directory
 
