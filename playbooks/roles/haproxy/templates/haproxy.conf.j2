@@ -11,6 +11,7 @@ defaults
   timeout connect 5s
   timeout client 50s
   timeout server 50s
+  default-server init-addr libc,none
 
 listen stats
   bind localhost:8080
@@ -26,12 +27,12 @@ frontend portainer_frontend
 
 frontend elastic_frontend
   bind *:9200
-  mode tcp
   option tcplog
   default_backend elastic
 
 frontend http_frontend
   bind *:80
+  redirect scheme https code 301 if !{ ssl_fc }
   acl haproxy path_beg -i /haproxy
   acl elastic path_beg -i /api
   acl kibana path_beg -i /kibana
@@ -51,7 +52,6 @@ frontend https_frontend
   default_backend kibana
 
 backend haproxy
-  redirect scheme https code 301 if !{ ssl_fc }
   reqrep ^([^\ :]*)\ /haproxy/(.*) \1\ /\2
   reqrep ^([^\ :]*)\ /haproxy(.*) \1\ /\2
   server haproxy1 localhost:8080
@@ -60,18 +60,16 @@ backend elastic
   option log-health-checks
   option redispatch
   balance roundrobin
-{% for host in groups['primary-servers'] %}
+{% for host in groups['ingest'] %}
   server {{ hostvars[host].rock_hostname }} {{ hostvars[host].rock_hostname }}:9200 check
 {% endfor %}
 
 backend kibana
   option redispatch
-  redirect scheme https code 301 if !{ ssl_fc }
   reqrep ^([^\ :]*)\ /kibana/(.*) \1\ /\2
   reqrep ^([^\ :]*)\ /kibana(.*) \1\ /\2
   server kibana1 kibana:5601
 
 backend portainer
   option redispatch
-  redirect scheme https code 301 if !{ ssl_fc }
   server portainer1 portainer:9000

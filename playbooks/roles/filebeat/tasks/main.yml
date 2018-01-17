@@ -12,7 +12,7 @@
   file:
     path: "{{ filebeat_config_location }}"
     state: directory
-    mode: 0644
+    mode: 0754
 
 - name: "Add Filebeat configuration file"
   template:
@@ -23,6 +23,14 @@
   template:
     src: 'filebeat.service.j2'
     dest: '/etc/systemd/system/filebeat.service'
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Copy Filebeat compose file'
+  template:
+    src: 'filebeat-compose.yml.j2'
+    dest: "{{ rock_compose_files }}/filebeat-compose.yml.j2"
     mode: 0644
     owner: root
     group: root

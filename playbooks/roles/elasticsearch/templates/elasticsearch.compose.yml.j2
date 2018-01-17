@@ -13,6 +13,7 @@ services:
     volumes:
       - "{{ es_data_dir }}:/usr/share/elasticsearch/data/"
       - "{{ es_config_dir}}/jvm.options:{{ es_config_dir }}/jvm.options"
+      - "{{ es_log_dir }}:/usr/share/elasticsearch/logs/"
     environment:
       - cluster.name={{ es_cluster_name }}
       - node.name={{ es_node_name }}
