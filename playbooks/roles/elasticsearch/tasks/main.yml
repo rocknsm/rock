@@ -9,29 +9,37 @@
 
 - name: Create elasticsearch group
   group:
-    name: elasticsearch
+    name: "{{ es_group }}"
     state: present
 
 - name: Add Elasticsearch user
   user:
-    name: elasticsearch
+    name: "{{ es_user }}"
     comment: "User for managing elasticsearch related things"
-    group: elasticsearch
+    group: "{{ es_group }}"
 
 - name: "Create Elasticsearch directory"
   file:
-    group: 1000
+    group: "{{ es_group }}"
     mode: u+rw,g+rw
-    owner: 1000
+    owner: "{{ es_user }}"
     path: "{{ es_data_dir }}"
     state: directory
 
 - name: "Create Elasticsearch configuration directory"
   file:
-    group: 1000
+    group: "{{ es_group }}"
     mode: u+rw,g+rw
-    owner: 1000
+    owner: "{{ es_user }}"
     path: "{{ es_config_dir }}"
+    state: directory
+
+- name: "Create Elasticsearch log directory"
+  file:
+    group: "{{ es_group }}"
+    mode: u+rw,g+rw
+    owner: "{{ es_user }}"
+    path: "{{ es_log_dir }}"
     state: directory
 
   #chown -R 1000:1000 /data/elasticsearch/

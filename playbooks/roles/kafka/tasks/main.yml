@@ -99,6 +99,8 @@
     seconds: 20
 
 # TODO: Need to add a dependency on zookeeper
+# A handy way for debugging whether filebeats is actually getting info in here is:
+# docker exec -it rock-kafka /opt/kafka/bin/kafka-topics.sh --zookeeper rock-zookeeper:2181 --describe --topic suricata-raw
 - name: create kafka bro topic
   command: >
     docker exec {{ kafka_container_name }} /opt/kafka/bin/kafka-topics.sh
