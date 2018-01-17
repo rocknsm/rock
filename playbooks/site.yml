@@ -66,11 +66,6 @@
     - logstash
   gather_facts: no
 
-- hosts: sensors
-  roles:
-    - sensor-common
-  gather_facts: no
-
 - hosts: bro
   roles:
     - bro

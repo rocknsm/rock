@@ -3,9 +3,6 @@
 #######################################################
 ---
 
-- debug:
-    msg: "{{ rock_monifs }}"
-
 - name: Install Bro package
   yum:
     name: bro
