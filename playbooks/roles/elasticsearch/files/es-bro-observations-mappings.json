@@ -1,0 +1,22 @@
+{
+  "index_patterns": "bro-observations*",
+  "mappings": {
+    "observations": {
+      "properties": {
+        "software": {
+          "properties": {
+            "unparsed_version": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

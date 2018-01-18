@@ -101,22 +101,76 @@
   when: "'primary-servers' in group_names"
 
 # TODO: This will not work because this port is not exposed
-#- name: "Wait for Elasticsearch to become ready"
-#  wait_for: "host={{ inventory_hostname }} port=9200"
+- name: "Wait for Elasticsearch to become ready"
+  pause:
+    seconds: 60
+#- name: "Check for Bro base mapping template"
+#  uri:
+#    method: GET
+#    url: "http://{{ inventory_hostname }}:9200/_template/bro_base"
+#  failed_when: false
+#  register: bro_baseMapping
 #  when: "'primary-servers' in group_names"
 
-- name: "Check for Bro mapping templates"
+- name: "Load Bro Elasticsearch base mapping template"
   uri:
-    method: GET
-    url: "http://{{ inventory_hostname }}:9200/_template/bro_index"
-  failed_when: false
-  register: bro_mapping
-  when: "'primary-servers' in group_names"
-
-- name: "Load Bro Elasticsearch mapping templates"
-  uri:
-    body: "{{ lookup('file', 'es-bro-mappings.json')}}"
+    body: "{{ lookup('file', 'es-bro-base-mappings.json')}}"
     body_format: json
     method: PUT
-    url: "http://{{ inventory_hostname }}:9200/_template/bro_index"
-  when: "'primary-servers' in group_names and bro_mapping is defined and bro_mapping is defined and bro_mapping.status == '404'"
+    url: "http://{{ inventory_hostname }}:9200/_template/bro_base"
+
+
+- name: "Load Bro Elasticsearch detection mapping template"
+  uri:
+    body: "{{ lookup('file', 'es-bro-detection-mappings.json')}}"
+    body_format: json
+    method: PUT
+    url: "http://{{ inventory_hostname }}:9200/_template/bro_detection"
+
+#- name: "Check for Bro file mapping template"
+#        uri:
+#          method: GET
+#          url: "http://{{ inventory_hostname }}:9200/_template/bro_file"
+#        failed_when: false
+#        register: bro_fileMapping
+#        when: "'primary-servers' in group_names"
+#
+- name: "Load Bro Elasticsearch file mapping template"
+  uri:
+    body: "{{ lookup('file', 'es-bro-file-mappings.json')}}"
+    body_format: json
+    method: PUT
+    url: "http://{{ inventory_hostname }}:9200/_template/bro_file"
+#        when: "'primary-servers' in group_names and bro_fileMapping is defined and bro_fileMapping.status == ''"
+#
+#- name: "Check for Bro network template"
+#            uri:
+#              method: GET
+#              url: "http://{{ inventory_hostname }}:9200/_template/bro_network"
+#            failed_when: false
+#            register: bro_detectionMapping
+#            when: "'primary-servers' in group_names"
+#
+- name: "Load Bro Elasticsearch network mapping template"
+  uri:
+    body: "{{ lookup('file', 'es-bro-network-mappings.json')}}"
+    body_format: json
+    method: PUT
+    url: "http://{{ inventory_hostname }}:9200/_template/bro_network"
+#            when: "'primary-servers' in group_names and bro_detectionMapping is defined and bro_detectionMapping.status == ''"
+#
+#- name: "Check for Bro observations mapping template"
+#                uri:
+#                  method: GET
+#                  url: "http://{{ inventory_hostname }}:9200/_template/bro_observations"
+#                failed_when: false
+#                register: bro_observationsMapping
+#                when: "'primary-servers' in group_names"
+#
+- name: "Load Bro Elasticsearch observations mapping template"
+  uri:
+    body: "{{ lookup('file', 'es-bro-observations-mappings.json')}}"
+    body_format: json
+    method: PUT
+    url: "http://{{ inventory_hostname }}:9200/_template/bro_observations"
+#                when: "'primary-servers' in group_names and bro_observationsMapping is defined and bro_observationsMapping.status == ''"
