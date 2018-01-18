@@ -94,11 +94,11 @@
     state: started
     daemon-reload: yes
 
-- name: "Restart haproxy service"
-  systemd:
-    name: haproxy
-    state: restarted
-  when: "'primary-servers' in group_names"
+#- name: "Restart haproxy service"
+#  systemd:
+#    name: haproxy
+#    state: restarted
+#  when: "'primary-servers' in group_names"
 
 # TODO: This will not work because this port is not exposed
 - name: "Wait for Elasticsearch to become ready"
