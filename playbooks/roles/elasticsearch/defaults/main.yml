@@ -11,8 +11,8 @@ elastic_delete_interval: 60
 
 elastic_baseurl: https://artifacts.elastic.co/packages/5.x/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-es_user: elasticsearch
-es_group: elasticsearch
+es_user: 1000
+es_group: 1000
 es_data_dir: "{{ rock_data_dir }}/elasticsearch"
 es_cluster_name: rocknsm
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
