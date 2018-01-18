@@ -50,6 +50,7 @@ Data/messages are never pushed out to consumers, the consumer will ask for messa
 
 What is a broker?
 
+
 What is a Kafka topic?
 **********************
 A Topic is a category/feed name to which messages are stored and published. Messages are byte arrays that can store any object in any format. Messages published to the cluster will stay in the cluster until a configurable retention period has passed by. Kafka retains all messages for a set amount of time, and therefore, consumers are responsible to track their location.
