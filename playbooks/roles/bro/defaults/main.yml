@@ -19,3 +19,4 @@ bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/',
 bro_sysconfig_dir: /etc/bro
 bro_site_dir: /usr/share/bro/site
 bro_prefix: /usr
+rock_cache_dir: /srv/rocknsm/support
