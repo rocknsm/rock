@@ -4,7 +4,7 @@ version: '2'
 services:
   elastic:
     image: "{{ elastic_container }}:{{ elastic_ver }}"
-    container_name: "{{ rock_hostname }}"
+    container_name: "{{ elastic_container_name }}"
     restart: "always"
     ports:
       - "{{ elastic_data_port }}:{{ elastic_data_port }}"

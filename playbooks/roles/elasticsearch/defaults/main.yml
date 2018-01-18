@@ -24,6 +24,7 @@ es_memlock_override: |
 elastic_data_port: '9200'
 elastic_management_port: '9300'
 elastic_container: 'docker.elastic.co/elasticsearch/elasticsearch'
+elastic_container_name: 'rock-elasticsearch'
 elastic_yum: 'elastic'
 elastic_config_file: '/etc/elasticsearch/elasticsearch.yml'
 elastic_override_dir: '/etc/systemd/system/elasticsearch.service.d'

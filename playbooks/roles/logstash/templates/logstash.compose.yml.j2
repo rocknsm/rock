@@ -2,7 +2,7 @@ version: "2"
 services:
   logstash:
     image: "docker.elastic.co/logstash/logstash:{{ elastic_ver }}"
-    container_name: logstash
+    container_name: "{{ logstash_container_name }}"
     restart: always
     #network_mode: host
     #ports:
@@ -23,4 +23,3 @@ networks:
   default:
     external:
       name: 'rocknsm_inside'
-

@@ -4,7 +4,7 @@ version: '2'
 services:
   kafka:
     image: rocknsm/kafka
-    container_name: rock-kafka
+    container_name: {{ kafka_container_name }}
     ports:
       - "9092:9092"
     volumes:

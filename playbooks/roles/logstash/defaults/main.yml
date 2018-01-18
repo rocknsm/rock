@@ -1,6 +1,6 @@
 ---
 
-
+logstash_container_name: 'rock-logstash'
 logstash_user: 'logstash'
 logstash_group: 'logstash'
 logstash_data_dir: "{{ rock_data_dir }}/logstash"

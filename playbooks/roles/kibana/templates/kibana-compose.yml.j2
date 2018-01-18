@@ -4,7 +4,7 @@ version: '2'
 services:
   kibana:
     image: "{{ kibana_image }}:{{ kibana_ver }}"
-    container_name: 'kibana'
+    container_name: "{{ kibana_container_name }}"
     ports:
       - "{{ kibana_ip }}:{{ kibana_port }}:{{ kibana_port }}"
     restart: "always"
