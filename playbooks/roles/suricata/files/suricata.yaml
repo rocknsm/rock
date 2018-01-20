@@ -72,7 +72,7 @@ reference-config-file: /etc/suricata/reference.config
 # The default logging directory.  Any log or output file will be
 # placed here if its not specified with a full path name. This can be
 # overridden with the -l command line parameter.
-default-log-dir: /var/log/suricata/
+default-log-dir: {{ suricata_log_location }}/
 
 # global stats configuration
 stats:
@@ -437,7 +437,7 @@ logging:
   - file:
       enabled: no
       level: info
-      filename: /var/log/suricata/suricata.log
+      filename: {{ suricata_log_location }}/suricata.log
       # type: json
   - syslog:
       enabled: no

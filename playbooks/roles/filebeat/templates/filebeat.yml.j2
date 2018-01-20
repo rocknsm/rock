@@ -3,7 +3,7 @@
 filebeat.prospectors:
 - type: log
   paths:
-    - /var/log/suricata/eve.json
+    - {{ suricata_log_location }}/eve.json
   json.keys_under_root: true
   fields:
     kafka_topic: suricata-raw
