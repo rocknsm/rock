@@ -10,7 +10,7 @@ rock_dashboards_url: "https://github.com/rocknsm/rock-dashboards/archive/{{ rock
 rock_dashboards_filename: "rock-dashboards_{{ rock_dashboards_branch | replace('/', '-') }}.tar.gz"
 rock_dashboards_version: 2.0
 
-es_url: "http://localhost:9200"
+es_url: "http://rock-elasticsearch:9200"
 
 # Which image version of Kibana this role is using.
 kibana_ver: "{{ elastic_ver }}"

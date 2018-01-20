@@ -67,10 +67,23 @@ Partitions allow you to parallelize a topic by splitting the data in a particula
 
 Every partition (replica) has one server acting as a leader and the rest of them as followers. The leader replica handles all read-write requests for the specific partition and the followers replicate the leader. If the leader server fails, one of the follower servers become the leader by default. When a producer publishes a message to a partition in a topic, it is forwarded to its leader. The leader appends the message to its commit log and increments its message offset. Kafka only exposes a message to a consumer after it has been committed and each piece of data that comes in will be stacked on the cluster.
 
+Workflow of Pub-Sub Messaging
+-----------------------------
+https://www.tutorialspoint.com/apache_kafka/apache_kafka_workflow.htm
 
 Helpful Tutorials
 -----------------
 https://www.cloudkarafka.com/blog/2016-11-30-part1-kafka-for-beginners-what-is-apache-kafka.html
+
+Helpful Kafkacat Commands
+-------------------------
+
+List Topics
+kafkacat -b 127.0.0.1:9092 -L
+
+Debug Networking
+kafkacat -b 127.0.0.1:9092 -d all -L
+
 
 License
 -------

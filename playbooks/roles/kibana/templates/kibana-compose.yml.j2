@@ -6,20 +6,22 @@ services:
     image: "{{ kibana_image }}:{{ kibana_ver }}"
     container_name: "{{ kibana_container_name }}"
     ports:
-      - "{{ kibana_ip }}:{{ kibana_port }}:{{ kibana_port }}"
+      - "{{ kibana_port }}:{{ kibana_port }}"
     restart: "always"
     volumes:
-      - "{{ rocknsm_dir }}/kibana/data:/data"
+      - "{{ rock_data_dir }}/kibana/data:/data"
     environment:
-      - ELASTICSEARCH_URL="http://{{ rock_hostname }}:9200"
-      - SERVER_HOST="{{ kibana_ip }}"
-      - SERVER_PORT="{{ kibana_port }}"
-      - SERVER_BASEPATH="/kibana"
+      - ELASTICSEARCH_URL="http://{{ es_url }}:9200"
       - xpack.security.enabled="{{ xpack_license }}"
-      - xpack.monitoring.ui.container.elasticsearch.enabled:"{{ xpack_license }}"
-# Secure Docker network that cannot be connected to host directly
+      - xpack.monitoring.ui.container.elasticsearch.enabled="{{ xpack_license }}"
+
+    networks:
+      - rocknsm_inside
+      - rocknsm_outside
+
 networks:
-  default:
-    external:
-      name: 'rocknsm_inside'
+  rocknsm_inside:
+    external: true
+  rocknsm_outside:
+    external: true
 ...

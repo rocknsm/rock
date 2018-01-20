@@ -7,8 +7,8 @@
  [Service]
  Type = simple
 
- ExecStart = /usr/bin/docker-compose -f {{ rock_compose_files }}/kafka-compose.yml.j2 up
- ExecStop  = /usr/bin/docker-compose -f {{ rock_compose_files }}/kafka-compose.yml.j2 down
+ ExecStart = /usr/bin/docker-compose -f {{ rock_compose_files }}/kafka-compose.yml up
+ ExecStop  = /usr/bin/docker-compose -f {{ rock_compose_files }}/kafka-compose.yml down
 
  [Install]
  WantedBy = multi-user.target

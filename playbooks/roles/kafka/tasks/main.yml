@@ -11,6 +11,13 @@
     baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/
     gpgcheck: false
 
+- name: Open port in firewalld for Kafka
+  firewalld:
+    port: 9092/tcp
+    permanent: true
+    immediate: true
+    state: enabled
+
 - name: 'Create Kafka data directory'
   file:
     path: "{{ kafka_data_dir }}"
@@ -82,7 +89,7 @@
 - name: 'Copy Kafka compose file'
   template:
     src: 'kafka-compose.yml.j2'
-    dest: "{{ rock_compose_files }}/kafka-compose.yml.j2"
+    dest: "{{ rock_compose_files }}/kafka-compose.yml"
     mode: 0644
     owner: root
     group: root
@@ -91,7 +98,7 @@
   systemd:
     name: 'kafka'
     enabled: yes
-    state: started
+    state: restarted
     daemon-reload: yes
 
 - name: 'Wait for Kafka service to start'

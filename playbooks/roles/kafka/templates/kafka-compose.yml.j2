@@ -10,6 +10,9 @@ services:
     volumes:
       - /data/kafka:/tmp/kafka-logs
       - /opt/rocknsm/kafka/server.properties:/opt/kafka/config/server.properties
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: rocksensor1.lan
+      KAFKA_ZOOKEEPER_CONNECT: rock-zookeeper:2181
     networks:
       - rocknsm_inside
       - rocknsm_outside

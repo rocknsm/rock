@@ -8,13 +8,13 @@ filebeat.prospectors:
   fields:
     kafka_topic: suricata-raw
   fields_under_root: true
-- type: log
-  paths:
-    - {{ rock_data_dir }}/fsf/rockout.log
-  json.keys_under_root: true
-  fields:
-    kafka_topic: fsf-raw
-  fields_under_root: true
+#- type: log
+#  paths:
+#    - /data/fsf/rockout.log
+#  json.keys_under_root: true
+#  fields:
+#    kafka_topic: fsf-raw
+#  fields_under_root: true
 processors:
  - decode_json_fields:
      fields: ["message","Scan Time", "Filename", "objects", "Source", "meta", "Alert" ,"Summary"]
@@ -45,18 +45,21 @@ output.kafka:
   hosts: ["rock-kafka:9092"]
 
   # Need this line to enable event timestamps
-  version: 0.10
+  #version: 0.10
 
-  topic: '%{[kafka_topic]}'
+#  topic: '%{[kafka_topic]}'
+  topic: suricata-raw
   required_acks: 1
   compression: gzip
   max_message_bytes: 1000000
+  version: 0.11.0.0
+  client_id: suricata
 
 #================================ Logging =====================================
 
 # Sets log level. The default log level is info.
 # Available log levels are: critical, error, warning, info, debug
-#logging.level: debug
+logging.level: debug
 
 # At debug level, you can selectively enable logging only for some components.
 # To enable all selectors use ["*"]. Examples of other selectors are "beat",

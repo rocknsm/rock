@@ -62,7 +62,7 @@
   systemd:
     name: 'zookeeper'
     enabled: yes
-    state: started
+    state: restarted
     daemon-reload: yes
 
 ...

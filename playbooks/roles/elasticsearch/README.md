@@ -24,17 +24,12 @@ An Elasticsearch cluster can be in one of the three states: GREEN, YELLOW, or RE
 
 Dixit, Bharvi. Elasticsearch Essentials (p. 16). Packt Publishing. Kindle Edition.
 
-
-
-
 Templates
 ------------
 
 4 templates are currently defined; base, detection, file, network, observations
 
 The base template will be applied to ALL indices, even ones no created by the current templates. The base template does a regex search for all string data types that match id_*_h and converts it to an "ip" data type. This is to ensure if there is a log created that is not covered by an existing template, it will still show up when search by an ip. This is currently not done for ports as elastic may default numbers into "long", but if it does not it will be changed to also account for id_*_p.
-
-
 
 Elasticsearch terms
 --------------------
@@ -93,3 +88,7 @@ type
     A type used to represent the type of document, e.g. an email, a user, or a tweet. Types are deprecated and are in the process of being removed.
 
 https://www.elastic.co/guide/en/elasticsearch/reference/current/glossary.html#index
+
+Helpful Commands
+---------------
+curl -XGET 'localhost:9200/_cat/indices?v&pretty'

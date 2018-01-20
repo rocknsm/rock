@@ -2,10 +2,6 @@
 # ----- Example Logstash Configuration ----- #
 ##############################################
 
-# file paths; data and logs path must be writeable by the logstash user
-path.data: /var/lib/logstash
-path.config: /etc/logstash/conf.d
-path.logs: /var/log/logstash
 
 # Automatic reload of config files
 # You don't have to restart the logstash service after making changes
@@ -27,4 +23,5 @@ queue.max_bytes: 2gb
 # monitoring allows you to monitor the performance of logstash
 # Things monitored: event rates, event latency, JVM Heap, System Load.
 
-xpack.monitoring.enabled: false
+xpack.monitoring.enabled: "{{ xpack_license }}"
+xpack.management.enabled: "{{ xpack_license }}"

@@ -11,9 +11,14 @@ services:
       - {{ zookeeper_data_dir }}:/data
       - {{ zookeeper_dir }}/zoo.cfg:/conf/zoo.cfg
 
+    networks:
+      - rocknsm_inside
+      - rocknsm_outside
+
 networks:
-  default:
-    external:
-      name: 'rocknsm_inside'
+  rocknsm_inside:
+    external: true
+  rocknsm_outside:
+    external: true
 
 ...

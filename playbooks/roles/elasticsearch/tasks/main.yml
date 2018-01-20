@@ -62,23 +62,6 @@
     owner: root
     src: templates/es-jvm.options.j2
 
-- name: "Install ROCK Elasticsearch cleanup script"
-  template:
-    dest: /usr/local/bin/es_cleanup.sh
-    group: root
-    mode: 755
-    owner: root
-    src: templates/es_cleanup.sh.j2
-
-- name: "Set elasticsearch cleanup cron job"
-  cron:
-    cron_file: rocknsm_es_maintenance
-    hour: 0
-    job: "/usr/local/bin/es_cleanup.sh > /dev/null 2>&1"
-    minute: 1
-    name: "ES maintenance"
-    user: root
-
 - name: "Setup elasticsearch service"
   template:
     dest: /etc/systemd/system/elasticsearch.service
@@ -91,8 +74,46 @@
   systemd:
     enabled: yes
     name: elasticsearch
-    state: started
+    state: restarted
     daemon-reload: yes
+
+- name: Install Signing Key for Curator
+  command: rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
+
+- name: Copy curator repo
+  copy:
+    src: curator.repo
+    dest: /etc/yum.repos.d/curator.repo
+    mode: 0755
+
+- name: Install Elasticsearch Curator
+  yum:
+    name: elasticsearch-curator
+    state: latest
+
+- name: Create Curator config directory
+  file: path=~/.curator state=directory
+
+- name: Copy curator configuration file
+  copy:
+    src: curator.yml
+    dest: ~/.curator/curator.yml
+    mode: 0755
+
+- name: Copy curator actions
+  copy:
+    src: curator-actions.yml
+    dest: ~/.curator/curator-actions.yml
+    mode: 0755
+
+- name: "Set Elasticsearch Curator cron job"
+  cron:
+    cron_file: rocknsm_es_maintenance
+    hour: 0
+    job: "curator --config ~/.curator/curator.yml ~/.curator/curator-actions.yml > /dev/null 2>&1"
+    minute: 1
+    name: "Curator maintenance"
+    user: root
 
 #- name: "Restart haproxy service"
 #  systemd:
@@ -103,7 +124,7 @@
 # TODO: This will not work because this port is not exposed
 - name: "Wait for Elasticsearch to become ready"
   pause:
-    seconds: 60
+    seconds: 20
 #- name: "Check for Bro base mapping template"
 #  uri:
 #    method: GET
