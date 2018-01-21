@@ -1,7 +1,7 @@
 {
   "index_patterns": "bro-detection*",
   "mappings": {
-    "detection": {
+    "doc": {
       "properties": {
         "notice": {
           "properties": {
