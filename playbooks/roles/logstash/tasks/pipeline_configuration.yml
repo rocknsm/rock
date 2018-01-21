@@ -26,8 +26,8 @@
     owner: "{{ logstash_user }}"
     src: 'kafka-fsf.conf'
 
-- name: "Copy pipelines.yml template"
-  file:
+- name: "Copy pipelines.yml"
+  copy:
     dest: "{{ logstash_dir }}/pipelines.yml"
     group: "{{ logstash_group }}"
     mode: 0754
