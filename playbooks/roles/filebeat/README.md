@@ -1,25 +1,13 @@
 Filebeat
 =========
 
-Central database for managing all Rock data.
-
-Requirements
-------------
-
-Currently none.
-
-Role Variables
---------------
-
-TODO
-
-Dependencies
-------------
+Used to read in Suricata and FSF data.
 
 Paths in Filebeat
 -----------------
 
 Log paths can be exact paths or can be wildcards:
+```
 filebeat.prospectors:
 - type: log
   paths:
@@ -28,3 +16,4 @@ filebeat.prospectors:
     type: syslog
 output.logstash:
   hosts: ["localhost:5044"]
+```

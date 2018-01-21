@@ -19,17 +19,17 @@ The base template will be applied to ALL indices, even ones no created by the cu
 Elasticsearch terms
 --------------------
 
-<h4>Analysis
+<h4>Analysis</h4>
 
 Analysis is the process of converting full text to terms. Depending on which analyzer is used, these phrases: FOO BAR, Foo-Bar, foo,bar will probably all result in the terms foo and bar. These terms are what is actually stored in the index. A full text query (not a term query) for FoO:bAR will also be analyzed to the terms foo,bar and will thus match the terms stored in the index. It is this process of analysis (both at index time and at search time) that allows Elasticsearch to perform full text queries. Also see text and term.
 cluster
 
-<h4> Cluster
+<h4> Cluster</h4>
 
 A cluster consists of one or more nodes which share the same cluster name. Each cluster has a single master node which is chosen automatically by the cluster and which can be replaced if the current master node fails.
 document
 
-<h4> Document
+<h4> Document</h4>
 
 A document is a JSON document which is stored in Elasticsearch. It is like a row in a table in a relational database. Each document is stored in an index and has a type and an id. A document is a JSON object (also known in other languages as a hash / hashmap / associative array) which contains zero or more fields, or key-value pairs. The original JSON document that is indexed will be stored in the \_source field, which is returned by default when getting or searching for a document.
 id
@@ -40,7 +40,7 @@ field
 A document contains a list of fields, or key-value pairs. The value can be a simple (scalar) value (eg a string, integer, date), or a nested structure like an array or an object. A field is similar to a column in a table in a relational database. The mapping for each field has a field type (not to be confused with document type) which indicates the type of data that can be stored in that field, eg integer, string, object. The mapping also allows you to define (amongst other things) how the value for a field should be analyzed.
 index
 
-<h4> Index
+<h4> Index</h4>
 
 An index is like a table in a relational database. It has a mapping which contains a type, which contains the fields in the index. An index is a logical namespace which maps to one or more primary shards and can have zero or more replica shards.
 mapping
@@ -48,7 +48,7 @@ mapping
 A mapping is like a schema definition in a relational database. Each index has a mapping, which defines a type, plus a number of index-wide settings. A mapping can either be defined explicitly, or it will be generated automatically when a document is indexed.
 node
 
-<h4> Node
+<h4> Node</h4>
 
 A node is a running instance of Elasticsearch which belongs to a cluster. Multiple nodes can be started on a single server for testing purposes, but usually you should have one node per server. At startup, a node will use unicast to discover an existing cluster with the same cluster name and will try to join that cluster.
 primary shard
@@ -61,7 +61,7 @@ Each primary shard can have zero or more replicas. A replica is a copy of the pr
 - increase failover: a replica shard can be promoted to a primary shard if the primary fails
 - increase performance: get and search requests can be handled by primary or replica shards. By default, each primary shard has one replica, but the number of replicas can be changed dynamically on an existing index. A replica shard will never be started on the same node as its primary shard.
 
-<h4>Routing
+<h4>Routing</h4>
 
 When you index a document, it is stored on a single primary shard. That shard is chosen by hashing the routing value. By default, the routing value is derived from the ID of the document or, if the document has a specified parent document, from the ID of the parent document (to ensure that child and parent documents are stored on the same shard). This value can be overridden by specifying a routing value at index time, or a routing field in the mapping.
 shard
@@ -89,15 +89,15 @@ REST URL Pattern: `<REST Verb> /<Index>/<Type>/<ID>`
 
 When adding a new document, the ID is optional. If you do not provide it, Elasticsearch will automatically generate one.
 
-<h4> Anatomy of a search
+<h4> Anatomy of a search</h4>
 
-<h5> Request URI
+<h5> Request URI</h5>
 
 `curl -XGET 'localhost:9200/bank/_search?q=*&sort=account_number:asc&pretty&pretty'`
 
 We are searching (\_search endpoint) in the bank index, and the q=* parameter instructs Elasticsearch to match all documents in the index. The sort=account_number:asc parameter indicates to sort the results using the account_number field of each document in an ascending order. The pretty parameter, again, just tells Elasticsearch to return pretty-printed JSON results.
 
-<h5> Request Body
+<h5> Request Body</h5>
 
 ```
 curl -XGET 'localhost:9200/bank/_search?pretty' -H 'Content-Type: application/json' -d'
@@ -127,27 +127,27 @@ curl -XGET 'localhost:9200/bank/_search?pretty' -H 'Content-Type: application/js
 Helpful Commands
 ---------------
 
-<h4> Grab all indices
+<h4> Grab all indices</h4>
 
 `curl -XGET 'localhost:9200/_cat/indices?v&pretty'`
 
-<h4> Get Cluster Health
+<h4> Get Cluster Health</h4>
 
 `curl -XGET 'localhost:9200/_cat/health?v&pretty'`
 
-<h4> See cluster nodes
+<h4> See cluster nodes</h4>
 
 `curl -XGET 'localhost:9200/_cat/nodes?v&pretty'`
 
-<h4> Add an index
+<h4> Add an index</h4>
 
 `curl -XPUT 'localhost:9200/customer?pretty&pretty'`
 
-<h4> Delete an index
+<h4> Delete an index</h4>
 
 `curl -XDELETE 'localhost:9200/customer?pretty&pretty'`
 
-<h4> Add a document to an index
+<h4> Add a document to an index</h4>
 
 ```
 curl -XPUT 'localhost:9200/customer/doc/1?pretty&pretty' -H 'Content-Type: application/json' -d'
@@ -157,7 +157,7 @@ curl -XPUT 'localhost:9200/customer/doc/1?pretty&pretty' -H 'Content-Type: appli
 '
 ```
 
-<h4> Add document without a specific ID
+<h4> Add document without a specific ID</h4>
 
 ```
 curl -XPOST 'localhost:9200/customer/doc?pretty&pretty' -H 'Content-Type: application/json' -d'
@@ -167,7 +167,7 @@ curl -XPOST 'localhost:9200/customer/doc?pretty&pretty' -H 'Content-Type: applic
 '
 ```
 
-<h4> Update a document
+<h4> Update a document</h4>
 
 ```
 curl -XPOST 'localhost:9200/customer/doc/1/_update?pretty&pretty' -H 'Content-Type: application/json' -d'
@@ -177,6 +177,6 @@ curl -XPOST 'localhost:9200/customer/doc/1/_update?pretty&pretty' -H 'Content-Ty
 '
 ```
 
-<h4> Delete a document
+<h4> Delete a document</h4>
 
 `curl -XDELETE 'localhost:9200/customer/doc/2?pretty&pretty'`
