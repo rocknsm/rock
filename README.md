@@ -1,4 +1,4 @@
-<h1> Temporary Instructions
+<h1> Temporary Instructions</h1>
 
 To run the build:
 1. First you'll need to add rocksensor1.lan and rockserver1.lan to your /etc/host file (they will need to be real boxes or you can point them at localhost).
@@ -7,7 +7,7 @@ To run the build:
 
 I strongly recommend you read up on: http://docs.ansible.com/ansible/latest/intro_inventory.html
 
-<h1> OUT OF DATE NOTICE
+<h1> OUT OF DATE NOTICE</h1>
 
 *ALL OF THE BELOW IS CURRENTLY OUT OF DATE*
 

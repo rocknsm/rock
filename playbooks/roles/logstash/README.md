@@ -3,13 +3,13 @@ Logstash
 
 Central database for managing all Rock data.
 
-<h1> [Event Data](https://www.elastic.co/guide/en/logstash/current/event-dependent-configuration.html)
+<h1> [Event Data](https://www.elastic.co/guide/en/logstash/current/event-dependent-configuration.html)</h1>
 
-<h2> Fields
+<h2> Fields</h2>
 
 All events have properties. For example, an apache access log would have things like status code (200, 404), request path ("/", "index.html"), HTTP verb (GET, POST), client IP address, etc. Logstash calls these properties "fields."
 
-<h3> Field References
+<h3> Field References</h3>
 
 It is often useful to be able to refer to a field by name. To do this, you can use the Logstash field reference syntax.
 
@@ -32,7 +32,7 @@ For example, the following event has five top-level fields (agent, ip, request, 
 }
 ```
 
-<h4> sprintf format
+<h4> sprintf format</h4>
 
 The field reference format is also used in what Logstash calls sprintf format. This format enables you to refer to field values from within other strings. For example, the statsd output has an increment setting that enables you to keep a count of apache logs by status code:
 ```
@@ -52,9 +52,9 @@ output {
   }
 }
 ```
-<h1> Pipeline
+<h1> Pipeline</h1>
 
-<h2>Input
+<h2>Input</h2>
 
 Defines where the logs are coming from. Ex:
 
@@ -73,9 +73,9 @@ You use inputs to get data into Logstash. Some of the more commonly-used inputs 
 
 For more information about the available inputs, see: https://www.elastic.co/guide/en/logstash/current/input-plugins.html
 
-<h2>Filter
+<h2>Filter</h2>
 
-<h3> Description
+<h3> Description</h3>
 
 ```
 filter {
@@ -115,7 +115,7 @@ The finalized event looks like this:
     },
 ```
 
-<h3> Grok
+<h3> Grok</h3>
 
 Grok works by combining text patterns into something that matches your logs.
 
@@ -129,13 +129,13 @@ For the above example, your grok filter would look something like this:
 
 ``%{NUMBER:duration} %{IP:client}``
 
-<h2>Output
+<h2>Output</h2>
 
 Defines where the logs are output to. For example:
 
 `stdout { codec => rubydebug }`
 
-<h4> Elasticsearch Output
+<h4> Elasticsearch Output</h4>
 
 You can output to elasticsearch with something like:
 
