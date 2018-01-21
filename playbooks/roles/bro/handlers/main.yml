@@ -1,9 +1,0 @@
----
- 
-- name: 'reload systemd'
-  command: 'systemctl daemon-reload'
-
-- name: 'reload broctl'
-  service: 
-    name: 'broctl' 
-    state: 'restarted'

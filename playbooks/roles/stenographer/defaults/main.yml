@@ -1,5 +1,0 @@
-%YAML 1.1
----
-stenographer_user: stenographer
-stenographer_group: stenographer
-stenographer_data_dir: "{{ rock_data_dir }}/stenographer"

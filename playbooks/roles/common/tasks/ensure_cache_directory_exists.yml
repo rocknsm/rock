@@ -1,6 +1,0 @@
----
-- name: Ensure cache directory exists
-  file:
-    dest: "{{ rock_cache_dir }}"
-    state: directory
-    mode: 0755

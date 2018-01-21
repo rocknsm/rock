@@ -1,7 +1,0 @@
----
-- name: Enable and start nginx
-  service:
-    name: nginx
-    state: "{{ 'started' if enable_nginx else 'stopped' }}"
-    enabled: "{{ enable_nginx }}"
-  when: with_nginx

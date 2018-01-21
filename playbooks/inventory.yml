@@ -1,9 +1,0 @@
-all:
-  hosts:
-    laptop.rock
-    servicesvm.rock
-  children:
-    elasticsearchservers:
-      hosts:
-        dockervm.rock:
-        elasticnodes.rock:
