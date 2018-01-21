@@ -1,0 +1,15 @@
+[Unit]
+ Description = HAProxy Container Service
+
+ Wants    = multi-user.target
+ Requires = docker.service
+
+ [Service]
+ Type = simple
+
+ ExecStart = /usr/bin/docker-compose -f {{ rocknsm_dir }}/haproxy/haproxy-compose.yml up
+
+ ExecStop  = /usr/bin/docker-compose -f {{ rocknsm_dir }}/haproxy/haproxy-compose.yml down -v
+
+ [Install]
+ WantedBy = multi-user.target

@@ -1,0 +1,18 @@
+---
+
+version: '2'
+services:
+  portainer:
+    image: 'portainer/portainer'
+    container_name: "{{ portainer_container_name }}"
+    ports:
+      - "{{ portainer_port }}:{{ portainer_port }}"
+    restart: "always"
+    volumes:
+      - "{{ rocknsm_dir }}/portainer:/data"
+# Secure Docker network that cannot be connected to host directly
+networks:
+  default:
+    external:
+      name: 'rocknsm_inside'
+...

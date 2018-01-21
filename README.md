@@ -1,6 +1,9 @@
 ## Response Operation Collections Kit Reference Build
-
-[![Join the chat at https://gitter.im/rocknsm/Lobby](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/rocknsm/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
+test
+If you have questions after trying the code and the documentation, please see
+our community message boards at http://community.rocknsm.io. This is for discussion
+of troubleshooting or general information outside of bugs that you might find.
+You can file bugs on the [Issue Tracker](http://github.com/rocknsm/rock/issues/).
 
 See the [ROCK 2.0 User Guide](https://rocknsm.gitbooks.io/rocknsm-guide/content/).
 
@@ -16,7 +19,7 @@ See [Getting Started with ROCK 2.0](docs/guide/getting-started.adoc).
 ### Vagrant
 **NOTE:**
 This Vagrantfile is configured to give the VM 8GB of RAM.  If your system can't do that you should buy a new system or adjust the `vm.memory` value.  Anything below 8 is going to run like poopoo. You will also need to have a host-only adapter configured named `vboxnet0`.
-``` 
+```
 git clone https://github.com/rocknsm/rock.git
 cd rock
 vagrant up
@@ -34,7 +37,7 @@ cd rock/bin
 sudo ./deploy_rock.sh
 ```
 
-## Minimum Hardware Recommendations 
+## Minimum Hardware Recommendations
 #### (For anything other than a Vagrant build)
 
 **NOTE:** This is a shadow of a recommendation of a guideline.  Your mileage may vary.  No returns or refunds.
@@ -134,7 +137,7 @@ worker-1-2   worker  localhost        running   20485  ???    02 Dec 17:12:36
 ```
 
 ## Basic Troubleshooting
-    
+
 #### Functions Check:
 ```
 # After the initial build, the ES cluster will be yellow because the marvel index will think it's missing a replica.  Run this to fix this issue.  This job will run from cron just after midnight every day.
@@ -164,18 +167,18 @@ sudo netstat -planet | grep node
 ```
 
 ## Key web interfaces:
-    
+
 IPADDRESS = The management interface of the box, or "localhost" if you did the vagrant build.
 
 http://IPADDRESS - Kibana
 
 
 ## Full Packet Capture
-   
-Google's Stenographer is installed and configured in this build.  However, it is disabled by default.  There are a few reasons for this: First, it can be too much for Vagrant builds on meager hardware.  Second, you really need to make sure you've mounted /data over sufficient storage before you start saving full packets.  Once you're ready to get nuts, enable and start the service with `systemctl enable stenographer.service` and then `systemctl start stenographer.service`.  Stenographer is already stubbed into the `/usr/local/bin/rock_{start,stop,status}` scripts, you just need to uncomment it if you're going to use it. 
+
+Google's Stenographer is installed and configured in this build.  However, it is disabled by default.  There are a few reasons for this: First, it can be too much for Vagrant builds on meager hardware.  Second, you really need to make sure you've mounted /data over sufficient storage before you start saving full packets.  Once you're ready to get nuts, enable and start the service with `systemctl enable stenographer.service` and then `systemctl start stenographer.service`.  Stenographer is already stubbed into the `/usr/local/bin/rock_{start,stop,status}` scripts, you just need to uncomment it if you're going to use it.
 
 ## THANKS
-   
+
 This architecture is made possible by the efforts of the Missouri National Guard Cyber Team for donating talent and resources to further development.
 
 
@@ -184,5 +187,3 @@ This architecture is made possible by the efforts of the Missouri National Guard
 The Ansible playbook that drives this build strives not to use any external roles or other dependencies. The reasoning behind this is to make the rock playbook a "one-stop" reference for a manual build. This allows users to use the build process as a guide when doing larger scale production roll outs without having to decipher a labyrinth of dependencies.
 
 Templated config files have comment sections added near key config items with useful info.  They don't all have it, but they get added as remembered.
-
-

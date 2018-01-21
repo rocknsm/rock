@@ -1,0 +1,19 @@
+{
+  "index_patterns": "bro-file*",
+  "mappings": {
+    "file": {
+      "properties": {
+        "files": {
+          "properties": {
+            "rx_hosts": {
+              "type": "ip"
+            },
+            "tx_hosts": {
+              "type": "ip"
+            }
+          }
+        }
+      }
+    }
+  }
+}

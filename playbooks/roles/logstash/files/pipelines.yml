@@ -1,0 +1,12 @@
+- pipeline.id: bro
+  queue.type: persisted
+  queue.max_bytes: 2gb
+  path.config: "/usr/share/logstash/pipeline/kafka-bro.conf"
+- pipeline.id: suricata
+  queue.type: persisted
+  queue.max_bytes: 2gb
+  path.config: "/usr/share/logstash/pipeline/kafka-suricata.conf"
+- pipeline.id: fsf
+  queue.type: persisted
+  queue.max_bytes: 2gb
+  path.config: "/usr/share/logstash/pipeline/kafka-fsf.conf"

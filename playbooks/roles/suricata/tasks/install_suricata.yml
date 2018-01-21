@@ -15,7 +15,16 @@
     owner: "{{ suricata_user }}"
     group: "{{ suricata_group }}"
     state: directory
-  when: with_suricata
+
+# This is required so that the filebeat container can actually read this data
+# TODO: Make sure this is correct
+- name: Change permissions of Suricata log directory
+  file:
+    path: "{{ suricata_log_location }}/"
+    mode: 0755
+    owner: "{{ suricata_user }}"
+    group: "{{ suricata_group }}"
+    state: directory
 
 - name: Set suricata capabilities
   capabilities:
@@ -26,14 +35,12 @@
     - "cap_net_raw+eip"
     - "cap_net_admin+eip"
     - "cap_ipc_lock+eip"
-  when: with_suricata
 
 - name: Remove suricata sysconfig file
   file:
     path: /etc/sysconfig/suricata
     state: absent
-  when: with_suricata
- 
+
 - name: Install suricata service files
   copy:
     src: "suricata.service"
@@ -41,8 +48,15 @@
     mode: 0644
     owner: root
     group: root
-  when: with_suricata
- 
+
+- name: 'Link suricata service files'
+  file:
+    src: "/etc/systemd/system/suricata.service"
+    dest: "/etc/systemd/system/rock.target.wants/suricata.service"
+    owner: root
+    group: root
+    state: link
+
 - name: Install suricata overrides
   template:
     src: templates/suricata_overrides.yaml.j2
@@ -50,7 +64,6 @@
     mode: 0644
     owner: "{{ suricata_user }}"
     group: root
-  when: with_suricata
 
 - name: Create IP reputation config dir
   file:
@@ -59,21 +72,26 @@
     owner: root
     group: root
     mode: 0755
-  when: with_suricata
 
 - name: Set suricata overrides include in main config
   lineinfile:
     dest: /etc/suricata/suricata.yaml
     line: "import_tasks: rocknsm-overrides.yaml"
     state: present
-  when: with_suricata
+
+- name: Configure Suricata /var directory permissions
+  file:
+    path: /var/run/suricata
+    owner: suricata
+    group: suricata
+    mode: 755
 
 - name: Enable and start suricata
-  service:
+  systemd:
     name: suricata
-    enabled: "{{ enable_suricata }}"
-    state: "{{ 'started' if enable_suricata else 'stopped' }}"
-  when: with_suricata
+    enabled: yes
+    state: started
+    daemon_reload: yes
 
 - name: Configure logrotate for suricata logs
   template:
@@ -82,4 +100,3 @@
     mode: 0644
     owner: root
     group: root
-  when: with_suricata

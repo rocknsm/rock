@@ -1,0 +1,22 @@
+# Dockerfile for Kafka
+
+FROM java:openjdk-8-jre
+
+# This environment variable will persist in the actual image itself. This will
+# override the kafka home value in the start-kafka.sh script. To see environment
+# variables run docker inspect
+ENV KAFKA_HOME {{ kafka_install_dir }}
+
+ADD start-kafka.sh /usr/bin/start-kafka.sh
+
+RUN wget -q http://apache.mirrors.spacedump.net/kafka/1.0.0/kafka_2.12-1.0.0.tgz -O /tmp/kafka-2.12-1.0.0.tgz && \
+    mkdir -p /opt/kafka && \
+    # The option strip-components removes the top level folder. Normally this would
+    # be something like kafka_vsnXXXXX. This makes it so the top level is just kafka
+    tar xzf /tmp/kafka-2.12-1.0.0.tgz -C /opt/kafka --strip-components 1 && \
+    rm -f /tmp/kafka-2.12-1.0.0.tgz && \
+    chmod 774 /usr/bin/start-kafka.sh
+
+EXPOSE {{ kafka_port }}
+
+CMD /usr/bin/start-kafka.sh

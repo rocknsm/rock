@@ -1,0 +1,14 @@
+[Unit]
+ Description = Zookeeper Container Service
+
+ Wants    = network.target
+ Requires = docker.service
+
+ [Service]
+ Type = simple
+
+ ExecStart = /usr/bin/docker-compose -f {{ rock_compose_files }}/zookeeper-compose.yml.j2 up
+ ExecStop  = /usr/bin/docker-compose -f {{ rock_compose_files }}/zookeeper-compose.yml.j2 down
+
+ [Install]
+ WantedBy = multi-user.target

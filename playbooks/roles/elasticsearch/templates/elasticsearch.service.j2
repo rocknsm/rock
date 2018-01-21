@@ -1,0 +1,24 @@
+[Unit]
+Description = Elasticsearch Container Service Module
+
+Wants    = network.target
+Requires = docker.service
+
+[Service]
+Type = simple
+
+ExecStartPre = /sbin/sysctl -w vm.max_map_count=262144
+ExecStartPre = /sbin/iptables -I INPUT 1 -p tcp --dport 9200 -j ACCEPT
+ExecStartPre = /sbin/iptables -I INPUT 1 -p tcp --dport 9300 -j ACCEPT
+
+ExecStart = /usr/bin/docker-compose -p rock -f {{ rock_compose_files }}/elasticsearch.compose.yml up
+ExecStop  = /usr/bin/docker-compose -p rock -f {{ rock_compose_files }}/elasticsearch.compose.yml down
+
+ExecStop = /sbin/iptables -D INPUT -p tcp --dport 9200 -j ACCEPT
+ExecStop = /sbin/iptables -D INPUT -p tcp --dport 9300 -j ACCEPT
+
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy = multi-user.target

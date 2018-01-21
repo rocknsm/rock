@@ -7,16 +7,49 @@
   docker_image:
     name: 'portainer/portainer'
 
-- name: Start Portainer
-  docker_container:
-    name: 'Portainer'
-    image: 'portainer/portainer'
+- name: 'Copy Portainer service file'
+  template:
+    src: 'portainer.service.j2'
+    dest: '/etc/systemd/system/portainer.service'
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Link Portainer service file'
+  file:
+    src: '/etc/systemd/system/portainer.service'
+    dest: '/etc/systemd/system/rock.target.wants/portainer.service'
+    owner: root
+    group: root
+    state: link
+  notify: reload systemd
+
+- name: 'Create new directories'
+  file:
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - "{{ rocknsm_dir }}/portainer/data"
+
+- name: 'Copy Portainer compose file'
+  template:
+    src: 'portainer-compose.yml.j2'
+    dest: "{{ rocknsm_dir }}/portainer/portainer-compose.yml"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Run portainer-compose.yml'
+  docker_service:
+    project_src: "{{ rocknsm_dir }}/portainer/"
+    files: 'portainer-compose.yml'
+    state: present
+
+- name: 'Enable Portainer service'
+  systemd:
+    name: 'portainer'
+    enabled: yes
     state: started
-    restart_policy: always
-    published_ports:
-      - 9000:9000
-    volumes:
-      - '/var/run/docker.sock:/var/run/docker.sock'
-      - '/opt/portainer:/data'
-# If your host is using SELinux
-#    privileged: yes
+    daemon_reload: yes
+
+...
