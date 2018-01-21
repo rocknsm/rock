@@ -3,30 +3,66 @@ Logstash
 
 Central database for managing all Rock data.
 
-Requirements
-------------
+<h1> [Event Data](https://www.elastic.co/guide/en/logstash/current/event-dependent-configuration.html)
 
-Currently none.
+<h2> Fields
 
-Role Variables
---------------
+All events have properties. For example, an apache access log would have things like status code (200, 404), request path ("/", "index.html"), HTTP verb (GET, POST), client IP address, etc. Logstash calls these properties "fields."
 
-TODO
+<h3> Field References
 
-Dependencies
-------------
+It is often useful to be able to refer to a field by name. To do this, you can use the Logstash field reference syntax.
 
-None
+The syntax to access a field is [fieldname]. If you are referring to a top-level field, you can omit the [] and simply use fieldname. To refer to a nested field, you specify the full path to that field: [top-level field][nested field].
 
+For example, the following event has five top-level fields (agent, ip, request, response, ua) and three nested fields (status, bytes, os).
 
+```
+{
+  "agent": "Mozilla/5.0 (compatible; MSIE 9.0)",
+  "ip": "192.168.24.44",
+  "request": "/index.html"
+  "response": {
+    "status": 200,
+    "bytes": 52353
+  },
+  "ua": {
+    "os": "Windows 7"
+  }
+}
+```
 
-Input
------
+<h4> sprintf format
+
+The field reference format is also used in what Logstash calls sprintf format. This format enables you to refer to field values from within other strings. For example, the statsd output has an increment setting that enables you to keep a count of apache logs by status code:
+```
+output {
+  statsd {
+    increment => "apache.%{[response][status]}"
+  }
+}
+```
+Similarly, you can convert the timestamp in the @timestamp field into a string. Instead of specifying a field name inside the curly braces, use the +FORMAT syntax where FORMAT is a time format.
+
+For example, if you want to use the file output to write to logs based on the event’s date and hour and the type field:
+```
+output {
+  file {
+    path => "/var/log/%{type}.%{+yyyy.MM.dd.HH}"
+  }
+}
+```
+<h1> Pipeline
+
+<h2>Input
+
 Defines where the logs are coming from. Ex:
 
+```
 beats {
     port => "5044"
 }
+```
 
 You use inputs to get data into Logstash. Some of the more commonly-used inputs are:
 
@@ -35,30 +71,13 @@ You use inputs to get data into Logstash. Some of the more commonly-used inputs 
 - redis: reads from a redis server, using both redis channels and redis lists. Redis is often used as a "broker" in a centralized Logstash installation, which queues Logstash events from remote Logstash "shippers".
 - beats: processes events sent by Filebeat.
 
-For more information about the available inputs, see https://www.elastic.co/guide/en/logstash/current/input-plugins.html
+For more information about the available inputs, see: https://www.elastic.co/guide/en/logstash/current/input-plugins.html
 
-Filter
-------
+<h2>Filter
 
-Output
-------
-Defines where the logs are output to. For example:
+<h3> Description
 
-stdout { codec => rubydebug }
-
-Elasticsearch Output
-********************
-
-You can output to elasticsearch with something like:
-output {
-    elasticsearch {
-        hosts => [ "localhost:9200" ]
-    }
-}
-
-Filters
--------
-
+```
 filter {
    grok {
        match => { "message" => "%{COMBINEDAPACHELOG}"}
@@ -66,11 +85,13 @@ filter {
    geoip {
        source => "clientip"
    }
+```
 
 You can have a filter section like this which means use the grok plugin, affix the name message to the incoming log, and apply the COMBINEDAPACHELOG pattern to it. It then also passes everything through the geoip plugin based on the incoming clientip field which is a part of the JSON output by the COMBINEDAPACHELOG pattern.
 
 The finalized event looks like this:
 
+```
 {
         "request" => "/presentations/logstash-monitorama-2013/images/kibana-search.png",
           "agent" => "\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.77 Safari/537.36\"",
@@ -92,6 +113,39 @@ The finalized event looks like this:
            "region_code" => "MOW",
              "longitude" => 37.6184
     },
+```
+
+<h3> Grok
+
+Grok works by combining text patterns into something that matches your logs.
+
+The syntax for a grok pattern is %{SYNTAX:SEMANTIC}
+
+The SYNTAX is the name of the pattern that will match your text. For example, 3.44 will be matched by the NUMBER pattern and 55.3.244.1 will be matched by the IP pattern. The syntax is how you match.
+
+The SEMANTIC is the identifier you give to the piece of text being matched. For example, 3.44 could be the duration of an event, so you could call it simply duration. Further, a string 55.3.244.1 might identify the client making a request.
+
+For the above example, your grok filter would look something like this:
+
+``%{NUMBER:duration} %{IP:client}``
+
+<h2>Output
+
+Defines where the logs are output to. For example:
+
+`stdout { codec => rubydebug }`
+
+<h4> Elasticsearch Output
+
+You can output to elasticsearch with something like:
+
+```
+output {
+    elasticsearch {
+        hosts => [ "localhost:9200" ]
+    }
+}
+```
 
 Codecs
 ------
@@ -117,9 +171,6 @@ https://www.elastic.co/guide/en/logstash/current/logstash-settings-file.html
 Other Helpful Tips
 ------------------
 - Logstash will concatenate all configuration files together. In our case, logstash-kafka-bro.conf, logstash-kafka-fsf.conf, and logstash-kafka-suricata.conf will all be concatenated together in lexigraphical order into a single config file. See the -f command line option.
-
-Kafka Plugin
-------------
 
 
 Helpful Commands

@@ -1,3 +1,16 @@
+<h1> Temporary Instructions
+
+To run the build:
+1. First you'll need to add rocksensor1.lan and rockserver1.lan to your /etc/host file (they will need to be real boxes or you can point them at localhost).
+2. cd (you must actually cd) to the /playbooks directory and run ansible-playbook site.yml --ask-pass
+3. If you only want to run sensors or servers respectively you can do: ansible-playbook site.yml --ask-pass --limit "sensors"
+
+I strongly recommend you read up on: http://docs.ansible.com/ansible/latest/intro_inventory.html
+
+<h1> OUT OF DATE NOTICE
+
+*ALL OF THE BELOW IS CURRENTLY OUT OF DATE*
+
 ## Response Operation Collections Kit Reference Build
 test
 If you have questions after trying the code and the documentation, please see
