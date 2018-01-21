@@ -42,10 +42,6 @@
     path: "{{ es_log_dir }}"
     state: directory
 
-  #chown -R 1000:1000 /data/elasticsearch/
-#- name: Change permissions of Elasticsearch directory
-  #shell: chmod ug+wrx /data/elasticsearch/
-
 - name: "Setup elasticsearch config"
   template:
     dest: "{{ rock_compose_files }}/elasticsearch.compose.yml"
