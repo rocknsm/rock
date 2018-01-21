@@ -11,7 +11,7 @@ services:
     volumes:
       - "{{ rock_data_dir }}/kibana/data:/data"
     environment:
-      - ELASTICSEARCH_URL="http://{{ es_url }}"
+      - ELASTICSEARCH_URL="{{ es_url }}"
       - xpack.security.enabled="{{ xpack_license }}"
       - xpack.monitoring.ui.container.elasticsearch.enabled="{{ xpack_license }}"
 
