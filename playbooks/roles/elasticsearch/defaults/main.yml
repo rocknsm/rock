@@ -9,25 +9,16 @@ elastic_delete_interval: 60
 
 #### Main Role Configuration ####
 
-elastic_baseurl: https://artifacts.elastic.co/packages/5.x/yum
-elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 es_user: 1000
 es_group: 1000
 es_data_dir: "{{ rock_data_dir }}/elasticsearch"
 es_cluster_name: rocknsm
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
-es_node_name: "{{ rock_hostname }}"
-es_memlock_override: |
-  [Service]
-  LimitMEMLOCK=infinity
 
 elastic_data_port: '9200'
 elastic_management_port: '9300'
 elastic_container: 'docker.elastic.co/elasticsearch/elasticsearch'
 elastic_container_name: 'rock-elasticsearch'
-elastic_yum: 'elastic'
-elastic_config_file: '/etc/elasticsearch/elasticsearch.yml'
-# TODO: This should no longer be a necessary variable
-#elastic_override_dir: '/etc/systemd/system/elasticsearch.service.d'
 es_config_dir: '{{ rocknsm_dir }}/elasticsearch'
 es_log_dir: '/var/log/elasticsearch'
+elastic_config_file: '{{ es_config_dir }}/elasticsearch.yml'
