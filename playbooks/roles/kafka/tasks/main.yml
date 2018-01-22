@@ -11,6 +11,12 @@
     baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/
     gpgcheck: false
 
+# This is used for debugging Kafka
+- name: Install kafkacat
+  yum:
+    name: "kafkacat"
+    state: "installed"
+
 - name: Open port in firewalld for Kafka
   firewalld:
     port: 9092/tcp

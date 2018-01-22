@@ -10,9 +10,12 @@ services:
       - {{ suricata_log_location }}:{{ suricata_log_location }}
     networks:
       - rocknsm_inside
+      - rocknsm_outside
 
 networks:
   rocknsm_inside:
+    external: true
+  rocknsm_external:
     external: true
 
 ...
