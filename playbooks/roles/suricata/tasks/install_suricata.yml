@@ -8,6 +8,14 @@
     name: suricata
     state: installed
 
+- name: Install Suricata configuration
+  template:
+    src: "suricata.yaml.j2"
+    dest: "/etc/suricata/suricata.yaml"
+    mode: 0644
+    owner: root
+    group: root    
+
 - name: Create Suricata directories
   file:
     path: "{{ suricata_data_dir }}/"
@@ -57,14 +65,6 @@
     group: root
     state: link
 
-- name: Install suricata overrides
-  template:
-    src: templates/suricata_overrides.yaml.j2
-    dest: /etc/suricata/rocknsm-overrides.yaml
-    mode: 0644
-    owner: "{{ suricata_user }}"
-    group: root
-
 - name: Create IP reputation config dir
   file:
     path: /etc/suricata/rules/iplists
@@ -72,12 +72,6 @@
     owner: root
     group: root
     mode: 0755
-
-- name: Set suricata overrides include in main config
-  lineinfile:
-    dest: /etc/suricata/suricata.yaml
-    line: "import_tasks: rocknsm-overrides.yaml"
-    state: present
 
 - name: Configure Suricata /var directory permissions
   file:
