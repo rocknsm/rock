@@ -32,9 +32,9 @@ all:
       children:
         master-servers:
 
-    haproxy:
-      children:
-        master-servers:
+    #haproxy:
+    #  children:
+    #    master-servers:
 
     elasticsearch:
       children:

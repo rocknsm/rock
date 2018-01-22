@@ -51,10 +51,10 @@
 # for elasticsearch's main tasks to complete. Adding haproxy to elasticsearch's
 # dependencies is not an option due to ansible installing haproxy on every host
 # that elasticsearch is assigned to.
-- hosts: haproxy
-  roles:
-    - haproxy
-  gather_facts: no
+#- hosts: haproxy
+#  roles:
+#    - haproxy
+#  gather_facts: no
 
 - hosts: elasticsearch
   roles:
@@ -64,11 +64,6 @@
 - hosts: logstash
   roles:
     - logstash
-  gather_facts: no
-
-- hosts: sensors
-  roles:
-    - sensor-common
   gather_facts: no
 
 - hosts: bro

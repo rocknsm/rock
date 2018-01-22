@@ -1,4 +1,4 @@
 ---
 
-- include_tasks: 'logstash_container.yml'
-- include_tasks: 'pipeline_configuration.yml'
+- import_tasks: 'logstash_container.yml'
+- import_tasks: 'pipeline_configuration.yml'
