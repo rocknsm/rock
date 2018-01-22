@@ -2,7 +2,9 @@
 ######### Configure the monitoring interface #########
 ######################################################
 ---
-- pause:
+
+- name: Prompting for monitor interface
+  pause:
     prompt: "Use interface: {{ item }} for monitoring? [y/n]"
   register: "res"
   with_items: "{{ rock_monifs }}"

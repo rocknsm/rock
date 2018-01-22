@@ -25,27 +25,35 @@
     comment: "User for managing logstash related things"
     group: "{{ logstash_group }}"
 
-- name: "Create Logstash data directory"
+- name: "Create Logstash directory"
   file:
-    group: 1000
-    mode: u+rw,g+rw
-    owner: 1000
-    path: "{{ logstash_data_dir }}"
+    group: "{{ logstash_group }}"
+    mode: 0754
+    owner: "{{ logstash_user }}"
+    path: "{{ logstash_dir }}"
     state: directory
 
 - name: "Create Logstash configuration directory"
   file:
-    group: 1000
-    mode: u+rw,g+rw
-    owner: 1000
-    path: "{{ logstash_pipeline_dir }}"
+    group: "{{ logstash_group }}"
+    mode: 0754
+    owner: "{{ logstash_user }}"
+    path: "{{ logstash_config_dir }}"
+    state: directory
+
+- name: "Create Logstash data directory"
+  file:
+    group: "{{ logstash_group }}"
+    mode: 0754
+    owner: "{{ logstash_user }}"
+    path: "{{ logstash_data_dir }}"
     state: directory
 
 - name: "Create Logstash log directory"
   file:
-    group: 1000
-    mode: u+rw,g+rw
-    owner: 1000
+    group: "{{ logstash_group }}"
+    mode: 0754
+    owner: "{{ logstash_user }}"
     path: "{{ logstash_log_dir }}"
     state: directory
 
@@ -73,9 +81,10 @@
     owner: "{{ logstash_user }}"
     src: templates/logstash.compose.yml.j2
 
-- name: "Enable and start Logstash"
-  systemd:
-    enabled: yes
-    name: logstash
-    state: started
-    daemon-reload: yes
+- name: "Copy logstash configuration file"
+  template:
+    dest: "{{ logstash_dir }}/logstash.yml"
+    group: "{{ logstash_group }}"
+    mode: 0755
+    owner: "{{ logstash_user }}"
+    src: templates/logstash.yml.j2

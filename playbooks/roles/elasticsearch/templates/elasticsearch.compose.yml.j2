@@ -4,12 +4,10 @@ version: '2'
 services:
   elastic:
     image: "{{ elastic_container }}:{{ elastic_ver }}"
-    container_name: "{{ rock_hostname }}"
+    container_name: "{{ elastic_container_name }}"
     restart: "always"
     ports:
-      # TODO: This line should no longer be needed with the backend networking
-      #- "{{ elastic_data_port }}:{{ elastic_data_port }}"
-      - "{{ elastic_management_port }}:{{ elastic_management_port }}"
+      - "{{ elastic_data_port }}:{{ elastic_data_port }}"
     volumes:
       - "{{ es_data_dir }}:/usr/share/elasticsearch/data/"
       - "{{ es_config_dir}}/jvm.options:{{ es_config_dir }}/jvm.options"
@@ -37,10 +35,14 @@ services:
     # This caps the amount of memory available to the container
     mem_limit: {{ es_mem * 2 }}g
 
-# Secure Docker network that cannot be connected to host directly
+    networks:
+      - rocknsm_inside
+      - rocknsm_outside
+
 networks:
-  default:
-    external:
-      name: 'rocknsm_inside'
+  rocknsm_inside:
+    external: true
+  rocknsm_outside:
+    external: true
 
 ...

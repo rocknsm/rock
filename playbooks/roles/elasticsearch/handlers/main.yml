@@ -1,3 +1,0 @@
----
-#- name: es maintenance
-#  command: /usr/local/bin/es_cleanup.sh

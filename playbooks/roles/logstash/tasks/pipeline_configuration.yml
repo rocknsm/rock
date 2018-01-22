@@ -4,30 +4,39 @@
 # copy pipeline configuration files
 - name: "Install Bro-Kafka configuration for Logstash"
   copy:
-    dest: "{{ logstash_pipeline_dir }}/kafka-bro.conf"
+    dest: "{{ logstash_config_dir }}/kafka-bro.conf"
     group: "{{ logstash_group }}"
-    mode: u+rw,g+rw,o+r
+    mode: 0754
     owner: "{{ logstash_user }}"
-    src: 'logstash-kafka-bro.conf'
-  notify: "Restart Logstash"
-  when: "included_components.bro.enabled and included_components.kafka.enabled"
+    src: 'kafka-bro.conf'
 
 - name: "Install Suricata-Kafka configuration for Logstash"
   copy:
-    dest: "{{ logstash_pipeline_dir }}/kafka-suricata.conf"
+    dest: "{{ logstash_config_dir }}/kafka-suricata.conf"
     group: "{{ logstash_group }}"
     mode: u+rw,g+rw,o+r
     owner: "{{ logstash_user }}"
-    src: 'logstash-kafka-suricata.conf'
-  notify: "Restart Logstash"
-  when: "included_components.suricata.enabled and included_components.kafka.enabled"
+    src: 'kafka-suricata.conf'
 
 - name: "Install FSF-Kafka configuration for Logstash"
   copy:
-    dest: "{{ logstash_pipeline_dir }}/kafka-fsf.conf"
+    dest: "{{ logstash_config_dir }}/kafka-fsf.conf"
     group: "{{ logstash_group }}"
-    mode: u+rw,g+rw,o+r
+    mode: 0754
     owner: "{{ logstash_user }}"
-    src: 'logstash-kafka-fsf.conf'
-  notify: "Restart Logstash"
-  when: "included_components.fsf.enabled and included_components.kafka.enabled"
+    src: 'kafka-fsf.conf'
+
+- name: "Copy pipelines.yml"
+  copy:
+    dest: "{{ logstash_dir }}/pipelines.yml"
+    group: "{{ logstash_group }}"
+    mode: 0754
+    owner: "{{ logstash_user }}"
+    src: 'pipelines.yml'
+
+- name: "Enable and start Logstash"
+  systemd:
+    enabled: yes
+    name: logstash
+    state: restarted
+    daemon-reload: yes

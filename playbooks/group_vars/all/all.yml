@@ -1,5 +1,5 @@
 ---
-  
+
 #Common role variables
 common_mgnt_nets: "{{ rock_mgmt_nets }}"
 
@@ -30,7 +30,7 @@ rock_compose_files: "{{ rocknsm_dir + '/compose_files' }}"
 
 # This is now a global variable because it is drawn on by the sensor and
 # the servers
-elastic_ver: '6.1.1'
+elastic_ver: '6.1.2'
 
 #### Elasticstack x-pack options ####
 # If you have licensing for x-pack set variable to true.

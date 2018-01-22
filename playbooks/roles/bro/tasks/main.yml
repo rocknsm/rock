@@ -17,7 +17,6 @@
   yum:
     name: bro-plugin-kafka
     state: installed
-  when: included_components.kafka.enabled
 
 - name: Create bro group
   group:
@@ -133,15 +132,14 @@
     version: "{{ bro_rockscripts_branch }}"
   when: rock_online_install
 
-- name: Deploy offline ROCK Bro scripts
-  unarchive:
-    src: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
-    dest: "{{ bro_site_dir }}/scripts/"
-    owner: root
-    group: root
-    creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
-    remote_src: yes
-  when: included_components.bro.enabled and not rock_online_install
+#- name: Deploy offline ROCK Bro scripts
+#  unarchive:
+#    src: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
+#    dest: "{{ bro_site_dir }}/scripts/"
+#    owner: root
+#    group: root
+#    creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+#    remote_src: yes
 
 - name: Symlink offline ROCK bro scripts
   file:
@@ -179,7 +177,6 @@
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/kafka"
     state: present
-  when: included_components.bro.enabled and included_components.kafka.enabled
 
 - name: Enable the SMB Analyzer in local.bro
   lineinfile:
@@ -237,20 +234,9 @@
   become_user: "{{ bro_user }}"
 
 - name: Enable and start broctl
-  service:
+  systemd:
     name: bro
     enabled: true
     #This set of variables not yet implemented in this version
     #enabled: "{{ enable_bro }}"
-  notify: reload bro
-
-# THIS WAS COMMENTED OUT BY DCODE
-# - name: Create bro utility symlinks
-#   file:
-#     src: "/opt/bro/bin/{{ item.src }}"
-#     dest: "/usr/bin/{{ item.dest }}"
-#     force: yes
-#     state: link
-#   with_items:
-#     - { src: 'bro', dest: 'bro' }
-#     - { src: 'bro-cut', dest: 'bro-cut' }
+    daemon_reload: yes

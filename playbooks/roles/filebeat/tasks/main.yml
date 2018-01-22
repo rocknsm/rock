@@ -39,7 +39,7 @@
   systemd:
     name: 'filebeat'
     enabled: yes
-    state: started
+    state: restarted
     daemon_reload: yes
 
 ...
