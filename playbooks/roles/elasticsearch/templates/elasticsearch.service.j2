@@ -12,6 +12,7 @@ ExecStartPre = /sbin/iptables -I INPUT 1 -p tcp --dport 9200 -j ACCEPT
 ExecStartPre = /sbin/iptables -I INPUT 1 -p tcp --dport 9300 -j ACCEPT
 
 ExecStart = /usr/bin/docker-compose -p rock -f {{ rock_compose_files }}/elasticsearch.compose.yml up
+ExecStartPost = /bin/sh -c "/bin/sleep 3; /bin/ln -sf $(docker inspect --format='{{ '{{' }}.LogPath{{ '}}' }}' rock-elasticsearch) /var/log/elasticsearch/docker.log"
 ExecStop  = /usr/bin/docker-compose -p rock -f {{ rock_compose_files }}/elasticsearch.compose.yml down
 
 ExecStop = /sbin/iptables -D INPUT -p tcp --dport 9200 -j ACCEPT

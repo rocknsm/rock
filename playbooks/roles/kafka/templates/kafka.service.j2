@@ -8,6 +8,7 @@
  Type = simple
 
  ExecStart = /usr/bin/docker-compose -f {{ rock_compose_files }}/kafka-compose.yml up
+ ExecStartPost = /bin/sh -c "/bin/sleep 3; /bin/ln -sf $(docker inspect --format='{{ '{{' }}.LogPath{{ '}}' }}' rock-kafka) /var/log/kafka/docker.log"
  ExecStop  = /usr/bin/docker-compose -f {{ rock_compose_files }}/kafka-compose.yml down
 
  [Install]
