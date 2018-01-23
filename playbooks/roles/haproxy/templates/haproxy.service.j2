@@ -11,5 +11,8 @@
  ExecStartPost = /bin/sh -c "/bin/sleep 3; /bin/ln -sf $(docker inspect --format='{{ '{{' }}.LogPath{{ '}}' }}' rock-haproxy) /var/log/haproxy/docker.log"
  ExecStop  = /usr/bin/docker-compose -f {{ rocknsm_dir }}/haproxy/haproxy-compose.yml down -v
 
+ Restart=always
+ RestartSec=3
+
  [Install]
  WantedBy = multi-user.target
