@@ -10,6 +10,7 @@ services:
     restart: "always"
     volumes:
       - "{{ rock_data_dir }}/kibana/data:/data"
+      - "{{ kibana_log_dir }}:{{ kibana_log_dir }}"
     environment:
       - ELASTICSEARCH_URL="{{ es_url }}"
       - xpack.security.enabled="{{ xpack_license }}"

@@ -25,6 +25,11 @@
     owner: root
     group: root
 
+- name: 'Create Zookeeper log directory'
+  file:
+    path: "{{ zookeeper_log_dir }}"
+    state: directory
+
 - name: 'Install Zookeeper service file'
   template:
     src: 'zookeeper.service.j2'
