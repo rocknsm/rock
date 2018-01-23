@@ -8,6 +8,7 @@ services:
     volumes:
       - {{ filebeat_config_location }}/filebeat.yml:/usr/share/filebeat/filebeat.yml
       - {{ suricata_log_location }}:{{ suricata_log_location }}
+      - {{ filebeat_log_dir }}:/usr/share/filebeat/logs
     networks:
       - rocknsm_inside
       - rocknsm_outside

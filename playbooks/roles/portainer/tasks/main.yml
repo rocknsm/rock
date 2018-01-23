@@ -31,6 +31,11 @@
   with_items:
     - "{{ rocknsm_dir }}/portainer/data"
 
+- name: 'Create portainer log directory'
+  file:
+    path: '{{ portainer_log_dir }}'
+    state: directory
+
 - name: 'Copy Portainer compose file'
   template:
     src: 'portainer-compose.yml.j2'
