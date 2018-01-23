@@ -8,6 +8,7 @@
  Type = simple
 
  ExecStart = /usr/bin/docker-compose -f {{ rock_compose_files }}/zookeeper-compose.yml.j2 up
+ ExecStartPost = /bin/sh -c "/bin/sleep 3; /bin/ln -sf $(docker inspect --format='{{ '{{' }}.LogPath{{ '}}' }}' rock-elasticsearch) /var/log/elasticsearch/docker.log"
  ExecStop  = /usr/bin/docker-compose -f {{ rock_compose_files }}/zookeeper-compose.yml.j2 down
 
  [Install]

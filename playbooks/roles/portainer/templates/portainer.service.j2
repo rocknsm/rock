@@ -8,7 +8,7 @@ Requires = docker.service
 Type = simple
 
  ExecStart = /usr/bin/docker-compose -f {{ rocknsm_dir }}/portainer/portainer-compose.yml up
-
+ ExecStartPost = /bin/sh -c "/bin/sleep 3; /bin/ln -sf $(docker inspect --format='{{ '{{' }}.LogPath{{ '}}' }}' rock-portainer) /var/log/portainer/docker.log"
  ExecStop  = /usr/bin/docker-compose -f {{ rocknsm_dir }}/portainer/portainer-compose.yml down -v
 
 [Install]
