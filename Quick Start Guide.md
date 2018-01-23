@@ -33,5 +33,6 @@ ansible-playbook site.yml --ask-pass
 
 7. To run only sensor/server related playbooks, use the "--limit" flag.
 ```bash
-ansible-playbook site.yml --ask-pass --limit "sensor"
+ansible-playbook site.yml --ask-pass --limit "sensors"
+ansible-playbook site.yml --ask-pass --limit "servers"
 ```
