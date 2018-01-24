@@ -3,14 +3,15 @@
 ############### Setup Dnsmasq container ###############
 ######################################################
 
-- name: 'Install Dnsmasq service file'
-  template:
-    src: 'dnsmasq.service.j2'
-    dest: '/etc/systemd/system/dnsmasq.service'
-    mode: 0644
-    owner: root
-    group: root
-  notify: reload systemd
+- name: Install Dnsmasq
+  yum:
+    name: dnsmasq
+    state: installed
+
+- name: Install BIND-Utils
+  yum:
+    name: bind-utils
+    state: installed
 
 - name: 'Create new directories'
   file:
@@ -19,42 +20,8 @@
   with_items:
     - "{{ rocknsm_dir }}/dnsmasq/data"
 
-- name: 'Create dnsmasq.d directory'
-  file:
-    path: '/etc/dnsmasq.d'
-    state: directory
-
-- name: 'Copy Dnsmasq dockerfile'
-  template:
-    src: 'dnsmasq-dockerfile.j2'
-    dest: "{{ rocknsm_dir }}/dnsmasq/dnsmasq-dockerfile.j2"
-    mode: 0644
-    owner: root
-    group: root
-
-- name: 'Build Dnsmasq container'
-  docker_image:
-    name: 'rocknsm/dnsmasq'
-    pull: yes
-    state: present
-    path: "{{ rocknsm_dir }}/dnsmasq/"
-    dockerfile: 'dnsmasq-dockerfile.j2'
-
-- name: 'Copy Dnsmasq compose file'
-  template:
-    src: 'dnsmasq-compose.yml.j2'
-    dest: "{{ rocknsm_dir }}/dnsmasq/dnsmasq-compose.yml.j2"
-    mode: 0644
-    owner: root
-    group: root
-
-- name: 'Run Dnsmasq compose file'
-  docker_service:
-    project_src: "{{ rocknsm_dir }}/dnsmasq/"
-    files: 'dnsmasq-compose.yml.j2'
-    state: present
-
-- name: 'Enable Dnsmasq service'
+- name: Start dnsmasq and enable it
   service:
-    name: 'dnsmasq'
-    enabled: yes
+    name: dnsmasq
+    state: started
+    enabled: true

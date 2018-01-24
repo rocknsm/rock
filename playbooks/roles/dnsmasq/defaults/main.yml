@@ -1,9 +1,0 @@
-%YAML 1.1
----
-
-#### Main Role Configuration ####
-
-dnsmasq_user: dnsmasq
-dnsmasq_group: dnsmasq
-dnsmasq_data_dir: "{{ rock_data_dir }}/dnsmasq"
-dnsmasq_port: 53
