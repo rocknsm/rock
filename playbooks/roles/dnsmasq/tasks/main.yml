@@ -25,3 +25,11 @@
     name: dnsmasq
     state: started
     enabled: true
+
+- name: Copy over hosts template
+  copy:
+    src: hosts
+    dest: /etc/dnsmasq.d/hosts
+
+- name: Updating configuration file
+  command: sed -i 's|#addn-hosts=/etc/banner_add_hosts|addn-hosts=/etc/dnsmasq.d/hosts|g' /etc/dnsmasq.conf;
