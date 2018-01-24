@@ -13,6 +13,5 @@ services:
       - "/etc/dnsmasq.d:/etc/dnsmasq.d"
     cap_add:
       - NET_ADMIN
-    net:
-      - host
+    network_mode: "host"
 ...
