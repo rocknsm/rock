@@ -21,6 +21,7 @@ services:
     volumes:
       - "{{ rocknsm_dir }}/haproxy/haproxy.conf:/usr/local/etc/haproxy/haproxy.cfg"
       - "{{ rocknsm_dir }}/CA/private/haproxy.pem:/etc/ssl/private/haproxy.pem"
+      - "{{ haproxy_log_dir}}:{{ haproxy_log_dir }}"
       # Systemd volumes
       - '/sys/fs/cgroup:/sys/fs/cgroup:ro'
     environment:

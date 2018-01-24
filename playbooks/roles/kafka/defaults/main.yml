@@ -12,3 +12,4 @@ kafka_port: 9092
 kafka_maj_vsn: 1.0.0
 kafka_vsn: "2.12-{{ kafka_maj_vsn }}"
 kafka_install_dir: '/opt/kafka'
+kafka_log_dir: '/var/log/kafka'

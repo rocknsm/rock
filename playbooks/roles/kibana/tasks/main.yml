@@ -32,6 +32,14 @@
     mode: u+rw,g+rw
     state: directory
 
+- name: 'Create Kibana log directory'
+  file:
+    owner: 1000
+    group: 1000
+    mode: u+rw,g+rw
+    path: "{{ kibana_log_dir }}"
+    state: directory
+
 - name: 'Copy Kibana compose file'
   template:
     src: 'kibana-compose.yml.j2'
@@ -46,5 +54,5 @@
     enabled: yes
     state: restarted
     daemon_reload: yes
-    
+
 ...

@@ -66,6 +66,14 @@
     owner: root
     src: templates/elasticsearch.service.j2
 
+- name: "Link elasticsearch service"
+  file:
+    src: "/etc/systemd/system/elasticsearch.service"
+    dest: "/etc/systemd/system/rock.target.wants/elasticsearch.service"
+    group: "{{ es_group }}"
+    owner: "root"
+    state: link
+
 - name: "Enable and start Elasticsearch"
   systemd:
     enabled: yes

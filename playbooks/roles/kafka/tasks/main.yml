@@ -36,6 +36,11 @@
     state: directory
     mode: 0644
 
+- name: 'Create kafka log directory'
+  file:
+    path: "{{ kafka_log_dir }}"
+    state: directory
+
 # Install Kafkacat for the dockervm
 # TODO: Is this needed?
 #- name: Install Kafkacat package
@@ -104,7 +109,7 @@
   systemd:
     name: 'kafka'
     enabled: yes
-    state: restarted
+    state: started
     daemon-reload: yes
 
 - name: 'Wait for Kafka service to start'

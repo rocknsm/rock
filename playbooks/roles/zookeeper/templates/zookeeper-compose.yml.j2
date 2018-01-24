@@ -10,6 +10,7 @@ services:
     volumes:
       - {{ zookeeper_data_dir }}:/data
       - {{ zookeeper_dir }}/zoo.cfg:/conf/zoo.cfg
+      - {{ zookeeper_log_dir }}:{{ zookeeper_log_dir }}
 
     networks:
       - rocknsm_inside

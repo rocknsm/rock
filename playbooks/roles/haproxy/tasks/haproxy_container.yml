@@ -28,6 +28,11 @@
     - "{{ rocknsm_dir }}/CA/private"
     - "{{ rocknsm_dir }}/CA/newcerts"
 
+- name: 'Create haproxy log directory'
+  file:
+    path: "{{ haproxy_log_dir }}"
+    state: directory
+
 - name: 'Pull official haproxy from docker hub'
   docker_image:
     name: 'haproxy:latest'
@@ -107,5 +112,5 @@
     enabled: yes
     state: started
     daemon_reload: yes
-    
+
 ...
