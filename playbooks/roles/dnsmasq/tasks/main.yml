@@ -32,4 +32,7 @@
     dest: /etc/dnsmasq.d/hosts
 
 - name: Updating configuration file
-  command: sed -i 's|#addn-hosts=/etc/banner_add_hosts|addn-hosts=/etc/dnsmasq.d/hosts|g' /etc/dnsmasq.conf;
+  lineinfile:
+    path: /etc/dnsmasq.conf
+    regexp: '^#addn-hosts=/etc/banner_add_hosts'
+    line: 'addn-hosts=/etc/dnsmasq.d/hosts'
