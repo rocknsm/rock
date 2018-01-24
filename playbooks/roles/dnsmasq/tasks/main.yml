@@ -30,6 +30,8 @@
   copy:
     src: templates/hosts
     dest: /etc/dnsmasq.d/hosts
+    group: dnsmasq
+    owner: dnsmasq
 
 - name: Updating configuration file
   lineinfile:
