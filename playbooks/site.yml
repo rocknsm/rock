@@ -90,6 +90,11 @@
   roles:
     - kafka
   gather_facts: no
+  
+- hosts: dnsmasq
+  roles:
+    - dnsmasq
+  gather_facts: no
 
 # Harbor must run last so that it uploads all containers installed on the machine.
 # Harbor has compose file issue, disabling for now

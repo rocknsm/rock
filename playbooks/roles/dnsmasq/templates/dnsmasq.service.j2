@@ -1,0 +1,14 @@
+[Unit]
+ Description = Dnsmasq Container Service
+
+ Wants    = network.target
+ Requires = docker.service
+
+ [Service]
+ Type = simple
+
+ ExecStart = /usr/bin/docker-compose -f {{ rocknsm_dir }}/dnsmasq/dnsmasq-compose.yml.j2 up
+ ExecStop  = /usr/bin/docker-compose -f {{ rocknsm_dir }}/dnsmasq/dnsmasq-compose.yml.j2 down -v
+
+ [Install]
+ WantedBy = multi-user.target

@@ -1,0 +1,25 @@
+# Dockerfile for Dnsmasq
+
+FROM centos/systemd
+
+# Prepare the environment and get things up to date
+# these rm commands... what are they for? #stole these rm commands from DP, not sure what it is for
+RUN yum update -y; \
+  yum install -y dnsmasq bind-utils; \
+  rm -rf /var/cache/yum/*; \
+  rm -f /lib/systemd/system/multi-user.target.wants/*;\
+  rm -f /etc/systemd/system/*.wants/*;\
+  rm -f /lib/systemd/system/local-fs.target.wants/*; \
+  rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+  rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+  rm -f /lib/systemd/system/basic.target.wants/*;\
+  rm -f /lib/systemd/system/anaconda.target.wants/*; \
+  systemctl enable dnsmasq;
+
+# Setup for Systemd #stole this from DP, not sure what it is for (added the dnsmasq stuff)
+VOLUME ["/sys/fs/cgroup", "/etc/hosts", "/etc/dnsmasq.conf", "/etc/dnsmasq.d" ]
+
+EXPOSE {{ dnsmasq_port }}
+
+# For systemd? #stole this from DP, not sure what it is for
+CMD ["/usr/sbin/init"]
