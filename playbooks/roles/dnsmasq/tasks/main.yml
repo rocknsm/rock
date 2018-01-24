@@ -19,6 +19,11 @@
   with_items:
     - "{{ rocknsm_dir }}/dnsmasq/data"
 
+- name: 'Create dnsmasq.d directory'
+  file:
+    path: '/etc/dnsmasq.d'
+    state: directory
+
 - name: 'Copy Dnsmasq dockerfile'
   template:
     src: 'dnsmasq-dockerfile.j2'

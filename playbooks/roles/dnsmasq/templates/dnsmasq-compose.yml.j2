@@ -9,4 +9,6 @@ services:
       - {{ dnsmasq_port }}/udp:{{ dnsmasq_port }}/udp
     environment:
       - container=docker
+    volumes:
+      - "/etc/dnsmasq.d:/etc/dnsmasq.d"
 ...

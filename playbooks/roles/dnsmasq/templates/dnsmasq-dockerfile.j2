@@ -16,8 +16,11 @@ RUN yum update -y; \
   rm -f /lib/systemd/system/anaconda.target.wants/*; \
   systemctl enable dnsmasq;
 
-# Setup for Systemd #stole this from DP, not sure what it is for (added the dnsmasq stuff)
-VOLUME ["/sys/fs/cgroup", "/etc:/etc"]
+RUN sed -i 's|#addn-hosts=/etc/banner_add_hosts|addn-hosts=/etc/dnsmasq.d/hosts|g' /etc/dnsmasq.conf;
+RUN echo "#The syntax for hosts files is IP_address  hostname [optional additional hostnames with spaces separating them]" > /etc/dnsmasq.d/hosts
+
+# Setup for Systemd #stole this from DP, not sure what it is for
+VOLUME ["/sys/fs/cgroup", "/etc/dnsmasq.d:/etc/dnsmasq.d"]
 
 EXPOSE {{ dnsmasq_port }}:{{ dnsmasq_port }}/udp
 
