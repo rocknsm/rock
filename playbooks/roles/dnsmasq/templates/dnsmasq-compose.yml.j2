@@ -6,7 +6,7 @@ services:
     image: rocknsm/dnsmasq
     container_name: 'dnsmasq'
     ports:
-      - {{ dnsmasq_port }}:{{ dnsmasq_port }}
+      - {{ dnsmasq_port }}:{{ dnsmasq_port }}/udp
     environment:
       - container=docker
 ...
