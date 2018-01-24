@@ -33,74 +33,78 @@
     - docker
   gather_facts: no
 
-- hosts: dnsmasq
-  roles:
-    - dnsmasq
-  gather_facts: no
+#************************************************
+# WARNING DNSMASQ is a temporary solution to getting a dns server up and running for developing.
+# It is not very secure! DO NOT USE ON A PRODUCTION ENVIRONMENT
+#************************************************
+#- hosts: dnsmasq
+#  roles:
+#    - dnsmasq
+#  gather_facts: no
 
 # kibana and portainer must come before haproxy as haproxy cannot run without
 # being able to contact at least one of each backend servers (1 kibana, 1 portainer,
 # 1 elasticsearch)
-###- hosts: kibana
-###  roles:
-###    - kibana
-###  gather_facts: no
-###
-###- hosts: portainer
-###  roles:
-###    - portainer
-###  gather_facts: no
-###
-#### haproxy must come before elasticsearch. The host running ansible will not
-#### beable to contact elasticsearch without haproxy running, this is required
-#### for elasticsearch's main tasks to complete. Adding haproxy to elasticsearch's
-#### dependencies is not an option due to ansible installing haproxy on every host
-#### that elasticsearch is assigned to.
-####- hosts: haproxy
-####  roles:
-####    - haproxy
-####  gather_facts: no
-###
-###- hosts: elasticsearch
-###  roles:
-###    - elasticsearch
-###  gather_facts: no
-###
-###- hosts: logstash
-###  roles:
-###    - logstash
-###  gather_facts: no
-###
-###- hosts: bro
-###  roles:
-###    - bro
-###  gather_facts: no
-###
-###- hosts: suricata
-###  roles:
-###    - suricata
-###  gather_facts: no
-###
-###- hosts: filebeat
-###  roles:
-###    - filebeat
-###  gather_facts: no
-###
-###- hosts: zookeeper
-###  roles:
-###    - zookeeper
-###  gather_facts: no
-###
-###- hosts: kafka
-###  roles:
-###    - kafka
-###  gather_facts: no
-###
-#### Harbor must run last so that it uploads all containers installed on the machine.
-#### Harbor has compose file issue, disabling for now
-####- hosts: harbor
-####  roles:
-####    - harbor
-####  gather_facts: no
-###
+- hosts: kibana
+  roles:
+    - kibana
+  gather_facts: no
+
+- hosts: portainer
+  roles:
+    - portainer
+  gather_facts: no
+
+# haproxy must come before elasticsearch. The host running ansible will not
+# beable to contact elasticsearch without haproxy running, this is required
+# for elasticsearch's main tasks to complete. Adding haproxy to elasticsearch's
+# dependencies is not an option due to ansible installing haproxy on every host
+# that elasticsearch is assigned to.
+#- hosts: haproxy
+#  roles:
+#    - haproxy
+#  gather_facts: no
+
+- hosts: elasticsearch
+  roles:
+    - elasticsearch
+  gather_facts: no
+
+- hosts: logstash
+  roles:
+    - logstash
+  gather_facts: no
+
+- hosts: bro
+  roles:
+    - bro
+  gather_facts: no
+
+- hosts: suricata
+  roles:
+    - suricata
+  gather_facts: no
+
+- hosts: filebeat
+  roles:
+    - filebeat
+  gather_facts: no
+
+- hosts: zookeeper
+  roles:
+    - zookeeper
+  gather_facts: no
+
+- hosts: kafka
+  roles:
+    - kafka
+  gather_facts: no
+
+# Harbor must run last so that it uploads all containers installed on the machine.
+# Harbor has compose file issue, disabling for now
+#- hosts: harbor
+#  roles:
+#    - harbor
+#  gather_facts: no
+
 ...
