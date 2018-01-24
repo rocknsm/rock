@@ -28,7 +28,7 @@
 
 - name: Copy over hosts template
   copy:
-    src: hosts
+    src: templates/hosts
     dest: /etc/dnsmasq.d/hosts
 
 - name: Updating configuration file
