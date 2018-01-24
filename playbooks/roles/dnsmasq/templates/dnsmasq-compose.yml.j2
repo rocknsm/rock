@@ -11,4 +11,6 @@ services:
       - container=docker
     volumes:
       - "/etc/dnsmasq.d:/etc/dnsmasq.d"
+    cap_add:
+      - NET_ADMIN
 ...
