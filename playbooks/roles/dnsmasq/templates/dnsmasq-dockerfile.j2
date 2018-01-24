@@ -17,7 +17,7 @@ RUN yum update -y; \
   systemctl enable dnsmasq;
 
 # Setup for Systemd #stole this from DP, not sure what it is for (added the dnsmasq stuff)
-VOLUME ["/sys/fs/cgroup", "/etc/hosts:/etc:hosts", "/etc/dnsmasq.conf:/etc/dnsmasq.conf", "/etc/dnsmasq.d" ]
+VOLUME ["/sys/fs/cgroup", "/etc"]
 
 EXPOSE {{ dnsmasq_port }}:{{ dnsmasq_port }}/udp
 
