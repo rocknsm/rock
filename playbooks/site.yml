@@ -33,10 +33,10 @@
     - docker
   gather_facts: no
 
-  - hosts: dnsmasq
-    roles:
-      - dnsmasq
-    gather_facts: no
+- hosts: dnsmasq
+  roles:
+    - dnsmasq
+  gather_facts: no
 
 # kibana and portainer must come before haproxy as haproxy cannot run without
 # being able to contact at least one of each backend servers (1 kibana, 1 portainer,
