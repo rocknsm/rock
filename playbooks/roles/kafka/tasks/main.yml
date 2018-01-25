@@ -90,8 +90,8 @@
   when: rock_online_install
 
 - name: 'Copy Kafka server.properties file'
-  copy:
-    src: 'server.properties'
+  template:
+    src: 'server.properties.j2'
     dest: "{{ kafka_dir }}/server.properties"
     mode: 0644
     owner: root
