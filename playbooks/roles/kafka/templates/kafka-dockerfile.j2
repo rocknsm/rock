@@ -9,12 +9,19 @@ ENV KAFKA_HOME {{ kafka_install_dir }}
 
 ADD start-kafka.sh /usr/bin/start-kafka.sh
 
-RUN wget -q http://apache.mirrors.spacedump.net/kafka/1.0.0/kafka_2.12-1.0.0.tgz -O /tmp/kafka-2.12-1.0.0.tgz && \
-    mkdir -p /opt/kafka && \
+RUN wget -q {{ kafka_url }} -O /tmp/{{ kafka_download_name }} && \
+    wget -q {{ kafka_sha512sum_url }} -O /tmp/{{ kafka_download_name }}.sha512 && \
+    # This converts the BS file hash from Apache into a standard format to allows sha512sum verify the hash
+    tr -d '\n' < /tmp/{{ kafka_download_name }}.sha512 | tr -d ' ' | sed 's/:/ /' | awk '{print $2,"/tmp/{{ kafka_download_name }}"}' > /tmp/temp_hash && \
+    # If the hash is different, this will fail, the run command will fail, and the task will fail.
+    sha512sum --check /tmp/temp_hash && \
+    rm -f /tmp/temp_hash
+
+RUN mkdir -p /opt/kafka && \
     # The option strip-components removes the top level folder. Normally this would
     # be something like kafka_vsnXXXXX. This makes it so the top level is just kafka
-    tar xzf /tmp/kafka-2.12-1.0.0.tgz -C /opt/kafka --strip-components 1 && \
-    rm -f /tmp/kafka-2.12-1.0.0.tgz && \
+    tar xzf /tmp/{{ kafka_download_name }} -C {{ kafka_install_dir }} --strip-components 1 && \
+    rm -f /tmp/{{ kafka_download_name }} && \
     chmod 774 /usr/bin/start-kafka.sh
 
 EXPOSE {{ kafka_port }}

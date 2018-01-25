@@ -3,13 +3,16 @@
 
 #### Main Role Configuration ####
 
-kafka_user: kafka
-kafka_group: kafka
+kafka_user: kafka # not being used
+kafka_group: kafka # not being used
 kafka_container_name: 'rock-kafka'
 kafka_dir: "{{ rocknsm_dir }}/kafka"
 kafka_data_dir: "{{ rock_data_dir }}/kafka"
 kafka_port: 9092
-kafka_maj_vsn: 1.0.0
-kafka_vsn: "2.12-{{ kafka_maj_vsn }}"
 kafka_install_dir: '/opt/kafka'
 kafka_log_dir: '/var/log/kafka'
+scala_ver: 2.11 # per https://kafka.apache.org/downloads they recommend Scala version 2.11
+kafka_ver: 1.0.0
+kafka_download_name: kafka_{{ scala_ver }}-{{ kafka_ver }}.tgz
+kafka_url: https://www.apache.org/dist/kafka/{{ kafka_ver }}/{{ kafka_download_name }}
+kafka_sha512sum_url: https://www.apache.org/dist/kafka/{{ kafka_ver }}/{{ kafka_download_name }}.sha512
