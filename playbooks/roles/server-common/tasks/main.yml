@@ -1,0 +1,15 @@
+---
+
+# Swapping should be disabled on all servers. We are enforcing this also with
+# memlock in the containers so this may not be necessary.
+- name: Disable swap
+  lineinfile:
+    dest: /etc/fstab
+    regexp: '^/[\S]+\s+none\s+swap '
+    state: absent
+
+- name: Swap Off
+  command: swapoff --all
+  ignore_errors: yes
+
+...

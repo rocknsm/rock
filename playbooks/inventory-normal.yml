@@ -9,85 +9,87 @@ all:
 
   children:
 
+    # Role specific breakout
+
     common:
       children:
         sensors:
         servers:
 
-#    sensor-common:
-#      children:
-#        sensors:
+    sensor-common:
+      children:
+        sensors:
+
+    server-common:
+      children:
+        servers:
+
+    bro:
+      children:
+        sensors:
 
     docker:
       children:
         sensors:
         servers:
 
-    kubernetes:
+    kibana:
       children:
-        sensors:
         servers:
 
-    kube-elasticsearch:
+    portainer:
       children:
         master-servers:
-
-    kube-kibana:
-      children:
-        master-servers:
-#    bro:
-#      children:
-#        sensors:
-
-#    kibana:
-#      children:
-#        servers:
-
-#    portainer:
-#      children:
-#        master-servers:
 
     #haproxy:
     #  children:
     #    master-servers:
 
-#    elasticsearch:
-#      children:
-#        servers:
+    elasticsearch:
+      children:
+        servers:
 
-#    logstash:
-#      children:
-#        servers:
+    logstash:
+      children:
+        servers:
 
-#    suricata:
-#      children:
-#        sensors:
+    suricata:
+      children:
+        sensors:
 
-#    filebeat:
-#      children:
-#        sensors:
+    filebeat:
+      children:
+        sensors:
 
-#    zookeeper:
-#      children:
-#        sensors:
+    zookeeper:
+      children:
+        sensors:
 
-#    kafka:
-#      children:
-#        sensors:
+    kafka:
+      children:
+        sensors:
 
-#    harbor:
-#      children:
-#        master-servers:
+    kubernetes:
+      children:
+        master-servers:
+
+    kubespray:
+      hosts:
+        localhost:
+          ansible_hostname: 127.0.0.1
+          ansible_connection: local
+
+    harbor:
+      children:
+        master-servers:
 
     # Broad categories for convienience
     sensors:
 
-      vars:
-        home_net: "\"[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]\""
-
       hosts:
         rocksensor1.lan:
           ansible_hostname: rocksensor1.lan
+          ansible_user: root
           ansible_connection: ssh
 
     servers:
@@ -96,14 +98,10 @@ all:
 
         master-servers:
           hosts:
-            rockmaster1.lan:
-              ansible_hostname: rockmaster1.lan
+            rockserver1.lan:
+              ansible_hostname: rockserver1.lan
               ansible_user: root
               ansible_connection: ssh
 
-        secondary-servers:
-          hosts:
-            rocksecondary1.lan:
-              ansible_hostname: rocksecondary1.lan
-              ansible_user: root
-              ansible_connection: ssh
+        ingest:
+          # currently nothing here
