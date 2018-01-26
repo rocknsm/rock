@@ -1,0 +1,29 @@
+######################################################
+################# Setup Elasticsearch ################
+######################################################
+---
+
+- name: "Create Kibana config directory"
+  file:
+    path: "{{ kibana_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: Install Kibana templates
+  template:
+    src: "templates/{{ item }}.yml.j2"
+    dest: "{{ kibana_config_dir }}/{{ item }}.yml"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - kibana
+    - kibana-svc
+
+- name: Create Elasticsearch - Service - Discovery
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ kibana_config_dir }}/kibana.yml'
+
+- name: Create Elasticsearch - Master
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ kibana_config_dir }}/kibana-svc.yml'

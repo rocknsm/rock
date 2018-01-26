@@ -20,6 +20,8 @@
 # add it back in for roles which apply to your servers or anything requiring
 # the gathered facts will fail.
 # WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+
+- hosts: common
   roles:
     - common
 
@@ -31,6 +33,30 @@
 - hosts: docker
   roles:
     - docker
+  gather_facts: no
+
+- hosts: kubernetes
+  roles:
+    - kubernetes
+  gather_facts: no
+
+- hosts: kube-elasticsearch
+  roles:
+    - kube-elasticsearch
+  gather_facts: no
+
+- hosts: kube-kibana
+  roles:
+    - kube-kibana
+  gather_facts: no
+
+#************************************************
+# WARNING DNSMASQ is a temporary solution to getting a dns server up and running for developing.
+# It is not very secure! DO NOT USE ON A PRODUCTION ENVIRONMENT
+#************************************************
+- hosts: dnsmasq
+  roles:
+    - dnsmasq
   gather_facts: no
 
 # kibana and portainer must come before haproxy as haproxy cannot run without
@@ -90,6 +116,10 @@
   roles:
     - kafka
   gather_facts: no
+
+- hosts: kubespray
+  roles:
+    - kubespray
 
 # Harbor must run last so that it uploads all containers installed on the machine.
 # Harbor has compose file issue, disabling for now
