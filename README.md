@@ -1,15 +1,77 @@
-<h1> Temporary Instructions</h1>
+# **Temporary Instructions**
+\*These instructions are subject to change
 
-To run the build:
-1. First you'll need to add rocksensor1.lan and rockserver1.lan to your /etc/host file (they will need to be real boxes or you can point them at localhost).
-2. cd (you must actually cd) to the /playbooks directory and run ansible-playbook site.yml --ask-pass
-3. If you only want to run sensors or servers respectively you can do: ansible-playbook site.yml --ask-pass --limit "sensors"
+# Quick Start Guide
+1. Install 2 CentOS 64bit machines. For the testing machines, minimum recommended hardware is:
+* 8 GB RAM
+* 2 processors
+* 20 GB disk space
+* 2 network cards
 
-I strongly recommend you read up on: http://docs.ansible.com/ansible/latest/intro_inventory.html
+2. Get them up and running from a fresh CentOS-7-x86_64-Minimal-1708.iso install (or other CentOS 64 bit images)
 
-<h1> OUT OF DATE NOTICE</h1>
+3. After getting a network connection, run these commands to install software, update your machine, and reboot:
+```bash
+yum update -y
+yum install -y -q vim ansible open-vm-tools git
+reboot now
+```
+
+4. You will need a DNS server to resolve the IP address of both the sensor and server virtual machines for the system to work properly. The goal is to have something like this setup:
+
+  ![Systems Setup Guide - DNS Server](images/Systems%20Setup%20Guide%20-%20DNS%20Server.png)
+
+  or this
+
+  ![Systems Setup Guide - DNS Server](images/Systems%20Setup%20Guide%20-%20Multirole.png)
+
+5. Optional: Install ssh keys so you don't need to type in the ssh password when you run the ansible-playbook command. Note you will run these commands on the Linux host with Ansible installed
+```bash
+ssh-keygen -f ~/.ssh/id_rsa -t rsa -N '' # this creates a key with no password in the default location
+ssh-copy-id root@rocksensor1.lan #this prompts you for the root password of the rocksensor1 machine
+ssh-copy-id root@rockserver1.lan #this prompts you for the root password of the rockserver1 machine
+```
+
+6. Make sure to make a snapshot of the sensor and server virtual machines before running ansible-playbook for the first time. This will allow you to revert to a non-modified CentOS machine since the playbooks do not clean up after themselves when running them more than once.
+
+7. On your Linux host with Ansible installed, clone the project from Github to it:
+```bash
+rm -rf /opt/rock && git clone -b <github_branch> <github_url> /opt/rock && cd /opt/rock/playbooks
+# The rm command deletes anything that is already there.
+# The git command clones the project.
+# The cd command places you in the correct directory for the ansible-playbook command
+# Example:
+# rm -rf /opt/rock && git clone -b logstash_feature https://github.com/tfplenum/rock /opt/rock && cd /opt/rock/playbooks
+```
+
+8. Start the installer using the "ansible-playbook" command. To run only sensor/server related playbooks, use the "--limit" flag. Note: If you installed ssh keys you can omit the `--ask-pass` argument
+```bash
+ansible-playbook site.yml --ask-pass
+ansible-playbook site.yml --ask-pass --limit "sensors"
+ansible-playbook site.yml --ask-pass --limit "servers"
+```
+
+## See Also
+
+* [Quick DNS Server Setup](docs/Quick%20DNS%20Server%20Setup.md)
+* [Install CentOS Repositories on RedHat](docs/Install%20CentOS%20Repo%20on%20RedHat.md)
+* [Suggested Developer Environment Setup Guide](docs/Suggested%20Developer%20Environment%20Setup%20Guide.md)
+
+
+|
+
+|
+
+|
+
+|
+
+|
+
+# OUT OF DATE NOTICE
 
 *ALL OF THE BELOW IS CURRENTLY OUT OF DATE*
+
 
 ## Response Operation Collections Kit Reference Build
 test
