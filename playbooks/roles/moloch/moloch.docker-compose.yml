@@ -1,0 +1,26 @@
+version: '2'
+services:
+  viewer:
+    image: "moloch:bluefin"
+    restart: "always"
+    network_mode: "host"
+    restart: "always"
+    volumes:
+      - "/operator/dip/sensor/moloch/pcap:/data/moloch/raw"
+      - "/operator/dip/sensor/moloch/log:/data/moloch/logs"
+      - "/operator/dip/sensor/moloch/etc/config.ini:/data/moloch/etc/config.ini"
+    command: >
+      /bin/bash -c "groupmod -g1000 daemon; cd viewer; ../bin/node viewer.js -c ../etc/config.ini"
+
+  capture:
+    image: "moloch:bluefin"
+    restart: "always"
+    network_mode: "host"
+    restart: "always"
+    volumes:
+      - "/operator/dip/sensor/moloch/pcap:/data/moloch/raw"
+      - "/operator/dip/sensor/moloch/log:/data/moloch/logs"
+      - "/operator/dip/sensor/moloch/etc/config.ini:/data/moloch/etc/config.ini"
+    command: >
+      /bin/bash -c "groupmod -g1000 daemon; bin/moloch-capture -c etc/config.ini"
+      

@@ -1,0 +1,54 @@
+######################################################
+################# Setup Elasticsearch ################
+######################################################
+---
+
+- name: Install Elasticsearch templates
+  template:
+    src: "templates/{{ item }}.yml"
+    dest: "{{ es_config_dir }}/{{ item }}.yml"
+    group: "root"
+    owner: "root"
+    mode: 0644
+  with_items:
+    - es-client
+    - es-curator-config
+    - es-curator_v1beta1
+    - es-data-pdb
+    - es-data
+    - es-discovery-svc
+    - es-master-pdb
+    - es-master
+    - es-svc
+
+- name: Create Elasticsearch - Service - Discovery
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ es_config_dir }}/es-discovery-svc.yml.j2'
+  when: inventory_hostname in groups['master-servers']
+
+- name: Create Elasticsearch - Service - Elasticsearch
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ es_config_dir }}/es-svc.yml.j2'
+  when: inventory_hostname in groups['master-servers']
+
+- name: Create Elasticsearch - Master
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ es_config_dir }}/es-master.yml.j2'
+  when: inventory_hostname in groups['master-servers']
+
+- name: Rollout Elasticsearch - Master
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ es_config_dir }}/es-master.yml.j2'
+  when: inventory_hostname in groups['master-servers']
+
+- name: Create Elasticsearch - Client
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ es_config_dir }}/es-client.yml.j2'
+  when: inventory_hostname in groups['master-servers']
+
+- name: Rollout Elasticsearch - Client
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ es_config_dir }}/es-client.yml.j2'
+  when: inventory_hostname in groups['master-servers']
+
+- name: Create Elasticsearch - Data
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ es_config_dir }}/es-data.yml.j2'
+  when: inventory_hostname in groups['master-servers']
+
+- name: Rollout Elasticsearch - Data
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ es_config_dir }}/es-data.yml.j2'
+  when: inventory_hostname in groups['master-servers']

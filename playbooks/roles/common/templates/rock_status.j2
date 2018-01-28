@@ -1,0 +1,165 @@
+#!/usr/bin/bats
+{% if (sensorlocal is defined and sensorlocal) or (standalone is defined and standalone) %}
+export ZOOKEEPER_HOST={{ ansible_hostname }}
+export ZOOKEEPER_PORT=2181
+export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
+	sed 's/interface=//; s/.*:://' | sort | uniq | paste -sd " " -)
+
+#----------------------------------------------------------------------------
+#                               INTERFACE
+#----------------------------------------------------------------------------
+
+@test "Check each monitor interface is live" {
+  local timeout_sec=5
+
+  # Timeout after 5 seconds or 5 packets
+  for interface in $MON_IFS; do
+    packets_1=$(ip -s link show ${interface} | awk '/RX/{getline;print $2;}')
+    sleep ${timeout_sec}
+    packets_2=$(ip -s link show ${interface} | awk '/RX/{getline;print $2;}')
+    packets=$(echo `expr ${packets_2} - ${packets_1}`)
+    echo "${interface} had ${packets} packets in ${timeout_sec} secs."
+    [ $packets -gt 0 ]
+  done
+}
+
+@test "Check for interface errors" {
+  for interface in $MON_IFS; do
+    count=$(ip -s link show ${interface} | awk '/RX/{getline;print $3;}')
+    echo "${interface} had ${count} error types."
+    echo ">> Check \`ip -s link show ${interface}\`  << "
+    [ $count -eq 0 ]
+  done
+}
+
+@test "Check monitor interface for tx packets" {
+  for interface in $MON_IFS; do
+    pkts=$(ip -s link show ${interface} | awk '/TX/{getline;print $2;}')
+    echo "WARNING: Monitor interface ${interface} has sent ${pkts} packets."
+    echo "Minimal packets pasted on startup may be due to IPV6 at the kernal."
+    echo "Disable IPv6 on the interface at the kernel layer."
+    [ $pkts -eq 0 ]
+  done
+}
+{% endif %}
+{% if included_components.bro.enabled is defined and included_components.bro.enabled %}
+#----------------------------------------------------------------------------
+#                               BRO
+#----------------------------------------------------------------------------
+@test "Check that broctl is running" {
+  # This will fail if a worker is crashed as well
+  sudo /opt/bro/bin/broctl status
+}
+
+@test "Check for bro-detected packet loss" {
+  local notice_log='/data/bro/logs/current/notice.log'
+  if [ ! -f "${notice_log}"]; then
+    skip "No notice.log to check for packet loss errors."
+  fi
+
+  capture_cnt=$(cat ${notice_log} | grep 'CaptureLoss::Too_Much_Loss'|wc -l)
+  drop_cnt=$(cat ${notice_log} | grep 'PacketFilter::Dropped_Packets'|wc -l)
+
+  if [ $capture_cnt > 0 ]; then
+    if [ $drop_cnt > 0 ]; then
+      echo "Sensor is dropping packets before Bro can process them."
+      [ $drop_cnt -eq 0 ]
+    else
+      echo "Packets are being dropped prior to sensor receiving them."
+      [ $capture_cnt -eq 0 ]
+    fi
+  fi
+}
+{% endif %}
+{% if included_components.suricata.enabled is defined and included_components.suricata.enabled %}
+#----------------------------------------------------------------------------
+#                               SURICATA
+#----------------------------------------------------------------------------
+@test "Check that suricata is running" {
+  systemctl status suricata
+}
+{% endif %}
+{% if included_components.snort.enabled is defined and included_components.snort.enabled %}
+#----------------------------------------------------------------------------
+#                                SNORT
+#----------------------------------------------------------------------------
+@test "Check that snort is running" {
+  systemctl status snortd
+}
+{% endif %}
+{% if included_components.fsf.enabled is defined and included_components.fsf.enabled %}
+#----------------------------------------------------------------------------
+##                               FSF
+##----------------------------------------------------------------------------
+@test "Check that FSF is running" {
+  systemctl status fsf
+
+}
+{% endif %}
+{% if included_components.zookeeper.enabled is defined and included_components.zookeeper.enabled %}
+#----------------------------------------------------------------------------
+#                               ZOOKEEPER
+#----------------------------------------------------------------------------
+@test "Check that zookeeper is running" {
+  systemctl status zookeeper
+}
+
+@test "Check that zookeeper is listening" {
+  ss -lnt | grep ${ZOOKEEPER_PORT}
+}
+
+@test "Check that client can connect to zookeeper" {
+  echo "" | ncat  ${ZOOKEEPER_HOST} ${ZOOKEEPER_PORT}
+}
+{% endif %}
+{% if included_components.kafka.enabled is defined and included_components.kafka.enabled %}
+#----------------------------------------------------------------------------
+#                               KAFKA
+#----------------------------------------------------------------------------
+@test "Check that kafka is running" {
+  systemctl status kafka
+}
+
+@test "Check that kafka is connected to zookeeper" {
+  kafka_pid=$(systemctl show -p MainPID kafka.service | cut -d= -f2)
+  echo "kafka_pid: ${kafka_pid}"
+  kafka_socket=$(sudo ss -ntp | grep "${kafka_pid}" | \
+	grep "${ZOOKEEPER_PORT}" | awk '{ print $4 }'| sed 's/::ffff://g')
+  echo "Kafka socket: ${kafka_socket}"
+  kafka_conns=$(echo "cons" | ncat ${ZOOKEEPER_HOST} ${ZOOKEEPER_PORT} | \
+	grep "${kafka_socket}" )
+  echo -e "Kafka Connections: \n ${kafka_conns}"
+  conn_count=$(echo ${kafka_conns} | wc -l )
+  echo "Number of Kafka Conns: ${conn_count}"
+  # It's possible this might need to be -ge
+  [ ${conn_count} -eq 1 ]
+}
+
+{% endif %}
+{% if (serverlocal is defined and serverlocal) or (standalone is defined and standalone) %}
+#----------------------------------------------------------------------------
+#                               LOGSTASH
+#----------------------------------------------------------------------------
+@test "Check that logstash is running" {
+  systemctl status logstash
+}
+
+#----------------------------------------------------------------------------
+#                               ELASTICSEARCH
+#----------------------------------------------------------------------------
+@test "Check that elasticsearch is running" {
+  systemctl status elasticsearch
+}
+
+@test "Check that elasticsearch is green" {
+  result=$(curl -s http://localhost:9200/_cluster/health | jq '.status')
+  [ "${result}" == "\"green\"" ]
+}
+
+#----------------------------------------------------------------------------
+#                               KIBANA
+#----------------------------------------------------------------------------
+@test "Check that kibana is running" {
+  systemctl status kibana
+}
+{% endif %}

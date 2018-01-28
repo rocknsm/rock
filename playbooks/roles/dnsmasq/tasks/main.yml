@@ -1,0 +1,38 @@
+---
+######################################################
+############### Setup Dnsmasq container ###############
+######################################################
+
+- name: Install Dnsmasq
+  yum:
+    name: dnsmasq
+    state: installed
+
+- name: Install BIND-Utils
+  yum:
+    name: bind-utils
+    state: installed
+
+- name: 'Create new directories'
+  file:
+    path: '{{ item }}'
+    state: directory
+  with_items:
+    - "{{ rocknsm_dir }}/dnsmasq/data"
+
+- name: Start dnsmasq and enable it
+  service:
+    name: dnsmasq
+    state: started
+    enabled: true
+
+- name: Copy over hosts template
+  copy:
+    src: templates/hosts
+    dest: /etc/dnsmasq_static_hosts
+
+- name: Updating configuration file
+  lineinfile:
+    path: /etc/dnsmasq.conf
+    regexp: '^#addn-hosts=/etc/banner_add_hosts'
+    line: 'addn-hosts=/etc/dnsmasq_static_hosts'

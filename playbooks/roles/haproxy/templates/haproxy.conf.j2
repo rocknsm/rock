@@ -1,0 +1,75 @@
+global
+  log 127.0.0.1 local0 notice
+
+defaults
+  log global
+  mode http
+  option httplog
+  option dontlognull
+  option forwardfor
+  option http-server-close
+  timeout connect 5s
+  timeout client 50s
+  timeout server 50s
+  default-server init-addr libc,none
+
+listen stats
+  bind localhost:8080
+  stats enable
+  stats realm Haproxy\ Statistics
+  stats uri /
+  stats hide-version
+  stats auth admin:admin
+
+frontend portainer_frontend
+  bind *:8443 ssl crt /etc/ssl/private/haproxy.pem
+  default_backend portainer
+
+frontend elastic_frontend
+  bind *:9200
+  option tcplog
+  default_backend elastic
+
+frontend http_frontend
+  bind *:80
+  redirect scheme https code 301 if !{ ssl_fc }
+  acl haproxy path_beg -i /haproxy
+  acl elastic path_beg -i /api
+  acl kibana path_beg -i /kibana
+  use_backend haproxy if haproxy
+  use_backend elastic if elastic
+  use_backend kibana if kibana
+  default_backend kibana
+
+frontend https_frontend
+  bind *:443 ssl crt /etc/ssl/private/haproxy.pem
+  acl haproxy path_beg -i /haproxy
+  acl elastic path_beg -i /api
+  acl kibana path_beg -i /kibana
+  use_backend haproxy if haproxy
+  use_backend elastic if elastic
+  use_backend kibana if kibana
+  default_backend kibana
+
+backend haproxy
+  reqrep ^([^\ :]*)\ /haproxy/(.*) \1\ /\2
+  reqrep ^([^\ :]*)\ /haproxy(.*) \1\ /\2
+  server haproxy1 localhost:8080
+
+backend elastic
+  option log-health-checks
+  option redispatch
+  balance roundrobin
+{% for host in groups['ingest'] %}
+  server {{ hostvars[host].rock_hostname }} {{ hostvars[host].rock_hostname }}:9200 check
+{% endfor %}
+
+backend kibana
+  option redispatch
+  reqrep ^([^\ :]*)\ /kibana/(.*) \1\ /\2
+  reqrep ^([^\ :]*)\ /kibana(.*) \1\ /\2
+  server kibana1 kibana:5601
+
+backend portainer
+  option redispatch
+  server portainer1 portainer:9000

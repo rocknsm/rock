@@ -1,0 +1,103 @@
+---
+
+#Common role variables
+common_mgnt_nets: "{{ rock_mgmt_nets }}"
+
+#local_host_name: simplerockbuild.simplerock.lan
+rock_version: 3.0
+
+# This is used to maintain compatibility with Rock proper. We currently do
+# not use this variable for anything. It should always be set to true.
+# Setting it to false will break a few tasks.
+rock_online_install: true
+
+rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
+rock_data_dir: /data
+rocknsm_dir: /opt/rocknsm
+rock_data_user: root
+rock_data_group: root
+rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface | default('lo') ])| list }}"
+rock_hostname: '{{ inventory_hostname_short }}'
+rock_fqdn: '{{ inventory_hostname }}'
+rock_mgmt_nets: [ "0.0.0.0/0" ]
+rock_cache_dir: /srv/rocknsm/support
+#rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
+#rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
+rocknsm_baseurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/'
+rocknsm_gpgurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg'
+rocknsm_local_baseurl: file:///srv/rocknsm
+rock_compose_files: "{{ rocknsm_dir + '/compose_files' }}"
+
+# This is now a global variable because it is drawn on by the sensor and
+# the servers
+elastic_ver: '6.1.2'
+
+#### Elasticstack x-pack options ####
+# If you have licensing for x-pack set variable to true.
+xpack_license: 'false'
+
+# Feature options - Don't flip these unless you know what you're doing
+# These control if the service is installed
+included_components:
+  bro:
+    enabled: true
+  docker:
+    enabled: true
+  docket:
+    enabled: true
+  elasticsearch:
+    enabled: true
+  elk:
+    enabled: false
+  filebeat:
+    enabled: true
+  fsf:
+    enabled: true
+  haproxy:
+    enabled: true
+  harbor:
+    enabled: false
+  kafka:
+    enabled: true
+  kibana:
+    enabled: true
+  logstash:
+    enabled: false
+  portainer:
+    enabled: true
+  pulledpork:
+    enabled: true
+  snort:
+    enabled: false
+  stenographer:
+    enabled: true
+  suricata:
+    enabled: true
+  zookeeper:
+    enabled: true
+
+rocknsm_package_list:
+  - java-1.8.0-openjdk-headless
+  - jq
+  - GeoIP
+  - GeoIP-update
+  - tcpreplay
+  - tcpdump
+  - bats
+  - policycoreutils-python
+  - htop
+  - vim
+  - git
+  - tmux
+  - nmap-ncat
+  - logrotate
+  - perl-LWP-Protocol-https
+  - perl-Sys-Syslog
+  - perl-Crypt-SSLeay
+  - perl-Archive-Tar
+  - easy-rsa
+
+epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
+
+...

@@ -1,0 +1,73 @@
+######################################################
+############### Setup Zookeeper container ############
+######################################################
+
+---
+
+- name: 'Download Zookeeper container'
+  docker_image:
+    name: "{{ zookeeper_container }}:{{ zookeeper_ver }}"
+
+# This directory must have execute permissions to work properly
+- name: 'Create Zookeeper data directory'
+  file:
+    path: "{{ zookeeper_data_dir }}"
+    state: directory
+    mode: 0744
+    owner: root
+    group: root
+
+- name: 'Create Zookeeper directories'
+  file:
+    path: "{{ zookeeper_dir }}"
+    state: directory
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Create Zookeeper log directory'
+  file:
+    path: "{{ zookeeper_log_dir }}"
+    state: directory
+
+- name: 'Install Zookeeper service file'
+  template:
+    src: 'zookeeper.service.j2'
+    dest: '/etc/systemd/system/zookeeper.service'
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Link Zookeeper service file'
+  file:
+    src: '/etc/systemd/system/zookeeper.service'
+    dest: '/etc/systemd/system/rock.target.wants/zookeeper.service'
+    owner: root
+    group: root
+    state: link
+
+# TODO: I'm not entirely sure of the permissions here
+- name: Copy zookeeper configuration
+  copy:
+    src: "zoo.cfg"
+    dest: "{{ zookeeper_dir }}/zoo.cfg"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Copy Zookeeper docker compose file'
+  template:
+    src: 'zookeeper-compose.yml.j2'
+    dest: "{{ rock_compose_files }}/zookeeper-compose.yml.j2"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Enable Zookeeper service'
+  systemd:
+    name: 'zookeeper'
+    enabled: yes
+    state: restarted
+    daemon-reload: yes
+
+...

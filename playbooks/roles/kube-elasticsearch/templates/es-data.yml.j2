@@ -1,0 +1,61 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: es-data
+  labels:
+    component: elasticsearch
+    role: data
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: elasticsearch
+        role: data
+    spec:
+      initContainers:
+      - name: init-sysctl
+        image: busybox:1.27.2
+        command:
+        - sysctl
+        - -w
+        - vm.max_map_count=262144
+        securityContext:
+          privileged: true
+      containers:
+      - name: es-data
+        image: {{ elastic_container }}:{{ elastic_ver }}
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: CLUSTER_NAME
+          value: {{ es_cluster_name }}
+        - name: NODE_MASTER
+          value: "false"
+        - name: NODE_INGEST
+          value: "false"
+        - name: HTTP_ENABLE
+          value: "false"
+        - name: ES_JAVA_OPTS
+          value: -Xms{{ es_mem }}g -Xmx{{ es_mem }}g
+        ports:
+        - containerPort: {{ elastic_management_port }}
+          name: transport
+        livenessProbe:
+          tcpSocket:
+            port: transport
+          initialDelaySeconds: 20
+          periodSeconds: 10
+        volumeMounts:
+        - name: storage
+          mountPath: /data
+      volumes:
+          - emptyDir:
+              medium: ""
+            name: storage

@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: Andy Kirkham
+  description: "CentOS 7 Docker and Kubernetes installation"
+  license: BSD
+  min_ansible_version: 2.3
+  platforms:
+  - name: EL
+    versions:
+    - 7
+  galaxy_tags:
+  - web
+dependencies: []
+ website: https://github.com/A-j-K/role-kubernetes-centos-installer

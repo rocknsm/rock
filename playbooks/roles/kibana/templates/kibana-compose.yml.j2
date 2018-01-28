@@ -1,0 +1,28 @@
+---
+
+version: '2'
+services:
+  kibana:
+    image: "{{ kibana_image }}:{{ kibana_ver }}"
+    container_name: "{{ kibana_container_name }}"
+    ports:
+      - "{{ kibana_port }}:{{ kibana_port }}"
+    restart: "always"
+    volumes:
+      - "{{ rock_data_dir }}/kibana/data:/data"
+      - "{{ kibana_log_dir }}:{{ kibana_log_dir }}"
+    environment:
+      - ELASTICSEARCH_URL="{{ es_url }}"
+      - xpack.security.enabled="{{ xpack_license }}"
+      - xpack.monitoring.ui.container.elasticsearch.enabled="{{ xpack_license }}"
+
+    networks:
+      - rocknsm_inside
+      - rocknsm_outside
+
+networks:
+  rocknsm_inside:
+    external: true
+  rocknsm_outside:
+    external: true
+...

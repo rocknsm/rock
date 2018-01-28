@@ -1,0 +1,91 @@
+#######################################################
+###################  Docker Install ###################
+#######################################################
+---
+
+- name: "Setup Docker repo"
+  yum_repository:
+    baseurl: "{{ docker_baseurl }}"
+    description: "Docker YUM repo"
+    gpgcheck: true
+    gpgkey: "{{ docker_gpgurl }}"
+    name: docker-ce
+
+# create directories to move Docker images into central storage location
+- name: "Create Docker directories"
+  file:
+    path: '/etc/systemd/system/docker.service.d'
+    state: directory
+
+# create file to override Docker startup to change default image location
+- name: Change default docker image location
+  file:
+    path: '/etc/systemd/system/docker.service.d/docker.root.conf'
+    state: touch
+
+- name: 'Set Docker service file'
+  shell: echo "[Service]" > /etc/systemd/system/docker.service.d/docker.root.conf; echo "ExecStart=" >> /etc/systemd/system/docker.service.d/docker.root.conf; echo "ExecStart=/usr/bin/dockerd -g {{ rocknsm_dir }}/docker" >> /etc/systemd/system/docker.service.d/docker.root.conf
+  notify: reload systemd
+
+- name: 'Install Docker package'
+  yum:
+    name: 'docker-ce'
+    state: 'installed'
+
+# Set Docker Virtual Memory
+- name: Change virtual memory for the host
+  sysctl:
+    name: 'vm.max_map_count'
+    value: '262144'
+    sysctl_file: '/etc/sysctl.conf'
+    state: present
+    sysctl_set: yes
+  notify: reload systemd
+
+- name: 'Install python-docker-py'
+  yum:
+    name: 'python-docker-py.noarch'
+    state: 'installed'
+
+- name: 'Install docker_compose'
+  yum:
+    name: 'docker-compose'
+    state: 'installed'
+
+- name: 'Start Docker'
+  systemd:
+    name: 'docker'
+    state: 'started'
+    enabled: 'yes'
+
+# Create Docker network connected to host for proxy
+- name: 'Create rocknsm_ouside network'
+  docker_network:
+    name: 'rocknsm_outside'
+    driver: 'bridge'
+
+# Create Docker network with no host connectivity (secure network)
+#- name: 'Create rocknsm_inside network'
+#  docker_network:
+#    name: 'rocknsm_inside'
+#    driver: 'bridge'
+#    internal: true
+# Current issue open.  Issue #54
+
+####### Work-around for above task until bug is fixed from Ansible
+- command: docker network ls -f 'name=rocknsm_inside'
+  register: docker_network_test
+- name: 'Create rocknsm_inside network'
+  shell: 'docker network create -d bridge --internal rocknsm_inside'
+  when: docker_network_test.stdout.find('rocknsm_inside') == -1
+#######
+
+# Allow containers to manage cgroups - needed for systemd init
+# This is way safer that running privileged containers
+- name: 'Set SELinux Booleans'
+  seboolean:
+    name: container_manage_cgroup
+    state: yes
+    persistent: yes
+
+...

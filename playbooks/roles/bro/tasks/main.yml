@@ -1,0 +1,242 @@
+#######################################################
+###################### Setup Bro  #####################
+#######################################################
+---
+
+- name: Install Bro package
+  yum:
+    name: bro
+    state: installed
+
+- name: Install Bro plugin for af_packet
+  yum:
+    name: bro-plugin-af_packet
+    state: installed
+
+- name: Install Bro plugin for Kafka
+  yum:
+    name: bro-plugin-kafka
+    state: installed
+
+- name: Create bro group
+  group:
+    name: "{{ bro_group }}"
+    state: present
+    system: yes
+
+- name: Create bro user and add to bro group
+  user:
+    name: "{{ bro_user }}"
+    comment: "bro service account"
+    createhome: no
+    group: "{{ bro_group }}"
+    home: /var/spool/bro
+    shell: /sbin/nologin
+    system: yes
+    state: present
+
+- name: Create Bro directories
+  file:
+    path: "{{ item }}"
+    mode: 0755
+    owner: "{{ bro_user }}"
+    group: "{{ bro_group }}"
+    state: directory
+  with_items:
+    - "{{ bro_data_dir }}"
+    - "{{ bro_data_dir }}/logs"
+    - "{{ bro_data_dir }}/spool"
+
+- name: Create /opt/bro dir for wandering users
+  file:
+    dest: "/opt/bro"
+    state: directory
+
+- name: Create note to wandering users
+  copy:
+    dest: "/opt/bro/README.md"
+    content: |
+      Hey! Where's my Bro?
+      =========================
+      RockNSM has aligned the Bro package to be inline with Fedora packaging
+      guidelines in an effort to push the package upstream for maintenance.
+      Fedora and EPEL have a great community and we believe others can benefit
+      from our hard work.
+      Here's where you can find your stuff:
+      Bro configuration files
+      -----------------------
+      /opt/bro/etc -> /etc/bro
+      Bro site scripts
+      -----------------------
+      /opt/bro/share/bro/site -> /usr/share/bro/site
+      Bro logs and spool dirs (same as previous ROCK iterations)
+      -----------------------
+      /opt/bro/logs -> /data/bro/logs
+      /opt/bro/spool -> /data/bro/spool
+
+- name: Create Bro node.cfg
+  template:
+    src: templates/bro-node.cfg.j2
+    dest: "{{ bro_sysconfig_dir }}/node.cfg"
+    mode: 0644
+    owner: root
+    group: root
+  notify: reload bro
+
+- name: Create broctl.cfg
+  template:
+    src: templates/bro-broctl.cfg.j2
+    dest: "{{ bro_sysconfig_dir }}/broctl.cfg"
+    mode: 0644
+    owner: root
+    group: root
+  notify: reload bro
+
+- name: Create bro networks.cfg
+  copy:
+    src: bro-networks.cfg
+    dest: "{{ bro_sysconfig_dir }}/networks.cfg"
+    mode: 0644
+    owner: root
+    group: root
+  notify: reload bro
+
+- name: Add bro custom scripts dir
+  file:
+    path: "{{ bro_site_dir }}/scripts"
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Set permissions on broctl scripts dir
+  file:
+    path: "{{ bro_prefix }}/share/broctl/scripts"
+    owner: "{{ bro_user }}"
+    group: "{{ bro_user }}"
+    mode: 0755
+    state: directory
+
+- name: Add README to scripts dir
+  copy:
+    src: bro-scripts-readme.txt
+    dest: "{{ bro_site_dir }}/scripts/README.txt"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Checkout ROCK Bro scripts
+  git:
+    repo: "{{ bro_rockscripts_repo }}"
+    dest: "{{ bro_site_dir }}/scripts/rock"
+    version: "{{ bro_rockscripts_branch }}"
+  when: rock_online_install
+
+#- name: Deploy offline ROCK Bro scripts
+#  unarchive:
+#    src: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
+#    dest: "{{ bro_site_dir }}/scripts/"
+#    owner: root
+#    group: root
+#    creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+#    remote_src: yes
+
+- name: Symlink offline ROCK bro scripts
+  file:
+    src: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+    dest: "{{ bro_site_dir }}/scripts/rock"
+    state: link
+    force: yes
+  when: not rock_online_install
+
+- name: Update owner for ROCK NSM Bro scripts
+  file:
+    path: "{{ bro_site_dir }}/scripts/rock"
+    owner: "{{ bro_user }}"
+    group: "{{ bro_group }}"
+    state: directory
+    recurse: yes
+    follow: yes
+  tags:
+    - bro_scripts
+
+- name: Add ROCK scripts to local.bro
+  lineinfile:
+    dest: "{{ bro_site_dir }}/local.bro"
+    line: "@load scripts/rock # ROCK NSM customizations"
+    state: present
+
+- name: Add AF_PACKET workaround to local.bro
+  lineinfile:
+    dest: "{{ bro_site_dir }}/local.bro"
+    line: "@load scripts/rock/plugins/afpacket"
+    state: present
+
+- name: Enable Bro Kafka output to local.bro
+  lineinfile:
+    dest: "{{ bro_site_dir }}/local.bro"
+    line: "@load scripts/rock/plugins/kafka"
+    state: present
+
+- name: Enable the SMB Analyzer in local.bro
+  lineinfile:
+    dest: "{{ bro_site_dir }}/local.bro"
+    line: "@load policy/protocols/smb # Enable Bro SMB Analyzer"
+    state: present
+
+- name: Add bro aliases
+  copy:
+    src: profile.d-bro.sh
+    dest: /etc/profile.d/bro.sh
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Add broctl wrapper for admin use
+  copy:
+    src: broctl.sh
+    dest: /usr/sbin/broctl
+    mode: 0754
+    owner: root
+    group: root
+
+- name: Set bro capabilities
+  capabilities:
+    path: /usr/bin/bro
+    capability: "{{ item }}"
+    state: present
+  with_items:
+    - "cap_net_raw+eip"
+    - "cap_net_admin+eip"
+
+- name: Set capstats capabilities
+  capabilities:
+    path: /usr/bin/capstats
+    capability: "{{ item }}"
+    state: present
+  with_items:
+    - "cap_net_raw+eip"
+    - "cap_net_admin+eip"
+
+- name: Set broctl cron
+  cron:
+    name: "broctl maintenance"
+    minute: "*/5"
+    cron_file: rocknsm_broctl
+    user: "{{ bro_user }}"
+    job: "/usr/bin/broctl cron >/dev/null 2>&1"
+
+- name: Initialize bro scripts for workers
+  command: /usr/bin/broctl install
+  args:
+    creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
+  become: yes
+  become_user: "{{ bro_user }}"
+
+- name: Enable and start broctl
+  systemd:
+    name: bro
+    enabled: true
+    #This set of variables not yet implemented in this version
+    #enabled: "{{ enable_bro }}"
+    daemon_reload: yes

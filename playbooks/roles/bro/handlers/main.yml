@@ -1,0 +1,9 @@
+---
+
+- name: 'reload systemd'
+  command: 'systemctl daemon-reload'
+
+- name: 'reload bro'
+  service:
+    name: 'bro'
+    state: 'restarted'

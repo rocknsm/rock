@@ -1,0 +1,6 @@
+version: "2"
+
+services:
+  moloch:
+    build: ./
+    image: moloch:bluefin

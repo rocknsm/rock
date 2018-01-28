@@ -1,0 +1,15 @@
+#######################################################
+#################### DNS Changes ######################
+#######################################################
+---
+-
+  name: Set hostname in hosts file
+  lineinfile:
+    dest: /etc/hosts
+    insertafter: 127.0.0.1
+    line: 127.0.0.2  {{ inventory_hostname }}  {{ inventory_hostname_short }}
+
+-
+  name: Set system hostname
+  hostname:
+    name: "{{ inventory_hostname }}"

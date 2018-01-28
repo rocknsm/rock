@@ -1,1 +1,0 @@
-There is no master yet. The first stable release will be at the end of January. Switch to the devel branch to see the project.

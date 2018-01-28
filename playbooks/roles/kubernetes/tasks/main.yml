@@ -1,0 +1,107 @@
+#######################################################
+###################  Kubernetes Install ###################
+#######################################################
+---
+
+- name: "Setup Kubernetes repo"
+  yum_repository:
+    baseurl: "{{ kubernetes_baseurl }}"
+    description: "Kubernetes YUM repo"
+    gpgcheck: true
+    gpgkey: "{{ kubernetes_gpgurl }}"
+    name: kubernetes
+
+- name: 'Install Kubernetes packages'
+  yum:
+    name: "{{ item }}"
+    state: 'installed'
+  with_items:
+    - "kubeadm"
+    - "kubelet"
+    - "kubectl"
+
+- name: 'Disable swap'
+  command: "swapoff -a"
+
+- name: 'Remove swap'
+  mount:
+    path: swap
+    state: absent
+
+- name: 'Change Docker cgroup driver'
+  copy:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: 0644
+  register: cgroup
+
+- name: 'Restart Docker'
+  systemd:
+    name: docker
+    state: restarted
+  when: cgroup.changed
+  
+- name: 'Pass bridged IPv4 traffic to iptables'
+  sysctl:
+    name: net.bridge.bridge-nf-call-iptables
+    value: 1
+    state: present
+
+- name: 'Start Kubelet'
+  systemd:
+    name: 'kubelet'
+    state: 'started'
+    enabled: 'yes'
+
+- name: 'Clear Kubernetes cluster'
+  command: kubeadm reset
+
+- name: 'Init Kubernetes cluster'
+  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 | grep 'kubeadm join --token'"
+  register: kube_join_cluster_cmd
+  when: inventory_hostname in groups['master-servers']
+
+- name: 'Install pod network: flanneld'
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml'
+  when: inventory_hostname in groups['master-servers']
+
+- name: 'Remove master taint from master'
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" taint nodes --all node-role.kubernetes.io/master-'
+  when: inventory_hostname in groups['master-servers']
+
+- name: 'Disable Firewalld service'
+  systemd:
+    name: firewalld
+    enabled: no
+    state: stopped
+
+- name: 'Join Kubernetes cluster'
+  command: "{{ hostvars[item].kube_join_cluster_cmd.stdout }}"
+  when: "inventory_hostname not in groups['master-servers']"
+  with_items: "{{ groups['master-servers'] }}"
+
+- name: 'Label sensors'
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=sensor'
+  with_items: "{{ groups['sensors'] }}"
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: 'Label secondary servers'
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=secondary-server'
+  with_items: "{{ groups['secondary-servers'] }}"
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: 'Label masters'
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=master-server'
+  with_items: "{{ groups['master-servers'] }}"
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: 'Install Dashboard UI'
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f "https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml"'
+  when: inventory_hostname in groups['master-servers']
+
+...
