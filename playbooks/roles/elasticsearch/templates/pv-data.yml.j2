@@ -1,0 +1,14 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ elastic_pv_data }}
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: {{ elastic_pv_size_gb }}Gi
+  accessModes:
+    - ReadOnlyMany
+  hostPath:
+    path: "{{ elastic_data_dir }}"

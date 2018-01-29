@@ -1,0 +1,32 @@
+# TODO: This needs to be updated to be dynamic
+all:
+  children:
+
+    # list of servers where kubernetes master components (apiserver, scheduler, controller) will run.
+    kube-master:
+      hosts:
+        rockserver1.lan:
+          ansible_hostname: rockserver1.lan
+          ansible_user: root
+          ansible_connection: ssh
+
+    # list of kubernetes nodes where the pods will run.
+    kube-node:
+      hosts:
+        rocksensor1.lan:
+          ansible_hostname: rocksensor1.lan
+          ansible_user: root
+          ansible_connection: ssh
+
+    # list of servers to compose the etcd server. You should have at least 3 servers for failover purpose.
+    etcd:
+      hosts:
+        rockserver1.lan:
+          ansible_hostname: rockserver1.lan
+          ansible_user: root
+          ansible_connection: ssh
+
+    k8s-cluster:
+      children:
+        kube-master:
+        kube-node:

@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ elastic_pv_data }}-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: {{ elastic_pv_size_gb }}Gi
+  volumeName: {{ elastic_pv_data }}

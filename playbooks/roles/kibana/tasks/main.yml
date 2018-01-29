@@ -1,58 +1,32 @@
+######################################################
+################# Setup Kibana #######################
+######################################################
 ---
-######################################################
-############### Setup Kibana container ###############
-######################################################
 
-- name: 'Download Kibana container'
-  docker_image:
-    name: "{{ kibana_image }}:{{ kibana_ver }}"
-  when: rock_online_install
-
-- name: 'Install Kibana service file'
-  template:
-    src: 'kibana.service.j2'
-    dest: '/etc/systemd/system/kibana.service'
-    mode: 0644
-    owner: root
-    group: root
-
-- name: 'Link Kibana service file'
+- name: "Create config directory"
   file:
-    src: '/etc/systemd/system/kibana.service'
-    dest: '/etc/systemd/system/rock.target.wants/kibana.service'
-    owner: root
-    group: root
-    state: link
-
-- name: 'Create new directories'
-  file:
-    path: "{{ rock_data_dir }}/kibana"
-    owner: 1000
-    group: 1000
-    mode: u+rw,g+rw
+    path: "{{ kibana_dir }}"
     state: directory
-
-- name: 'Create Kibana log directory'
-  file:
-    owner: 1000
-    group: 1000
-    mode: u+rw,g+rw
-    path: "{{ kibana_log_dir }}"
-    state: directory
-
-- name: 'Copy Kibana compose file'
-  template:
-    src: 'kibana-compose.yml.j2'
-    dest: "{{ rock_compose_files }}/kibana-compose.yml"
-    mode: 0644
     owner: root
     group: root
+    mode: u+rw,g+rw
 
-- name: 'Enable Kibana service'
-  service:
-    name: 'kibana'
-    enabled: yes
-    state: restarted
-    daemon_reload: yes
+- name: Install templates
+  template:
+    src: "templates/{{ item }}.yml.j2"
+    dest: "{{ kibana_dir }}/{{ item }}.yml"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - kibana-deploy
+    - kibana-svc
 
-...
+- name: Deploy
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ kibana_dir }}/{{ item }}.yml'
+  with_items:
+    - kibana-deploy
+    - kibana-svc
+
+- name: Wait for deployment to finish
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ kibana_dir }}/kibana-deploy.yml'

@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ kafka_pv_data }}-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: {{ kafka_pv_size_mb }}Mi
+  volumeName: {{ kafka_pv_data }}

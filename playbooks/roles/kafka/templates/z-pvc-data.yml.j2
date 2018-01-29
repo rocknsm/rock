@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ zookeeper_pv_data }}-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: {{ zookeeper_pv_size_mb }}Mi
+  volumeName: {{ zookeeper_pv_data }}

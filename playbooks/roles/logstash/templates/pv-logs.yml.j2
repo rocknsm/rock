@@ -1,0 +1,14 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ logstash_pv_logs }}
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: {{ logstash_pv_size_mb }}Mi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "{{ logstash_pv_logs_dir }}"

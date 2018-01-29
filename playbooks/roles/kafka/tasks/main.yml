@@ -1,148 +1,88 @@
 ######################################################
-############### Setup Kafka container ###############
+################# Setup Kafka ########################
 ######################################################
-
 ---
 
-- name: 'Add RockNSM Yum Corp Repo File'
-  yum_repository:
-    name: rocknsm_corp
-    description: rocknsm corp repo
-    baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/
-    gpgcheck: false
-
-# This is used for debugging Kafka
-- name: Install kafkacat
-  yum:
-    name: "kafkacat"
-    state: "installed"
-
-- name: Open port in firewalld for Kafka
-  firewalld:
-    port: 9092/tcp
-    permanent: true
-    immediate: true
-    state: enabled
-
-- name: 'Create Kafka data directory'
+- name: "Create Directories"
   file:
-    path: "{{ kafka_data_dir }}"
+    path: "{{ item }}"
     state: directory
-    mode: 0744
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+  with_items:
+    - "{{ kafka_dir }}"
+    - "{{ kafka_data_dir }}"
+    - "{{ kafka_config_dir}}"
 
-- name: 'Create Kafka directory'
-  file:
-    path: "{{ kafka_dir }}"
-    state: directory
-    mode: 0644
-
-- name: 'Create kafka log directory'
-  file:
-    path: "{{ kafka_log_dir }}"
-    state: directory
-
-# Install Kafkacat for the dockervm
-# TODO: Is this needed?
-#- name: Install Kafkacat package
-#  yum:
-#    name: kafkacat
-#    state: installed
-
-- name: 'Install Kafka service file'
+- name: Install Templates
   template:
-    src: 'kafka.service.j2'
-    dest: '/etc/systemd/system/kafka.service'
+    src: "templates/{{ item }}.yml.j2"
+    dest: "{{ kafka_dir }}/{{ item }}.yml"
+    group: root
+    owner: root
     mode: 0644
-    owner: root
-    group: root
+  with_items:
+    - kafka-deploy
+    - kafka-svc
+    - kafka-dockerfile
+    - pv-config
+    - pvc-config
 
-- name: 'Link Kafka service file'
-  file:
-    src: '/etc/systemd/system/kafka.service'
-    dest: '/etc/systemd/system/rock.target.wants/kafka.service'
-    owner: root
-    group: root
-    state: link
-
-- name: 'Copy Kafka dockerfile'
+- name: Install Properties File
   template:
-    src: 'kafka-dockerfile.j2'
-    dest: "{{ kafka_dir }}/kafka-dockerfile.j2"
-    mode: 0644
-    owner: root
+    src: "templates/server.properties.j2"
+    dest: "{{ kafka_config_dir }}/server.properties"
     group: root
+    owner: root
+    mode: 0644
 
-- name: 'Copy Kafka start_kafka script'
+- name: Download Kafka Release
+  get_url:
+    url: "{{ kafka_url }}"
+    dest: "{{ kafka_dir }}/{{ kafka_download_name }}"
+
+- name: Copy Files
   copy:
-    src: 'start-kafka.sh'
+    src: "files/start-kafka.sh"
     dest: "{{ kafka_dir }}/start-kafka.sh"
-    mode: 0644
-    owner: root
     group: root
+    owner: root
+    mode: 0644
 
-- name: 'Build Kafka container'
+- name: Build Container
   docker_image:
-    name: 'rocknsm/kafka'
+    name: "{{ kafka_container_name }}"
     pull: yes
     state: present
-    path: "{{ kafka_dir }}/"
-    dockerfile: 'kafka-dockerfile.j2'
-  when: rock_online_install
+    path: "{{ kafka_dir }}"
+    dockerfile: kafka-dockerfile.yml
 
-- name: 'Copy Kafka server.properties file'
-  copy:
-    src: 'server.properties'
-    dest: "{{ kafka_dir }}/server.properties"
-    mode: 0644
-    owner: root
-    group: root
+- name: Create Config
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ kafka_pv_config }} --from-file {{ kafka_config_dir }}'
 
-- name: 'Copy Kafka compose file'
-  template:
-    src: 'kafka-compose.yml.j2'
-    dest: "{{ rock_compose_files }}/kafka-compose.yml"
-    mode: 0644
-    owner: root
-    group: root
+- name: Deploy
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ kafka_dir }}/{{ item }}.yml'
+  with_items:
+    - k-pv-data
+    - k-pvc-data
+    - z-pv-data
+    - z-pvc-data
+    - kafka-deploy
+    - kafka-svc
 
-- name: 'Enable Kafka service'
-  systemd:
-    name: 'kafka'
-    enabled: yes
-    state: started
-    daemon-reload: yes
+- name: Wait for deployment to finish
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ kafka_dir }}/kafka-deploy.yml'
 
-- name: 'Wait for Kafka service to start'
-  pause:
-    seconds: 20
-
-# TODO: Need to add a dependency on zookeeper
-- name: create kafka bro topic
-  command: >
-    docker exec {{ kafka_container_name }} /opt/kafka/bin/kafka-topics.sh
-       --zookeeper {{ zookeeper_container_name }}:2181
-       --create
-       --replication-factor 1
-       --topic bro-raw
-       --partitions 1
-  ignore_errors: yes
-
-- name: create kafka suricata topic
-  command: >
-    docker exec {{ kafka_container_name }} /opt/kafka/bin/kafka-topics.sh
-       --zookeeper {{ zookeeper_container_name }}:2181
-       --create
-       --replication-factor 1
-       --topic suricata-raw
-       --partitions 1
-  ignore_errors: yes
-
-- name: create kafka fsf topic
-  command: >
-    docker exec {{ kafka_container_name }} /opt/kafka/bin/kafka-topics.sh
-       --zookeeper {{ zookeeper_container_name }}:2181
-       --create
-       --replication-factor 1
-       --topic fsf-raw
-       --partitions 1
-  ignore_errors: yes
+#- name: Create Topics
+#  command: >
+#    docker exec {{ kafka_container_name }} {{ kafka_install_dir }}/bin/kafka-topics.sh
+#      --zookeeper zookeeper:{{ zookeeper_port }}
+#      --create
+#      --replication-factor 1
+#      --topic {{ item }}-raw
+#      --partisions 1
+#  with_items:
+#    - bro
+#    - suricata
+#    - fsf
