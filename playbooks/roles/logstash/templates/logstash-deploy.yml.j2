@@ -1,0 +1,42 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: logstash
+  labels:
+    component: logstash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: logstash
+  template:
+    metadata:
+      labels:
+        component: logstash
+    spec:
+      containers:
+      - name: logstash
+        image: {{ logstash_image }}:{{ logstash_ver }}
+        command: ["/usr/share/logstash/bin/logstash"]
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        volumeMounts:
+          - mountPath: "{{ logstash_config_path }}/config"
+            name: {{ logstash_pv_config }}
+          - mountPath: "{{ logstash_config_path }}/data"
+            name: {{ logstash_pv_data }}
+          - mountPath: "{{ logstash_config_path }}/pipeline"
+            name: {{ logstash_pv_pipeline }}
+      volumes:
+        - name: {{ logstash_pv_config }}
+          persistentVolumeClaim:
+            claimName: {{ logstash_pv_config }}-claim
+        - name: {{ logstash_pv_data }}
+          persistentVolumeClaim:
+            claimName: {{ logstash_pv_data }}-claim
+        - name: {{ logstash_pv_pipeline }}
+          persistentVolumeClaim:
+            claimName: {{ logstash_pv_pipeline }}-claim

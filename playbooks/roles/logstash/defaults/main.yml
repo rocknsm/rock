@@ -2,8 +2,14 @@
 
 logstash_user: 1000
 logstash_group: 1000
-logstash_container_name: 'rock-logstash'
-logstash_data_dir: "{{ rock_data_dir }}/logstash"
 logstash_dir: "{{ rocknsm_dir }}/logstash"
-logstash_config_dir: "{{ logstash_dir }}/configs"
-logstash_log_dir: "/var/log/logstash"
+logstash_pv_config: "logstash-config"
+logstash_pv_config_dir: "{{ logstash_dir }}/mnt/config"
+logstash_pv_data: "logstash-data"
+logstash_pv_data_dir: "{{ logstash_dir }}/mnt/data"
+logstash_pv_pipeline: "logstash-pipeline"
+logstash_pv_pipeline_dir: "{{ logstash_dir }}/mnt/pipeline"
+logstash_pv_size_mb: "10"
+logstash_config_path: "/usr/share/logstash"
+logstash_image: "docker.elastic.co/logstash/logstash"
+logstash_ver: "{{ elastic_ver }}"

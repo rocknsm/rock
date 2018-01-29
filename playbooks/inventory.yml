@@ -9,41 +9,24 @@ all:
 
   children:
 
-    common:
-      children:
-        sensors:
-        servers:
+    # Role specific breakout
 
-#    sensor-common:
-#      children:
-#        sensors:
+    kubernetes:
+      children:
+        master-servers:
+
+    bro:
 
     docker:
       children:
         sensors:
         servers:
 
-    kubernetes:
-      children:
-        sensors:
-        servers:
-
-    kube-elasticsearch:
+    kibana:
       children:
         master-servers:
 
-    kube-kibana:
-      children:
-        master-servers:
-#    bro:
-#      children:
-#        sensors:
-
-#    kibana:
-#      children:
-#        servers:
-
-#    portainer:
+    portainer:
 #      children:
 #        master-servers:
 
@@ -51,59 +34,66 @@ all:
     #  children:
     #    master-servers:
 
-#    elasticsearch:
-#      children:
-#        servers:
+    elasticsearch:
+      children:
+        master-servers:
 
-#    logstash:
-#      children:
-#        servers:
+    logstash:
+      children:
+        master-servers:
 
-#    suricata:
-#      children:
-#        sensors:
-
-#    filebeat:
+    suricata:
 #      children:
 #        sensors:
 
-#    zookeeper:
+    filebeat:
+#      children:
+#-        sensors:
+
+    zookeeper:
 #      children:
 #        sensors:
 
-#    kafka:
+    kafka:
 #      children:
 #        sensors:
 
-#    harbor:
+    kubespray:
+    #  hosts:
+    #    localhost:
+    #      ansible_hostname: 127.0.0.1
+    #      ansible_connection: local
+
+    harbor:
 #      children:
 #        master-servers:
 
-    # Broad categories for convienience
-    sensors:
-
-      vars:
-        home_net: "\"[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]\""
+    master-servers:
 
       hosts:
-        rocksensor1.lan:
-          ansible_hostname: rocksensor1.lan
+        rockserver1.lan:
+          ansible_hostname: rockserver1.lan
+          ansible_user: root
           ansible_connection: ssh
 
-    servers:
+    nodes:
 
       children:
 
-        master-servers:
+        sensors:
+
+          vars:
+            home_net: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
+
           hosts:
-            rockmaster1.lan:
-              ansible_hostname: rockmaster1.lan
-              ansible_user: root
+            rocksensor1.lan:
+              ansible_hostname: rocksensor1.lan
               ansible_connection: ssh
 
-        secondary-servers:
+        servers:
+
           hosts:
-            rocksecondary1.lan:
-              ansible_hostname: rocksecondary1.lan
+            rockserver3.lan:
+              ansible_hostname: rocksecondary3.lan
               ansible_user: root
               ansible_connection: ssh

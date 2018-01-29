@@ -6,7 +6,7 @@ metadata:
     component: elasticsearch
     role: client
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -35,7 +35,7 @@ spec:
             fieldRef:
               fieldPath: metadata.name
         - name: CLUSTER_NAME
-          value: myesdb
+          value: {{ es_cluster_name }}
         - name: NODE_MASTER
           value: "false"
         - name: NODE_DATA
@@ -43,7 +43,7 @@ spec:
         - name: HTTP_ENABLE
           value: "true"
         - name: ES_JAVA_OPTS
-          value: -Xms{{ es_mem }}m -Xmx{{ es_mem }}m
+          value: -Xms{{ es_mem }}g -Xmx{{ es_mem }}g
         - name: NETWORK_HOST
           value: _site_,_lo_
         ports:
@@ -64,6 +64,7 @@ spec:
         - name: storage
           mountPath: /data
       volumes:
-          - emptyDir:
-              medium: ""
-            name: storage
+      - name: es-host-data
+        hostPath:
+          path: /data
+          type: Directory

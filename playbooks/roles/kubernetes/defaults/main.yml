@@ -7,3 +7,5 @@
 # These control how the docker service is installed and how services are installed using Docker.
 kubernetes_baseurl: "https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64"
 kubernetes_gpgurl: "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+kube_dir: "{{ rocknsm_dir }}/kubernetes"
+kube_config_dir: "{{ kube_dir }}/configs"

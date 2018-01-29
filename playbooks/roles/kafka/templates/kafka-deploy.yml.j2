@@ -1,0 +1,37 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: kafka
+  labels:
+    component: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: kafka
+  template:
+    metadata:
+      labels:
+        component: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: {{ kafka_container_name }}
+        env:
+        - name: KAFKA_ZOOKEEPER_CONNECT
+          value: 'zookeeper:{{ zookeeper_port }}'
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        ports:
+        - containerPort: 9092
+          name: transport
+        volumeMounts:
+          - mountPath: "{{ kafka_config_path }}"
+            name: {{ kafka_pv }}
+      volumes:
+        - name: {{ kafka_pv }}
+          persistentVolumeClaim:
+            claimName: {{ kafka_pv }}
