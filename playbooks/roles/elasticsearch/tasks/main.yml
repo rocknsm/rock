@@ -11,13 +11,14 @@
     path: "{{ item }}"
     state: directory
   with_items:
-    - "{{ es_config_dir }}"
-    - "{{ es_config_dir }}/data"
+    - "{{ elastic_config_dir }}"
+    - "{{ elastic_config_dir }}/data"
+    - "{{ elastic_config_dir }}/config"
 
-- name: Install templates
+- name: Install Templates
   template:
     src: "templates/{{ item }}.yml.j2"
-    dest: "{{ es_config_dir }}/{{ item }}.yml"
+    dest: "{{ elastic_dir }}/{{ item }}.yml"
     group: "root"
     owner: "root"
     mode: 0644
@@ -34,11 +35,23 @@
     - pv-data
     - pvc-data
 
+- name: Install Config Templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ elastic_config_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - elasticsearch.yml
+    - jvm.options
+    - log4j2.properties
+
 - name: Create Config
-  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ elastic_pv_config }} --from-file {{ elastic_pv_config_dir }}'
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ elastic_config_map }} --from-file {{ elastic_config_dir }}'
 
 - name: Deploy
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ es_config_dir }}/{{ item }}.yml'
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ elastic_dir }}/{{ item }}.yml'
   with_items:
     - pv-data
     - pvc-data

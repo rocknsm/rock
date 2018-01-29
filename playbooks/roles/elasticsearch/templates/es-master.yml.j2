@@ -59,12 +59,12 @@ spec:
         volumeMounts:
         - name: {{ elastic_pv_data }}
           mountPath: {{ elastic_pv_data_path }}
-        - name: {{ elastic_pv_config }}
-          mountPath: {{ elastic_pv_config_path }}
+        - name: {{ elastic_config_map }}
+          mountPath: {{ elastic_config_path }}
       volumes:
       - name: {{ elastic_pv_data }}
         persistentVolumeClaim:
           claimName: {{ elastic_pv_data }}-claim
-      - name: {{ elastic_pv_config }}
+      - name: {{ elastic_config_map }}
         configMap:
-          - name: {{ elastic_pv_config }}
+          name: {{ elastic_config_map }}

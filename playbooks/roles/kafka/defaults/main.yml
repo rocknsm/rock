@@ -1,8 +1,6 @@
 %YAML 1.1
 ---
 
-zookeeper_port: 2181
-
 #### Main Role Configuration ####
 
 kafka_dir: "{{ rocknsm_dir }}/kafka"
