@@ -10,16 +10,22 @@ The Master branch will result in one fully working Sensor/Server stack with sing
 * 20 GB disk space
 * 2 network cards
 
-2. Get them up and running from a fresh CentOS-7-x86_64-Minimal-1708.iso install (or other CentOS 64 bit images)
+2. Get the virtual machines up and running from a fresh CentOS-7-x86_64-Minimal-1708.iso install (or other CentOS 64 bit images)
 
-3. After getting a network connection, run these commands to install software, update your machine, and reboot:
+3. After getting a network connection on the virtual machines, run these commands to install updates, software, and reboot:
 ```bash
 yum update -y
-yum install -y -q vim ansible open-vm-tools git
+yum install -y vim git
+yum install -y open-vm-tools #open-vm-tools is the virtual machine tools for VMware products. This does not work with Oracle VirtualBox or Microsoft Hyper-V
 reboot now
 ```
 
-4. You will need a DNS server to resolve the IP address of both the sensor and server virtual machines for the system to work properly. The goal is to have something like this setup:
+4. Install ansible on the Linux/Mac host that you will be deploying from
+```bash
+yum install -y ansible
+```
+
+5. You will need a DNS server to resolve the IP address of both the sensor and server virtual machines for the system to work properly. The goal is to have something like this setup:
 
   ![Systems Setup Guide - DNS Server](images/Systems%20Setup%20Guide%20-%20DNS%20Server.png)
 
@@ -27,16 +33,16 @@ reboot now
 
   ![Systems Setup Guide - DNS Server](images/Systems%20Setup%20Guide%20-%20Multirole.png)
 
-5. Optional: Install ssh keys so you don't need to type in the ssh password when you run the ansible-playbook command. Note you will run these commands on the Linux host with Ansible installed
+6. Optional: Install ssh keys so you don't need to type in the ssh password when you run the ansible-playbook command. Note you will run these commands on the Linux host with Ansible installed
 ```bash
 ssh-keygen -f ~/.ssh/id_rsa -t rsa -N '' # this creates a key with no password in the default location
 ssh-copy-id root@rocksensor1.lan #this prompts you for the root password of the rocksensor1 machine
 ssh-copy-id root@rockserver1.lan #this prompts you for the root password of the rockserver1 machine
 ```
 
-6. Make sure to make a snapshot of the sensor and server virtual machines before running ansible-playbook for the first time. This will allow you to revert to a non-modified CentOS machine since the playbooks do not clean up after themselves when running them more than once.
+7. Make sure to make a snapshot of the sensor and server virtual machines before running ansible-playbook for the first time. This will allow you to revert to a non-modified CentOS machine since the playbooks do not clean up after themselves when running them more than once.
 
-7. On your Linux host with Ansible installed, clone the project from Github to it:
+8. On your Linux host with Ansible installed, clone the project from Github to it:
 ```bash
 rm -rf /opt/rock && git clone -b <github_branch> <github_url> /opt/rock && cd /opt/rock/playbooks
 # The rm command deletes anything that is already there.
@@ -46,7 +52,7 @@ rm -rf /opt/rock && git clone -b <github_branch> <github_url> /opt/rock && cd /o
 # rm -rf /opt/rock && git clone -b logstash_feature https://github.com/tfplenum/rock /opt/rock && cd /opt/rock/playbooks
 ```
 
-8. Start the installer using the "ansible-playbook" command. To run only sensor/server related playbooks, use the "--limit" flag. Note: If you installed ssh keys you can omit the `--ask-pass` argument
+9. Start the installer using the "ansible-playbook" command. To run only sensor/server related playbooks, use the "--limit" flag. Note: If you installed ssh keys you can omit the `--ask-pass` argument
 ```bash
 ansible-playbook site.yml --ask-pass
 ansible-playbook site.yml --ask-pass --limit "sensors"
