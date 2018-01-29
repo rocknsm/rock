@@ -1,6 +1,8 @@
 # **Temporary Instructions**
 \*These instructions are subject to change
 
+The Master branch will result in one fully working Sensor/Server stack with single nodes of everything. Work on Kubernetes is being done in the devel branch.
+
 # Quick Start Guide
 1. Install 2 CentOS 64bit machines. For the testing machines, minimum recommended hardware is:
 * 8 GB RAM
