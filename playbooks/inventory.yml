@@ -58,6 +58,10 @@ all:
 #      children:
 #        sensors:
 
+    stenographer:
+#      children:
+#        sensors:
+
     kubespray:
     #  hosts:
     #    localhost:
