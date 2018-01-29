@@ -29,7 +29,7 @@ spec:
          - mountPath: "{{ zookeeper_data_path }}"
            name: {{ zookeeper_pv_data }}
          - mountPath: "{{ zookeeper_config_path }}"
-           name: {{ zookeeper_pv_config }}
+           name: {{ zookeeper_config_map }}
 
       - name: kafka
         image: {{ kafka_container_name }}
@@ -46,7 +46,7 @@ spec:
           name: transport
         volumeMounts:
           - mountPath: "{{ kafka_config_path }}"
-            name: {{ kafka_pv_config }}
+            name: {{ kafka_config_map }}
           - mountPath: "{{ kafka_data_path }}"
             name: {{ kafka_pv_data }}
 
@@ -54,15 +54,15 @@ spec:
       - name: {{ zookeeper_pv_data }}
         persistentVolumeClaim:
           claimName: {{ zookeeper_pv_data }}-claim
-      - name: {{ zookeeper_pv_config }}
+      - name: {{ zookeeper_config_map }}
         configMap:
-          name: {{ zookeeper_pv_config }}
+          name: {{ zookeeper_config_map }}
       - name: {{ kafka_pv_data }}
         persistentVolumeClaim:
           claimName: {{ kafka_pv_data }}-claim
-      - name: {{ kafka_pv_config }}
+      - name: {{ kafka_config_map }}
         configMap:
-          name: {{ kafka_pv_config }}
+          name: {{ kafka_config_map }}
       nodeSelector:
         role: sensor
       affinity:

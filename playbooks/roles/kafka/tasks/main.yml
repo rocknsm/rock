@@ -13,29 +13,25 @@
   with_items:
     - "{{ kafka_dir }}"
     - "{{ kafka_data_dir }}"
-    - "{{ kafka_config_dir}}"
+    - "{{ zookeeper_dir }}"
+    - "{{ zookeeper_data_dir }}"
 
 - name: Install Templates
   template:
-    src: "templates/{{ item }}.yml.j2"
-    dest: "{{ kafka_dir }}/{{ item }}.yml"
+    src: "templates/{{ item }}.j2"
+    dest: "{{ kafka_dir }}/{{ item }}"
     group: root
     owner: root
     mode: 0644
   with_items:
-    - kafka-deploy
-    - kafka-svc
-    - kafka-dockerfile
-    - pv-config
-    - pvc-config
-
-- name: Install Properties File
-  template:
-    src: "templates/server.properties.j2"
-    dest: "{{ kafka_config_dir }}/server.properties"
-    group: root
-    owner: root
-    mode: 0644
+    - kafka-deploy.yml
+    - kafka-svc.yml
+    - kafka-dockerfile.yml
+    - k-pv-data.yml
+    - k-pvc-data.yml
+    - z-pv-data.yml
+    - z-pvc-data.yml
+    - server.properties
 
 - name: Download Kafka Release
   get_url:
@@ -44,11 +40,14 @@
 
 - name: Copy Files
   copy:
-    src: "files/start-kafka.sh"
-    dest: "{{ kafka_dir }}/start-kafka.sh"
+    src: "files/{{ item[1] }}"
+    dest: "{{ item[0] }}/{{ item[1] }}"
     group: root
     owner: root
     mode: 0644
+  with_nested:
+    - ['{{ kafka_dir }}','{{ zookeeper_dir }}']
+    - ['start-kafka.sh','zoo.cfg']
 
 - name: Build Container
   docker_image:
@@ -58,8 +57,11 @@
     path: "{{ kafka_dir }}"
     dockerfile: kafka-dockerfile.yml
 
-- name: Create Config
-  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ kafka_pv_config }} --from-file {{ kafka_config_dir }}'
+- name: Create Kafka Config
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ kafka_config_map }} --from-file {{ kafka_config_file }}'
+
+- name: Create Zookeeper Config
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ zookeeper_config_map }} --from-file {{ zookeeper_config_file }}'
 
 - name: Deploy
   command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ kafka_dir }}/{{ item }}.yml'
