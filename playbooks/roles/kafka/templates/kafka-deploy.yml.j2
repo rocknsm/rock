@@ -5,7 +5,7 @@ metadata:
   labels:
     component: kafka
 spec:
-  replicas: 1
+  replicas: {{ groups['sensors'] | length }}
   selector:
     matchLabels:
      component: kafka
@@ -15,6 +15,22 @@ spec:
         component: kafka
     spec:
       containers:
+      - name: zookeeper
+        image: {{ zookeeper_container }}:{{ zookeeper_ver }}
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        ports:
+        - containerPort: 9092
+          name: transport
+        volumeMounts:
+         - mountPath: "{{ zookeeper_data_path }}"
+           name: {{ zookeeper_pv_data }}
+         - mountPath: "{{ zookeeper_config_path }}"
+           name: {{ zookeeper_pv_config }}
+
       - name: kafka
         image: {{ kafka_container_name }}
         env:
@@ -30,8 +46,32 @@ spec:
           name: transport
         volumeMounts:
           - mountPath: "{{ kafka_config_path }}"
-            name: {{ kafka_pv }}
+            name: {{ kafka_pv_config }}
+          - mountPath: "{{ kafka_data_path }}"
+            name: {{ kafka_pv_data }}
+
       volumes:
-        - name: {{ kafka_pv }}
-          persistentVolumeClaim:
-            claimName: {{ kafka_pv }}
+      - name: {{ zookeeper_pv_data }}
+        persistentVolumeClaim:
+          claimName: {{ zookeeper_pv_data }}-claim
+      - name: {{ zookeeper_pv_config }}
+        configMap:
+          name: {{ zookeeper_pv_config }}
+      - name: {{ kafka_pv_data }}
+        persistentVolumeClaim:
+          claimName: {{ kafka_pv_data }}-claim
+      - name: {{ kafka_pv_config }}
+        configMap:
+          name: {{ kafka_pv_config }}
+      nodeSelector:
+        role: sensor
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - sensor
+            topologyKey: "kubernetes.io/hostname"

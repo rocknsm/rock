@@ -49,16 +49,22 @@ spec:
         - name: ES_JAVA_OPTS
           value: -Xms{{ es_mem }}g -Xmx{{ es_mem }}g
         ports:
+        - containerPort: {{ elastic_data_port }}
+          name: http
         - containerPort: {{ elastic_management_port }}
           name: transport
         livenessProbe:
           tcpSocket:
             port: transport
         volumeMounts:
-        - name: es-host-data
-          mountPath: /data
+        - name: {{ elastic_pv_data }}
+          mountPath: {{ elastic_pv_data_path }}
+        - name: {{ elastic_pv_config }}
+          mountPath: {{ elastic_pv_config_path }}
       volumes:
-      - name: es-host-data
-        hostPath:
-          path: {{ es_config_dir }}/data
-          type: Directory
+      - name: {{ elastic_pv_data }}
+        persistentVolumeClaim:
+          claimName: {{ elastic_pv_data }}-claim
+      - name: {{ elastic_pv_config }}
+        configMap:
+          - name: {{ elastic_pv_config }}

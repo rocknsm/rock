@@ -31,10 +31,17 @@
     - es-master-pdb
     - es-master
     - es-svc
+    - pv-data
+    - pvc-data
+
+- name: Create Config
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ elastic_pv_config }} --from-file {{ elastic_pv_config_dir }}'
 
 - name: Deploy
   command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ es_config_dir }}/{{ item }}.yml'
   with_items:
+    - pv-data
+    - pvc-data
     - es-master
     - es-discovery-svc
     - es-svc
@@ -42,7 +49,7 @@
 #    - es-data
 
 - name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf rollout status -f {{ es_config_dir }}/{{ item }}.yml'
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf rollout status deployment/{{ item }}'
   with_items:
     - es-master
 #    - es-client
