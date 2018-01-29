@@ -18,7 +18,7 @@ all:
     bro:
 
     kibana:
-      children:
+#      children:
 #        master-servers:
 
     portainer:
@@ -30,11 +30,11 @@ all:
     #    master-servers:
 
     elasticsearch:
-      children:
+#      children:
 #        master-servers:
 
     logstash:
-      children:
+#      children:
 #        master-servers:
 
     suricata:
