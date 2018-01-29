@@ -9,6 +9,6 @@ spec:
   capacity:
     storage: {{ logstash_pv_size_mb }}Mi
   accessModes:
-    - ReadOnlyMany
+    - ReadWriteOnce
   hostPath:
     path: "{{ logstash_pv_data_dir }}"

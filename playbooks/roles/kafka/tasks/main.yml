@@ -26,6 +26,8 @@
     - kafka-deploy
     - kafka-svc
     - kafka-dockerfile
+    - pv-config
+    - pvc-config
 
 - name: Install Properties File
   template:
@@ -34,6 +36,11 @@
     group: root
     owner: root
     mode: 0644
+
+- name: Download Kafka Release
+  get_url:
+    url: "{{ kafka_url }}"
+    dest: "{{ kafka_dir }}/{{ kafka_download_name }}"
 
 - name: Copy Files
   copy:
@@ -51,24 +58,31 @@
     path: "{{ kafka_dir }}"
     dockerfile: kafka-dockerfile.yml
 
+- name: Create Config
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ kafka_pv_config }} --from-file {{ kafka_config_dir }}'
+
 - name: Deploy
   command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ kafka_dir }}/{{ item }}.yml'
   with_items:
+    - k-pv-data
+    - k-pvc-data
+    - z-pv-data
+    - z-pvc-data
     - kafka-deploy
     - kafka-svc
 
 - name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ kafka_dir }}/{{ item }}.yml'
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ kafka_dir }}/kafka-deploy.yml'
 
-- name: Create Topics
-  command: >
-    docker exec {{ kafka_container_name }} {{ kafka_install_dir }}/bin/kafka-topics.sh
-      --zookeeper zookeeper:{{ zookeeper_port }}
-      --create
-      --replication-factor 1
-      --topic {{ item }}-raw
-      --partisions 1
-  with_items:
-    - bro
-    - suricata
-    - fsf
+#- name: Create Topics
+#  command: >
+#    docker exec {{ kafka_container_name }} {{ kafka_install_dir }}/bin/kafka-topics.sh
+#      --zookeeper zookeeper:{{ zookeeper_port }}
+#      --create
+#      --replication-factor 1
+#      --topic {{ item }}-raw
+#      --partisions 1
+#  with_items:
+#    - bro
+#    - suricata
+#    - fsf

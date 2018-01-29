@@ -30,6 +30,8 @@ spec:
             name: {{ logstash_pv_data }}
           - mountPath: "{{ logstash_config_path }}/pipeline"
             name: {{ logstash_pv_pipeline }}
+          - mountPath: "{{ logstash_config_path }}/logs"
+            name: {{ logstash_pv_logs }}
       volumes:
         - name: {{ logstash_pv_config }}
           persistentVolumeClaim:
@@ -40,3 +42,6 @@ spec:
         - name: {{ logstash_pv_pipeline }}
           persistentVolumeClaim:
             claimName: {{ logstash_pv_pipeline }}-claim
+        - name: {{ logstash_pv_logs }}
+          persistentVolumeClaim:
+            claimName: {{ logstash_pv_logs }}-claim

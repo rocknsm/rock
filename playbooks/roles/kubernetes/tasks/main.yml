@@ -103,6 +103,10 @@
   command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
   when: inventory_hostname in groups['master-servers']
 
+- name: 'Allow time for nodes to register'
+  pause:
+    seconds: 10
+
 - name: 'Label masters'
   command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=master-server'
   with_items: "{{ groups['master-servers'] }}"

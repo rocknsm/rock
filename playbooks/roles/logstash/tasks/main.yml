@@ -7,8 +7,8 @@
   file:
     path: "{{ item }}"
     mode: u+rw,g+rw
-    owner: root
-    group: root
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
     state: directory
   with_items:
     - "{{ logstash_dir }}"
@@ -21,24 +21,26 @@
   template:
     src: "templates/{{ item }}.yml.j2"
     dest: "{{ logstash_dir }}/{{ item }}.yml"
-    group: root
-    owner: root
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
     mode: 0644
   with_items:
     - logstash-deploy
     - pv-config
     - pv-data
     - pv-pipeline
+    - pv-logs
     - pvc-config
     - pvc-data
     - pvc-pipeline
+    - pvc-logs
 
 - name: Copy Pipeline Files
   copy:
     src: "files/{{ item }}.conf"
     dest: "{{ logstash_pv_pipeline_dir }}/{{ item }}.conf"
-    group: root
-    owner: root
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
     mode: 0644
   with_items:
     - kafka-bro
@@ -49,16 +51,16 @@
   template:
     src: "templates/logstash.yml.j2"
     dest: "{{ logstash_pv_config_dir }}/logstash.yml"
-    group: root
-    owner: root
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
     mode: 0644
 
 - name: Copy Pipeline File
   copy:
     src: "files/{{ item }}"
     dest: "{{ logstash_pv_config_dir }}/{{ item }}"
-    group: root
-    owner: root
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
     mode: 0644
   with_items:
     - pipelines.yml
@@ -70,9 +72,11 @@
     - pv-config
     - pv-data
     - pv-pipeline
+    - pv-logs
     - pvc-config
     - pvc-data
     - pvc-pipeline
+    - pvc-logs
     - logstash-deploy
 
 - name: Wait for deployment to finish
