@@ -2,7 +2,8 @@
   ################# Setup PulledPork  ##################
   ######################################################
 
-- get_url:
+- name: Grab the URL
+  get_url:
     dest: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
     mode: 420
     url: "{{ pulledpork_url }}"
@@ -61,6 +62,12 @@
     mode: 0644
     state: touch
   when: not rules_file.stat.exists
+
+- name: Restart Suricata
+  systemd:
+    name: suricata
+    daemon-reload: yes
+    state: restarted
 
 # This will install to /etc/cron.d/
 - name: Schedule pulledpork to run daily

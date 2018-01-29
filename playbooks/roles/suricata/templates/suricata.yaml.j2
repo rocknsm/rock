@@ -157,7 +157,7 @@ outputs:
             extended: yes     # enable this for extended logging information
         - files:
             force-magic: no   # force logging magic on all logged files
-            force-md5: no     # force logging of md5 checksums
+            force-hash: no     # force logging of md5 checksums
         #- drop:
         #    alerts: yes      # log alerts that caused drops
         #    flows: all       # start or all: 'start' logs only a single drop
@@ -356,7 +356,7 @@ outputs:
       enabled: no       # set to yes to enable
       log-dir: files    # directory to store the files
       force-magic: no   # force logging magic on all stored files
-      force-md5: no     # force logging of md5 checksums
+      force-hash: no     # force logging of md5 checksums
       force-filestore: no # force storing of all files
       #waldo: file.waldo # waldo file to store the file_id across runs
 
@@ -368,7 +368,7 @@ outputs:
       #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
 
       force-magic: no   # force logging magic on all logged files
-      force-md5: no     # force logging of md5 checksums
+      force-hash: no     # force logging of md5 checksums
 
   # Log TCP data after stream normalization
   # 2 types: file or dir. File logs into a single logfile. Dir creates

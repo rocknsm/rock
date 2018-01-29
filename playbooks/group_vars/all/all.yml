@@ -3,7 +3,7 @@
 #Common role variables
 common_mgnt_nets: "{{ rock_mgmt_nets }}"
 
-#local_host_name: simplerockbuild.simplerock.lan
+local_host_name: simplerockbuild.simplerock.lan
 rock_version: 3.0
 
 # This is used to maintain compatibility with Rock proper. We currently do

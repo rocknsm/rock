@@ -20,8 +20,6 @@
 # add it back in for roles which apply to your servers or anything requiring
 # the gathered facts will fail.
 # WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-
-- hosts: common
   roles:
     - common
 
@@ -33,21 +31,6 @@
 - hosts: docker
   roles:
     - docker
-  gather_facts: no
-
-- hosts: kubernetes
-  roles:
-    - kubernetes
-  gather_facts: no
-
-- hosts: kube-elasticsearch
-  roles:
-    - kube-elasticsearch
-  gather_facts: no
-
-- hosts: kube-kibana
-  roles:
-    - kube-kibana
   gather_facts: no
 
 #************************************************
@@ -116,10 +99,6 @@
   roles:
     - kafka
   gather_facts: no
-
-- hosts: kubespray
-  roles:
-    - kubespray
 
 # Harbor must run last so that it uploads all containers installed on the machine.
 # Harbor has compose file issue, disabling for now
