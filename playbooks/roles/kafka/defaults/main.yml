@@ -34,5 +34,5 @@ zookeeper_config_path: "/conf/zoo.cfg"
 zookeeper_log_dir: '/var/log/zookeeper'
 zookeeper_pv_data: "zookeeper-data"
 zookeeper_pv_size_mb: 10
-zookeeper_container: zookeeper
-zookeeper_ver: 3.4.11
+zookeeper_container: rocknsm/zookeeper
+zookeeper_ver: latest
