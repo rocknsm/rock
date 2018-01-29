@@ -11,18 +11,9 @@ all:
 
     # Role specific breakout
 
-    common:
-      children:
-        sensors:
-        servers:
-
     sensor-common:
       children:
         sensors:
-
-    server-common:
-      children:
-        servers:
 
     bro:
       children:
@@ -69,22 +60,19 @@ all:
       children:
         sensors:
 
-    kubernetes:
-      children:
-        master-servers:
-
-    kubespray:
-      hosts:
-        localhost:
-          ansible_hostname: 127.0.0.1
-          ansible_connection: local
-
     harbor:
       children:
         master-servers:
 
+#    dnsmasq:
+#      children:
+        #servers:     # Uncomment to add this to the server
+
     # Broad categories for convienience
     sensors:
+
+      vars:
+        home_net: "\"[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]\""
 
       hosts:
         rocksensor1.lan:
