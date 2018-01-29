@@ -60,6 +60,10 @@ all:
       children:
         sensors:
 
+    stenographer:
+      children:
+        sensors:
+
     harbor:
       children:
         master-servers:
