@@ -41,10 +41,10 @@
     - kibana
   gather_facts: no
 
-- hosts: portainer
-  roles:
-    - portainer
-  gather_facts: no
+#- hosts: portainer
+#  roles:
+#    - portainer
+#  gather_facts: no
 
 # haproxy must come before elasticsearch. The host running ansible will not
 # beable to contact elasticsearch without haproxy running, this is required
@@ -66,36 +66,36 @@
     - logstash
   gather_facts: no
 
-- hosts: suricata
-  roles:
-    - suricata
-  gather_facts: no
+#- hosts: suricata
+#  roles:
+#    - suricata
+#  gather_facts: no
 
-- hosts: filebeat
-  roles:
-    - filebeat
-  gather_facts: no
+#- hosts: filebeat
+#  roles:
+#    - filebeat
+#  gather_facts: no
 
-- hosts: zookeeper
-  roles:
-    - zookeeper
-  gather_facts: no
+#- hosts: zookeeper
+#  roles:
+#    - zookeeper
+#  gather_facts: no
 
 - hosts: kafka
   roles:
     - kafka
   gather_facts: no
 
-- hosts: stenographer
-  roles:
-    - stenographer
-  gather_facts: no
+#- hosts: stenographer
+#  roles:
+#    - stenographer
+#  gather_facts: no
 
 # Harbor must run last so that it uploads all containers installed on the machine.
 # Harbor has compose file issue, disabling for now
-- hosts: harbor
-  roles:
-    - harbor
-  gather_facts: no
+#- hosts: harbor
+#  roles:
+#    - harbor
+#  gather_facts: no
 
 ...
