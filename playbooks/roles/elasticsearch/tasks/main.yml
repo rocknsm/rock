@@ -3,199 +3,47 @@
 ######################################################
 ---
 
-- name: 'Download Elasticsearch container'
-  docker_image:
-    name: "{{ elastic_container }}:{{ elastic_ver }}"
-
-- name: Create elasticsearch group
-  group:
-    name: "{{ es_group }}"
-    state: present
-
-- name: Add Elasticsearch user
-  user:
-    name: "{{ es_user }}"
-    comment: "User for managing elasticsearch related things"
-    group: "{{ es_group }}"
-
-- name: "Create Elasticsearch directory"
+- name: "Create directories"
   file:
     group: "{{ es_group }}"
     mode: u+rw,g+rw
     owner: "{{ es_user }}"
-    path: "{{ es_data_dir }}"
+    path: "{{ item }}"
     state: directory
+  with_items:
+    - "{{ es_config_dir }}"
+    - "{{ es_config_dir }}/data"
 
-- name: "Create Elasticsearch configuration directory"
-  file:
-    group: "{{ es_group }}"
-    mode: u+rw,g+rw
-    owner: "{{ es_user }}"
-    path: "{{ es_config_dir }}"
-    state: directory
-
-- name: "Create Elasticsearch log directory"
-  file:
-    group: "{{ es_group }}"
-    mode: u+rw,g+rw
-    owner: "{{ es_user }}"
-    path: "{{ es_log_dir }}"
-    state: directory
-
-- name: "Setup elasticsearch config"
+- name: Install templates
   template:
-    dest: "{{ rock_compose_files }}/elasticsearch.compose.yml"
-    group: "{{ es_group }}"
-    mode: 755
-    owner: "{{ es_user }}"
-    src: templates/elasticsearch.compose.yml.j2
-
-- name: "Setup elasticsearch jvm options"
-  template:
-    dest: "{{ es_config_dir }}/jvm.options"
-    group: "{{ es_group }}"
-    mode: 755
-    owner: root
-    src: templates/es-jvm.options.j2
-
-- name: "Setup elasticsearch service"
-  template:
-    dest: /etc/systemd/system/elasticsearch.service
-    group: "{{ es_group }}"
-    mode: 755
-    owner: root
-    src: templates/elasticsearch.service.j2
-
-- name: "Link elasticsearch service"
-  file:
-    src: "/etc/systemd/system/elasticsearch.service"
-    dest: "/etc/systemd/system/rock.target.wants/elasticsearch.service"
-    group: "{{ es_group }}"
+    src: "templates/{{ item }}.yml.j2"
+    dest: "{{ es_config_dir }}/{{ item }}.yml"
+    group: "root"
     owner: "root"
-    state: link
+    mode: 0644
+  with_items:
+    - es-client
+    - es-curator-config
+    - es-curator_v1beta1
+    - es-data-pdb
+    - es-data
+    - es-discovery-svc
+    - es-master-pdb
+    - es-master
+    - es-svc
 
-- name: "Enable and start Elasticsearch"
-  systemd:
-    enabled: yes
-    name: elasticsearch
-    state: restarted
-    daemon-reload: yes
+- name: Deploy
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ es_config_dir }}/{{ item }}.yml'
+  with_items:
+    - es-master
+    - es-discovery-svc
+    - es-svc
+#    - es-client
+#    - es-data
 
-- name: Install Signing Key for Curator
-  command: rpm --import https://packages.elastic.co/GPG-KEY-elasticsearch
-
-- name: Copy curator repo
-  copy:
-    src: curator.repo
-    dest: /etc/yum.repos.d/curator.repo
-    mode: 0755
-
-- name: Install Elasticsearch Curator
-  yum:
-    name: elasticsearch-curator
-    state: latest
-
-- name: Create Curator config directory
-  file: path=~/.curator state=directory
-
-- name: Copy curator configuration file
-  copy:
-    src: curator.yml
-    dest: ~/.curator/curator.yml
-    mode: 0755
-
-- name: Copy curator actions
-  copy:
-    src: curator-actions.yml
-    dest: ~/.curator/curator-actions.yml
-    mode: 0755
-
-- name: "Set Elasticsearch Curator cron job"
-  cron:
-    cron_file: rocknsm_es_maintenance
-    hour: 0
-    job: "curator --config ~/.curator/curator.yml ~/.curator/curator-actions.yml > /dev/null 2>&1"
-    minute: 1
-    name: "Curator maintenance"
-    user: root
-
-#- name: "Restart haproxy service"
-#  systemd:
-#    name: haproxy
-#    state: restarted
-#  when: "'primary-servers' in group_names"
-
-# TODO: This will not work because this port is not exposed
-- name: "Wait for Elasticsearch to become ready"
-  pause:
-    seconds: 20
-#- name: "Check for Bro base mapping template"
-#  uri:
-#    method: GET
-#    url: "http://{{ inventory_hostname }}:9200/_template/bro_base"
-#  failed_when: false
-#  register: bro_baseMapping
-#  when: "'primary-servers' in group_names"
-
-- name: "Load Bro Elasticsearch base mapping template"
-  uri:
-    body: "{{ lookup('file', 'es-bro-base-mappings.json')}}"
-    body_format: json
-    method: PUT
-    url: "http://{{ inventory_hostname }}:9200/_template/bro_base"
-
-
-- name: "Load Bro Elasticsearch detection mapping template"
-  uri:
-    body: "{{ lookup('file', 'es-bro-detection-mappings.json')}}"
-    body_format: json
-    method: PUT
-    url: "http://{{ inventory_hostname }}:9200/_template/bro_detection"
-
-#- name: "Check for Bro file mapping template"
-#        uri:
-#          method: GET
-#          url: "http://{{ inventory_hostname }}:9200/_template/bro_file"
-#        failed_when: false
-#        register: bro_fileMapping
-#        when: "'primary-servers' in group_names"
-#
-- name: "Load Bro Elasticsearch file mapping template"
-  uri:
-    body: "{{ lookup('file', 'es-bro-file-mappings.json')}}"
-    body_format: json
-    method: PUT
-    url: "http://{{ inventory_hostname }}:9200/_template/bro_file"
-#        when: "'primary-servers' in group_names and bro_fileMapping is defined and bro_fileMapping.status == ''"
-#
-#- name: "Check for Bro network template"
-#            uri:
-#              method: GET
-#              url: "http://{{ inventory_hostname }}:9200/_template/bro_network"
-#            failed_when: false
-#            register: bro_detectionMapping
-#            when: "'primary-servers' in group_names"
-#
-- name: "Load Bro Elasticsearch network mapping template"
-  uri:
-    body: "{{ lookup('file', 'es-bro-network-mappings.json')}}"
-    body_format: json
-    method: PUT
-    url: "http://{{ inventory_hostname }}:9200/_template/bro_network"
-#            when: "'primary-servers' in group_names and bro_detectionMapping is defined and bro_detectionMapping.status == ''"
-#
-#- name: "Check for Bro observations mapping template"
-#                uri:
-#                  method: GET
-#                  url: "http://{{ inventory_hostname }}:9200/_template/bro_observations"
-#                failed_when: false
-#                register: bro_observationsMapping
-#                when: "'primary-servers' in group_names"
-#
-- name: "Load Bro Elasticsearch observations mapping template"
-  uri:
-    body: "{{ lookup('file', 'es-bro-observations-mappings.json')}}"
-    body_format: json
-    method: PUT
-    url: "http://{{ inventory_hostname }}:9200/_template/bro_observations"
-#                when: "'primary-servers' in group_names and bro_observationsMapping is defined and bro_observationsMapping.status == ''"
+- name: Wait for deployment to finish
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf rollout status -f {{ es_config_dir }}/{{ item }}.yml'
+  with_items:
+    - es-master
+#    - es-client
+#    - es-data

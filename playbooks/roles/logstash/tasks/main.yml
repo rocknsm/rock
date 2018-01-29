@@ -1,4 +1,79 @@
+######################################################
+################# Setup Logstash #####################
+######################################################
 ---
 
-- import_tasks: 'logstash_container.yml'
-- import_tasks: 'pipeline_configuration.yml'
+- name: "Create Logstash config directory"
+  file:
+    path: "{{ item }}"
+    mode: u+rw,g+rw
+    owner: root
+    group: root
+    state: directory
+  with_items:
+    - "{{ logstash_dir }}"
+    - "{{ logstash_dir }}/mnt"
+    - "{{ logstash_pv_config_dir }}"
+    - "{{ logstash_pv_data_dir }}"
+    - "{{ logstash_pv_pipeline_dir }}"
+
+- name: Install Logstash templates
+  template:
+    src: "templates/{{ item }}.yml.j2"
+    dest: "{{ logstash_dir }}/{{ item }}.yml"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - logstash-deploy
+    - pv-config
+    - pv-data
+    - pv-pipeline
+    - pvc-config
+    - pvc-data
+    - pvc-pipeline
+
+- name: Copy Pipeline Files
+  copy:
+    src: "files/{{ item }}.conf"
+    dest: "{{ logstash_pv_pipeline_dir }}/{{ item }}.conf"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - kafka-bro
+    - kafka-fsf
+    - kafka-suricata
+
+- name: Copy Config File
+  template:
+    src: "templates/logstash.yml.j2"
+    dest: "{{ logstash_pv_config_dir }}/logstash.yml"
+    group: root
+    owner: root
+    mode: 0644
+
+- name: Copy Pipeline File
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ logstash_pv_config_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - pipelines.yml
+    - log4j2.properties
+
+- name: Deploy
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ logstash_dir }}/{{ item }}.yml'
+  with_items:
+    - pv-config
+    - pv-data
+    - pv-pipeline
+    - pvc-config
+    - pvc-data
+    - pvc-pipeline
+    - logstash-deploy
+
+- name: Wait for deployment to finish
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ logstash_dir }}/logstash-deploy.yml'

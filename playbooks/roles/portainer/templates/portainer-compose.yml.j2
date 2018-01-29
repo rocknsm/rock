@@ -10,6 +10,7 @@ services:
     restart: "always"
     volumes:
       - "{{ rocknsm_dir }}/portainer:/data"
+      - "{{ portainer_log_dir }}:{{ portainer_log_dir}}"
 # Secure Docker network that cannot be connected to host directly
 networks:
   default:
