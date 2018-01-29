@@ -17,11 +17,6 @@ all:
 
     bro:
 
-    docker:
-      children:
-        sensors:
-        servers:
-
     kibana:
       children:
         master-servers:
@@ -51,12 +46,12 @@ all:
 #-        sensors:
 
     zookeeper:
-#      children:
-#        sensors:
+      children:
+        master-servers:
 
     kafka:
-#      children:
-#        sensors:
+      children:
+        master-servers:
 
     stenographer:
 #      children:

@@ -11,20 +11,19 @@ elastic_delete_interval: 60
 
 es_user: 1000
 es_group: 1000
-es_data_dir: "{{ rock_data_dir }}/elasticsearch"
 es_cluster_name: rocknsm
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
-
 elastic_data_port: '9200'
 elastic_management_port: '9300'
 elastic_container: 'docker.elastic.co/elasticsearch/elasticsearch'
 elastic_container_name: 'elasticsearch'
-es_config_dir: '{{ rocknsm_dir }}/elasticsearch'
 es_log_dir: '/var/log/elasticsearch'
 
-elastic_pv_data: "elasticsearch"
+elastic_dir: "{{ rocknsm_dir  }}/elasticsearch"
+elastic_pv_data: "elastic-data"
 elastic_pv_size_gb: 1
-elastic_pv_data_dir: "/data"
+elastic_pv_data_dir: "{{ elastic_dir }}/data"
 elastic_pv_data_path: "/usr/share/elasticsearch/data"
-elastic_pv_config_dir: "{{ rocknsm_dir }}/elasticsearch/elasticsearch.yml"
-elastic_pv_config_path: "/usr/share/elasticsearch/elasticsearch.yml"
+elastic_config_map: "elastic-config"
+elastic_config_dir: "{{ elastic_dir }}/config"
+elastic_config_path: "/usr/share/elasticsearch/config"
