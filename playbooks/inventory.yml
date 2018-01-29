@@ -20,7 +20,7 @@ all:
 
     kibana:
       children:
-        master-servers:
+#        master-servers:
 
     portainer:
 #      children:
@@ -32,11 +32,11 @@ all:
 
     elasticsearch:
       children:
-        master-servers:
+#        master-servers:
 
     logstash:
       children:
-        master-servers:
+#        master-servers:
 
     suricata:
 #      children:
