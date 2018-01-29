@@ -1,0 +1,12 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ logstash_pv_config }}-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadOnlyMany
+  resources:
+    requests:
+      storage: {{ logstash_pv_size_mb }}Mi
+  volumeName: {{ logstash_pv_config }}

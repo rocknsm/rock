@@ -1,0 +1,58 @@
+---
+######################################################
+############### Setup Kibana container ###############
+######################################################
+
+- name: 'Download Kibana container'
+  docker_image:
+    name: "{{ kibana_image }}:{{ kibana_ver }}"
+  when: rock_online_install
+
+- name: 'Install Kibana service file'
+  template:
+    src: 'kibana.service.j2'
+    dest: '/etc/systemd/system/kibana.service'
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Link Kibana service file'
+  file:
+    src: '/etc/systemd/system/kibana.service'
+    dest: '/etc/systemd/system/rock.target.wants/kibana.service'
+    owner: root
+    group: root
+    state: link
+
+- name: 'Create new directories'
+  file:
+    path: "{{ rock_data_dir }}/kibana"
+    owner: 1000
+    group: 1000
+    mode: u+rw,g+rw
+    state: directory
+
+- name: 'Create Kibana log directory'
+  file:
+    owner: 1000
+    group: 1000
+    mode: u+rw,g+rw
+    path: "{{ kibana_log_dir }}"
+    state: directory
+
+- name: 'Copy Kibana compose file'
+  template:
+    src: 'kibana-compose.yml.j2'
+    dest: "{{ rock_compose_files }}/kibana-compose.yml"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: 'Enable Kibana service'
+  service:
+    name: 'kibana'
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+
+...

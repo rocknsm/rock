@@ -1,5 +1,5 @@
 #######################################################
-###################  Kubernetes Install ###################
+###################  Kubernetes Install ###############
 #######################################################
 ---
 
@@ -11,6 +11,11 @@
     gpgkey: "{{ kubernetes_gpgurl }}"
     name: kubernetes
 
+- name: Verify Docker is present
+  yum:
+    name: docker-ce
+    state: present
+
 - name: 'Install Kubernetes packages'
   yum:
     name: "{{ item }}"
@@ -20,8 +25,8 @@
     - "kubelet"
     - "kubectl"
 
-- name: 'Disable swap'
-  command: "swapoff -a"
+- name: Swap Off
+  command: swapoff --all
 
 - name: 'Remove swap'
   mount:
@@ -42,7 +47,7 @@
     name: docker
     state: restarted
   when: cgroup.changed
-  
+
 - name: 'Pass bridged IPv4 traffic to iptables'
   sysctl:
     name: net.bridge.bridge-nf-call-iptables
@@ -58,8 +63,20 @@
 - name: 'Clear Kubernetes cluster'
   command: kubeadm reset
 
+- name: "Create Kubernetes config directory"
+  file:
+    path: "{{ item }}"
+    mode: u+rw,g+rw
+    owner: root
+    group: root
+    state: directory
+  when: inventory_hostname in groups['master-servers']
+  with_items:
+    - "{{ kube_dir }}"
+    - "{{ kube_config_dir }}"
+
 - name: 'Init Kubernetes cluster'
-  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 | grep 'kubeadm join --token'"
+  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16| grep 'kubeadm join --token'"
   register: kube_join_cluster_cmd
   when: inventory_hostname in groups['master-servers']
 
@@ -79,8 +96,18 @@
 
 - name: 'Join Kubernetes cluster'
   command: "{{ hostvars[item].kube_join_cluster_cmd.stdout }}"
-  when: "inventory_hostname not in groups['master-servers']"
+  when: "inventory_hostname in groups['nodes']"
   with_items: "{{ groups['master-servers'] }}"
+
+- name: 'Install MetalLB LoadBalancer'
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
+  when: inventory_hostname in groups['master-servers']
+
+- name: 'Label masters'
+  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=master-server'
+  with_items: "{{ groups['master-servers'] }}"
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
 
 - name: 'Label sensors'
   command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=sensor'
@@ -90,18 +117,12 @@
 
 - name: 'Label secondary servers'
   command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=secondary-server'
-  with_items: "{{ groups['secondary-servers'] }}"
+  with_items: "{{ groups['servers'] }}"
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
-- name: 'Label masters'
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=master-server'
-  with_items: "{{ groups['master-servers'] }}"
-  when: inventory_hostname in groups['master-servers']
-  ignore_errors: yes
-
-- name: 'Install Dashboard UI'
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f "https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml"'
-  when: inventory_hostname in groups['master-servers']
+#- name: 'Install Dashboard UI'
+#  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f "https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml"'
+#  when: inventory_hostname in groups['master-servers']
 
 ...
