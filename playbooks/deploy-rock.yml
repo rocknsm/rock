@@ -1165,40 +1165,6 @@
       persistent: yes
     when: with_nginx and with_kibana
 
-  - name: Create easy-rsa working dir
-    file:
-      path: /opt/easy-rsa
-      state: directory
-      mode: 0750
-      owner: root
-      group: root
-    when: with_kibana and with_nginx
-
-  - name: Create easy-rsa keys dir
-    file:
-      path: /opt/easy-rsa/keys
-      state: directory
-      mode: 0750
-      owner: root
-      group: root
-    when: with_kibana and with_nginx
-
-  - name: Create working copy of easy-rsa
-    copy:
-      src: /usr/share/easy-rsa/2.0/
-      dest: /opt/easy-rsa/
-      mode: 0750
-      owner: root
-      group: root
-    when: with_kibana and with_nginx
-
-  - name: Apply easy-rsa vars template
-    template:
-      src: templates/easy-rsa-vars.j2
-      dest: /opt/easy-rsa/vars
-      mode: 0644
-    when: with_kibana and with_nginx
-
   - name: Generate sensor private key
     openssl_privatekey:
       path: /etc/pki/bundle.key
