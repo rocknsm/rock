@@ -1199,20 +1199,49 @@
       mode: 0644
     when: with_kibana and with_nginx
 
-  - name: Generate and copy Kibana keys
-    shell:
-      cd /opt/easy-rsa ;
-      touch keys/index.txt ;
-      echo "1000" > keys/serial ;
-      source ./vars && ./build-ca --batch >> /tmp/build_certs.log 2>&1 ;
-      source ./vars && ./build-dh --batch >> /tmp/build_certs.log 2>&1 ;
-      source ./vars && ./build-key-server --batch {{ rock_hostname }} >> /tmp/build_certs.log 2>&1 ;
-      cat keys/{{ rock_hostname }}.crt >> /etc/pki/bundle.crt ;
-      cat keys/ca.crt >> /etc/pki/bundle.crt ;
-      cp keys/{{ rock_hostname }}.key /etc/pki/bundle.key ;
-      cp keys/dh2048.pem /etc/pki/ ;
+  - name: Generate sensor private key
+    openssl_privatekey:
+      path: /etc/pki/bundle.key
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
+
+  - name: Generate sensor public key
+    openssl_publickey:
+      path: /etc/pki/bundle.pub
+      privatekey_path: /etc/pki/bundle.key
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
+
+  - name: Generate sensor CSR
+    openssl_csr:
+      path: /etc/pki/bundle.csr
+      privatekey_path: /etc/pki/bundle.key
+      country_name: US
+      state_or_province_name: MO
+      locality_name: St. Louis
+      organization_name: RockNSM
+      organizational_unit: NSM Ninjas
+      email_address: info@rocknsm.io
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
+
+  - name: Generate sensor certificate
+    openssl_certificate:
+      path: /etc/pki/bundle.crt
+      privatekey_path: /etc/pki/bundle.key
+      csr_path: /etc/pki/bundle.csr
+      provider: selfsigned
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
+
+  - name: Generate DH parameters
+    command: >
+      openssl dhparam -out /etc/pki/dh2048.pem 2048
     args:
-      chdir: /opt/easy-rsa/
       creates: /etc/pki/dh2048.pem
     when: with_kibana and with_nginx
     notify:
