@@ -59,12 +59,17 @@ spec:
         volumeMounts:
         - name: {{ elastic_pv_data }}
           mountPath: {{ elastic_pv_data_path }}
-        - name: {{ elastic_config_map }}
-          mountPath: {{ elastic_config_path }}
+{% for item in ['elasticsearch.yml','jvm.options','log4j2.properties'] %}
+        - name: {{ elastic_config_map }}-{{ loop.index0 }}
+          mountPath: {{ elastic_config_path }}/{{ item }}
+          subPath: {{ item }}
+{% endfor %}
       volumes:
       - name: {{ elastic_pv_data }}
         persistentVolumeClaim:
-          claimName: {{ elastic_pv_data }}-claim
-      - name: {{ elastic_config_map }}
+          claimName: {{ elastic_pv_data }}
+{% for i in range(3) %}
+      - name: {{ elastic_config_map }}-{{ i }}
         configMap:
-          name: {{ elastic_config_map }}
+          name: {{ elastic_config_map }}-{{ i }}
+{% endfor %}

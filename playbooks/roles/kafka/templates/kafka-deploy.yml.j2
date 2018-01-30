@@ -32,7 +32,7 @@ spec:
            name: {{ zookeeper_config_map }}
 
       - name: kafka
-        image: {{ kafka_container_name }}
+        image: {{ kafka_container_name }}:{{ kafka_ver }}
         env:
         - name: KAFKA_ZOOKEEPER_CONNECT
           value: 'zookeeper:{{ zookeeper_port }}'

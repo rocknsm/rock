@@ -33,11 +33,6 @@
     - z-pvc-data.yml
     - server.properties
 
-- name: Download Kafka Release
-  get_url:
-    url: "{{ kafka_url }}"
-    dest: "{{ kafka_dir }}/{{ kafka_download_name }}"
-
 - name: Copy Files
   copy:
     src: "files/{{ item[1] }}"
@@ -48,14 +43,6 @@
   with_nested:
     - ['{{ kafka_dir }}','{{ zookeeper_dir }}']
     - ['start-kafka.sh','zoo.cfg']
-
-- name: Build Container
-  docker_image:
-    name: "{{ kafka_container_name }}"
-    pull: yes
-    state: present
-    path: "{{ kafka_dir }}"
-    dockerfile: kafka-dockerfile.yml
 
 - name: Create Kafka Config
   command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ kafka_config_map }} --from-file {{ kafka_config_file }}'

@@ -6,22 +6,22 @@
 - name: "Create directories"
   file:
     group: "{{ es_group }}"
-    mode: u+rw,g+rw
     owner: "{{ es_user }}"
+    mode: u+rw,g+rw
     path: "{{ item }}"
     state: directory
   with_items:
-    - "{{ elastic_config_dir }}"
-    - "{{ elastic_config_dir }}/data"
-    - "{{ elastic_config_dir }}/config"
+    - "{{ elastic_dir }}"
+    - "{{ elastic_dir }}/data"
+    - "{{ elastic_dir }}/config"
 
 - name: Install Templates
   template:
     src: "templates/{{ item }}.yml.j2"
     dest: "{{ elastic_dir }}/{{ item }}.yml"
-    group: "root"
-    owner: "root"
-    mode: 0644
+    group: "{{ es_group }}"
+    owner: "{{ es_user }}"
+    mode: u+rw,g+rw
   with_items:
     - es-client
     - es-curator-config
@@ -39,16 +39,20 @@
   template:
     src: "templates/{{ item }}.j2"
     dest: "{{ elastic_config_dir }}/{{ item }}"
-    group: root
-    owner: root
-    mode: 0644
+    group: "{{ es_group }}"
+    owner: "{{ es_user }}"
+    mode: u+rw,g+rw
   with_items:
     - elasticsearch.yml
     - jvm.options
     - log4j2.properties
 
 - name: Create Config
-  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ elastic_config_map }} --from-file {{ elastic_config_dir }}'
+  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ elastic_config_map }}-{{ item.0 }} --from-file {{ elastic_config_dir }}/{{ item.1 }}'
+  with_indexed_items:
+    - elasticsearch.yml
+    - jvm.options
+    - log4j2.properties
 
 - name: Deploy
   command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ elastic_dir }}/{{ item }}.yml'
