@@ -191,6 +191,7 @@
     - { pkg: chrony, state: installed }
     - { pkg: firewalld, state: installed }
     - { pkg: postfix, state: installed }
+    - { pkg: pyOpenSSL, state: installed }
 
   - name: Install packages
     yum:
