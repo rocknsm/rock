@@ -6,7 +6,7 @@
 kafka_container_name: "rocknsm/kafka"
 kafka_port: 9092
 scala_ver: 2.11 # per https://kafka.apache.org/downloads they recommend Scala version 2.11
-kafka_ver: 1.0.0
+kafka_ver: latest
 kafka_download_name: kafka_{{ scala_ver }}-{{ kafka_ver }}.tgz
 kafka_url: https://www.apache.org/dist/kafka/{{ kafka_ver }}/{{ kafka_download_name }}
 kafka_sha512sum_url: https://www.apache.org/dist/kafka/{{ kafka_ver }}/{{ kafka_download_name }}.sha512

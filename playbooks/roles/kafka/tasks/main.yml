@@ -33,25 +33,25 @@
     - z-pvc-data.yml
     - server.properties
 
-- name: Copy Files
-  copy:
-    src: "files/{{ item[1] }}"
-    dest: "{{ item[0] }}/{{ item[1] }}"
-    group: root
-    owner: root
-    mode: 0644
-  with_nested:
-    - ['{{ kafka_dir }}','{{ zookeeper_dir }}']
-    - ['start-kafka.sh','zoo.cfg']
+#- name: Copy Files
+#  copy:
+#    src: "files/{{ item[1] }}"
+#    dest: "{{ item[0] }}/{{ item[1] }}"
+#    group: root
+#    owner: root
+#    mode: 0644
+#  with_nested:
+#    - ['{{ kafka_dir }}'] # TODO: Likely unnecessary now: ,'{{ zookeeper_dir }}']
+    # TODO: This stuff is now environment variables - ['start-kafka.sh','zoo.cfg']
 
 - name: Create Kafka Config
-  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ kafka_config_map }} --from-file {{ kafka_config_file }}'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap {{ kafka_config_map }} --from-file {{ kafka_config_file }}'
 
 - name: Create Zookeeper Config
-  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ zookeeper_config_map }} --from-file {{ zookeeper_config_file }}'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap {{ zookeeper_config_map }} --from-file {{ zookeeper_config_file }}'
 
 - name: Deploy
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ kafka_dir }}/{{ item }}.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kafka_dir }}/{{ item }}.yml'
   with_items:
     - k-pv-data
     - k-pvc-data
@@ -61,7 +61,7 @@
     - kafka-svc
 
 - name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ kafka_dir }}/kafka-deploy.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ kafka_dir }}/kafka-deploy.yml'
 
 #- name: Create Topics
 #  command: >

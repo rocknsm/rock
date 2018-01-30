@@ -67,7 +67,7 @@
     - log4j2.properties
 
 - name: Deploy
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ logstash_dir }}/{{ item }}.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ logstash_dir }}/{{ item }}.yml'
   with_items:
     - pv-config
     - pv-data
@@ -80,4 +80,4 @@
     - logstash-deploy
 
 - name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ logstash_dir }}/logstash-deploy.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ logstash_dir }}/logstash-deploy.yml'

@@ -81,11 +81,11 @@
   when: inventory_hostname in groups['master-servers']
 
 - name: 'Install pod network: flanneld'
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml'
   when: inventory_hostname in groups['master-servers']
 
 - name: 'Remove master taint from master'
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" taint nodes --all node-role.kubernetes.io/master-'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" taint nodes --all node-role.kubernetes.io/master-'
   when: inventory_hostname in groups['master-servers']
 
 - name: 'Disable Firewalld service'
@@ -100,7 +100,7 @@
   with_items: "{{ groups['master-servers'] }}"
 
 - name: 'Install MetalLB LoadBalancer'
-  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
+  command: 'kubectl --kubeconfig={{ kubernetes_conf_file }} apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
   when: inventory_hostname in groups['master-servers']
 
 - name: 'Allow time for nodes to register'
@@ -108,25 +108,25 @@
     seconds: 10
 
 - name: 'Label masters'
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=master-server'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=master-server'
   with_items: "{{ groups['master-servers'] }}"
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: 'Label sensors'
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=sensor'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=sensor'
   with_items: "{{ groups['sensors'] }}"
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: 'Label secondary servers'
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" label nodes {{ item }} role=secondary-server'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=secondary-server'
   with_items: "{{ groups['servers'] }}"
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 #- name: 'Install Dashboard UI'
-#  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f "https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml"'
+#  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f "https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml"'
 #  when: inventory_hostname in groups['master-servers']
 
 ...

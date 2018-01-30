@@ -23,10 +23,10 @@
     - kibana-svc
 
 - name: Deploy
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ kibana_dir }}/{{ item }}.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kibana_dir }}/{{ item }}.yml'
   with_items:
     - kibana-deploy
     - kibana-svc
 
 - name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" rollout status -f {{ kibana_dir }}/kibana-deploy.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ kibana_dir }}/kibana-deploy.yml'

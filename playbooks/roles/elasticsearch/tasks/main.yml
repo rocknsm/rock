@@ -48,14 +48,14 @@
     - log4j2.properties
 
 - name: Create Config
-  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf create configmap {{ elastic_config_map }}-{{ item.0 }} --from-file {{ elastic_config_dir }}/{{ item.1 }}'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap {{ elastic_config_map }}-{{ item.0 }} --from-file {{ elastic_config_dir }}/{{ item.1 }}'
   with_indexed_items:
     - elasticsearch.yml
     - jvm.options
     - log4j2.properties
 
 - name: Deploy
-  command: 'kubectl --kubeconfig="/etc/kubernetes/admin.conf" create -f {{ elastic_dir }}/{{ item }}.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ elastic_dir }}/{{ item }}.yml'
   with_items:
     - pv-data
     - pvc-data
@@ -63,10 +63,10 @@
     - es-discovery-svc
     - es-svc
 #    - es-client
-#    - es-data
+#    - es-datas
 
 - name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig=/etc/kubernetes/admin.conf rollout status deployment/{{ item }}'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status deployment/{{ item }}'
   with_items:
     - es-master
 #    - es-client
