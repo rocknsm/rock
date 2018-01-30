@@ -1189,7 +1189,7 @@
       state_or_province_name: MO
       locality_name: St. Louis
       organization_name: RockNSM
-      organizational_unit: NSM Ninjas
+      organizational_unit_name: NSM Ninjas
       email_address: info@rocknsm.io
     when: with_kibana and with_nginx
     notify:
