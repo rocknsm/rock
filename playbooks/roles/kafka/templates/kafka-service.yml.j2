@@ -9,5 +9,5 @@ spec:
     component: kafka
   ports:
   - name: transport
-    port: 9092
+    port: {{ kafka_port }}
     targetPort: transport

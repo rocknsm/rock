@@ -5,32 +5,20 @@
 
 kafka_container_name: "rocknsm/kafka"
 kafka_port: 9092
-scala_ver: 2.11 # per https://kafka.apache.org/downloads they recommend Scala version 2.11
 kafka_ver: latest
-kafka_download_name: kafka_{{ scala_ver }}-{{ kafka_ver }}.tgz
-kafka_url: https://www.apache.org/dist/kafka/{{ kafka_ver }}/{{ kafka_download_name }}
-kafka_sha512sum_url: https://www.apache.org/dist/kafka/{{ kafka_ver }}/{{ kafka_download_name }}.sha512
 
 kafka_install_dir: '/opt/kafka'
 kafka_dir: "{{ rocknsm_dir }}/kafka"
 kafka_data_dir: "{{ kafka_dir }}/data"
-kafka_config_file: "{{ kafka_dir }}/server.properties"
-
-kafka_config_map: "kafka-config"
-kafka_config_path: "{{ kafka_install_dir }}/config/server.properties"
 
 kafka_pv_data: "kafka-data"
 kafka_data_path: "/tmp/kafka-logs"
 kafka_pv_size_mb: 10
 
-
 zookeeper_port: 2181
 zookeeper_dir: "{{ rocknsm_dir }}/zookeeper"
 zookeeper_data_dir: "{{ zookeeper_dir }}/data"
 zookeeper_data_path: "/data"
-zookeeper_config_map: "zookeeper-config"
-zookeeper_config_file: "{{ zookeeper_dir }}/zoo.cfg"
-zookeeper_config_path: "/conf/zoo.cfg"
 zookeeper_log_dir: '/var/log/zookeeper'
 zookeeper_pv_data: "zookeeper-data"
 zookeeper_pv_size_mb: 10

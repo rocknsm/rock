@@ -14,12 +14,13 @@ all:
     kubernetes:
       children:
         master-servers:
+        nodes:
 
     bro:
 
     kibana:
-#      children:
-#        master-servers:
+      children:
+        master-servers:
 
     portainer:
 #      children:
@@ -30,12 +31,12 @@ all:
     #    master-servers:
 
     elasticsearch:
-#      children:
-#        master-servers:
+      children:
+        master-servers:
 
     logstash:
-#      children:
-#        master-servers:
+      children:
+        master-servers:
 
     suricata:
 #      children:

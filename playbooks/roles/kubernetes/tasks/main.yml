@@ -76,7 +76,7 @@
     - "{{ kube_config_dir }}"
 
 - name: 'Init Kubernetes cluster'
-  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16| grep 'kubeadm join --token'"
+  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 | grep 'kubeadm join --token'"
   register: kube_join_cluster_cmd
   when: inventory_hostname in groups['master-servers']
 
@@ -84,6 +84,8 @@
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f https://raw.githubusercontent.com/coreos/flannel/v0.9.1/Documentation/kube-flannel.yml'
   when: inventory_hostname in groups['master-servers']
 
+# By default the cluster will not scehdule pods on the master for security reasons.
+# The below task removes that restriction.
 - name: 'Remove master taint from master'
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" taint nodes --all node-role.kubernetes.io/master-'
   when: inventory_hostname in groups['master-servers']
@@ -103,27 +105,24 @@
   command: 'kubectl --kubeconfig={{ kubernetes_conf_file }} apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
   when: inventory_hostname in groups['master-servers']
 
-- name: 'Allow time for nodes to register'
-  pause:
-    seconds: 10
-
 - name: 'Label masters'
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=server'
   with_items: "{{ groups['master-servers'] }}"
   when: inventory_hostname in groups['master-servers']
-  ignore_errors: yes
 
 - name: 'Label sensors'
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=sensor'
   with_items: "{{ groups['sensors'] }}"
   when: inventory_hostname in groups['master-servers']
-  ignore_errors: yes
+
+- debug:
+    msg: "Running servers"
+  when: inventory_hostname in groups['master-servers']
 
 - name: 'Label secondary servers'
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=server'
   with_items: "{{ groups['servers'] }}"
   when: inventory_hostname in groups['master-servers']
-  ignore_errors: yes
 
 #- name: 'Install Dashboard UI'
 #  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f "https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml"'

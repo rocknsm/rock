@@ -9,6 +9,7 @@ spec:
   capacity:
     storage: {{ kafka_pv_size_mb }}Mi
   accessModes:
+    # See: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
     - ReadOnlyMany
   hostPath:
     path: "{{ kafka_data_dir }}"
