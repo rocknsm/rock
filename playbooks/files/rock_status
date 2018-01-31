@@ -1,8 +1,9 @@
 #!/usr/bin/bats
 
+# TODO: Get this information from ansible and/or facter
 export ZOOKEEPER_HOST=127.0.0.1
 export ZOOKEEPER_PORT=2181
-export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
+export MON_IFS=$(cat /etc/bro/node.cfg | grep interface | \
 	sed 's/interface=//; s/.*:://' | sort | uniq | paste -sd " " -)
 
 function feature_enabled() {
