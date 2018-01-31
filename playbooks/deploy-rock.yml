@@ -175,7 +175,6 @@
     - { pkg: kibana, test: "{{with_kibana}}", state: installed }
     - { pkg: filebeat, test: "{{with_suricata or with_fsf}}", state: installed }
     - { pkg: nginx, test: "{{with_nginx}}", state: installed }
-    - { pkg: easy-rsa, test: "{{with_nginx}}", state: installed }
     - { pkg: bro, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
