@@ -73,3 +73,15 @@ spec:
         configMap:
           name: {{ elastic_config_map }}-{{ i }}
 {% endfor %}
+      nodeSelector:
+        role: sensor
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - server
+            topologyKey: "kubernetes.io/hostname"

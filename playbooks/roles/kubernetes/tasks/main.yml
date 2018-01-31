@@ -108,7 +108,7 @@
     seconds: 10
 
 - name: 'Label masters'
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=master-server'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=server'
   with_items: "{{ groups['master-servers'] }}"
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
@@ -120,7 +120,7 @@
   ignore_errors: yes
 
 - name: 'Label secondary servers'
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=secondary-server'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=server'
   with_items: "{{ groups['servers'] }}"
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
