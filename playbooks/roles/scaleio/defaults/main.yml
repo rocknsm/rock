@@ -1,0 +1,8 @@
+%YAML 1.1
+---
+
+scaleio_dir: "{{ rocknsm_dir }}/scaleio"
+scaleio_image: "dwharve/scaleio"
+scaleio_ver: "1.0"
+scaleio_pv_user: "scaleio"
+scaleio_pv_pw: "oielacs"

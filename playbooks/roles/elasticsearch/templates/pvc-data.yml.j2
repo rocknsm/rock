@@ -8,5 +8,5 @@ spec:
     - ReadOnlyMany
   resources:
     requests:
-      storage: {{ elastic_pv_size_gb }}Gi
+      storage: {{ elastic_pv_size }}Gi
   volumeName: {{ elastic_pv_data }}

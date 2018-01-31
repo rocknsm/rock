@@ -66,8 +66,15 @@ spec:
 {% endfor %}
       volumes:
       - name: {{ elastic_pv_data }}
-        persistentVolumeClaim:
-          claimName: {{ elastic_pv_data }}
+        scaleIO:
+          gateway: {{ scaleio_gateway_url }}
+          system: scaleio
+          protectionDomain: {{ scaleio_pd_name }}
+          storagePool: {{ scaleio_sp_name }}
+          volumeName: {{ elastic_vol_name }}
+          secretRef:
+            name: sio-secret
+          fstype: xfs
 {% for i in range(3) %}
       - name: {{ elastic_config_map }}-{{ i }}
         configMap:

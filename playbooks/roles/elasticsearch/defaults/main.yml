@@ -20,8 +20,12 @@ elastic_container_name: 'elasticsearch'
 es_log_dir: '/var/log/elasticsearch'
 
 elastic_dir: "{{ rocknsm_dir  }}/elasticsearch"
+elastic_vol_size: 1
+elastic_vol_name: "elastic-data"
+scaleio_pd_name: "default"
+scaleio_sp_name: "default"
+scaleio_gateway_url: "https://localhost:443/api"
 elastic_pv_data: "elastic-data"
-elastic_pv_size_gb: 1
 elastic_pv_data_dir: "{{ elastic_dir }}/data"
 elastic_pv_data_path: "/usr/share/elasticsearch/data"
 elastic_config_map: "elastic-config"

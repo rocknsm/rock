@@ -32,8 +32,8 @@
     - es-master-pdb
     - es-master
     - es-svc
-    - pv-data
-    - pvc-data
+#    - pv-data
+#    - pvc-data
 
 - name: Install Config Templates
   template:
@@ -54,11 +54,14 @@
     - jvm.options
     - log4j2.properties
 
+- name: Add Data Volume
+  command: 'scli --add_volume --protection_domain_name {{ scaleio_pd_name }} --storage_pool_name {{ scaleio_sp_name }} --size_gb {{ elastic_vol_size }} --volume_name {{ elastic_vol_name }}'
+
 - name: Deploy
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ elastic_dir }}/{{ item }}.yml'
   with_items:
-    - pv-data
-    - pvc-data
+#    - pv-data
+#    - pvc-data
     - es-master
     - es-discovery-svc
     - es-svc
