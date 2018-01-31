@@ -31,7 +31,7 @@ fi
 
 if feature_enabled bro; then
   echo "Stopping Bro..."
-  systemctl stop broctl
+  systemctl stop bro
 fi
 
 if feature_enabled logstash; then

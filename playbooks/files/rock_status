@@ -59,7 +59,7 @@ if feature_enabled bro; then
 
 @test "Check that broctl is running" {
   # This will fail if a worker is crashed as well
-  sudo /opt/bro/bin/broctl status
+  systemctl status bro
 }
 
 @test "Check for bro-detected packet loss" {
