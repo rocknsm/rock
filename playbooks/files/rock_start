@@ -60,9 +60,9 @@ fi
 
 if feature_enabled bro; then
   echo "Starting Bro..."
-  systemctl start broctl
+  systemctl start bro
   sleep 5
-  systemctl status broctl | egrep "^\s*Active"
+  systemctl status bro | egrep "^\s*Active"
 fi
 
 if feature_enabled stenographer; then

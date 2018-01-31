@@ -175,7 +175,7 @@
     - { pkg: kibana, test: "{{with_kibana}}", state: installed }
     - { pkg: filebeat, test: "{{with_suricata or with_fsf}}", state: installed }
     - { pkg: nginx, test: "{{with_nginx}}", state: installed }
-    - { pkg: easy-rsa, test: "{{with_nginx}}", state: installed }
+    - { pkg: python2-xkcdpass, test: "{{with_nginx}}", state: installed }
     - { pkg: bro, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
@@ -191,6 +191,7 @@
     - { pkg: chrony, state: installed }
     - { pkg: firewalld, state: installed }
     - { pkg: postfix, state: installed }
+    - { pkg: pyOpenSSL, state: installed }
 
   - name: Install packages
     yum:
@@ -1133,7 +1134,7 @@
     shell: >
       export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
     args:
-      creates: /etc/nginx/.htpasswd
+      creates: /etc/nginx/htpasswd.users
     when: with_kibana
 
 
@@ -1165,54 +1166,50 @@
       persistent: yes
     when: with_nginx and with_kibana
 
-  - name: Create easy-rsa working dir
-    file:
-      path: /opt/easy-rsa
-      state: directory
-      mode: 0750
-      owner: root
-      group: root
+  - name: Generate sensor private key
+    openssl_privatekey:
+      path: /etc/pki/bundle.key
     when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
 
-  - name: Create easy-rsa keys dir
-    file:
-      path: /opt/easy-rsa/keys
-      state: directory
-      mode: 0750
-      owner: root
-      group: root
+  - name: Generate sensor public key
+    openssl_publickey:
+      path: /etc/pki/bundle.pub
+      privatekey_path: /etc/pki/bundle.key
     when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
 
-  - name: Create working copy of easy-rsa
-    copy:
-      src: /usr/share/easy-rsa/2.0/
-      dest: /opt/easy-rsa/
-      mode: 0750
-      owner: root
-      group: root
+  - name: Generate sensor CSR
+    openssl_csr:
+      path: /etc/pki/bundle.csr
+      privatekey_path: /etc/pki/bundle.key
+      country_name: US
+      state_or_province_name: MO
+      locality_name: St. Louis
+      organization_name: RockNSM
+      organizational_unit_name: NSM Ninjas
+      email_address: info@rocknsm.io
+      common_name: "{{ inventory_hostname }}"
     when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
 
-  - name: Apply easy-rsa vars template
-    template:
-      src: templates/easy-rsa-vars.j2
-      dest: /opt/easy-rsa/vars
-      mode: 0644
+  - name: Generate sensor certificate
+    openssl_certificate:
+      path: /etc/pki/bundle.crt
+      privatekey_path: /etc/pki/bundle.key
+      csr_path: /etc/pki/bundle.csr
+      provider: selfsigned
     when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
 
-  - name: Generate and copy Kibana keys
-    shell:
-      cd /opt/easy-rsa ;
-      touch keys/index.txt ;
-      echo "1000" > keys/serial ;
-      source ./vars && ./build-ca --batch >> /tmp/build_certs.log 2>&1 ;
-      source ./vars && ./build-dh --batch >> /tmp/build_certs.log 2>&1 ;
-      source ./vars && ./build-key-server --batch {{ rock_hostname }} >> /tmp/build_certs.log 2>&1 ;
-      cat keys/{{ rock_hostname }}.crt >> /etc/pki/bundle.crt ;
-      cat keys/ca.crt >> /etc/pki/bundle.crt ;
-      cp keys/{{ rock_hostname }}.key /etc/pki/bundle.key ;
-      cp keys/dh2048.pem /etc/pki/ ;
+  - name: Generate DH parameters
+    command: >
+      openssl dhparam -out /etc/pki/dh2048.pem 2048
     args:
-      chdir: /opt/easy-rsa/
       creates: /etc/pki/dh2048.pem
     when: with_kibana and with_nginx
     notify:
