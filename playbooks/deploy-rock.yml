@@ -1191,7 +1191,7 @@
       organization_name: RockNSM
       organizational_unit_name: NSM Ninjas
       email_address: info@rocknsm.io
-      common_name: "{{ inventory_hostname }}"
+      common_name: "{{ rock_fqdn }}"
     when: with_kibana and with_nginx
     notify:
       - Enable and start nginx
