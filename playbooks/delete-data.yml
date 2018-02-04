@@ -30,8 +30,3 @@
     file:
       state: absent
       path: "{{ rock_data_dir }}"
-
-  - name: Remove stenogrpaher_pcap_dir (if outside of rock_data_dir)
-    file:
-      state: absent
-      path: "{{ stenographer_pcap_dir }}"
