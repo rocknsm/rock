@@ -53,10 +53,21 @@ spec:
           initialDelaySeconds: 20
           periodSeconds: 10
         volumeMounts:
-        - name: storage
-          mountPath: /data
+        - name: {{ elastic_pv_data }}
+          mountPath: {{ elastic_pv_data_path }}
+{% for item in ['elasticsearch.yml','jvm.options','log4j2.properties'] %}
+        - name: {{ elastic_config_map }}-{{ loop.index0 }}
+          mountPath: {{ elastic_config_path }}/{{ item }}
+          subPath: {{ item }}
+{% endfor %}
       volumes:
-      - name: es-host-data
-        hostPath:
-          path: /data
-          type: Directory
+      - name: {{ elastic_pv_data }}
+        persistentVolumeClaim:
+          claimName: {{ elastic_pv_data }}
+{% for i in range(3) %}
+      - name: {{ elastic_config_map }}-{{ i }}
+        configMap:
+          name: {{ elastic_config_map }}-{{ i }}
+{% endfor %}
+      nodeSelector:
+        role: server

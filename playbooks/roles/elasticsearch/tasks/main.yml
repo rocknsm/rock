@@ -32,8 +32,7 @@
     - es-master-pdb
     - es-master
     - es-svc
-#    - pv-data
-#    - pvc-data
+    - pvc-data
 
 - name: Install Config Templates
   template:
@@ -47,6 +46,14 @@
     - jvm.options
     - log4j2.properties
 
+- name: Flush Config
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete configmap {{ elastic_config_map }}-{{ item.0 }}'
+  with_indexed_items:
+    - elasticsearch.yml
+    - jvm.options
+    - log4j2.properties
+  ignore_errors: true
+
 - name: Create Config
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap {{ elastic_config_map }}-{{ item.0 }} --from-file {{ elastic_config_dir }}/{{ item.1 }}'
   with_indexed_items:
@@ -54,14 +61,21 @@
     - jvm.options
     - log4j2.properties
 
-- name: Add Data Volume
-  command: 'scli --add_volume --protection_domain_name {{ scaleio_pd_name }} --storage_pool_name {{ scaleio_sp_name }} --size_gb {{ elastic_vol_size }} --volume_name {{ elastic_vol_name }}'
+- name: Flush Deployments
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ elastic_dir }}/{{ item }}.yml'
+  with_items:
+    - pvc-data
+    - es-master
+    - es-discovery-svc
+    - es-svc
+#    - es-client
+#    - es-datas
+  ignore_errors: true
 
 - name: Deploy
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ elastic_dir }}/{{ item }}.yml'
   with_items:
-#    - pv-data
-#    - pvc-data
+    - pvc-data
     - es-master
     - es-discovery-svc
     - es-svc

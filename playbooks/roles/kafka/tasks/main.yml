@@ -26,7 +26,6 @@
   with_items:
     - kafka-zookeeper-deploy.yml
     - kafka-service.yml
-    - kafka-pv-data.yml
     - kafka-pvc-data.yml
     - kafka_config_map
 
@@ -38,7 +37,6 @@
     owner: root
     mode: 0644
   with_items:
-    - zookeeper-pv-data.yml
     - zookeeper-pvc-data.yml
     - zookeeper_config_map
 
@@ -65,14 +63,12 @@
 - name: Deploy Kafka
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kafka_dir }}/{{ item }}.yml'
   with_items:
-    - kafka-pv-data
     - kafka-pvc-data
     - kafka-service
 
 - name: Deploy Zookeeper
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kafka_dir }}/{{ item }}.yml'
   with_items:
-    - zookeeper-pv-data
     - zookeeper-pvc-data
 
 - name: Run the kafka/zookeeper deploy file

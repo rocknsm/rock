@@ -27,6 +27,12 @@
 - hosts: kubernetes
   roles:
     - kubernetes
+  gather_facts: no
+
+- hosts: gluster
+  roles:
+    - gluster
+  gather_facts: no
 
 #- hosts: bro
 #  roles:

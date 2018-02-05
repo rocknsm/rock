@@ -1,0 +1,6 @@
+%YAML 1.1
+---
+
+gluster_dir: "{{ rocknsm_dir }}/gluster"
+heketi_admin_key: "password"
+heketi_user_key: "password"

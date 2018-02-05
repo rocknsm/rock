@@ -38,7 +38,7 @@ spec:
             claimName: {{ logstash_pv_config }}-claim
         - name: {{ logstash_pv_data }}
           persistentVolumeClaim:
-            claimName: {{ logstash_pv_data }}-claim
+            claimName: {{ logstash_pv_data }}
         - name: {{ logstash_pv_pipeline }}
           persistentVolumeClaim:
             claimName: {{ logstash_pv_pipeline }}-claim

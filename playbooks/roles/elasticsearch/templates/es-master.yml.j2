@@ -66,29 +66,12 @@ spec:
 {% endfor %}
       volumes:
       - name: {{ elastic_pv_data }}
-        scaleIO:
-          gateway: {{ scaleio_gateway_url }}
-          system: scaleio
-          protectionDomain: {{ scaleio_pd_name }}
-          storagePool: {{ scaleio_sp_name }}
-          volumeName: {{ elastic_vol_name }}
-          secretRef:
-            name: sio-secret
-          fstype: xfs
+        persistentVolumeClaim:
+          claimName: {{ elastic_pv_data }}
 {% for i in range(3) %}
       - name: {{ elastic_config_map }}-{{ i }}
         configMap:
           name: {{ elastic_config_map }}-{{ i }}
 {% endfor %}
       nodeSelector:
-        role: sensor
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: role
-                operator: In
-                values:
-                - server
-            topologyKey: "kubernetes.io/hostname"
+        role: server

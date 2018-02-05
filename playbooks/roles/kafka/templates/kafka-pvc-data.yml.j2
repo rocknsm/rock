@@ -1,12 +1,11 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ kafka_pv_data }}-claim
+  name: {{ kafka_pv_data }}
 spec:
-  storageClassName: manual
+  storageClassName: gluster-heketi
   accessModes:
-    - ReadOnlyMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: {{ kafka_pv_size_mb }}Mi
-  volumeName: {{ kafka_pv_data }}

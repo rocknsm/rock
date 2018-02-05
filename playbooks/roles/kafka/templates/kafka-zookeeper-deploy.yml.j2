@@ -55,10 +55,10 @@ spec:
       volumes:
       - name: {{ zookeeper_pv_data }}
         persistentVolumeClaim:
-          claimName: {{ zookeeper_pv_data }}-claim
+          claimName: {{ zookeeper_pv_data }}
       - name: {{ kafka_pv_data }}
         persistentVolumeClaim:
-          claimName: {{ kafka_pv_data }}-claim
+          claimName: {{ kafka_pv_data }}
       nodeSelector:
         role: sensor
       affinity:
