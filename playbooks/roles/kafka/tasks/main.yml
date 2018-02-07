@@ -5,16 +5,11 @@
 
 - name: "Create Directories"
   file:
-    path: "{{ item }}"
+    path: "{{ kafka_dir }}"
     state: directory
     owner: root
     group: root
     mode: u+rw,g+rw
-  with_items:
-    - "{{ kafka_dir }}"
-    - "{{ kafka_data_dir }}"
-    - "{{ zookeeper_dir }}"
-    - "{{ zookeeper_data_dir }}"
 
 - name: Install Kafka Templates
   template:
@@ -24,10 +19,12 @@
     owner: root
     mode: 0644
   with_items:
-    - kafka-zookeeper-deploy.yml
+    - deploy.yml
     - kafka-service.yml
     - kafka-pvc-data.yml
     - kafka_config_map
+    - zookeeper-pvc-data.yml
+    - zookeeper_config_map
 
 - name: Install Zookeeper Templates
   template:
@@ -51,6 +48,25 @@
 #    - ['{{ kafka_dir }}'] # TODO: Likely unnecessary now: ,'{{ zookeeper_dir }}']
     # TODO: This stuff is now environment variables - ['start-kafka.sh','zoo.cfg']
 
+- name: Flush Config Maps
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete configmap {{ item }}'
+  ignore_errors: yes
+  with_items:
+    - kafka-config-map
+    - zookeeper-config-map
+
+- name: Flush Kafka PVCs and Service
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ kafka_dir }}/{{ item }}.yml'
+  ignore_errors: yes
+  with_items:
+    - kafka-pvc-data
+    - kafka-service
+    - zoookeeper-pvc-data
+
+- name: Flush Deployment
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ kafka_dir }}/deploy.yml'
+  ignore_errors: yes
+  
 # This task uses kafka_config_map and feeds it into Kubernetes as a configuration map which it then uses
 # to build the container
 - name: Create Kafka Config
@@ -67,15 +83,21 @@
     - kafka-service
 
 - name: Deploy Zookeeper
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kafka_dir }}/{{ item }}.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ zookeeper_dir }}/{{ item }}.yml'
   with_items:
     - zookeeper-pvc-data
 
+- name: Wait for PVCs to Bind
+  shell: "while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get pvc | grep {{ item }} | awk '{ print $2}') != 'Bound' ]; do echo -n .; sleep 1; done;"
+  with_items:
+    - "{{ kafka_pv_data }}"
+    - "{{ zookeeper_pv_data }}"
+
 - name: Run the kafka/zookeeper deploy file
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kafka_dir }}/kafka-zookeeper-deploy.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kafka_dir }}/deploy.yml'
 
 - name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ kafka_dir }}/kafka-zookeeper-deploy.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ kafka_dir }}/deploy.yml'
 
 #- name: Create Topics
 #  command: >

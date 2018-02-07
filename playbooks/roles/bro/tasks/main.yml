@@ -1,0 +1,30 @@
+######################################################
+################# Setup Kibana #######################
+######################################################
+---
+
+- name: "Create config directory"
+  file:
+    path: "{{ bro_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: Install templates
+  template:
+    src: "templates/deploy.yml.j2"
+    dest: "{{ bro_dir }}/deploy.yml"
+    group: root
+    owner: root
+    mode: 0644
+
+- name: Flush Deployments
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml'
+  ignore_errors: true
+
+- name: Deploy
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ bro_dir }}/deploy.yml'
+
+- name: Wait for deployment to finish
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ bro_dir }}/deploy.yml'

@@ -14,34 +14,69 @@ spec:
       labels:
         component: logstash
     spec:
+      initContainers:
+      - name: volume-permissions
+        image: busybox
+        command: ['sh','-c','chown -R 1000:1000 {{ logstash_path }}']
+        volumeMounts:
+          - mountPath: "{{ logstash_path }}/config"
+            name: logstash-config
+          - mountPath: "{{ logstash_path }}/data"
+            name: {{ logstash_pv_data }}
+          - mountPath: "{{ logstash_path }}/pipeline"
+            name: logstash-pipeline
+          - mountPath: "{{ logstash_path }}/logs"
+            name: {{ logstash_pv_logs }}
+      securityContext:
+        runAsUser: 0
+        fsGroup: 0
       containers:
       - name: logstash
         image: {{ logstash_image }}:{{ logstash_ver }}
         command: ["/usr/share/logstash/bin/logstash"]
+        env:
+        - name: LS_HOME
+          value: "{{ logstash_path }}"
         resources:
           limits:
             cpu: 1000m
           requests:
             cpu: 100m
         volumeMounts:
-          - mountPath: "{{ logstash_config_path }}/config"
-            name: {{ logstash_pv_config }}
-          - mountPath: "{{ logstash_config_path }}/data"
+          - mountPath: "{{ logstash_path }}/config"
+            name: logstash-config
+          - mountPath: "{{ logstash_path }}/data"
             name: {{ logstash_pv_data }}
-          - mountPath: "{{ logstash_config_path }}/pipeline"
-            name: {{ logstash_pv_pipeline }}
-          - mountPath: "{{ logstash_config_path }}/logs"
+          - mountPath: "{{ logstash_path }}/pipeline"
+            name: logstash-pipeline
+          - mountPath: "{{ logstash_path }}/logs"
             name: {{ logstash_pv_logs }}
       volumes:
-        - name: {{ logstash_pv_config }}
-          persistentVolumeClaim:
-            claimName: {{ logstash_pv_config }}-claim
+        - name: logstash-config
+          configMap:
+            name: logstash-config
+            items:
+            - key: pipelines.yml
+              path: pipelines.yml
+            - key: log4j2.properties
+              path: log4j2.properties
+            - key: logstash-kafka-fsf.conf
+              path: logstash-kafka-fsf.conf
+            - key: logstash.yml
+              path: logstash.yml
         - name: {{ logstash_pv_data }}
           persistentVolumeClaim:
             claimName: {{ logstash_pv_data }}
-        - name: {{ logstash_pv_pipeline }}
-          persistentVolumeClaim:
-            claimName: {{ logstash_pv_pipeline }}-claim
+        - name: logstash-pipeline
+          configMap:
+            name: logstash-pipeline
+            items:
+            - key: kafka-bro.conf
+              path: kafka-bro.conf
+            - key: kafka-fsf.conf
+              path: kafka-fsf.conf
+            - key: kafka-suricata.conf
+              path: kafka-suricata.conf
         - name: {{ logstash_pv_logs }}
           persistentVolumeClaim:
-            claimName: {{ logstash_pv_logs }}-claim
+            claimName: {{ logstash_pv_logs }}

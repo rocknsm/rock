@@ -16,7 +16,9 @@
             "zone": 1
           },
           "devices": [
-            "/dev/sdb"
+{% for dev in hostvars[host].data_disk_devices %}
+            "{{ dev }}"
+{% endfor%}
           ]
         }{% if not loop.last %},{% endif %}
 {% endfor %}

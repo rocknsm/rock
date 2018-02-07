@@ -3,15 +3,16 @@
 logstash_user: 1000
 logstash_group: 1000
 logstash_dir: "{{ rocknsm_dir }}/logstash"
-logstash_pv_config: "logstash-config"
-logstash_pv_config_dir: "{{ logstash_dir }}/mnt/config"
 logstash_pv_data: "logstash-data"
-logstash_pv_data_dir: "{{ logstash_dir }}/mnt/data"
-logstash_pv_pipeline: "logstash-pipeline"
-logstash_pv_pipeline_dir: "{{ logstash_dir }}/mnt/pipeline"
+logstash_pv_data_dir: "{{ logstash_dir }}/data"
 logstash_pv_logs: "logstash-logs"
 logstash_pv_logs_dir: "{{ logstash_dir }}/mnt/logs"
 logstash_pv_size_mb: "10"
-logstash_config_path: "/usr/share/logstash"
+logstash_path: "/usr/share/logstash"
 logstash_image: "docker.elastic.co/logstash/logstash"
 logstash_ver: "{{ elastic_ver }}"
+
+kafka_url: "kafka"
+kafka_port: "9092"
+elastic_url: "elasticsearch"
+elastic_port: "9200"

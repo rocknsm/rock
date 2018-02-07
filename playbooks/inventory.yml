@@ -55,6 +55,10 @@ all:
       children:
         master-servers:
 
+    bro:
+      children:
+        master-servers:
+
     stenographer:
 #      children:
 #        sensors:
@@ -71,6 +75,10 @@ all:
 
     master-servers:
 
+      vars:
+        data_disk_devices:
+        - /dev/sdb
+
       hosts:
         rockserver1.lan:
           ansible_hostname: rockserver1.lan
@@ -83,7 +91,10 @@ all:
 
         sensors:
 
+
           vars:
+            data_disk_devices:
+            - /dev/sdb
             home_net: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
 
           hosts:
@@ -92,6 +103,10 @@ all:
               ansible_connection: ssh
 
         servers:
+
+          vars:
+            data_disk_devices:
+            - /dev/sdb
 
           hosts:
             rockserver3.lan:

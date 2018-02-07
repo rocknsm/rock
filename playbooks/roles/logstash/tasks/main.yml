@@ -12,10 +12,8 @@
     state: directory
   with_items:
     - "{{ logstash_dir }}"
-    - "{{ logstash_dir }}/mnt"
-    - "{{ logstash_pv_config_dir }}"
-    - "{{ logstash_pv_data_dir }}"
-    - "{{ logstash_pv_pipeline_dir }}"
+    - "{{ logstash_dir }}/config"
+    - "{{ logstash_dir }}/pipeline"
 
 - name: Install Logstash templates
   template:
@@ -26,19 +24,13 @@
     mode: 0644
   with_items:
     - logstash-deploy
-    - pv-config
-    - pv-data
-    - pv-pipeline
-    - pv-logs
-    - pvc-config
     - pvc-data
-    - pvc-pipeline
     - pvc-logs
 
 - name: Copy Pipeline Files
-  copy:
-    src: "files/{{ item }}.conf"
-    dest: "{{ logstash_pv_pipeline_dir }}/{{ item }}.conf"
+  template:
+    src: "templates/{{ item }}.conf.j2"
+    dest: "{{ logstash_dir }}/pipeline/{{ item }}.conf"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0644
@@ -50,15 +42,23 @@
 - name: Copy Config File
   template:
     src: "templates/logstash.yml.j2"
-    dest: "{{ logstash_pv_config_dir }}/logstash.yml"
+    dest: "{{ logstash_dir }}/logstash.yml"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0644
 
-- name: Copy Pipeline File
+- name: Copy Config File
+  template:
+    src: "templates/logstash.yml.j2"
+    dest: "{{ logstash_dir }}/config/logstash.yml"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0644
+
+- name: Copy Config Files
   copy:
     src: "files/{{ item }}"
-    dest: "{{ logstash_pv_config_dir }}/{{ item }}"
+    dest: "{{ logstash_dir }}/config/{{ item }}"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0644
@@ -66,18 +66,45 @@
     - pipelines.yml
     - log4j2.properties
 
-- name: Deploy
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ logstash_dir }}/{{ item }}.yml'
+- name: Flush ConfigMaps
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete configmap {{ item }}'
   with_items:
-    - pv-config
-    - pv-data
-    - pv-pipeline
-    - pv-logs
-    - pvc-config
+    - logstash-main
+    - logstash-config
+    - logstash-pipeline
+  ignore_errors: true
+
+- name: Create Main ConfigMap
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap logstash-main --from-file {{ logstash_dir }}/logstash.yml'
+
+- name: Create Config ConfigMap
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap logstash-config --from-file {{ logstash_dir }}/config'
+
+- name: Create Pipeline ConfigMap
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap logstash-pipeline --from-file {{ logstash_dir }}/pipeline'
+
+- name: Flush Deployment
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ logstash_dir }}/{{ item }}.yml'
+  with_items:
     - pvc-data
-    - pvc-pipeline
     - pvc-logs
     - logstash-deploy
+  ignore_errors: yes
+
+- name: Deploy PVCs
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ logstash_dir }}/{{ item }}.yml'
+  with_items:
+    - pvc-data
+    - pvc-logs
+
+- name: Wait for PVCs to Bind
+  shell: "while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get pvc | grep {{ item }} | awk '{ print $2 }') != 'Bound' ]; do echo -n .; sleep 1; done;"
+  with_items:
+    - "{{ logstash_pv_data }}"
+    - "{{ logstash_pv_logs }}"
+
+- name: Deploy Logstash
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ logstash_dir }}/logstash-deploy.yml'
 
 - name: Wait for deployment to finish
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ logstash_dir }}/logstash-deploy.yml'

@@ -1,0 +1,10 @@
+%YAML 1.1
+---
+
+bro_image: "dwharve/bro"
+bro_ver: "latest"
+bro_dir: "{{ rocknsm_dir }}/bro"
+bro_loggers: 1
+bro_interface: ens33
+bro_workers: 2
+...

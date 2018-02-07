@@ -89,7 +89,11 @@
 
 - hosts: kafka
   roles:
-    - kafka
+  gather_facts: no
+
+- hosts: bro
+  roles:
+    - bro
   gather_facts: no
 
 #- hosts: stenographer

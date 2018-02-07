@@ -1,0 +1,43 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: bro
+  labels:
+    component: bro
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: bro
+  template:
+    metadata:
+      labels:
+        component: bro
+    spec:
+      containers:
+      - name: bro
+        image: {{ bro_image }}:{{ bro_ver }}
+        env:
+        - name: BRO_NODE_NUMLOGGERS
+          value: '{{ bro_loggers }}'
+        - name: BRO_NODE_INTERFACE
+          value: '{{ bro_interface }}'
+        - name: BRO_NODE_NUMWORKERS
+          value: '{{ bro_workers }}'
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+      nodeSelector:
+        role: sensor
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - sensor
+            topologyKey: "kubernetes.io/hostname"

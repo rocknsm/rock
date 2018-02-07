@@ -150,7 +150,9 @@
     seconds: 10
 
 - name: WIPEING DATA
-  shell: "dmsetup remove_all; wipefs -af /dev/sdb"
+  shell: "dmsetup remove_all; wipefs -af {{ item }}"
+  with_items:
+    - "{{ data_disk_devices }}"
 
 - name: Deploy Topology
   command: "kubectl --kubeconfig /etc/kubernetes/admin.conf exec {{ heketi_pod_name.stdout }} -- heketi-cli topology load --json /topology.json"
