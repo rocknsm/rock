@@ -21,8 +21,6 @@ all:
         master-servers:
         nodes:
 
-    bro:
-
     kibana:
       children:
         master-servers:
