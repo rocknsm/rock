@@ -40,17 +40,6 @@
     - zookeeper-pvc-data.yml
     - zookeeper_config_map
 
-#- name: Copy Files
-#  copy:
-#    src: "files/{{ item[1] }}"
-#    dest: "{{ item[0] }}/{{ item[1] }}"
-#    group: root
-#    owner: root
-#    mode: 0644
-#  with_nested:
-#    - ['{{ kafka_dir }}'] # TODO: Likely unnecessary now: ,'{{ zookeeper_dir }}']
-    # TODO: This stuff is now environment variables - ['start-kafka.sh','zoo.cfg']
-
 - name: Flush Config Maps
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete configmap {{ item }}'
   ignore_errors: yes
