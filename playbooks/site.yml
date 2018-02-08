@@ -42,10 +42,10 @@
 # kibana and portainer must come before haproxy as haproxy cannot run without
 # being able to contact at least one of each backend servers (1 kibana, 1 portainer,
 # 1 elasticsearch)
-- hosts: kibana
-  roles:
-    - kibana
-  gather_facts: no
+#- hosts: kibana
+#  roles:
+#    - kibana
+#  gather_facts: no
 
 #- hosts: portainer
 #  roles:
@@ -62,15 +62,15 @@
 #    - haproxy
 #  gather_facts: no
 
-- hosts: elasticsearch
-  roles:
-    - elasticsearch
-  gather_facts: no
+#- hosts: elasticsearch
+#  roles:
+#    - elasticsearch
+#  gather_facts: no
 
-- hosts: logstash
-  roles:
-    - logstash
-  gather_facts: no
+#- hosts: logstash
+#  roles:
+#    - logstash
+#  gather_facts: no
 
 #- hosts: suricata
 #  roles:
@@ -91,10 +91,10 @@
   roles:
   gather_facts: no
 
-- hosts: bro
-  roles:
-    - bro
-  gather_facts: no
+#- hosts: bro
+#  roles:
+#    - bro
+#  gather_facts: no
 
 #- hosts: stenographer
 #  roles:

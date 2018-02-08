@@ -7,7 +7,6 @@ kafka_container_name: "rocknsm/kafka"
 kafka_port: 9092
 kafka_ver: latest
 
-kafka_install_dir: '/opt/kafka'
 kafka_dir: "{{ rocknsm_dir }}/kafka"
 kafka_data_dir: "{{ kafka_dir }}/data"
 

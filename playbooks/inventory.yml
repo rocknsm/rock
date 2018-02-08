@@ -22,8 +22,8 @@ all:
         nodes:
 
     kibana:
-      children:
-        master-servers:
+#      children:
+#        master-servers:
 
     portainer:
 #      children:
@@ -34,12 +34,12 @@ all:
     #    master-servers:
 
     elasticsearch:
-      children:
-        master-servers:
+#      children:
+#        master-servers:
 
     logstash:
-      children:
-        master-servers:
+#      children:
+#        master-servers:
 
     suricata:
 #      children:
@@ -89,7 +89,6 @@ all:
 
         sensors:
 
-
           vars:
             data_disk_devices:
             - /dev/sdb
@@ -108,6 +107,6 @@ all:
 
           hosts:
             rockserver3.lan:
-              ansible_hostname: rocksecondary3.lan
+              ansible_hostname: rockserver3.lan
               ansible_user: root
               ansible_connection: ssh
