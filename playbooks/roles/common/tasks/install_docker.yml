@@ -12,3 +12,11 @@
     owner: root
     group: root
     state: link
+
+# Allow containers to manage cgroups - needed for systemd init
+# This is way safer that running privileged containers
+- name: 'Set SELinux Booleans'
+  seboolean:
+    name: container_manage_cgroup
+    state: yes
+    persistent: yes
