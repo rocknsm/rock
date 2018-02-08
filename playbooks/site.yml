@@ -22,7 +22,7 @@
 # WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
   roles:
     - common
-    - docker
+    #- docker
 
 - hosts: kubernetes
   roles:
