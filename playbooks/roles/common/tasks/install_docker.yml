@@ -13,6 +13,12 @@
     group: root
     state: link
 
+- name: 'Start Docker'
+  systemd:
+    name: 'docker'
+    state: 'started'
+    enabled: 'yes'
+
 # Allow containers to manage cgroups - needed for systemd init
 # This is way safer that running privileged containers
 - name: 'Set SELinux Booleans'
