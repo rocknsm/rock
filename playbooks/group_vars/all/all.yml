@@ -96,7 +96,6 @@ srocknsm_package_list:
   - perl-Crypt-SSLeay
   - perl-Archive-Tar
   - easy-rsa
-  - docker
 
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7

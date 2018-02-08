@@ -81,3 +81,4 @@
 - include_tasks: ensure_cache_directory_exists.yml
 - include_tasks: enable_firewall.yml
 - include_tasks: install_chrony.yml
+- include_tasks: install_docker.yml
