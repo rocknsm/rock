@@ -5,7 +5,7 @@
 
 - name: "Create Directories"
   file:
-    path: {{ item }}
+    path: "{{ item }}"
     state: directory
     owner: root
     group: root
