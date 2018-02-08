@@ -16,21 +16,6 @@
     path: swap
     state: absent
 
-#- name: 'Change Docker cgroup driver'
-#  copy:
-#    src: daemon.json
-#    dest: /etc/docker/daemon.json
-#    owner: root
-#    group: root
-#    mode: 0644
-#  register: cgroup
-
-- name: 'Restart Docker'
-  systemd:
-    name: docker
-    state: restarted
-  when: cgroup.changed
-
 - name: 'Pass bridged IPv4 traffic to iptables'
   sysctl:
     name: net.bridge.bridge-nf-call-iptables
