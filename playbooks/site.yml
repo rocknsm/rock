@@ -89,6 +89,7 @@
 
 - hosts: kafka
   roles:
+    - kafka
   gather_facts: no
 
 #- hosts: bro
