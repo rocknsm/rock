@@ -5,7 +5,7 @@
 
 - name: Verify Docker is present
   yum:
-    name: docker-ce
+    name: docker
     state: present
 
 - name: Swap Off
@@ -190,4 +190,4 @@
 #  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f "https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml"'
 #  when: inventory_hostname in groups['master-servers']
 
-... 
+...
