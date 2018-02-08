@@ -5,11 +5,14 @@
 
 - name: "Create Directories"
   file:
-    path: "{{ kafka_dir }}"
+    path: {{ item }}
     state: directory
     owner: root
     group: root
     mode: u+rw,g+rw
+  with_items:
+    - "{{ zookeeper_dir }}"
+    - "{{ kafka_dir }}"
 
 - name: Install Kafka Templates
   template:
@@ -66,7 +69,7 @@
 - name: Flush Deployment
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ kafka_dir }}/deploy.yml'
   ignore_errors: yes
-  
+
 # This task uses kafka_config_map and feeds it into Kubernetes as a configuration map which it then uses
 # to build the container
 - name: Create Kafka Config
