@@ -243,14 +243,17 @@
   when: inventory_hostname in groups['master-servers']
 
 - name: Deploy Heketi
+  command: 'kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-deployment.json'
+  when: inventory_hostname in groups['master-servers']
+
+- name: Get Cluster IP
   shell: |
-    kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-deployment.json
     HEKETI_IP='';
     while [ -z $HEKETI_IP ]; do
-      HEKETI_IP=$(kubectl --kubeconfig /etc/kubernetes/admin.conf get svc | grep -E '^heketi\\s+' | awk '{ print $3}' | wc -l );
+      HEKETI_IP=$(kubectl --kubeconfig /etc/kubernetes/admin.conf get svc | grep -E '^heketi\s+' | awk '{ print $3}');
       sleep 1;
     done;
-    echo -n $(kubectl --kubeconfig /etc/kubernetes/admin.conf get svc | grep -E '^heketi\\s+' | awk '{ print $3}')
+    echo -n $(kubectl --kubeconfig /etc/kubernetes/admin.conf get svc | grep -E '^heketi\s+' | awk '{ print $3}')
   when: inventory_hostname in groups['master-servers']
   register: heketi_ip
 

@@ -8,6 +8,14 @@
     name: docker
     state: present
 
+- name: Copy sysctl config file
+  copy:
+    src: files/k8s.conf
+    dest: /etc/sysctl.d/k8s.conf
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Disable SELinux
   selinux:
     state: disabled
@@ -148,12 +156,10 @@
   when: inventory_hostname in groups['master-servers']
 
 - name: 'Configure Kubelet'
-  copy:
-    src: files/10-kubeadm.conf
-    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
-    owner: root
-    group: root
-    mode: 0644
+  lineinfile:
+    path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    regexp: '^Environment="KUBELET_EXTRA_ARGS='
+    line: 'Environment="KUBELET_EXTRA_ARGS=--runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice"'
   when: inventory_hostname in groups['master-servers']
 
 - name: 'Restart Kubelet service'

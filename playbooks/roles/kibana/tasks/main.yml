@@ -19,21 +19,30 @@
     owner: root
     mode: 0644
   with_items:
-    - kibana-deploy
-    - kibana-svc
+    - deploy
+    - svc
 
 - name: Flush Deployments
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ kibana_dir }}/{{ item }}.yml'
+  shell: |
+    kubectl --kubeconfig {{ kubernetes_conf_file }} delete -f {{ kibana_dir }}/{{ item }}.yml
+    while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get -f {{ kibana_dir }}/{{ item }}.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   with_items:
-    - kibana-deploy
-    - kibana-svc
+    - deploy
+    - svc
   ignore_errors: true
 
 - name: Deploy
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kibana_dir }}/{{ item }}.yml'
-  with_items:
-    - kibana-deploy
-    - kibana-svc
-
-- name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ kibana_dir }}/kibana-deploy.yml'
+  shell: |
+    kubectl --kubeconfig {{ kubernetes_conf_file }} create -f {{ kibana_dir }}/deploy.yml
+    while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get -f {{ kibana_dir }}/deploy.yml | tail -n +2 | awk '{print $5}') == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    kubectl --kubeconfig {{ kubernetes_conf_file }} create -f {{ kibana_dir }}/svc.yml
+    while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get -f {{ kibana_dir }}/svc.yml | tail -n +2 | awk '{ print $4 }' | grep -E '^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$' | wc -l) == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
