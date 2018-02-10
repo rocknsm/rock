@@ -23,7 +23,7 @@
     group: "{{ logstash_group }}"
     mode: 0644
   with_items:
-    - logstash-deploy
+    - deploy
     - pvc-data
     - pvc-logs
 
@@ -84,27 +84,38 @@
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap logstash-pipeline --from-file {{ logstash_dir }}/pipeline'
 
 - name: Flush Deployment
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ logstash_dir }}/{{ item }}.yml'
+  shell: |
+    kubectl --kubeconfig {{ kubernetes_conf_file }} delete -f {{ logstash_dir }}/{{ item }}.yml
+    while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get -f {{ logstash_dir }}/{{ item }}.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
   with_items:
+    - deploy
     - pvc-data
     - pvc-logs
-    - logstash-deploy
   ignore_errors: yes
 
 - name: Deploy PVCs
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ logstash_dir }}/{{ item }}.yml'
+  shell: |
+    kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ logstash_dir }}/{{ item }}.yml
+    while [ $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ logstash_dir }}/{{ item }}.yml | tail -n +2 | awk '{ print $2 }') != 'Bound' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    while [ $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get ep | grep $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ logstash_dir }}/{{ item }}.yml | tail -n +2 | awk '{ print $1 }') | wc -l) == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   with_items:
     - pvc-data
     - pvc-logs
 
-#- name: Deploy PVCs
-#  shell: "kubectl --kubeconfig {{ kubernetes_conf_file }} create -f {{ logstash_dir }}/{{ item.file }}.yml;while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get pvc | grep {{ item.name }} | awk '{ print $2 }') != 'Bound' ]; do echo -n .; sleep 1; done; while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get endpoints | grep {{ item.name }} | wc -l) != '0' ]; do echo -n .; sleep 1; done;"
-#  with_items:
-#    - { file: 'pvc-data', name: "{{ logstash_pv_data }}" }
-#    - { file: 'pvc-logs', name: "{{ logstash_pv_logs }}" }
-
 - name: Deploy Logstash
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ logstash_dir }}/logstash-deploy.yml'
-
-- name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ logstash_dir }}/logstash-deploy.yml'
+  shell: |
+    kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ logstash_dir }}/deploy.yml
+    while [ $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ logstash_dir }}/deploy.yml | tail -n +2 | awk '{ print $5}') == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;

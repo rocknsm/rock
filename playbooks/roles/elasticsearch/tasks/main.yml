@@ -62,29 +62,50 @@
     - log4j2.properties
 
 - name: Flush Deployments
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ elastic_dir }}/{{ item }}.yml'
+  shell: |
+    kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ elastic_dir }}/{{ item }}.yml
+    while [ $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ elastic_dir }}/{{ item }}.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
   with_items:
-    - pvc-data
-    - es-master
     - es-discovery-svc
     - es-svc
+    - es-master
+    - pvc-data
 #    - es-client
-#    - es-datas
+#    - es-data
   ignore_errors: true
 
-- name: Deploy
+- name: Deploy PVC
+  shell: |
+    kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ elastic_dir }}/pvc-data.yml
+    while [ $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ elastic_dir }}/pvc-data.yml | tail -n +2 | awk '{ print $2 }') != 'Bound' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    while [ $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get ep | grep $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ elastic_dir }}/pvc-data.yml | tail -n +2 | awk '{ print $1 }') | wc -l) == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+
+- name: Deploy Pods
+  shell: |
+    kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ elastic_dir }}/{{ item }}.yml
+    while [ $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ elastic_dir }}/{{ item }}.yml | tail -n +2 | awk '{ print $5}') == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  with_items:
+    - es-master
+    #- es-client
+    #- es-data
+
+- name: Deploy Services
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ elastic_dir }}/{{ item }}.yml'
   with_items:
-    - pvc-data
-    - es-master
     - es-discovery-svc
     - es-svc
 #    - es-client
-#    - es-datas
-
-- name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status deployment/{{ item }}'
-  with_items:
-    - es-master
-#    - es-client
-#    - es-data 
+#    - es-data
