@@ -66,47 +66,93 @@
   when: inventory_hostname in groups['master-servers']
 
 - name: Flush GlusterFS Daemonset
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/glusterfs-daemonset.json"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/glusterfs-daemonset.json
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get -f {{ gluster_dir }}/glusterfs-daemonset.json | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: Flush Service Account
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/heketi-service-account.json"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/heketi-service-account.json
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get -f {{ gluster_dir }}/heketi-service-account.json | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: Flush Cluster Role Binding
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf delete clusterrolebinding heketi-gluster-admin"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf delete clusterrolebinding heketi-gluster-admin
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get clusterrolebinding heketi-gluster-admin ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: Flush Secret
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf delete secret heketi-config-secret"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf delete secret heketi-config-secret
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get secret heketi-config-secret]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: Flush Bootstrap
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/heketi-bootstrap.json"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/heketi-bootstrap.json
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get deployments deploy-heketi | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: Flush Heketi Storage
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/heketi-storage.json"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/heketi-storage.json
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get -f {{ gluster_dir }}/heketi-storage.json | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: Flush Deployment
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/heketi-deployment.json"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/heketi-deployment.json
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get -f {{ gluster_dir }}/heketi-deployment.json | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: Flush Storage Class
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/storage-class.yml"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf delete -f {{ gluster_dir }}/storage-class.yml
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get -f {{ gluster_dir }}/storage-class.yml | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
   ignore_errors: yes
 
 - name: Deploy GlusterFS Daemonset
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/glusterfs-daemonset.json"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/glusterfs-daemonset.json
+    GLUSTER_WANTED=$(kubectl --kubeconfig /etc/kubernetes/admin.conf get -f {{ gluster_dir }}/glusterfs-daemonset.json | tail -n +2 | awk '{ print $2}')
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get -f {{ gluster_dir }}/glusterfs-daemonset.json | tail -n +2 | awk '{ print $6}') != $GLUSTER_WANTED ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
 
 - name: Label Nodes
@@ -117,27 +163,43 @@
     - "{{ groups['all'] }}"
 
 - name: Create Service Account
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-service-account.json"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-service-account.json
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get -f {{ gluster_dir }}/heketi-service-account.json | wc -l) == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
 
 - name: Create Cluster Role Binding
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf create clusterrolebinding heketi-gluster-admin --clusterrole=edit --serviceaccount=default:heketi-service-account"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf create clusterrolebinding heketi-gluster-admin --clusterrole=edit --serviceaccount=default:heketi-service-account
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get clusterrolebinding heketi-gluster-admin | wc -l) == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
 
 - name: Create Secret
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic heketi-config-secret --from-file {{ gluster_dir }}/heketi.json"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf create secret generic heketi-config-secret --from-file={{ gluster_dir }}/heketi.json
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get secret heketi-config-secret | wc -l) == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
 
 - name: Deploy Bootstrap
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-bootstrap.json"
-  when: inventory_hostname in groups['master-servers']
-
-- name: Wait for Heketi & GlusterFS Pods to Enter Ready State
-  shell: "GLUSTER_READY=0; while [ $GLUSTER_READY -lt 1 ]; do GLUSTER_READY=1; for stat in $(kubectl --kubeconfig {{ kubernetes_conf_file }} get pods | grep -E '(deploy-heketi)|(glusterfs)' | awk '{ print $2 }'); do if [ $stat != '1/1' ]; then GLUSTER_READY=0; echo -n .; sleep 1; fi done; done;"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-bootstrap.json
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get deployment deploy-heketi | grep deploy-heketi | awk '{ print $5 }') == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
 
 - name: Get Heketi Pod Name
-  shell: "kubectl --kubeconfig /etc/kubernetes/admin.conf get pods | grep deploy-heketi | awk '{ print $1}'"
+  shell: "kubectl --kubeconfig /etc/kubernetes/admin.conf get pods | grep -i running | grep deploy-heketi | awk '{ print $1}'"
   register: heketi_pod_name
   when: inventory_hostname in groups['master-servers']
 
@@ -168,11 +230,12 @@
   when: inventory_hostname in groups['master-servers']
 
 - name: Create Heketi Storage
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-storage.json"
-  when: inventory_hostname in groups['master-servers']
-
-- name: Wait for Heketi Bootstrap to Complete
-  shell: "while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get job/heketi-storage-copy-job | grep heketi | awk '{print $3}') -lt 1 ]; do echo -n .; sleep 1; done;"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-storage.json
+    while [ $(kubectl --kubeconfig /etc/kubernetes/admin.conf get job heketi-storage-copy-job | grep heketi | awk '{print $3}') == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   when: inventory_hostname in groups['master-servers']
 
 - name: Cleanup Heketi Bootstrap
@@ -180,11 +243,14 @@
   when: inventory_hostname in groups['master-servers']
 
 - name: Deploy Heketi
-  command: "kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-deployment.json"
-  when: inventory_hostname in groups['master-servers']
-
-- name: Wait for Heketi Service
-  shell: "HEKETI_IP=0;while [ $HEKETI_IP -lt 1 ]; do HEKETI_IP=$(kubectl --kubeconfig /etc/kubernetes/admin.conf get svc | grep -E '^heketi\\s+' | awk '{ print $3}' | wc -l ); sleep 1; done; echo -n $(kubectl --kubeconfig /etc/kubernetes/admin.conf get svc | grep -E '^heketi\\s+' | awk '{ print $3}')"
+  shell: |
+    kubectl --kubeconfig /etc/kubernetes/admin.conf create -f {{ gluster_dir }}/heketi-deployment.json
+    HEKETI_IP='';
+    while [ -z $HEKETI_IP ]; do
+      HEKETI_IP=$(kubectl --kubeconfig /etc/kubernetes/admin.conf get svc | grep -E '^heketi\\s+' | awk '{ print $3}' | wc -l );
+      sleep 1;
+    done;
+    echo -n $(kubectl --kubeconfig /etc/kubernetes/admin.conf get svc | grep -E '^heketi\\s+' | awk '{ print $3}')
   when: inventory_hostname in groups['master-servers']
   register: heketi_ip
 

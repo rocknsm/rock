@@ -97,11 +97,11 @@
     - pvc-data
     - pvc-logs
 
-- name: Wait for PVCs to Bind
-  shell: "while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get pvc | grep {{ item }} | awk '{ print $2 }') != 'Bound' ]; do echo -n .; sleep 1; done;"
-  with_items:
-    - "{{ logstash_pv_data }}"
-    - "{{ logstash_pv_logs }}"
+#- name: Deploy PVCs
+#  shell: "kubectl --kubeconfig {{ kubernetes_conf_file }} create -f {{ logstash_dir }}/{{ item.file }}.yml;while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get pvc | grep {{ item.name }} | awk '{ print $2 }') != 'Bound' ]; do echo -n .; sleep 1; done; while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get endpoints | grep {{ item.name }} | wc -l) != '0' ]; do echo -n .; sleep 1; done;"
+#  with_items:
+#    - { file: 'pvc-data', name: "{{ logstash_pv_data }}" }
+#    - { file: 'pvc-logs', name: "{{ logstash_pv_logs }}" }
 
 - name: Deploy Logstash
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ logstash_dir }}/logstash-deploy.yml'

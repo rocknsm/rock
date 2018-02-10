@@ -8,6 +8,32 @@
     name: docker
     state: present
 
+- name: Disable SELinux
+  selinux:
+    state: disabled
+  register: selinux
+
+- name: Reboot to finish off SELinux completely
+  command: "/sbin/shutdown -r +1 --no-wall"
+  async: 0
+  poll: 0
+  when: selinux.changed
+  ignore_errors: yes
+
+- name: Wait for boot
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 22
+    delay: 120
+  delegate_to: localhost
+  when: selinux.changed
+
+- name: DEV Insert resolv.conf
+  lineinfile:
+    path: /etc/resolv.conf
+    line: nameserver 192.168.253.2
+  when: selinux.changed
+
 - name: Swap Off
   command: swapoff --all
 
@@ -22,6 +48,9 @@
     sysctl_set: yes
     value: 1
     state: present
+
+- name: Syncronize Time
+  shell: "chronyc add server {{ hostvars[groups['master-servers'][0]].ansible_default_ipv4.address }}; chronyc makestep"
 
 - name: "Setup Kubernetes repo"
   yum_repository:
@@ -75,10 +104,11 @@
     - kubectl
   when: not installed_packages.changed
 
-- name: 'Start Kubelet'
+- name: 'Stop Kubelet'
   systemd:
     name: 'kubelet'
-    state: 'started'
+    state: 'stopped'
+    daemon_reload: yes
     enabled: 'yes'
 
 - name: "Create Kubernetes config directory"
@@ -113,9 +143,24 @@
 
 - name: 'Init Kubernetes cluster'
   #shell: "kubeadm init --config {{ kube_dir }}/kubeadm.yml | grep 'kubeadm join --token'"
-  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 | grep 'kubeadm join --token'"
+  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=true| grep 'kubeadm join --token'"
   register: kube_join_cluster_cmd
   when: inventory_hostname in groups['master-servers']
+
+- name: 'Configure Kubelet'
+  copy:
+    src: files/10-kubeadm.conf
+    dest: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['master-servers']
+
+- name: 'Restart Kubelet service'
+  systemd:
+    name: kubelet
+    enabled: yes
+    state: restarted
 
 - name: 'Install pod network: flanneld'
   command: "kubectl --kubeconfig={{ kubernetes_conf_file }} apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
