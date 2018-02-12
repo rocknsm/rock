@@ -4,3 +4,6 @@
 gluster_dir: "{{ rocknsm_dir }}/gluster"
 heketi_admin_key: "password"
 heketi_user_key: "password"
+heketi_image: heketi/heketi
+heketi_version: 5
+gluster_ver: 3.13

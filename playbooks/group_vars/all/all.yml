@@ -102,4 +102,5 @@ epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 
 kubernetes_conf_file: /etc/kubernetes/admin.conf
 
+debug_enabled: true
 ...

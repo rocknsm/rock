@@ -21,12 +21,12 @@
 # the gathered facts will fail.
 # WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
   roles:
-    #- common
+    - common
+    - chrony
 
 - hosts: kubernetes
   roles:
-    #- kubernetes
-  gather_facts: no
+    - kubernetes
 
 - hosts: gluster
   roles:

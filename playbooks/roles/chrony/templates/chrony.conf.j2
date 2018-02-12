@@ -1,0 +1,58 @@
+# {{ ansible_managed }}
+# See https://chrony.tuxfamily.org/documentation.html for details on this file
+
+{% if chrony_pool %}
+pool {{ chrony_pool }}
+{% endif %}
+
+{% if chrony_server %}
+server {{ chrony_server }}
+{% endif %}
+
+keyfile {{ chrony_keyfile }}
+commandkey 1
+
+driftfile {{ chrony_driftfile }}
+log {{ chrony_log }}
+logdir {{ chrony_logdir }}
+maxupdateskew {{ chrony_maxupdateskew }}
+dumponexit
+# Specify directory for dumping measurements.
+
+
+dumpdir {{ chrony_dumpdir }}
+
+# This directive lets 'chronyd' to serve time even if unsynchronised to any
+# NTP server.
+
+#local stratum 10
+
+# This directive designates subnets (or nodes) from which NTP clients are allowed
+# to access to 'chronyd'.
+
+#allow foo.example.net
+#allow 10/8
+#allow 0/0 (allow access by any IPv4 node)
+#allow ::/0 (allow access by any IPv6 node)
+
+# This directive forces `chronyd' to send a message to syslog if it
+# makes a system clock adjustment larger than a threshold value in seconds.
+
+logchange 0.5
+
+# This directive defines an email address to which mail should be sent
+# if chronyd applies a correction exceeding a particular threshold to the
+# system clock.
+
+# mailonchange root@localhost 0.5
+
+# This directive tells 'chronyd' to parse the 'adjtime' file to find out if the
+# real-time clock keeps local time or UTC. It overrides the 'rtconutc' directive.
+
+hwclockfile /etc/adjtime
+
+# This directive enables kernel synchronisation (every 11 minutes) of the
+# real-time clock. Note that it can’t be used along with the 'rtcfile' directive.
+
+rtcsync
+

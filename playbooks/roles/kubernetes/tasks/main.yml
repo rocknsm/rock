@@ -57,9 +57,6 @@
     value: 1
     state: present
 
-- name: Syncronize Time
-  shell: "chronyc add server {{ hostvars[groups['master-servers'][0]].ansible_default_ipv4.address }}; chronyc makestep"
-
 - name: "Setup Kubernetes repo"
   yum_repository:
     baseurl: "{{ kubernetes_baseurl }}"
@@ -80,7 +77,15 @@
 
 - name: Reset Kubernetes Cluster
   command: kubeadm reset
-  when: not installed_packages.changed
+  register: debug_output
+  when: installed_packages is defined and not installed_packages.changed
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Remove Kubernetes Packages to clear cache
   yum:
@@ -90,7 +95,7 @@
     - kubeadm
     - kubelet
     - kubectl
-  when: not installed_packages.changed
+  when: installed_packages is defined and not installed_packages.changed
 
 - name: Remove Artifacts
   file:
@@ -100,7 +105,7 @@
     - /var/lib/cni
     - /var/lib/kubelet
     - /etc/cni
-  when: not installed_packages.changed
+  when: installed_packages is defined and not installed_packages.changed
 
 - name: Reinstall Kubernetes Packages
   yum:
@@ -110,7 +115,7 @@
     - kubeadm
     - kubelet
     - kubectl
-  when: not installed_packages.changed
+  when: installed_packages is defined and not installed_packages.changed
 
 - name: 'Stop Kubelet'
   systemd:
@@ -155,6 +160,13 @@
   register: kube_join_cluster_cmd
   when: inventory_hostname in groups['master-servers']
 
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ kube_join_cluster_cmd.cmd }}"
+      - "Stdout is: {{ kube_join_cluster_cmd.stdout }}"
+  when: debug_enabled is defined and debug_enabled and kube_join_cluster_cmd.stdout is defined
+
 - name: 'Configure Kubelet'
   lineinfile:
     path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
@@ -170,57 +182,159 @@
 
 - name: 'Install pod network: flanneld'
   command: "kubectl --kubeconfig={{ kubernetes_conf_file }} apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+  register: debug_output
   when: inventory_hostname in groups['master-servers']
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Wait for Master Node to be ready
   shell: "NODES_READY=0; while [ $NODES_READY -lt 1 ]; do NODES_READY=1; for stat in $(kubectl --kubeconfig {{ kubernetes_conf_file }} get nodes | grep -v NAME | awk '{ print $2 }'); do if [ $stat != 'Ready' ]; then NODES_READY=0; echo -n .; sleep 1; fi done; done;"
+  register: debug_output
   when: "inventory_hostname in groups['master-servers']"
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 # By default the cluster will not scehdule pods on the master for security reasons.
 # The below task removes that restriction.
 - name: 'Remove master taint from master'
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" taint nodes --all node-role.kubernetes.io/master-'
+  register: debug_output
   when: inventory_hostname in groups['master-servers']
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Install MetalLB LoadBalancer'
   command: 'kubectl --kubeconfig={{ kubernetes_conf_file }} apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
+  register: debug_output
   when: inventory_hostname in groups['master-servers']
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Apply MetalLB Config'
   command: 'kubectl --kubeconfig={{ kubernetes_conf_file }} apply -f {{ kube_dir }}/metallb.yml'
+  register: debug_output
   when: inventory_hostname in groups['master-servers']
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Wait for system pods to be ready
   shell: "PODS_READY=0; while [ $PODS_READY -lt 1 ]; do PODS_READY=1; for stat in $(kubectl --kubeconfig {{ kubernetes_conf_file }} get pods -n kube-system | grep -v NAME | awk '{ print $3 }' | cut -d'/' -f 1); do if [ $stat == '0' ]; then PODS_READY=0; echo -n .; sleep 1; fi done; done;"
+  register: debug_output
   when: inventory_hostname in groups['master-servers']
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Join Kubernetes cluster'
   command: "{{ hostvars[item].kube_join_cluster_cmd.stdout }}"
+  register: debug_output
   when: "inventory_hostname in groups['nodes']"
   with_items: "{{ groups['master-servers'] }}"
 
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+# When this stalled for me I had to go into the node, run the join command from
+# init. It then had a bunch of errors I:
+# 1. Deleted all the files it mentioned
+# 2. Ran 'systemctl stop kubelet'
+# 3. Re-ran the join command
+# That cleared up this problem for me
 - name: Wait for Nodes to Register
   shell: "while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get nodes | wc -l) -lt {{ groups['all'] | length + 1}} ]; do echo -n .; done;"
+  register: debug_output
   when: inventory_hostname in groups['master-servers']
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Wait for Nodes to be ready
   shell: "NODES_READY=0; while [ $NODES_READY -lt 1 ]; do NODES_READY=1; for stat in $(kubectl --kubeconfig {{ kubernetes_conf_file }} get nodes | grep -v NAME | awk '{ print $2 }'); do if [ $stat != 'Ready' ]; then NODES_READY=0; echo -n .; sleep 1; fi done; done;"
+  register: debug_output
   when: "inventory_hostname in groups['master-servers']"
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Label masters'
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=server'
   with_items: "{{ groups['master-servers'] }}"
+  register: debug_output
   when: inventory_hostname in groups['master-servers']
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Label sensors'
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=sensor'
   with_items: "{{ groups['sensors'] }}"
+  register: debug_output
   when: inventory_hostname in groups['master-servers']
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Label secondary servers'
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=server'
   with_items: "{{ groups['servers'] }}"
+  register: debug_output
   when: inventory_hostname in groups['master-servers']
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 #- name: 'Install Dashboard UI'
 #  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f "https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml"'
