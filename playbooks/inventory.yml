@@ -22,32 +22,24 @@ all:
         nodes:
 
     kibana:
-#      children:
-#        master-servers:
-
-    portainer:
-#      children:
-#        master-servers:
-
-    #haproxy:
-    #  children:
-    #    master-servers:
+      children:
+        master-servers:
 
     elasticsearch:
-#      children:
-#        master-servers:
+      children:
+        master-servers:
 
     logstash:
-#      children:
-#        master-servers:
+      children:
+        master-servers:
 
     suricata:
-#      children:
-#        sensors:
+      children:
+        sensors:
 
     filebeat:
-#      children:
-#-        sensors:
+      children:
+        sensors:
 
     kafka:
       children:
@@ -56,20 +48,6 @@ all:
     bro:
       children:
         master-servers:
-
-    stenographer:
-#      children:
-#        sensors:
-
-    kubespray:
-    #  hosts:
-    #    localhost:
-    #      ansible_hostname: 127.0.0.1
-    #      ansible_connection: local
-
-    harbor:
-#      children:
-#        master-servers:
 
     master-servers:
 
