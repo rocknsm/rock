@@ -30,17 +30,18 @@
 
 - hosts: gluster
   roles:
-    #- gluster
+    - gluster
   gather_facts: no
 
 - hosts: kibana
   roles:
-    #- kibana
+    - kibana
   gather_facts: no
 
 - hosts: elasticsearch
   roles:
-    #- elasticsearch
+    - elasticsearch
+  gather_facts: no
 
 - hosts: logstash
   roles:
@@ -59,12 +60,12 @@
 
 - hosts: kafka
   roles:
-    #- kafka
+    - kafka
   gather_facts: no
 
 - hosts: bro
   roles:
-    #- bro
+    - bro
   gather_facts: no
 
 #- hosts: stenographer
