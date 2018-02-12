@@ -39,17 +39,20 @@ spec:
             cpu: 1000m
           requests:
             cpu: 100m
-        envFrom:
-        - configMapRef:
-            name: kafka-config-map
         ports:
         - containerPort: {{ kafka_port }}
           name: transport
         volumeMounts:
-          - mountPath: "{{ kafka_data_path }}"
-            name: {{ kafka_pv_data }}
+          - name: "{{ kafka_pv_data }}"
+            mountPath: "{{ kafka_data_path }}"
+          - name: kafka-config-map
+            mountPath: /etc/kafka/server.properties
+            subPath: server.properties
 
       volumes:
+      - name: kafka-config-map
+        configMap:
+          name: kafka-config-map
       - name: {{ zookeeper_pv_data }}
         persistentVolumeClaim:
           claimName: {{ zookeeper_pv_data }}

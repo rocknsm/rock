@@ -14,21 +14,43 @@ spec:
       labels:
         component: bro
     spec:
+      hostNetwork: true
       containers:
       - name: bro
         image: {{ bro_image }}:{{ bro_ver }}
-        env:
-        - name: BRO_NODE_NUMLOGGERS
-          value: '{{ bro_loggers }}'
-        - name: BRO_NODE_INTERFACE
-          value: '{{ bro_interface }}'
-        - name: BRO_NODE_NUMWORKERS
-          value: '{{ bro_workers }}'
+        #command: ['sh','-c','broctl deploy; while [ "1" == "1" ]; do sleep 60; done;']
+        securityContext:
+          runAsUser: 0
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
         resources:
           limits:
             cpu: 1000m
           requests:
             cpu: 100m
+        volumeMounts:
+        - name: bro-config
+          mountPath: /etc/bro/node.cfg
+          subPath: node.cfg
+        - name: bro-config
+          mountPath: /etc/bro/broctl.cfg
+          subPath: broctl.cfg
+        - name: bro-config
+          mountPath: /etc/sysconfig/bro-scripts.env
+          subPath: bro-scripts.env
+        - name: bro-config
+          mountPath: /etc/bro/networks.cfg
+          subPath: networks.cfg
+        - name: bro-config
+          mountPath: /usr/share/bro/site/scripts/plugins/kafka.bro
+          subPath: kafka.bro
+      volumes:
+      - name: bro-config
+        configMap:
+          name: bro-config
       nodeSelector:
         role: sensor
       affinity:

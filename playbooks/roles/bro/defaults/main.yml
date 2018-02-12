@@ -7,4 +7,20 @@ bro_dir: "{{ rocknsm_dir }}/bro"
 bro_loggers: 1
 bro_interface: ens33
 bro_workers: 2
+bro_fanout_id: 42
+bro_mail_to: root@localhost
+bro_mail_connection_summary: 1
+bro_min_disk_space: 5
+bro_mail_host_updown: 0
+bro_log_rotation_interval: 3600
+bro_log_expire_interval: 0
+bro_stats_log_enable: 1
+bro_stats_log_expire_interval: 0
+bro_broctl_status_cmd_show_all: 0
+bro_site_policy_scripts: local.bro
+bro_log_dir: /var/log/bro
+bro_spool_dir: /var/spool/bro
+bro_cfg_dir: /etc/bro
+bro_scripts_git: https://github.com/rocknsm/rock-scripts.git
+bro_scripts_branch: master
 ...

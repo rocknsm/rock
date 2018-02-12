@@ -10,5 +10,6 @@ spec:
   selector:
     component: kafka
   ports:
-  - protocol: TCP
+  - name: transport
+    protocol: TCP
     port: {{ kafka_port }}

@@ -13,11 +13,31 @@
 
 - name: Install templates
   template:
-    src: "templates/deploy.yml.j2"
-    dest: "{{ bro_dir }}/deploy.yml"
+    src: "templates/{{ item }}.j2"
+    dest: "{{ bro_dir }}/{{ item }}"
     group: root
     owner: root
     mode: 0644
+  with_items:
+    - deploy.yml
+    - broctl.cfg
+    - node.cfg
+    - bro-scripts.env
+    - networks.cfg
+    - kafka.bro
+
+- name: Flush Config Map
+  command: kubectl --kubeconfig {{ kubernetes_conf_file }} delete configmap bro-config
+  ignore_errors: yes
+
+- name: Create Config Map
+  shell: |
+    kubectl --kubeconfig {{ kubernetes_conf_file }} create configmap bro-config \
+    --from-file {{ bro_dir }}/broctl.cfg \
+    --from-file {{ bro_dir }}/node.cfg \
+    --from-file {{ bro_dir }}/bro-scripts.env \
+    --from-file {{ bro_dir }}/networks.cfg \
+    --from-file {{ bro_dir }}/kafka.bro
 
 - name: Flush Deployments
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml'

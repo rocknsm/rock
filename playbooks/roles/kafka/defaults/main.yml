@@ -3,7 +3,7 @@
 
 #### Main Role Configuration ####
 
-kafka_container_name: "rocknsm/kafka"
+kafka_container_name: "dwharve/kafka"
 kafka_port: 9092
 kafka_ver: latest
 

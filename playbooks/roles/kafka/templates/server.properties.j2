@@ -28,12 +28,12 @@ broker.id=0
 #     listeners = listener_name://host_name:port
 #   EXAMPLE:
 #     listeners = PLAINTEXT://your.host.name:9092
-listeners: "PLAINTEXT://:{{ kafka_port }}"
+#listeners: PLAINTEXT://kafka.default.svc.cluster.local:{{ kafka_port }}
 
 # Hostname and port the broker will advertise to producers and consumers. If not set,
 # it uses the value for "listeners" if configured.  Otherwise, it will use the value
 # returned from java.net.InetAddress.getCanonicalHostName().
-advertised.listeners: "PLAINTEXT://{{ inventory_hostname }}:{{ kafka_port }}"
+advertised.listeners: PLAINTEXT://kafka.default.svc.cluster.local:{{ kafka_port }}
 
 ############################# Log Basics #############################
 
@@ -47,7 +47,7 @@ advertised.listeners: "PLAINTEXT://{{ inventory_hostname }}:{{ kafka_port }}"
 # server. e.g. "127.0.0.1:3000,127.0.0.1:3001,127.0.0.1:3002".
 # You can also append an optional chroot string to the urls to specify the
 # root directory for all kafka znodes.
-zookeeper.connect: localhost:{{ zookeeper_port }}
+zookeeper.connect: zookeeper:{{ zookeeper_port }}
 
 ############################## Others ##############################
 

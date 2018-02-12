@@ -25,7 +25,7 @@
     - deploy.yml
     - kafka-service.yml
     - kafka-pvc-data.yml
-    - kafka_config_map
+    - server.properties
     - zookeeper-pvc-data.yml
     - zookeeper_config_map
 
@@ -53,7 +53,10 @@
   with_items:
     - kafka-pvc-data
     - kafka-service
-    - zoookeeper-pvc-data
+
+- name: Flush Zookeeper PVC
+  command: 'kubectl --kubeconfig {{ kubernetes_conf_file }} delete -f {{ kafka_dir }}/zookeeper-pvc-data.yml'
+  ignore_errors: yes
 
 - name: Flush Deployment
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ kafka_dir }}/deploy.yml'
@@ -62,7 +65,7 @@
 # This task uses kafka_config_map and feeds it into Kubernetes as a configuration map which it then uses
 # to build the container
 - name: Create Kafka Config
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap kafka-config-map --from-file {{ kafka_dir }}/kafka_config_map'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap kafka-config-map --from-file {{ kafka_dir }}/server.properties'
 
 # This does the same, but with Zookeeper
 - name: Create Zookeeper Config
