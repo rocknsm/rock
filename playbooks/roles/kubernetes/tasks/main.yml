@@ -36,12 +36,6 @@
   delegate_to: localhost
   when: selinux.changed
 
-- name: DEV Insert resolv.conf
-  lineinfile:
-    path: /etc/resolv.conf
-    line: nameserver 192.168.253.2
-  when: selinux.changed
-
 - name: Swap Off
   command: swapoff --all
 
@@ -172,12 +166,14 @@
     path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
     regexp: '^Environment="KUBELET_EXTRA_ARGS='
     line: 'Environment="KUBELET_EXTRA_ARGS=--runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice"'
+    insertbefore: '^ExecStart=$'
   when: inventory_hostname in groups['master-servers']
 
 - name: 'Restart Kubelet service'
   systemd:
     name: kubelet
     enabled: yes
+    daemon_reload: yes
     state: restarted
 
 - name: 'Install pod network: flanneld'
