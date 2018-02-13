@@ -1,0 +1,32 @@
+######################################################
+################# Setup Metricbeat ###################
+######################################################
+---
+
+- name: "Create config directory"
+  file:
+    path: "{{ metricbeat_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: Install templates
+  template:
+    src: "templates/{{ item }}.yml.j2"
+    dest: "{{ metricbeat_dir }}/{{ item }}.yml"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - metricbeat-deploy
+
+- name: Export
+  shell: |
+    export KUBECONFIG=/etc/kubernetes/kubernetes.conf
+
+- name: Deploy
+  shell: |
+    kubectl create -f "{{ metricbeat_dir }}"/metricbeat-deploy.yml
+
+...
