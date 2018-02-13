@@ -1,0 +1,19 @@
+#!/usr/bin/expect -f
+set timeout -1
+
+#Automate the Configure script for Moloch
+spawn "{{ moloch_data_dir }}/bin/Configure"
+
+expect -ex "Semicolon ';' seperated list of interfaces to monitor \[eth1\] "
+send "{{ moloch_monitor_int }}\r"
+
+expect -ex "Install Elasticsearch server locally for demo, must have at least 3G of memory, NOT recommended for production use \(yes or no\) \[no\] "
+send "no\r"
+
+expect -ex "Elasticsearch server URL \[http://localhost:9200\] "
+send "{{ moloch_elastic_url }}\r"
+
+expect -ex "Password to encrypt S2S and other things \[no-default\] "
+send "no\r"
+
+expect eof

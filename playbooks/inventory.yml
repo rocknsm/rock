@@ -48,6 +48,10 @@ all:
     bro:
       children:
         master-servers:
+    moloch:
+      children:
+        master-servers:
+
 
     master-servers:
 
@@ -84,7 +88,7 @@ all:
             - /dev/sdb
 
           hosts:
-            rockserver3.lan:
-              ansible_hostname: rockserver3.lan
+            rockserver2.lan:
+              ansible_hostname: rockserver2.lan
               ansible_user: root
               ansible_connection: ssh

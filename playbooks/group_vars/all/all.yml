@@ -63,6 +63,8 @@ included_components:
     enabled: true
   logstash:
     enabled: false
+  moloch:
+    enabled: true
   portainer:
     enabled: true
   pulledpork:

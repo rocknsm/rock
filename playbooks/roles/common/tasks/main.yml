@@ -49,17 +49,17 @@
 
 #- name: 'Change default runlevel'
 #  command: systemctl set-default rock.target
-#  when: runlevel.stdout != "rock.target"
+#  when: runlevel is defined and runlevel.stdout != "rock.target"
 
 #- name: 'Check current runlevel'
 #  command: systemctl is-active rock.target
 #  register: runlevel_active
-#  failed_when: runlevel_active.rc != 3
+#  failed_when: runlevel_active.rc != 0
 #  ignore_errors: yes
 
 #- name: 'Switch to rock.target'
 #  command: systemctl isolate rock.target
-#  when: runlevel_active.stdout != "active"
+#  when: runlevel_active is defined and runlevel_active.stdout != "active"
 
 #- name: Install rock_status script
 #  template:

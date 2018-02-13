@@ -1,0 +1,157 @@
+######################################################
+############### Setup Moloch container ###############
+######################################################
+---
+
+- name: 'Create directories'
+  file:
+    path: "{{ item }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: directory
+  with_items:
+    - "{{ moloch_dir }}"
+    - "{{ moloch_dir }}/logs"
+    - "{{ moloch_dir }}/pcap"
+    - "{{ moloch_dir }}/etc"
+
+- name: 'Copy GeoIP files'
+  copy:
+    src: 'files/{{ item }}'
+    dest: "{{ moloch_dir }}/etc/"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+  with_items:
+    - GeoIP.dat
+    - GeoIPASNum.dat
+    - GeoIPASNumv6.dat
+    - GeoIPv6.dat
+    - ipv4-address-space.csv
+
+- name: 'Copy config files'
+  template:
+    src: "templates/{{ item }}"
+    dest: "{{ moloch_dir }}/etc/{{ item }}"
+    mode: "{{ moloch_file_mode }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+  with_items:
+    - config.ini
+    - auto_config_moloch
+    - moloch-deploy.yml
+    - capture-service.yml
+    - viewer-service.yml
+    - pv-data.yml
+    - pvc-data.yml
+
+- name: 'Copy moloch compose file'
+  template:
+    src: 'moloch-compose.yml.j2'
+    dest: "{{ rock_compose_files }}/moloch-compose.yml"
+    mode: "{{ moloch_file_mode }}"
+    owner: "{{ rock_data_user }}"
+    group: "{{ rock_data_group }}"
+
+- name: 'Copy moloch Dockerfile'
+  template:
+    src: 'moloch-dockerfile.j2'
+    dest: "{{ moloch_dir }}/Dockerfile"
+    mode: "{{ moloch_file_mode }}"
+    owner: "{{ rock_data_user }}"
+    group: "{{ rock_data_group }}"
+
+- name: 'Build moloch image ({{ moloch_tag }})'
+  docker_image:
+    name: "{{ moloch_image }}:{{ moloch_tag }}"
+    pull: yes
+    state: present
+    path: "{{ moloch_dir }}/"
+    dockerfile: "{{ moloch_dir }}/Dockerfile"
+  #when: rock_online_install
+
+#- name: "Opening port {{ moloch_port }} in firewall"
+#  firewalld:
+#    port: "{{ moloch_port }}/tcp"
+#    permanent: true
+#    immediate: true
+#    state: enabled
+
+
+- block:
+  - name: "Clean up kube configmap"
+    command: "kubectl --kubeconfig={{ kubernetes_conf_file }} delete configmap {{ moloch_config_map }}"
+  - name: "Clean up kube for deployment "
+    command: "kubectl --kubeconfig={{ kubernetes_conf_file }} delete -f {{ moloch_dir }}/etc/{{ item }}.yml"
+    with_items:
+      - pv-data
+      - pvc-data
+      - capture-service
+      - viewer-service
+      - moloch-deploy
+    removes: "{{ moloch_dir }}/etc/{{ item }}.yml"
+  #- command: "kubectl --kubeconfig={{ kube_config }} delete -f {{ moloch_dir }}/etc/pvc-data.yml"
+  #- command: "kubectl --kubeconfig={{ kube_config }} delete -f {{ moloch_dir }}/etc/capture-service.yml"
+  #- command: "kubectl --kubeconfig={{ kube_config }} delete -f {{ moloch_dir }}/etc/viewer-service.yml"
+  #- command: "kubectl --kubeconfig={{ kube_config }} delete -f {{ moloch_dir }}/etc/moloch-deploy.yml"
+  ignore_errors: true
+
+- name: "Create kube config"
+  command: 'kubectl --kubeconfig={{ kubernetes_conf_file }} create configmap {{ moloch_config_map }} --from-file {{ moloch_dir }}/etc/{{ item }}'
+  with_items:
+    - config.ini
+
+- name: "Deploy moloch via kube"
+  command: "kubectl --kubeconfig={{ kubernetes_conf_file }} create -f {{ moloch_dir }}/etc/{{ item }}.yml"
+  with_items:
+    - pv-data
+    - pvc-data
+    - moloch-deploy
+    - capture-service
+    - viewer-service
+
+- name: "Wait for deployment to finish"
+  command: 'kubectl rollout status -f {{ moloch_dir }}/etc/moloch-deploy.yml'
+  ignore_errors: true
+#- name: 'Install moloch service file'
+#  template:
+#    src: 'moloch.service.j2'
+#    dest: '/etc/systemd/system/moloch.service'
+#    mode: 0644
+#    owner: "{{ rock_data_user }}"
+#    group: "{{ rock_data_group }}"
+#
+#- name: 'Link moloch service file'
+#  file:
+#    src: '/etc/systemd/system/moloch.service'
+#    dest: '/etc/systemd/system/rock.target.wants/moloch.service'
+#    owner: "{{ rock_data_user }}"
+#    group: "{{ rock_data_group }}"
+#    state: link
+#
+#- name: 'Enable moloch service'
+#  service:
+#    name: 'moloch'
+#    enabled: yes
+#    state: restarted
+#    daemon_reload: yes
+
+- name: "Check web frontend ({{ moloch_web_url }})"
+  uri:
+    url: "http://{{ moloch_web_url }}"
+    user: "{{ moloch_login }}"
+    password: "{{ moloch_pass }}"
+    register: moloch_web
+
+#- name: 'Waiting for container to be created'
+#  docker_container:
+#    name: "{{ moloch_container_name }}"
+#    state: 'started'
+
+#- name: Create user
+#  command: >
+#    docker exec {{ moloch_container_name }} {{ moloch_data_dir }}/bin/moloch_add_user.sh assessor "Admin User" password --admin
+#  ignore_errors: yes
+
+...

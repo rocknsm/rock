@@ -1,0 +1,14 @@
+[Unit]
+ Description = Moloch Service
+
+ Wants    = network.target
+ Requires = docker.service
+
+ [Service]
+ Type = simple
+
+ ExecStart = /usr/bin/docker-compose -p moloch -f {{ rock_compose_files }}/moloch-compose.yml up -d
+ ExecStop  = /usr/bin/docker-compose -p moloch -f {{ rock_compose_files }}/moloch-compose.yml down
+
+ [Install]
+ WantedBy = multi-user.target

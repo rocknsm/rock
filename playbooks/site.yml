@@ -63,6 +63,11 @@
     - kafka
   gather_facts: no
 
+- hosts: moloch
+  roles:
+    - moloch
+  gather_facts: no
+
 - hosts: bro
   roles:
     - bro
