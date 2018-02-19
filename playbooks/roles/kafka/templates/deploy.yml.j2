@@ -22,9 +22,6 @@ spec:
             cpu: 1000m
           requests:
             cpu: 100m
-        ports:
-        - containerPort: 9092
-          name: transport
         envFrom:
         - configMapRef:
             name: zookeeper-config-map

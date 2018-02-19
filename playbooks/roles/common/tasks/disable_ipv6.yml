@@ -5,7 +5,7 @@
 - name: Disable IPv6 for all interfaces
   sysctl:
     name: net.ipv6.conf.all.disable_ipv6
-    value: 1l
+    value: 1
     sysctl_file: "{{ rock_sysctl_file }}"
 
 - name: Disable IPv6 for default interfaces
@@ -27,3 +27,7 @@
     dest: /etc/hosts
     regexp: localhost6
     state: absent
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1402961
+- name: Save change to initramfs
+  command: dracut -f

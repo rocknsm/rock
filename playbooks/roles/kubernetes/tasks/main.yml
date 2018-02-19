@@ -3,10 +3,10 @@
 #######################################################
 ---
 
-- name: Verify Docker is present
-  yum:
-    name: docker
-    state: present
+#- name: Verify Docker is present
+#  yum:
+#    name: docker
+#    state: present
 
 - name: Copy sysctl config file
   copy:
@@ -48,6 +48,7 @@
   sysctl:
     name: net.bridge.bridge-nf-call-iptables
     sysctl_set: yes
+    reload: yes
     value: 1
     state: present
 
@@ -91,6 +92,11 @@
     - kubectl
   when: installed_packages is defined and not installed_packages.changed
 
+- name: Stop Services
+  systemd:
+    name: docker
+    state: stopped
+
 - name: Remove Artifacts
   file:
     path: "{{ item }}"
@@ -100,6 +106,16 @@
     - /var/lib/kubelet
     - /etc/cni
   when: installed_packages is defined and not installed_packages.changed
+
+- name: Remove Interfaces
+  shell: |
+    if [ $(ifconfig | grep flannel.1 | wc -l ) -gt 0 ]; then
+      ifconfig {{ item }} down;
+      ip link delete {{ item }}
+    fi
+  with_items:
+    - flannel.1
+    - cni0
 
 - name: Reinstall Kubernetes Packages
   yum:
@@ -111,12 +127,20 @@
     - kubectl
   when: installed_packages is defined and not installed_packages.changed
 
-- name: 'Stop Kubelet'
+- name: 'Start Services'
   systemd:
-    name: 'kubelet'
-    state: 'stopped'
+    name: "{{ item }}"
+    state: 'started'
     daemon_reload: yes
     enabled: 'yes'
+  with_items:
+    - docker
+    - kubelet
+
+- name: Install Cockpit for Kubernetes
+  yum:
+    name: cockpit-kubernetes
+    state: installed
 
 - name: "Create Kubernetes config directory"
   file:
@@ -140,6 +164,7 @@
   with_items:
     - metallb
     - kubeadm
+    - kube-flannel
   when: inventory_hostname in groups['master-servers']
 
 - name: 'Disable Firewalld service'
@@ -150,7 +175,7 @@
 
 - name: 'Init Kubernetes cluster'
   #shell: "kubeadm init --config {{ kube_dir }}/kubeadm.yml | grep 'kubeadm join --token'"
-  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 --ignore-preflight-errors=true| grep 'kubeadm join --token'"
+  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 | grep 'kubeadm join --token'"
   register: kube_join_cluster_cmd
   when: inventory_hostname in groups['master-servers']
 
@@ -167,7 +192,6 @@
     regexp: '^Environment="KUBELET_EXTRA_ARGS='
     line: 'Environment="KUBELET_EXTRA_ARGS=--runtime-cgroups=/systemd/system.slice --kubelet-cgroups=/systemd/system.slice"'
     insertbefore: '^ExecStart=$'
-  when: inventory_hostname in groups['master-servers']
 
 - name: 'Restart Kubelet service'
   systemd:
@@ -176,8 +200,36 @@
     daemon_reload: yes
     state: restarted
 
-- name: 'Install pod network: flanneld'
-  command: "kubectl --kubeconfig={{ kubernetes_conf_file }} apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml"
+- name: Create credential directory
+  file:
+    path: "~/.kube"
+    state: directory
+    mode: u+rw,g+rw
+
+- name: Retrieve generated credentials
+  fetch:
+    src: "{{ kubernetes_conf_file }}"
+    dest: files/config
+    flat: yes
+  when: "inventory_hostname in groups['master-servers']"
+
+- name: Propagate cluster admin credentials
+  copy:
+    src: files/config
+    dest: ~/.kube/config
+    mode: 0644
+
+- name: 'Install pod network: kube-router'
+#  shell: |
+#    export kubever=$(kubectl version | base64 | tr -d '\n')
+#    kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$kubever
+#  command: "kubectl apply -f {{ kube_dir }}/calico.yml"
+  command: "kubectl apply -f {{ kube_dir }}/kube-flannel.yml"
+#  command: "kubectl apply -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/master/daemonset/kubeadm-kuberouter.yaml"
+#  shell: |
+#    kubectl apply -f https://raw.githubusercontent.com/cloudnativelabs/kube-router/master/daemonset/kubeadm-kuberouter-all-features.yaml
+#    kubectl -n kube-system delete ds kube-proxy
+#    docker run --privileged --net=host gcr.io/google_containers/kube-proxy-amd64:v1.7.3 kube-proxy --cleanup-iptables
   register: debug_output
   when: inventory_hostname in groups['master-servers']
 
@@ -189,7 +241,7 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Wait for Master Node to be ready
-  shell: "NODES_READY=0; while [ $NODES_READY -lt 1 ]; do NODES_READY=1; for stat in $(kubectl --kubeconfig {{ kubernetes_conf_file }} get nodes | grep -v NAME | awk '{ print $2 }'); do if [ $stat != 'Ready' ]; then NODES_READY=0; echo -n .; sleep 1; fi done; done;"
+  shell: "NODES_READY=0; while [ $NODES_READY -lt 1 ]; do NODES_READY=1; for stat in $(kubectl get nodes | grep -v NAME | awk '{ print $2 }'); do if [ $stat != 'Ready' ]; then NODES_READY=0; echo -n .; sleep 1; fi done; done;"
   register: debug_output
   when: "inventory_hostname in groups['master-servers']"
 
@@ -203,7 +255,7 @@
 # By default the cluster will not scehdule pods on the master for security reasons.
 # The below task removes that restriction.
 - name: 'Remove master taint from master'
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" taint nodes --all node-role.kubernetes.io/master-'
+  command: 'kubectl taint nodes --all node-role.kubernetes.io/master-'
   register: debug_output
   when: inventory_hostname in groups['master-servers']
 
@@ -215,7 +267,7 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Install MetalLB LoadBalancer'
-  command: 'kubectl --kubeconfig={{ kubernetes_conf_file }} apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
+  command: 'kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
   register: debug_output
   when: inventory_hostname in groups['master-servers']
 
@@ -227,7 +279,7 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Apply MetalLB Config'
-  command: 'kubectl --kubeconfig={{ kubernetes_conf_file }} apply -f {{ kube_dir }}/metallb.yml'
+  command: 'kubectl apply -f {{ kube_dir }}/metallb.yml'
   register: debug_output
   when: inventory_hostname in groups['master-servers']
 
@@ -239,7 +291,7 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Wait for system pods to be ready
-  shell: "PODS_READY=0; while [ $PODS_READY -lt 1 ]; do PODS_READY=1; for stat in $(kubectl --kubeconfig {{ kubernetes_conf_file }} get pods -n kube-system | grep -v NAME | awk '{ print $3 }' | cut -d'/' -f 1); do if [ $stat == '0' ]; then PODS_READY=0; echo -n .; sleep 1; fi done; done;"
+  shell: "PODS_READY=0; while [ $PODS_READY -lt 1 ]; do PODS_READY=1; for stat in $(kubectl get pods -n kube-system | grep -v NAME | awk '{ print $3 }' | cut -d'/' -f 1); do if [ $stat == '0' ]; then PODS_READY=0; echo -n .; sleep 1; fi done; done;"
   register: debug_output
   when: inventory_hostname in groups['master-servers']
 
@@ -270,7 +322,7 @@
 # 3. Re-ran the join command
 # That cleared up this problem for me
 - name: Wait for Nodes to Register
-  shell: "while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get nodes | wc -l) -lt {{ groups['all'] | length + 1}} ]; do echo -n .; done;"
+  shell: "while [ $(kubectl get nodes | wc -l) -lt {{ groups['all'] | length + 1}} ]; do echo -n .; done;"
   register: debug_output
   when: inventory_hostname in groups['master-servers']
 
@@ -282,7 +334,7 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Wait for Nodes to be ready
-  shell: "NODES_READY=0; while [ $NODES_READY -lt 1 ]; do NODES_READY=1; for stat in $(kubectl --kubeconfig {{ kubernetes_conf_file }} get nodes | grep -v NAME | awk '{ print $2 }'); do if [ $stat != 'Ready' ]; then NODES_READY=0; echo -n .; sleep 1; fi done; done;"
+  shell: "NODES_READY=0; while [ $NODES_READY -lt 1 ]; do NODES_READY=1; for stat in $(kubectl get nodes | grep -v NAME | awk '{ print $2 }'); do if [ $stat != 'Ready' ]; then NODES_READY=0; echo -n .; sleep 1; fi done; done;"
   register: debug_output
   when: "inventory_hostname in groups['master-servers']"
 
@@ -293,8 +345,13 @@
       - "Stdout is: {{ debug_output.stdout }}"
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
+- name: Restart Cockpit
+  systemd:
+    name: cockpit
+    state: restarted
+
 - name: 'Label masters'
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=server'
+  command: 'kubectl label nodes {{ item }} role=server'
   with_items: "{{ groups['master-servers'] }}"
   register: debug_output
   when: inventory_hostname in groups['master-servers']
@@ -307,7 +364,7 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Label sensors'
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=sensor'
+  command: 'kubectl label nodes {{ item }} role=sensor'
   with_items: "{{ groups['sensors'] }}"
   register: debug_output
   when: inventory_hostname in groups['master-servers']
@@ -320,7 +377,7 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Label secondary servers'
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" label nodes {{ item }} role=server'
+  command: 'kubectl label nodes {{ item }} role=server'
   with_items: "{{ groups['servers'] }}"
   register: debug_output
   when: inventory_hostname in groups['master-servers']
@@ -332,8 +389,22 @@
       - "Stdout is: {{ debug_output.stdout }}"
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
-#- name: 'Install Dashboard UI'
-#  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f "https://raw.githubusercontent.com/kubernetes/dashboard/master/src/deploy/recommended/kubernetes-dashboard.yaml"'
-#  when: inventory_hostname in groups['master-servers']
+- name: Wait for kube-dns to come up
+  shell: |
+    while [ $(kubectl -n kube-system get pods | grep kube-dns | awk '{print $2}' | awk -F '/' '{ if($1 == $2) print 1; else print 0;}') -eq 0 ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  when: inventory_hostname in groups['master-servers']
 
+- name: Get kube-dns IP
+  shell: "kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'"
+  register: kube_dns_ip
+
+- name: Insert kube-dns into /etc/resolv.conf
+  lineinfile:
+    insertbefore: BOF
+    line: "nameserver {{ kube_dns_ip.stdout }}"
+    path: /etc/resolv.conf
+  when: inventory_hostname not in groups['master-servers']
 ...

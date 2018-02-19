@@ -1,16 +1,17 @@
 piVersion: kubeadm.k8s.io/v1alpha1
 kind: MasterConfiguration
-#kubeProxy:
-#  config:
-#    mode: ipvs
+kubeProxy:
+  config:
+    mode: ipvs
 networking:
-  podSubnet: 10.244.0.0/16
+  serviceSubnet: {{ kube_cluster_cidr }}
+  podSubnet: {{ kube_pod_cidr }}
 apiServerExtraArgs:
-#  feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,SupportIPVSProxyMode=true,VolumeScheduling=true"
-feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,VolumeScheduling=true"
+  feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,SupportIPVSProxyMode=true,VolumeScheduling=true"
+  #feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,SupportIPVSProxyMode=true,VolumeScheduling=true"
 controllerManagerExtraArgs:
-#  feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,SupportIPVSProxyMode=true,VolumeScheduling=true"
-feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,VolumeScheduling=true"
+  feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,SupportIPVSProxyMode=true,VolumeScheduling=true"
+  #feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,SupportIPVSProxyMode=true,VolumeScheduling=true"
 schedulerExtraArgs:
-#  feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,SupportIPVSProxyMode=true,VolumeScheduling=true"
-feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,VolumeScheduling=true"
+  feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,SupportIPVSProxyMode=true,VolumeScheduling=true"
+  #feature-gates: "MountPropagation=true,PersistentLocalVolumes=true,SupportIPVSProxyMode=true,VolumeScheduling=true"

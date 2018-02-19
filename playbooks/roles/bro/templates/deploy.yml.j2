@@ -18,7 +18,7 @@ spec:
       containers:
       - name: bro
         image: {{ bro_image }}:{{ bro_ver }}
-        #command: ['sh','-c','broctl deploy; while [ "1" == "1" ]; do sleep 60; done;']
+        command: ['sh','-c','broctl deploy; while [ "1" == "1" ]; do sleep 60; done;']
         securityContext:
           runAsUser: 0
           capabilities:

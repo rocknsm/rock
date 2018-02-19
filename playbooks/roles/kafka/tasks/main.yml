@@ -47,21 +47,6 @@
     - kafka-config-map
     - zookeeper-config-map
 
-- name: Flush Kafka PVCs and Service
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ kafka_dir }}/{{ item }}.yml'
-  ignore_errors: yes
-  with_items:
-    - kafka-pvc-data
-    - kafka-service
-
-- name: Flush Zookeeper PVC
-  command: 'kubectl --kubeconfig {{ kubernetes_conf_file }} delete -f {{ kafka_dir }}/zookeeper-pvc-data.yml'
-  ignore_errors: yes
-
-- name: Flush Deployment
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ kafka_dir }}/deploy.yml'
-  ignore_errors: yes
-
 # This task uses kafka_config_map and feeds it into Kubernetes as a configuration map which it then uses
 # to build the container
 - name: Create Kafka Config
@@ -71,28 +56,29 @@
 - name: Create Zookeeper Config
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create configmap zookeeper-config-map --from-file {{ zookeeper_dir }}/zookeeper_config_map'
 
-- name: Deploy Kafka
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kafka_dir }}/{{ item }}.yml'
-  with_items:
-    - kafka-pvc-data
-    - kafka-service
-
-- name: Deploy Zookeeper
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ zookeeper_dir }}/{{ item }}.yml'
-  with_items:
-    - zookeeper-pvc-data
-
 - name: Wait for PVCs to Bind
-  shell: "while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get pvc | grep {{ item }} | awk '{ print $2}') != 'Bound' ]; do echo -n .; sleep 1; done;"
+  shell: |
+    kubectl --kubeconfig="{{ kubernetes_conf_file }}" apply -f {{ item.dir }}/{{ item.file }}.yml
+    while [ $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ item.dir }}/{{ item.file }}.yml | tail -n +2 | awk '{ print $2 }') != 'Bound' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    while [ $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get ep | grep $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ item.dir }}/{{ item.file }}.yml | tail -n +2 | awk '{ print $1 }') | wc -l) == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
   with_items:
-    - "{{ kafka_pv_data }}"
-    - "{{ zookeeper_pv_data }}"
+    - { dir: "{{ kafka_dir }}", file: 'kafka-pvc-data' }
+    - { dir: "{{ zookeeper_dir }}", file: 'zookeeper-pvc-data' }
 
 - name: Run the kafka/zookeeper deploy file
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ kafka_dir }}/deploy.yml'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" apply -f {{ kafka_dir }}/deploy.yml'
 
 - name: Wait for deployment to finish
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ kafka_dir }}/deploy.yml'
+
+- name: Deploy Kafka Service
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" apply -f {{ kafka_dir}}/kafka-service.yml'
 
 #- name: Create Topics
 #  command: >

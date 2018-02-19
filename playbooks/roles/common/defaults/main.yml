@@ -34,3 +34,10 @@ rocknsm_package_list:
   - perl-Crypt-SSLeay
   - perl-Archive-Tar
   - easy-rsa
+  - cockpit
+  - cockpit-dashboard
+  - cockpit-machines
+  - cockpit-networkmanager
+  - cockpit-packagekit
+  - cockpit-storaged
+  - cockpit-system

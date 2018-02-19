@@ -18,3 +18,13 @@
   when: (item.test is undefined) or (item.test)
   with_items:
     - { pkg: "{{ rocknsm_package_list }}", state: installed }
+
+- name: Enable Cockpit
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  with_items:
+    - cockpit
+    - cockpit.socket

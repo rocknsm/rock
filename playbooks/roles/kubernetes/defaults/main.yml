@@ -9,3 +9,5 @@ kubernetes_baseurl: "https://packages.cloud.google.com/yum/repos/kubernetes-el7-
 kubernetes_gpgurl: "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
 kube_dir: "{{ rocknsm_dir }}/kubernetes"
 kube_config_dir: "{{ kube_dir }}/configs"
+kube_cluster_cidr: "10.96.0.0/12"
+kube_pod_cidr: "10.244.0.0/16"
