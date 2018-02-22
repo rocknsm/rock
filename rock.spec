@@ -37,9 +37,6 @@ install -p -m 755 bin/deploy_rock.sh %{buildroot}/%{_rockdir}/bin/
 install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_rockdir}/bin/
 cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
-# Install Stand alone Scripts
-install -p -m 755 tools/rock_genpwd.py %{buildroot}/%{_bindir}
-
 %files
 %defattr(0644, root, root, 0755)
 %{_rockdir}/playbooks/*
@@ -49,4 +46,10 @@ install -p -m 755 tools/rock_genpwd.py %{buildroot}/%{_bindir}
 
 %attr(0755, root, root) %{_rockdir}/bin/deploy_rock.sh
 %attr(0755, root, root) %{_rockdir}/bin/generate_defaults.sh
-%attr(0755, root, root) %{_bindir}/rock_genpwd.py
+
+%changelog
+* Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.5-1
+-
+Tito files added.
+rock.spec added.
+sign_rpm.sh added.
