@@ -1,10 +1,11 @@
 apiVersion: apps/v1beta1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: kafka
   labels:
     component: kafka
 spec:
+  serviceName: "kafka"
   replicas: {{ groups['sensors'] | length }}
   selector:
     matchLabels:
@@ -14,6 +15,13 @@ spec:
       labels:
         component: kafka
     spec:
+      #initContainers:
+      #- name: permissions
+      #  image: busybox:latest
+      #  command: ['chown','-R','999:998','/tmp/kafka-logs']
+      #  volumeMounts:
+      #  - name: kafka-data
+      #    mountPath: /tmp/kafka-logs
       containers:
       - name: zookeeper
         image: {{ zookeeper_container }}:{{ zookeeper_ver }}
@@ -24,10 +32,10 @@ spec:
             cpu: 100m
         envFrom:
         - configMapRef:
-            name: zookeeper-config-map
+            name: zookeeper
         volumeMounts:
          - mountPath: "{{ zookeeper_data_path }}"
-           name: {{ zookeeper_pv_data }}
+           name: zookeeper-data
 
       - name: kafka
         image: {{ kafka_container_name }}:{{ kafka_ver }}
@@ -40,22 +48,11 @@ spec:
         - containerPort: {{ kafka_port }}
           name: transport
         volumeMounts:
-          - name: "{{ kafka_pv_data }}"
+          - name: kafka-data
             mountPath: "{{ kafka_data_path }}"
-          - name: kafka-config-map
+          - name: kafka
             mountPath: /etc/kafka/server.properties
             subPath: server.properties
-
-      volumes:
-      - name: kafka-config-map
-        configMap:
-          name: kafka-config-map
-      - name: {{ zookeeper_pv_data }}
-        persistentVolumeClaim:
-          claimName: {{ zookeeper_pv_data }}
-      - name: {{ kafka_pv_data }}
-        persistentVolumeClaim:
-          claimName: {{ kafka_pv_data }}
       nodeSelector:
         role: sensor
       affinity:
@@ -68,3 +65,24 @@ spec:
                 values:
                 - sensor
             topologyKey: "kubernetes.io/hostname"
+      volumes:
+      - name: kafka
+        configMap:
+          name: kafka
+  volumeClaimTemplates:
+  - metadata:
+      name: kafka-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: gluster-heketi
+      resources:
+        requests:
+          storage: {{ kafka_pv_size }}Gi
+  - metadata:
+      name: zookeeper-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: gluster-heketi
+      resources:
+        requests:
+          storage: {{ zookeeper_pv_size }}Gi

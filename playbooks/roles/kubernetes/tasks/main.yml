@@ -75,13 +75,6 @@
   register: debug_output
   when: installed_packages is defined and not installed_packages.changed
 
-- name: Debug Output
-  debug:
-    msg:
-      - "Command is: {{ debug_output.cmd }}"
-      - "Stdout is: {{ debug_output.stdout }}"
-  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
-
 - name: Remove Kubernetes Packages to clear cache
   yum:
     name: "{{ item }}"
@@ -109,9 +102,8 @@
 
 - name: Remove Interfaces
   shell: |
-    if [ $(ifconfig | grep flannel.1 | wc -l ) -gt 0 ]; then
-      ifconfig {{ item }} down;
-      ip link delete {{ item }}
+    if [ $(ifconfig | grep {{ item }} | wc -l ) -gt 0 ]; then
+      ip link delete {{ item }};
     fi
   with_items:
     - flannel.1
@@ -165,6 +157,7 @@
     - metallb
     - kubeadm
     - kube-flannel
+    - dashboard
   when: inventory_hostname in groups['master-servers']
 
 - name: 'Disable Firewalld service'
@@ -322,7 +315,7 @@
 # 3. Re-ran the join command
 # That cleared up this problem for me
 - name: Wait for Nodes to Register
-  shell: "while [ $(kubectl get nodes | wc -l) -lt {{ groups['all'] | length + 1}} ]; do echo -n .; done;"
+  shell: "while [ $(kubectl get nodes | wc -l) -lt {{ groups['nodes'] | length + 1}} ]; do echo -n .; done;"
   register: debug_output
   when: inventory_hostname in groups['master-servers']
 
@@ -407,4 +400,9 @@
     line: "nameserver {{ kube_dns_ip.stdout }}"
     path: /etc/resolv.conf
   when: inventory_hostname not in groups['master-servers']
+
+- name: Install Dashboard
+  command: "kubectl apply -f {{ kube_dir }}/dashboard.yml"
+  when: inventory_hostname in groups['master-servers']
+
 ...

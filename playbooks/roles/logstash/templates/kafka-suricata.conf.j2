@@ -1,11 +1,10 @@
 input {
   kafka {
     topics => ["suricata-raw"]
-    add_field => { "[@metadata][stage]" => "suricataraw_kafka" }
     # Set this to one per kafka partition to scale up
     #consumer_threads => 4
     group_id => "suricata_logstash"
-    client_id => "${HOSTNAME}-suricata"
+    client_id => "logstash-suricata"
     bootstrap_servers => "{{ kafka_url }}:{{ kafka_port }}"
     codec => json
     auto_offset_reset => "earliest"
@@ -22,25 +21,15 @@ filter {
     remove_field => [ "kafka_topic" ]
   }
 
-  if [@metadata][stage] == "suricataraw_kafka" {
-
-    # Set the timestamp
-    date { match => [ "timestamp", "ISO8601" ] }
-    }
+  # Set the timestamp
+  date { match => [ "timestamp", "ISO8601" ] }
+  }
 }
 
 output {
-  if [@metadata][stage] == "suricataraw_kafka" {
-    kafka {
-     codec => json
-     topic_id => "suricata-clean"
-     bootstrap_servers => "{{ kafka_url }}:{{ kafka_port }}"
-    }
-
-    elasticsearch {
-      hosts => ["{{ elastic_url }}:{{ elastic_port }}"]
-      index => "suricata-%{+YYYY.MM.dd}"
-      manage_template => false
-    }
+  elasticsearch {
+    hosts => ["{{ elastic_url }}:{{ elastic_port }}"]
+    index => "suricata-%{+YYYY.MM.dd}"
+    manage_template => false
   }
 }

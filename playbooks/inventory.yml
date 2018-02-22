@@ -35,7 +35,7 @@ all:
 
     suricata:
       children:
-        sensors:
+        master-servers:
 
     filebeat:
       children:

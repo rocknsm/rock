@@ -1,0 +1,49 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: suricata
+  labels:
+    component: suricata
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: suricata
+  template:
+    metadata:
+      labels:
+        component: suricata
+    spec:
+      hostNetwork: true
+      containers:
+      - name: suricata
+        image: {{ suricata_image }}:{{ suricata_ver }}
+        command:
+          - suricata
+          - --af-packet
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
+        volumeMounts:
+        - name: config
+          mountPath: /usr/local/etc/suricata/suricata.yaml
+          subPath: suricata.yml
+      volumes:
+      - name: config
+        configMap:
+          name: suricata
+      nodeSelector:
+        role: sensor
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - sensor
+            topologyKey: "kubernetes.io/hostname"

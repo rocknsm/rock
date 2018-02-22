@@ -12,7 +12,7 @@ elastic_delete_interval: 60
 es_user: 1000
 es_group: 1000
 es_cluster_name: rocknsm
-es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
+es_mem: "{{ (ansible_memtotal_mb // 1024 // 4) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
 elastic_data_port: '9200'
 elastic_management_port: '9300'
 elastic_container: 'docker.elastic.co/elasticsearch/elasticsearch'

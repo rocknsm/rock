@@ -23,5 +23,8 @@ queue.max_bytes: 2gb
 # monitoring allows you to monitor the performance of logstash
 # Things monitored: event rates, event latency, JVM Heap, System Load.
 
-xpack.monitoring.enabled: "{{ xpack_license }}"
-xpack.management.enabled: "{{ xpack_license }}"
+xpack.monitoring.enabled: "true"
+xpack.management.enabled: "false"
+xpack.monitoring.elasticsearch.url: http://elasticsearch:9200
+xpack.monitoring.elasticsearch.username: elastic
+xpack.monitoring.elasticsearch.password: changeme

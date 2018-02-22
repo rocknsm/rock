@@ -1,12 +1,14 @@
 apiVersion: apps/v1beta1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: es-master
-  labels:
-    component: elasticsearch
-    role: master
 spec:
-  replicas: 1
+  selector:
+    matchLabels:
+      component: elasticsearch
+      role: master
+  serviceName: "elasticsearch"
+  replicas: 2
   template:
     metadata:
       labels:
@@ -57,21 +59,29 @@ spec:
           tcpSocket:
             port: transport
         volumeMounts:
-        - name: {{ elastic_pv_data }}
+        - name: elastic-data
           mountPath: {{ elastic_pv_data_path }}
-{% for item in ['elasticsearch.yml','jvm.options','log4j2.properties'] %}
-        - name: {{ elastic_config_map }}-{{ loop.index0 }}
-          mountPath: {{ elastic_config_path }}/{{ item }}
-          subPath: {{ item }}
-{% endfor %}
+        - name: elastic
+          mountPath: {{ elastic_config_path }}/elasticsearch.yml
+          subPath: elasticsearch.yml
+        - name: elastic
+          mountPath: {{ elastic_config_path }}/jvm.options
+          subPath: jvm.options
+        - name: elastic
+          mountPath: {{ elastic_config_path }}/log4j2.properties
+          subPath: log4j2.properties
       volumes:
-      - name: {{ elastic_pv_data }}
-        persistentVolumeClaim:
-          claimName: {{ elastic_pv_data }}
-{% for i in range(3) %}
-      - name: {{ elastic_config_map }}-{{ i }}
+      - name: elastic
         configMap:
-          name: {{ elastic_config_map }}-{{ i }}
-{% endfor %}
+          name: elastic
       nodeSelector:
         role: server
+  volumeClaimTemplates:
+  - metadata:
+      name: elastic-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: gluster-heketi
+      resources:
+        requests:
+          storage: {{ elastic_pv_size }}Gi
