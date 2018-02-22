@@ -9,6 +9,8 @@ ExecReload=/bin/kill -HUP $MAINPID
 User=suricata
 Group=suricata
 RuntimeDirectory=suricata
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_RAW CAP_IPC_LOCK
+AmbientCapabilities=CAP_NET_ADMIN CAP_NET_RAW CAP_IPC_LOCK
 
 [Install]
 WantedBy=multi-user.target
