@@ -8,6 +8,7 @@ ExecStart=/sbin/suricata -c /etc/suricata/suricata.yaml --af-packet
 ExecReload=/bin/kill -HUP $MAINPID
 User=suricata
 Group=suricata
+RuntimeDirectory=suricata
 
 [Install]
 WantedBy=multi-user.target
