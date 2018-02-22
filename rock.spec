@@ -52,4 +52,4 @@ cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 -
 Tito files added.
 rock.spec added.
-sign_rpm.sh added.
+sign_rpm.sh added. 
