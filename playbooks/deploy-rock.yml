@@ -12,7 +12,7 @@
     ignore_errors: true
     failed_when: false
   - name: Debug variables
-    include: debug.yml
+    import_tasks: debug.yml
     when: rock_debug is defined and rock_debug
 
     ######################################################
