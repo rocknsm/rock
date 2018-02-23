@@ -843,18 +843,7 @@
       group: "{{ suricata_group }}"
       state: directory
     when: with_suricata
-
-#  - name: Set suricata capabilities
-#    capabilities:
-#      path: /usr/sbin/suricata
-#      capability: "{{ item }}"
-#      state: present
-#    with_items:
-#      - "cap_net_raw+eip"
-#      - "cap_net_admin+eip"
-#      - "cap_ipc_lock+eip"
-#    when: with_suricata
-
+    
   - name: Remove suricata sysconfig file
     file:
       path: /etc/sysconfig/suricata
