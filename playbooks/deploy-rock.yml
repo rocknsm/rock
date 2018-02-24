@@ -489,6 +489,22 @@
     when: with_logstash and with_fsf and with_kafka
     notify: Restart Logstash
 
+  - name: Check for Parse Failure mapping template
+    uri:
+      method: "GET"
+      url: http://localhost:9200/_template/failure_index
+    failed_when: False
+    register: failure_mapping
+    when: (with_elasticsearch and with_logstash)
+
+  - name: Load Parse Failure Elasticsearch mapping templates
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/failure_index
+      body: "{{ lookup('file', 'es-parse-failures-mappings.json')}}"
+      body_format: json
+    when: (with_elasticsearch and with_logstash) and failure_mapping.status == 404
+
   - name: Enable and start Logstash
     service:
       name: logstash
@@ -832,7 +848,7 @@
       group: "{{ suricata_group }}"
       state: directory
     when: with_suricata
-    
+
   - name: Remove suricata sysconfig file
     file:
       path: /etc/sysconfig/suricata
