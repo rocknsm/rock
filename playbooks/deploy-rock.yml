@@ -461,33 +461,58 @@
     ######################################################
   - name: Install Bro-Kafka configuration for Logstash
     copy:
-      src: logstash-kafka-bro.conf
-      dest: /etc/logstash/conf.d/kafka-bro.conf
+      src: "{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
       mode: 0640
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
     when: with_logstash and with_bro and with_kafka
     notify: Restart Logstash
+    with_items:
+      - logstash-100-input-kafka-bro.conf
+      - logstash-500-filter-bro.conf
+      - logstash-999-output-es-bro.conf
 
   - name: Install Suricata-Kafka configuration for Logstash
     copy:
-      src: logstash-kafka-suricata.conf
-      dest: /etc/logstash/conf.d/kafka-suricata.conf
+      src: "{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
       mode: 0640
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
     when: with_logstash and with_suricata and with_kafka
     notify: Restart Logstash
+    with_items:
+      - logstash-100-input-kafka-suricata.conf
+      - logstash-500-filter-suricata.conf
+      - logstash-999-output-es-suricata.conf
 
   - name: Install FSF-Kafka configuration for Logstash
     copy:
-      src: logstash-kafka-fsf.conf
-      dest: "/etc/logstash/conf.d/kafka-fsf.conf"
+      src: "{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
       mode: 0640
       owner: "{{ logstash_user }}"
       group: "{{ logstash_group }}"
     when: with_logstash and with_fsf and with_kafka
     notify: Restart Logstash
+    with_items:
+      - logstash-100-input-kafka-fsf.conf
+      - logstash-100-filter-fsf.conf
+      - logstash-999-output-es-fsf.conf
+
+  - name: Install Parse Failure configuration for Logstash
+    copy:
+      src: "{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+    when: with_logstash
+    notify: Restart Logstash
+    with_items:
+      - logstash-998-filter-parsefailures.conf
+      - logstash-999-output-es-parsefailures.conf
 
   - name: Check for Parse Failure mapping template
     uri:
@@ -1053,6 +1078,19 @@
       remote_src: yes
     when: with_kibana
 
+  - name: Configure Kibana templates
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/kibana-config
+      body: >
+        { "order" : 0, "template" : ".kibana",
+          "settings" :
+            { "index.number_of_replicas" : "0",
+              "index.number_of_shards" : "1" },
+          "mappings" : { }, "aliases" : { } }
+      status_code: 200,201
+    when: with_kibana
+
   - name: Query Kibana package info
     yum:
       list: kibana
@@ -1071,6 +1109,7 @@
       return_content: true
     register: kibana_cfg
     changed_when: false
+    failed_when: false
     until: kibana_cfg.status == 200
     retries: 10
     delay: 3
@@ -1079,19 +1118,6 @@
   - name: Store Kibana config dict
     set_fact:
       kibana_config: "{{ kibana_cfg.json }}"
-    when: with_kibana
-
-  - name: Configure Kibana templates
-    uri:
-      method: PUT
-      url: http://localhost:9200/_template/kibana-config
-      body: >
-        { "order" : 0, "template" : ".kibana",
-          "settings" :
-            { "index.number_of_replicas" : "0",
-              "index.number_of_shards" : "1" },
-          "mappings" : { }, "aliases" : { } }
-      status_code: 200,201
     when: with_kibana
 
   - name: Push Kibana dashboard config
