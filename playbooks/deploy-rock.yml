@@ -498,7 +498,7 @@
     notify: Restart Logstash
     with_items:
       - logstash-100-input-kafka-fsf.conf
-      - logstash-100-filter-fsf.conf
+      - logstash-500-filter-fsf.conf
       - logstash-999-output-es-fsf.conf
 
   - name: Install Parse Failure configuration for Logstash
