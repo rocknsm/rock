@@ -8,7 +8,7 @@
 # Configure docket app settings
 - name: docket | ensure ansible_cache dir exists
   local_action: file path={{ ansible_cache }} state=directory mode=0700
-  notify: docket | cleanup {{ ansible_cache }} dir
+  changed_when: false
 
 # TODO: this should probably
 - name: docket | ensure rock nsm conf dir exists
@@ -136,6 +136,7 @@
     flat: yes
   when:
     - inventory_hostname in groups['stenographer']
+  changed_when: false
 
 - name: docket | push certificates to docket hosts
   copy:
@@ -153,3 +154,9 @@
   with_items: "{{ groups['stenographer'] }}"
   when:
     - inventory_hostname in groups['docket']
+
+- name: docket | cleanup {{ ansible_cache }} dir
+  file:
+    name: "{{ ansible_cache }}/"
+    state: absent
+  changed_when: false

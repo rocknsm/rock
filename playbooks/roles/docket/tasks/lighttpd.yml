@@ -2,7 +2,7 @@
 - name: docket | configure lighttpd + uwsgi
   template:
     src: docket_lighttpd_scgi.conf.j2
-    dest: /etc/lighttpd/conf.d/scgi_docket.conf
+    dest: /etc/lighttpd/conf.d/docket_scgi.conf
 
 - name: docket | configure lighttpd TLS listener
   template:
@@ -13,8 +13,8 @@
 - name: docket | enable lighttpd vhosts
   lineinfile:
     path: /etc/lighttpd/lighttpd.conf
-    regexp: '^#\s*include_shell.*vhosts\.d/.*$'
-    line: include_shell "cat /etc/lighttpd/vhosts.d/*.conf"
+    regexp: '^#?\s*include.*vhosts\.d/.*$'
+    line: include "/etc/lighttpd/vhosts.d/*.conf"
   notify: docket | restart lighttpd
 
 - name: docket | enable lighttpd service

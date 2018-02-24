@@ -11,7 +11,7 @@
 
 - name: docket | check docket and stenographer hosts for pyopenssl
   yum:
-    list=pyOpenSSL
+    list=*pyOpenSSL
   register: pyopenssl_status
 
 - name: docket | validate pyopenssl >= 15.0 is installed
