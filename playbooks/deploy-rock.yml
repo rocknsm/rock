@@ -12,7 +12,7 @@
     ignore_errors: true
     failed_when: false
   - name: Debug variables
-    include: debug.yml
+    import: debug.yml
     when: rock_debug is defined and rock_debug
 
     ######################################################
@@ -1132,9 +1132,9 @@
 
   - name: Set initial Kibana credentials
     shell: >
-      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/.htpasswd > /dev/null 2>&1
+      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
     args:
-      creates: /etc/nginx/.htpasswd
+      creates: /etc/nginx/htpasswd.users
     when: with_kibana
 
 
