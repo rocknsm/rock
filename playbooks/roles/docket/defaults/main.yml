@@ -7,23 +7,27 @@ rocknsm_conf_user: root
 rocknsm_conf_group: root
 
 # How are we going to install docket?
-# Currently supports one of: yumrepo, offline
+# Currently supports one of: yumrepo
 docket_install: yumrepo
 
 # Application config
 docket_debug: false
 docket_testing: false
-docket_cleanup: true
 docket_secret: "{{ lookup('password', '/dev/null chars=letters,digits length=64') }}"
 docket_session_cookie: DOCKET_SESSION
 docket_sendfile: true
 docket_logger: docket
 docket_celery_url: redis://localhost:6379
-docket_spool_dir: /var/spool/docket/
+docket_spool_dir: /var/spool/docket
+docket_frontend_dir: /opt/rocknsm/docket/frontend
 docket_uwsgi_socket: /run/docket/docket.socket
+docket_no_redis: false
+docket_long_ago: 24h
 
 # Web server config
 docket_tls: true
+docket_user: docket
+docket_group: docket
 
 # An empty string defaults to all interfaces
 docket_listen_ip: ""
@@ -31,6 +35,8 @@ docket_listen_port: "{{ 8443 if docket_tls else 8080 }}"
 
 docket_web_server: lighttpd
 docket_web_pemfile: "/etc/pki/tls/private/lighttpd_docket.pem"
+docket_web_server_name: "{{ansible_fqdn}}"
+docket_web_user: lighttpd
 
 # Vars to generate keys/certs
 docket_x509_dir: /etc/pki/docket/
@@ -44,7 +50,7 @@ docket_x509_group: stenographer
 # These should be overridden by host-specific vars
 steno_host: "{{ansible_default_ipv4.address}}"
 steno_sensor: "{{ansible_hostname}}"
-steno_ports:
+steno_port:
   - 1234
 steno_certs_dir: /etc/stenographer/certs
 steno_ca_cert: "{{steno_certs_dir}}/ca_cert.pem"

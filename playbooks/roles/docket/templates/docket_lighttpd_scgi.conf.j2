@@ -1,14 +1,27 @@
 #######################################################################
-## file: /etc/lighttpd/conf.d/scgi_docket.conf
-## {{ ansible_managed }}
+# file: /etc/lighttpd/conf.d/docket_scgi.conf
+# {{ ansible_managed }}
 
 server.modules += ( "mod_scgi" )
 scgi.protocol = "uwsgi"
 scgi.server = (
   "/" => ((
+    # Ensure lighttpd doesn't try to validate the URL
     "check-local" => "disable",
-    "x-sendfile": true,
-    "x-sendfile-docroot": ("{{docket_spool_dir}}")
-    "socket": "{{ docket_uwsgi_socket }}"
+
+    # Needed to pass through leading "/" via uwsgi protocol
+    "fix-root-scriptname" => "enable",
+
+    # Use x-sendfile for faster file transfers from uwsgi
+    "x-sendfile" => "enable",
+    "x-sendfile-docroot" => (
+      # Set this to SPOOL_DIR
+      "{{docket_spool_dir}}",
+      # Set this to the path of the compiled frontend
+      "{{docket_frontend_dir}}"
+    ),
+
+    # Use the unix domain socket for local communication
+    "socket" => "/run/docket/docket.socket",
   )),
 )

@@ -6,14 +6,14 @@
 ##
 
 $SERVER["socket"] == "{{docket_listen_ip}}:{{docket_listen_port}}" {
-  var.server_name = "{{ docket_server_name }}"
+  var.server_name = "{{ docket_web_server_name }}"
   server.name = server_name
-  accesslog.filename = log_root + "/" + server_name + "/access.log"
+  accesslog.filename = log_root + "/" + server.name + "/access.log"
 
-  ssl.engine  = "{{ yes if docket_tls == true else no }}"
+  ssl.engine  = "{{ 'enable' if docket_tls == true else 'disable' }}"
   ssl.pemfile = "{{ docket_web_pemfile }}"
 
-  include "conf.d/scgi_docket.conf"
+  include "conf.d/docket_scgi.conf"
 }
 
 ##

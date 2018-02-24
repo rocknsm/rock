@@ -17,24 +17,29 @@
 - name: docket | restart redis
   service:
     name: redis
-    state: restart
+    state: restarted
 
-- name: docket | restart docket celery
+- name: docket | seed random key
+  lineinfile:
+    path: /etc/docket/prod.yml
+    regexp: 'XX_NOT_A_SECRET_XX'
+    line: "SECRET_KEY: {{ docket_secret }}"
+    state: present
+
+- name: docket | restart docket celery services
   service:
-    name: docket-celery
-    state: restart
+    name: "{{ item }}"
+    state: restarted
+  with_items:
+    - docket-celery-io
+    - docket-celery-query
 
 - name: docket | restart docket uwsgi
   service:
     name: docket
-    state: restart
+    state: restarted
 
 - name: docket | restart lighttpd
   service:
     name: lighttpd
-    state: restart
-
-- name: docket | cleanup {{ ansible_cache }} dir
-  file:
-    name: "{{ ansible_cache }}/"
-    state: absent
+    state: restarted
