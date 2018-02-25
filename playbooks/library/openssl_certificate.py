@@ -806,7 +806,7 @@ def main():
         argument_spec=dict(
             state=dict(type='str', choices=['present', 'absent'], default='present'),
             path=dict(type='path', required=True),
-            provider=dict(type='str', choices=['selfsigned', 'assertonly', 'acme']),
+            provider=dict(type='str', choices=['selfsigned', 'localsigned', 'assertonly', 'acme']),
             force=dict(type='bool', default=False,),
             csr_path=dict(type='path'),
 
