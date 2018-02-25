@@ -27,8 +27,11 @@
 
 - name: docket | add lighttpd into docket group
   user:
+    name: lighttpd
     append: yes
     groups: "{{ docket_group }}"
+  notify: docket | restart lighttpd
+
 - name: docket | enable lighttpd service
   service:
     name: lighttpd
