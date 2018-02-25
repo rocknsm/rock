@@ -17,7 +17,7 @@
     owner: lighttpd
     group: lighttpd
     mode: 0755
-  
+
 - name: docket | enable lighttpd vhosts
   lineinfile:
     path: /etc/lighttpd/lighttpd.conf
@@ -25,6 +25,10 @@
     line: include "/etc/lighttpd/vhosts.d/*.conf"
   notify: docket | restart lighttpd
 
+- name: docket | add lighttpd into docket group
+  user:
+    append: yes
+    groups: "{{ docket_group }}"
 - name: docket | enable lighttpd service
   service:
     name: lighttpd
