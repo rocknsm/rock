@@ -35,6 +35,7 @@ docket_listen_port: "{{ 8443 if docket_tls else 8080 }}"
 
 docket_web_server: lighttpd
 docket_web_pemfile: "/etc/pki/tls/private/lighttpd_docket.pem"
+docket_web_dhparams: "/etc/pki/tls/misc/lighttpd_dh.pem"
 docket_web_server_name: "{{ansible_fqdn}}"
 docket_web_user: lighttpd
 
