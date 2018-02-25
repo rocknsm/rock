@@ -12,6 +12,7 @@ $SERVER["socket"] == "{{docket_listen_ip}}:{{docket_listen_port}}" {
 
   ssl.engine  = "{{ 'enable' if docket_tls == true else 'disable' }}"
   ssl.pemfile = "{{ docket_web_pemfile }}"
+  ssl.dh-file = "{{ docket_web_dhparams }}"
 
   include "conf.d/docket_scgi.conf"
 }

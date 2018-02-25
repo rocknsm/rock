@@ -41,6 +41,7 @@ with_filebeat: true
 with_zookeeper: true
 with_kafka: true
 with_nginx: true
+witH_lighttpd: true
 with_fsf: true
 
 # Feature options - Don't flip these unless you know what you're doing
@@ -58,6 +59,7 @@ enable_filebeat: true
 enable_zookeeper: true
 enable_kafka: true
 enable_nginx: true
+enable_lighttpd: true
 enable_fsf: false
 
 rocknsm_package_list:
@@ -79,6 +81,16 @@ rocknsm_package_list:
   - perl-Sys-Syslog
   - perl-Crypt-SSLeay
   - perl-Archive-Tar
+
+
+http_tls_crt: /etc/pki/tls/certs/http_tls_crt.pem
+http_tls_pub: /etc/pki/tls/certs/http_tls_pub.pem
+http_tls_key: /etc/pki/tls/private/http_tls_key.pem
+http_tls_combined: /etc/pki/tls/private/httpd-combined.pem
+http_tls_dhparams: /etc/pki/tls/misc/http_tls_dhparams.pem
+
+docket_web_pemfile: "{{ http_tls_combined }}"
+docket_web_dhparams: "{{ http_tls_dhparams }}"
 
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7

@@ -1199,23 +1199,23 @@
 
   - name: Generate sensor private key
     openssl_privatekey:
-      path: /etc/pki/bundle.key
+      path: "{{ http_tls_key }}"
     when: with_kibana and with_nginx
     notify:
       - Enable and start nginx
 
   - name: Generate sensor public key
     openssl_publickey:
-      path: /etc/pki/bundle.pub
-      privatekey_path: /etc/pki/bundle.key
+      path: "{{ http_tls_pub }}"
+      privatekey_path: "{{ http_tls_key }}"
     when: with_kibana and with_nginx
     notify:
       - Enable and start nginx
 
   - name: Generate sensor CSR
     openssl_csr:
-      path: /etc/pki/bundle.csr
-      privatekey_path: /etc/pki/bundle.key
+      path: "{{ http_tls_pub }}.csr"
+      privatekey_path: "{{ http_tls_key }}"
       country_name: US
       state_or_province_name: MO
       locality_name: St. Louis
@@ -1229,19 +1229,28 @@
 
   - name: Generate sensor certificate
     openssl_certificate:
-      path: /etc/pki/bundle.crt
-      privatekey_path: /etc/pki/bundle.key
-      csr_path: /etc/pki/bundle.csr
+      path: "{{ http_tls_crt }}"
+      privatekey_path: "{{ http_tls_key }}"
+      csr_path: "{{ http_tls_pub }}.csr"
       provider: selfsigned
     when: with_kibana and with_nginx
     notify:
       - Enable and start nginx
 
+  - name: Combine sensor cert and key
+    shell: >
+      cat {{http_tls_key}} {{http_tls_crt}} > {{http_tls_combined}}
+    args:
+      creates: "{{ http_tls_combined }}"
+    when: with_lighttpd
+    notify:
+      - Restart lighttpd
+
   - name: Generate DH parameters
     command: >
-      openssl dhparam -out /etc/pki/dh2048.pem 2048
+      openssl dhparam -out {{http_tls_dhparams}} 2048
     args:
-      creates: /etc/pki/dh2048.pem
+      creates: "{{http_tls_dhparams}}"
     when: with_kibana and with_nginx
     notify:
       - Enable and start nginx
@@ -1382,6 +1391,15 @@
         enabled: "{{ enable_nginx }}"
       when: with_nginx
 
+    - name: Restart lighttpd
+      service:
+        name: lighttpd
+        state: "{{ 'started' if enable_lighttpd else 'stopped' }}"
+        enabled: "{{ enable_lighttpd }}"
+      when: with_lighttpd
+
+  roles:
+    - docket
 
   environment:
    http_proxy:  "{{ http_proxy }}"
