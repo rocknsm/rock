@@ -29,8 +29,8 @@ docket_tls: true
 docket_user: docket
 docket_group: docket
 
-# An empty string defaults to all interfaces
-docket_listen_ip: ""
+# An empty string defaults to all interfaces on IPv4
+docket_listen_ip: "0.0.0.0"
 docket_listen_port: "{{ 8443 if docket_tls else 8080 }}"
 
 docket_web_server: lighttpd
