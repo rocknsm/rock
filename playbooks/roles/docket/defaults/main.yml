@@ -49,10 +49,9 @@ docket_x509_user: root
 docket_x509_group: stenographer
 
 # These should be overridden by host-specific vars
-steno_host: "{{ansible_default_ipv4.address}}"
+steno_host: "127.0.0.1"
 steno_sensor: "{{ansible_hostname}}"
-steno_port:
-  - 1234
+steno_port: 1234
 steno_certs_dir: /etc/stenographer/certs
 steno_ca_cert: "{{steno_certs_dir}}/ca_cert.pem"
 steno_ca_key:  "{{steno_certs_dir}}/ca_key.pem"
