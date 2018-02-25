@@ -46,7 +46,7 @@ docket_x509_cn: "{{ ansible_hostname }}_docket"
 docket_x509_o: Stenographer
 docket_x509_c: XX
 docket_x509_user: root
-docket_x509_group: stenographer
+docket_x509_group: docket
 
 # These should be overridden by host-specific vars
 steno_host: "127.0.0.1"

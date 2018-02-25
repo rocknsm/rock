@@ -2,7 +2,7 @@
 # Configure your stenographer instances here. sensor is a
 # just an arbitrary unique name
 STENOGRAPHER_INSTANCES:
-  {{ docket_steno_instances | to_nice_yaml }}
+  {{ docket_steno_instances | to_json }}
 
 # ==== Flask ====
 DEBUG: {{ docket_debug }}
