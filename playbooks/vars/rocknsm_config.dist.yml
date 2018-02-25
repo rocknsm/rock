@@ -41,7 +41,7 @@ with_filebeat: true
 with_zookeeper: true
 with_kafka: true
 with_nginx: true
-witH_lighttpd: true
+with_lighttpd: true
 with_fsf: true
 
 # Feature options - Don't flip these unless you know what you're doing
