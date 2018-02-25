@@ -59,9 +59,4 @@ steno_ca_key:  "{{steno_certs_dir}}/ca_key.pem"
 # This is used to generate the config for docket on
 # where to connect and how to authenticate
 docket_steno_instances:
-- host: "{{ steno_host}}"
-  sensor: "{{ steno_sensor }}"
-  port: "{{ steno_port }}"
-  key: "{{ steno_certs_dir }}/client_key.pem"
-  cert: "{{ steno_certs_dir }}/client_cert.pem"
-  ca: "{{ steno_ca_cert }}"
+- { host: "{{ steno_host}}", sensor: "{{ steno_sensor }}", port: "{{ steno_port }}", key: "{{ docket_x509_key }}", cert: "{{docket_x509_dir}}/docket-{{inventory_hostname}}_sensor-{{inventory_hostname}}_cert.pem", ca: "{{docket_x509_dir}}/{{inventory_hostname}}_ca_cert.pem" }
