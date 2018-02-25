@@ -51,6 +51,7 @@
 
 - name: docket | set perms on private key
   file:
+    path: "{{docket_x509_key}}"
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
     mode: "0644"
