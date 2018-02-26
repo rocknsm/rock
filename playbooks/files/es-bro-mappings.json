@@ -115,24 +115,140 @@
         "@meta": {
           "properties": {
             "geoip_orig": {
-              "properties": {
-                "ip": {
-                  "type": "ip"
-                },
-                "location": {
-                  "type": "geo_point"
+                "dynamic": true,
+                "properties": {
+                    "asn": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "as_org": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "autonomous_system": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "city_name": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "continent_code": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "country_code2": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "country_code3": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "country_name": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "dma_code": {
+                        "type": "integer"
+                    },
+                    "ip": {
+                        "type": "ip"
+                    },
+                    "latitude": {
+                        "type": "float"
+                    },
+                    "location": {
+                        "type": "geo_point"
+                    },
+                    "longitude": {
+                        "type": "float"
+                    },
+                    "postal_code": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "region_code": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "region_name": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "timezone": {
+                        "type": "keyword",
+                        "norms": false
+                    }
                 }
-              }
             },
             "geoip_resp": {
-              "properties": {
-                "ip": {
-                  "type": "ip"
-                },
-                "location": {
-                  "type": "geo_point"
+                "dynamic": true,
+                "properties": {
+                    "asn": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "as_org": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "autonomous_system": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "city_name": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "continent_code": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "country_code2": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "country_code3": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "country_name": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "dma_code": {
+                        "type": "integer"
+                    },
+                    "ip": {
+                        "type": "ip"
+                    },
+                    "latitude": {
+                        "type": "float"
+                    },
+                    "location": {
+                        "type": "geo_point"
+                    },
+                    "longitude": {
+                        "type": "float"
+                    },
+                    "postal_code": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "region_code": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "region_name": {
+                        "type": "keyword",
+                        "norms": false
+                    },
+                    "timezone": {
+                        "type": "keyword",
+                        "norms": false
+                    }
                 }
-              }
             },
             "orig_host": {
               "type": "ip"
