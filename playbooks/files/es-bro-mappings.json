@@ -139,6 +139,15 @@
             },
             "resp_host": {
               "type": "ip"
+            },
+            "orig_port": {
+              "type": "long"
+            },
+            "resp_port": {
+              "type": "long"
+            },
+            "hosts": {
+              "type": "ip"
             }
           }
         },
@@ -162,7 +171,7 @@
               }
             }
           }
-        },        
+        },
         "dns": {
           "properties": {
             "query": {
@@ -170,7 +179,7 @@
               "copy_to": "domain.name"
             }
           }
-        },        
+        },
         "http": {
           "properties": {
             "user_agent": {
@@ -208,7 +217,7 @@
               "copy_to": "domain.name"
             }
           }
-        },        
+        },
         "syslog": {
           "properties": {
             "message": {
