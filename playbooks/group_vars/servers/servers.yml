@@ -1,13 +1,4 @@
 ---
 
-es_cluster_name: rocknsm
-es_node_name: "{{ rock_hostname }}"
-es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
-elastic_baseurl: https://artifacts.elastic.co/packages/5.x/yum
-elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-
-#### Retention Configuration ####
-elastic_close_interval: 15
-elastic_delete_interval: 60
 
 ...

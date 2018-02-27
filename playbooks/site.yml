@@ -48,29 +48,24 @@
     - logstash
   gather_facts: no
 
-#- hosts: suricata
-#  roles:
-#    - suricata
-#  gather_facts: no
-
-#- hosts: filebeat
-#  roles:
-#    - filebeat
-#  gather_facts: no
+- hosts: suricata
+  roles:
+    - suricata
+  gather_facts: no
 
 - hosts: bro
   roles:
     - bro
   gather_facts: no
 
-- hosts: moloch
-  roles:
-    - moloch
-  gather_facts: no
-
 - hosts: kibana
   roles:
     - kibana
+  gather_facts: no
+
+- hosts: moloch
+  roles:
+    #- moloch
   gather_facts: no
 
 #- hosts: stenographer

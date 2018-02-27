@@ -2,12 +2,8 @@
 
 logstash_user: 1000
 logstash_group: 1000
-logstash_dir: "{{ rocknsm_dir }}/logstash"
-logstash_pv_data: "logstash-data"
-logstash_pv_data_dir: "{{ logstash_dir }}/data"
-logstash_pv_logs: "logstash-logs"
-logstash_pv_logs_dir: "{{ logstash_dir }}/mnt/logs"
-logstash_pv_size_mb: "10"
+logstash_dir: "{{ install_dir }}/logstash"
+logstash_pv_size: "1"
 logstash_path: "/usr/share/logstash"
 logstash_image: "docker.elastic.co/logstash/logstash"
 logstash_ver: "{{ elastic_ver }}"

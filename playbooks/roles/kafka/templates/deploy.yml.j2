@@ -15,16 +15,16 @@ spec:
       labels:
         component: kafka
     spec:
-      #initContainers:
-      #- name: permissions
-      #  image: busybox:latest
-      #  command: ['chown','-R','999:998','/tmp/kafka-logs']
-      #  volumeMounts:
-      #  - name: kafka-data
-      #    mountPath: /tmp/kafka-logs
+      initContainers:
+      - name: permissions
+        image: busybox:latest
+        command: ['chown','-R','999:998','/tmp/kafka-logs']
+        volumeMounts:
+        - name: kafka-data
+          mountPath: {{ kafka_data_path }}
       containers:
       - name: zookeeper
-        image: {{ zookeeper_container }}:{{ zookeeper_ver }}
+        image: {{ zookeeper_image }}:{{ zookeeper_ver }}
         resources:
           limits:
             cpu: 1000m
@@ -38,7 +38,7 @@ spec:
            name: zookeeper-data
 
       - name: kafka
-        image: {{ kafka_container_name }}:{{ kafka_ver }}
+        image: {{ kafka_image }}:{{ kafka_ver }}
         resources:
           limits:
             cpu: 1000m

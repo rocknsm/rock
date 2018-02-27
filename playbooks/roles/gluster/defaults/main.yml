@@ -1,9 +1,13 @@
 %YAML 1.1
 ---
 
-gluster_dir: "{{ rocknsm_dir }}/gluster"
+gluster_dir: "{{ install_dir }}/gluster"
 heketi_admin_key: "password"
 heketi_user_key: "password"
 heketi_image: heketi/heketi
 heketi_version: 5
-gluster_ver: 3.13
+centos_gluster_ver: 312
+gluster_ver: 3.12
+remove: "{{ (remove is defined and 'gluster' in remove) or (uninstall is defined and uninstall) or (reinstall is defined and reinstall)}}"
+install: "{{ (install is defined and 'gluster' in install) or (reinstall is defined and reinstall)}}"
+gluster_replication: 0

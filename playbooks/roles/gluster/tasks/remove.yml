@@ -1,0 +1,189 @@
+# Uninstall GlusterFS
+
+- name: Flush GlusterFS Daemonset
+  shell: |
+    kubectl delete -f {{ gluster_dir }}/glusterfs-daemonset.json
+    while [ $(kubectl get -f {{ gluster_dir }}/glusterfs-daemonset.json | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  register: debug_output
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Flush Service Account
+  shell: |
+    kubectl delete -f {{ gluster_dir }}/heketi-service-account.json
+    while [ $(kubectl get -f {{ gluster_dir }}/heketi-service-account.json | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  register: debug_output
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Flush Cluster Role Binding
+  shell: |
+    kubectl delete clusterrolebinding heketi-gluster-admin
+    while [ $(kubectl get clusterrolebinding heketi-gluster-admin ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  register: debug_output
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Flush Secret
+  shell: |
+    kubectl delete secret heketi-config-secret
+    while [ $(kubectl get secret heketi-config-secret]; do
+      echo -n .;
+      sleep 1;
+    done;
+  register: debug_output
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Flush Bootstrap
+  shell: |
+    kubectl delete -f {{ gluster_dir }}/heketi-bootstrap.json
+    while [ $(kubectl get deployments deploy-heketi | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  register: debug_output
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Flush Heketi Storage
+  shell: |
+    kubectl delete -f {{ gluster_dir }}/heketi-storage.json
+    while [ $(kubectl get -f {{ gluster_dir }}/heketi-storage.json | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  register: debug_output
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Flush Deployment
+  shell: |
+    kubectl delete -f {{ gluster_dir }}/heketi-deployment.json
+    while [ $(kubectl get -f {{ gluster_dir }}/heketi-deployment.json | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  register: debug_output
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Flush Storage Class
+  shell: |
+    kubectl delete -f {{ gluster_dir }}/storage-class.yml
+    while [ $(kubectl get -f {{ gluster_dir }}/storage-class.yml | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+  register: debug_output
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Uninstall GlusterFS client
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - glusterfs-client
+    - heketi-client
+
+- name: Remove Centos repo
+  yum:
+    name: "{{ item }}"
+    state: absent
+  when: ansible_distribution == 'CentOS'
+  with_items:
+    - "centos-release-gluster{{ centos_gluster_ver }}"
+
+- name: "Remove RedHat repo"
+  yum_repository:
+    baseurl: "http://mirror.centos.org/centos/7/storage/x86_64/gluster-{{ gluster_ver }}/"
+    description: "Gluster repository"
+    gpgcheck: no
+    name: CentOS-Gluster-3.10
+    state: absent
+  when: ansible_distribution == 'RedHat'
+
+- name: Remove possible artifacts
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /var/lib/heketi
+    - /var/lib/glusterfs
+    - /var/lib/glusterd
+    - /etc/glusterfs
+
+- name: Remove Gluster Directory
+  file:
+    path: "{{ gluster_dir }}"
+    state: absent
+    owner: root
+    group: root
+    mode: 0644
+  when: inventory_hostname in groups['master-servers']

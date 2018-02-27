@@ -168,7 +168,7 @@
 
 - name: 'Init Kubernetes cluster'
   #shell: "kubeadm init --config {{ kube_dir }}/kubeadm.yml | grep 'kubeadm join --token'"
-  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 | grep 'kubeadm join --token'"
+  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 | grep 'kubeadm join --token' | tee /etc/kubernetes/join-node.sh"
   register: kube_join_cluster_cmd
   when: inventory_hostname in groups['master-servers']
 

@@ -9,3 +9,4 @@
     gpgkey: "{{ rocknsm_gpgurl }}"
     name: rocknsm
   tags: 'repo'
+  when: online_install

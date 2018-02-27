@@ -3,13 +3,12 @@ kind: Service
 metadata:
   labels:
     component: moloch
-  name: moloch-viewer
+  name: moloch
 spec:
   ports:
   - name: "webgui"
-    port: {{ moloch_port}}
+    port: 80
     targetPort: "webgui"
   selector:
     component: moloch
-status:
-  loadBalancer: {}
+  type: LoadBalancer

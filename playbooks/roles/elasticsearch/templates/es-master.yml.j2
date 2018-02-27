@@ -7,8 +7,8 @@ spec:
     matchLabels:
       component: elasticsearch
       role: master
-  serviceName: "elasticsearch"
-  replicas: 2
+  serviceName: "es-master"
+  replicas: {{ es_masters }}
   template:
     metadata:
       labels:
@@ -25,8 +25,17 @@ spec:
         securityContext:
           privileged: true
       containers:
-      - name: es-master
-        image: {{ elastic_container }}:{{ elastic_ver }}
+      - name: elasticsearch
+        image: {{ elastic_image }}:{{ elastic_ver }}
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+              - IPC_LOCK
+        resources:
+          requests:
+            memory: "{{ es_masters_mem * 2 }}Gi"
+            cpu: "250m"
         env:
         - name: NAMESPACE
           valueFrom:
@@ -39,7 +48,7 @@ spec:
         - name: CLUSTER_NAME
           value: {{ es_cluster_name }}
         - name: NUMBER_OF_MASTERS
-          value: "1"
+          value: "{{ es_masters }}"
         - name: NODE_MASTER
           value: "true"
         - name: NODE_INGEST
@@ -49,7 +58,7 @@ spec:
         - name: HTTP_ENABLE
           value: "false"
         - name: ES_JAVA_OPTS
-          value: -Xms{{ es_mem }}g -Xmx{{ es_mem }}g
+          value: -Xms{{ es_masters_mem }}g -Xmx{{ es_masters_mem }}g
         ports:
         - containerPort: {{ elastic_data_port }}
           name: http
@@ -59,7 +68,7 @@ spec:
           tcpSocket:
             port: transport
         volumeMounts:
-        - name: elastic-data
+        - name: data
           mountPath: {{ elastic_pv_data_path }}
         - name: elastic
           mountPath: {{ elastic_config_path }}/elasticsearch.yml
@@ -78,7 +87,7 @@ spec:
         role: server
   volumeClaimTemplates:
   - metadata:
-      name: elastic-data
+      name: data
     spec:
       accessModes: ["ReadWriteOnce"]
       storageClassName: gluster-heketi

@@ -3,7 +3,7 @@
 
 suricata_image: 'dwharve/suricata'
 suricata_ver: 'kafkav1'
-suricata_dir: "{{ rocknsm_dir }}/suricata"
+suricata_dir: "{{ install_dir }}/suricata"
 suricata_interfaces:
   - ens192
 ...

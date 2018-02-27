@@ -37,10 +37,6 @@ all:
       children:
         master-servers:
 
-    filebeat:
-      children:
-        sensors:
-
     kafka:
       children:
         master-servers:
@@ -52,15 +48,17 @@ all:
     master-servers:
 
       vars:
-        data_disk_devices:
-        - /dev/sdb
         home_net: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
+        serivces_cidr: "10.11.4.240/29"
 
       hosts:
-        rockserver1.lan:
-          ansible_hostname: rockserver1.lan
+        devserver1.lan:
+          ansible_hostname: devserver1.lan
           ansible_user: root
           ansible_connection: ssh
+          management_ipv4: 10.11.4.49
+          data_disk_devices:
+          - /dev/sdb
 
     nodes:
 
@@ -68,24 +66,35 @@ all:
 
         sensors:
 
-          vars:
-            data_disk_devices:
-            - /dev/sdb
-            home_net: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
-
           hosts:
-            rocksensor1.lan:
-              ansible_hostname: rocksensor1.lan
+            devsensor1.lan:
+              ansible_hostname: devsensor1.lan
               ansible_connection: ssh
+              management_ipv4: 10.11.4.68
+              bro_workers: 2
+              bro_interfaces:
+                - ens192
+              suricata_interfaces:
+                - ens192
+              data_disk_devices:
+              - /dev/sdb
 
         servers:
 
-          vars:
-            data_disk_devices:
-            - /dev/sdb
-
           hosts:
-            rockserver3.lan:
-              ansible_hostname: rockserver3.lan
+            devserver2.lan:
+              ansible_hostname: devserver2.lan
               ansible_user: root
               ansible_connection: ssh
+              management_ipv4: 10.11.4.64
+              data_disk_devices:
+              - /dev/sdb
+            devserver3.lan:
+              ansible_hostname: devserver3.lan
+              ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: 10.11.4.77
+              data_disk_devices:
+              - /dev/sdb
+              - /dev/sdc
+              - /dev/sdd

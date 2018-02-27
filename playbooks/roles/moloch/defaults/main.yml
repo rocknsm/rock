@@ -2,16 +2,14 @@
 ---
 
 #### Moloch configuration variables ####
-moloch_image: 'moloch'
-moloch_tag: 'nightly'
-moloch_container_name: 'rock-moloch'
+moloch_image: 'dwharve/moloch'
+moloch_tag: '1.0.0'
 moloch_port: "8005"
-moloch_monitor_int: 'lo'
-moloch_ip: '0.0.0.0'
 moloch_threads: "2"
 moloch_spi_indices: "3"
-moloch_elastic_url: "rockserver1.lan:9200"
-moloch_web_url: "{{ inventory_hostname }}:{{ moloch_port}}"
+moloch_elastic_url: "elasticsearch.default.svc.cluster.local:9200"
+moloch_interfaces: ens192
+moloch_bpf: ""
 
 # User/Group and permissions for files copied
 moloch_user: "1000"
@@ -25,15 +23,13 @@ moloch_login: 'assessor'
 moloch_pass: 'password'
 
 # Location of moloch dirs/files
-moloch_dir: '{{ rocknsm_dir }}/moloch'
-moloch_data_dir: '{{ rock_data_dir }}/moloch'
-moloch_pcap_dir: '{{ moloch_data_dir }}/raw'
-moloch_logs_dir: '{{ moloch_data_dir }}/logs'
-moloch_config_file: '{{ moloch_dir }}/etc/config.ini'
-#moloch_config_map: '{{ moloch_dir }}/etc/config_map'
+moloch_dir: '{{ install_dir }}/moloch'
+moloch_path: /data/moloch
+moloch_config_path: "{{ moloch_path }}/etc"
+moloch_pcap_path: "{{ moloch_path }}/raw"
 
 # Kubernetes variables
 moloch_pv_data: "moloch-data"
-moloch_pv_size_gb: "1"
-moloch_config_map: "moloch-map"
+pcap_pv_size: "5"
+
 ...

@@ -19,16 +19,10 @@
     owner: "{{ es_user }}"
     mode: u+rw,g+rw
   with_items:
-    - es-client.yml
-    - es-curator-config.yml
-    - es-curator_v1beta1.yml
-    - es-data-pdb.yml
-    - es-data.yml
     - es-discovery-svc.yml
-    - es-master-pdb.yml
     - es-master.yml
+    - es-data.yml
     - es-svc.yml
-    - pvc-data.yml
     - elastichq.yml
     - elastichq-svc.yml
     - elasticsearch.yml
@@ -56,25 +50,13 @@
   with_items:
     - es-discovery-svc
     - es-svc
+    - es-data
     - es-master
-    - pvc-data
     - elastichq
     - elastichq-svc
 #    - es-client
 #    - es-data
   ignore_errors: true
-
-- name: Deploy PVC
-  shell: |
-    kubectl create -f {{ elastic_dir }}/pvc-data.yml
-    while [ $(kubectl get -f {{ elastic_dir }}/pvc-data.yml | tail -n +2 | awk '{ print $2 }') != 'Bound' ]; do
-      echo -n .;
-      sleep 1;
-    done;
-    while [ $(kubectl get ep | grep $(kubectl --kubeconfig="{{ kubernetes_conf_file }}" get -f {{ elastic_dir }}/pvc-data.yml | tail -n +2 | awk '{ print $1 }') | wc -l) == '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
 
 - name: Deploy Pods
   shell: |
@@ -85,6 +67,7 @@
     done;
   with_items:
     - es-master
+    - es-data
     - elastichq
     #- es-client
     #- es-data
@@ -97,3 +80,10 @@
     - elastichq-svc
 #    - es-client
 #    - es-data
+
+- name: Wait for Elasticsearch to be ready
+  shell: |
+    while [ "$(kubectl get pods | grep es-data | head -n +1 | awk '{ print $2}')" != "1/1" ]; do
+      echo -n .;
+      sleep 1;
+    done;
