@@ -1,0 +1,9 @@
+%YAML 1.1
+---
+
+redis_ver: "v1"
+redis_sentinel_port: '26379'
+redis_port: '6379'
+redis_image: 'k8s.gcr.io/redis'
+redis_dir: "{{ install_dir }}/redis"
+...

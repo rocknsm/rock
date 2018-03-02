@@ -34,7 +34,7 @@ spec:
               - IPC_LOCK
         resources:
           requests:
-            memory: "{{ es_masters_mem * 2 }}Gi"
+            memory: "{{ es_mem * 2 }}Gi"
             cpu: "250m"
         env:
         - name: NAMESPACE
@@ -58,7 +58,7 @@ spec:
         - name: HTTP_ENABLE
           value: "false"
         - name: ES_JAVA_OPTS
-          value: -Xms{{ es_masters_mem }}g -Xmx{{ es_masters_mem }}g
+          value: -Xms{{ es_mem }}g -Xmx{{ es_mem }}g
         ports:
         - containerPort: {{ elastic_data_port }}
           name: http

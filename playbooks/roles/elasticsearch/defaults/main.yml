@@ -18,7 +18,6 @@ elastic_dir: "{{ install_dir  }}/elasticsearch"
 elastic_pv_data_path: "/usr/share/elasticsearch/data"
 elastic_config_path: "/usr/share/elasticsearch/config"
 elastic_pv_size: 1
-es_mem: 4
-es_masters: 1
-es_datas: 1
-es_masters_mem: 2
+es_mem: 2
+es_masters: 3
+es_datas: 0

@@ -33,6 +33,11 @@
     - gluster
   gather_facts: no
 
+- hosts: redis
+  roles:
+    - redis
+  gather_facts: no
+
 - hosts: elasticsearch
   roles:
     - elasticsearch

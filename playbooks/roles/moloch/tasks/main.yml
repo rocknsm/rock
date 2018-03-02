@@ -11,6 +11,14 @@
     mode: "{{ moloch_dir_mode }}"
     state: directory
 
+- name: 'Copy files'
+  copy:
+    src: files/config.ini.tmpl
+    dest: "{{ moloch_dir }}/config.ini.tmpl"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: 'Copy config files'
   template:
     src: "templates/{{ item }}"
@@ -20,22 +28,33 @@
     group: "{{ moloch_group }}"
   with_items:
     - auto_init
-    - config.ini
     - bootstrap.yml
     - deploy.yml
     - svc.yml
 
 - name: "Clean up kube configmap"
-  command: "kubectl delete configmap moloch"
-  ignore_errors: true
+  command: "kubectl delete configmap moloch --ignore-not-found"
 
 - name: "Clean up kube for deployment "
-  command: "kubectl delete -f {{ moloch_dir }}/{{ item }}.yml"
+  command: "kubectl delete -f {{ moloch_dir }}/{{ item }}.yml --ignore-not-found"
   with_items:
     - bootstrap
     - deploy
     - svc
-  ignore_errors: true
+
+- name: Get master IP
+  shell: |
+     sentinel_pod=$(kubectl get pods -l name==redis-sentinel | grep '1/1' | tail -n 1 | awk '{ print $1}')
+     master_info=$(kubectl exec -ti $sentinel_pod -- redis-cli -p {{ redis_sentinel_port }} sentinel get-master-addr-by-name mymaster | cut -d'"' -f 2)
+     echo "$sentinel_pod"
+     echo "$master_info"
+  register: master_info
+
+- name: Set Variables
+  shell: |
+    kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -h {{ master_info.stdout_lines.1 }} -p {{ master_info.stdout_lines.2 }} set {{ item.name }} "{{ item.val }}"
+  with_items:
+    - { name: "/moloch/elastic/url", val: "{{ moloch_elastic_url }}" }
 
 - name: "Wait for deployment to cleanup"
   shell: |
@@ -46,8 +65,7 @@
 
 - name: "Create kube config"
   shell: |
-    kubectl --kubeconfig={{ kubernetes_conf_file }} create configmap moloch \
-    --from-file {{ moloch_dir }}/config.ini
+    kubectl create configmap moloch --from-file {{ moloch_dir }}/config.ini.tmpl
 
 - name: Deploy Bootstrap
   command: kubectl create -f {{ moloch_dir }}/bootstrap.yml
@@ -79,9 +97,9 @@
   command: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- {{ moloch_path }}/bin/moloch_add_user.sh -c {{ moloch_path }}/etc/config.ini {{ moloch_login }} {{ moloch_login }} {{ moloch_pass }} --admin --webauth"
 
 - name: Remove Bootstrap
-  command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml
+  command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml --ignore-not-found
 
-- name: "Deploy moloch via kube"
+- name: "Deploy moloch"
   command: "kubectl create -f {{ moloch_dir }}/{{ item }}.yml"
   with_items:
     - deploy

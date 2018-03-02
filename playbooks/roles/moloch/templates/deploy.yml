@@ -30,8 +30,8 @@ spec:
             name: webgui
         volumeMounts:
         - name: config
-          mountPath: {{ moloch_config_path }}/config.ini
-          subPath: config.ini
+          mountPath: /etc/confd/configmaps/config.ini.tmpl
+          subPath: config.ini.tmpl
         - name: data
           mountPath: "{{ moloch_pcap_path }}"
       restartPolicy: Always

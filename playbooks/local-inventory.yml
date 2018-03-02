@@ -1,0 +1,102 @@
+---
+# The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
+# themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
+# function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
+# look at this inventory file and see the hosts that are part of the sensor group. When site.yml imports the sensors.yml
+# file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
+
+all:
+
+  children:
+
+    # Role specific breakout
+
+    kubernetes:
+      children:
+        master-servers:
+        nodes:
+
+    gluster:
+      children:
+        master-servers:
+        nodes:
+
+    kibana:
+      children:
+        master-servers:
+
+    elasticsearch:
+      children:
+        master-servers:
+
+    logstash:
+      children:
+        master-servers:
+
+    suricata:
+      children:
+        master-servers:
+
+    kafka:
+      children:
+        master-servers:
+
+    bro:
+      children:
+        master-servers:
+
+    moloch:
+      children:
+        master-servers:
+
+    master-servers:
+
+      vars:
+        home_net: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
+        serivces_cidr: "10.11.4.240/29"
+
+      hosts:
+        devserver1.lan:
+          ansible_hostname: devserver1.lan
+          ansible_user: root
+          ansible_connection: ssh
+          management_ipv4: 10.11.4.49
+          data_disk_devices:
+          - /dev/sdb
+
+    nodes:
+
+      children:
+
+        sensors:
+
+          hosts:
+            devsensor1.lan:
+              ansible_hostname: devsensor1.lan
+              ansible_connection: ssh
+              management_ipv4: 10.11.4.68
+              bro_workers: 2
+              monitor_interfaces:
+              - ens224
+              data_disk_devices:
+              - /dev/sdb
+
+        servers:
+
+          hosts:
+            devserver2.lan:
+              ansible_hostname: devserver2.lan
+              ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: 10.11.4.64
+              data_disk_devices:
+              - /dev/sdb
+#            devserver3.lan:
+#              ansible_hostname: devserver3.lan
+#              ansible_user: root
+#              ansible_connection: ssh
+#              management_ipv4: 10.11.4.77
+#              data_disk_devices:
+#              - /dev/sdb
+#              - /dev/sdc
+#              - /dev/sdd

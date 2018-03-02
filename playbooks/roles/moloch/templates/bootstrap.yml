@@ -19,8 +19,8 @@ spec:
         image: "{{ moloch_image }}:{{ moloch_tag }}"
         volumeMounts:
         - name: config
-          mountPath: {{ moloch_config_path }}/config.ini
-          subPath: config.ini
+          mountPath: /etc/confd/templates/config.ini.tmpl
+          subPath: config.ini.tmpl
       volumes:
       - name: config
         configMap:

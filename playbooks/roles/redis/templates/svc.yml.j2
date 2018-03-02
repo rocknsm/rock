@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: sentinel
+    role: service
+  name: redis-sentinel
+spec:
+  ports:
+    - port: {{ redis_sentinel_port }}
+      targetPort: {{ redis_sentinel_port }}
+  selector:
+    redis-sentinel: "true"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: redis
+    role: service
+  name: redis
+spec:
+  ports:
+    - port: {{ redis_port }}
+      targetPort: {{ redis_port }}
+  selector:
+    name: redis
+    role: master

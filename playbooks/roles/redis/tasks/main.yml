@@ -1,0 +1,113 @@
+######################################################
+################# Setup Redis ########################
+######################################################
+---
+
+- name: "Create config directory"
+  file:
+    path: "{{ redis_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: Install templates
+  template:
+    src: "templates/{{ item }}.yml.j2"
+    dest: "{{ redis_dir }}/{{ item }}.yml"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - master
+    - controller
+    - sentinel-controller
+    - svc
+
+- name: Flush Deployments
+  command: "kubectl delete -f {{ redis_dir }}/{{ item }}.yml --ignore-not-found"
+  with_items:
+    - master
+    - controller
+    - sentinel-controller
+    - svc
+
+- name: Wait for pods to terminate
+  shell: |
+    kubectl delete pods -l name=={{ item }} --ignore-not-found --include-uninitialized --force --grace-period=15
+    timer=0
+    while [ $(kubectl get pods -l name=={{ item }} | grep Terminating | wc -l) -gt 0 ]; do
+      timer=$((timer+1));
+      if [ $timer -gt 20 ]; then
+        break;
+      fi;
+      echo -n .;
+      sleep 1;
+    done;
+    kubectl delete pods -l name=={{ item }} --ignore-not-found --include-uninitialized --force --grace-period=0
+  with_items:
+    - redis
+    - redis-sentinel
+
+- name: Deploy bootstrap
+  shell: |
+    kubectl create -f {{ redis_dir }}/master.yml
+    while [ $(kubectl get pods -l name==redis | grep '2/2' | wc -l) -eq 0 ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    kubectl create -f {{ redis_dir }}/svc.yml
+    kubectl create -f {{ redis_dir }}/controller.yml
+
+- name: Deploy Sentinel
+  shell: |
+    kubectl create -f {{ redis_dir }}/sentinel-controller.yml
+    while [ $(kubectl get pods -l name==redis-sentinel | grep  '1/1' | wc -l ) -eq 0 ]; do
+      echo -n .;
+      sleep 1;
+    done;
+
+- name: Scale & Wait for pods to become ready
+  shell: |
+    kubectl scale rc {{ item }} --replicas=3
+    ready=0
+    while [ $(kubectl get pods -l name=={{ item }} | tail -n +2 | wc -l) -ne $ready ]; do
+      for el in $(kubectl get pods -l name=={{ item }} | awk '{ print $2 }'); do
+        if [ $el == '1/1' ]; then
+          ready=$ready+1;
+        fi;
+      done;
+    done;
+  with_items:
+    - redis-sentinel
+    - redis
+
+- name: Get master IP
+  shell: |
+     sentinel_pod=$(kubectl get pods -l name==redis-sentinel | grep '1/1' | tail -n 1 | awk '{ print $1}')
+     master_info=$(kubectl exec -ti $sentinel_pod -- redis-cli -p {{ redis_sentinel_port }} sentinel get-master-addr-by-name mymaster | cut -d'"' -f 2)
+     echo "$sentinel_pod"
+     echo "$master_info"
+  register: master_info
+
+- name: Set Variables
+  shell: |
+    kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -h {{ master_info.stdout_lines.1 }} -p {{ master_info.stdout_lines.2 }} set /moloch/{{ item | replace('.','-') }}/monitor/interfaces "{{ hostvars[item].monitor_interfaces | join(",") }}"
+    kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -h {{ master_info.stdout_lines.1 }} -p {{ master_info.stdout_lines.2 }} set /moloch/{{ item | replace('.','-') }}/bro/workers {{ hostvars[item].bro_workers }}
+  with_items:
+    - "{{ groups['sensors'] }}"
+
+- name: Remove bootstrap
+  shell: |
+    kubectl delete -f {{ redis_dir }}/master.yml --force --grace-period=20 --ignore-not-found
+    while [ $(kubectl get -f {{ redis_dir }}/master.yml | grep redis-master | wc -l ) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+
+- name: Wait for master to change
+  shell: |
+    while [ $(kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -p {{ redis_sentinel_port }} sentinel get-master-addr-by-name mymaster | head -n 1 | cut -d'"' -f 2) == "{{ master_info.stdout_lines.1 }}" ]; do
+      echo -n .;
+      sleep 1;
+    done;

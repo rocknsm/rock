@@ -8,6 +8,9 @@ install_group: root
 install_dir: /opt/dmss
 sysctl_file: /etc/sysctl.d/dmss.conf
 
+# Redis
+redis_sentinel_port: 26379
+
 # Elasticsearch
 elastic_ver: '6.2.0'
 es_cluster_name: dmss

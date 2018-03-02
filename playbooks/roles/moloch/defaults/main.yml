@@ -8,7 +8,6 @@ moloch_port: "8005"
 moloch_threads: "2"
 moloch_spi_indices: "3"
 moloch_elastic_url: "elasticsearch.default.svc.cluster.local:9200"
-moloch_interfaces: ens192
 moloch_bpf: ""
 
 # User/Group and permissions for files copied
