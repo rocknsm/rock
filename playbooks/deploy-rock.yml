@@ -4,6 +4,11 @@
     rock_debug: "{{ lookup('env', 'DEBUG') }}"
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
+
+  roles:
+    - { role: stenographer, when: with_stenographer | bool, steno_monitor_intefaces: "{{rock_monifs}}"}
+    - { role: docket, when: with_docket | bool }
+
   tasks:
   - name: Get default settings
     include_vars: rocknsm_config.dist.yml
@@ -162,6 +167,12 @@
     - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
     - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
+  - name: Configure RockNSM online repos
+    yum_repository:
+      name: "{{ item.name }}"
+      enabled: "{{ rock_online_install }}"
+      description:
+
     #######################################################
     ############# Install/Remove Packages #################
     #######################################################
@@ -179,7 +190,6 @@
     - { pkg: bro, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
-    - { pkg: stenographer, test: "{{with_stenographer}}", state: installed }
     - { pkg: docket, test: "{{with_docket}}", state: installed }
     - { pkg: suricata, test: "{{with_suricata}}", state: installed }
     - { pkg: snort, test: "{{with_snort}}", state: installed }
@@ -806,61 +816,6 @@
     when: with_bro
     notify: reload bro
 
-    ######################################################
-    ################# Setup Stenographer #################
-    ######################################################
-  - name: Set stenographer config
-    template:
-      src: templates/stenographer-config.j2
-      dest: "/etc/stenographer/config.{{ item.1 }}"
-    with_indexed_items: "{{ rock_monifs }}"
-    when: with_stenographer
-
-  - name: Create Stenographer directories
-    file:
-      path: "{{ stenographer_data_dir }}/{{ item[0] }}/{{ item[1] }}"
-      mode: 0755
-      owner: "{{ stenographer_user }}"
-      group: "{{ stenographer_group }}"
-      state: directory
-    with_nested:
-      - "{{ rock_monifs }}"
-      - [ 'index', 'packets' ]
-    when: with_stenographer
-
-  - name: Install stenographer service files
-    copy:
-      src: "{{ item }}"
-      dest: "/etc/systemd/system/{{ item }}"
-      mode: 0644
-      owner: root
-      group: root
-    with_items:
-      - stenographer.service
-      - stenographer@.service
-    when: with_stenographer
-
-  - name: Generate stenographer keys
-    command: >
-      /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
-    args:
-      creates: /etc/stenographer/certs/client_key.pem
-    when: with_stenographer
-
-  - name: Configure Stenographer service
-    service:
-      name: stenographer
-      enabled: "{{ enable_stenographer }}"
-      state: "{{ 'started' if enable_stenographer else 'stopped' }}"
-    when: with_stenographer
-
-  - name: Configure Stenographer per-interface
-    service:
-      name: "stenographer@{{ item }}"
-      enabled: "{{ enable_stenographer }}"
-      state: "{{ 'started' if enable_stenographer else 'stopped' }}"
-    with_items: "{{ rock_monifs }}"
-    when: with_stenographer
 
     ######################################################
     ################## Setup Suricata ####################
@@ -1398,8 +1353,6 @@
         enabled: "{{ enable_lighttpd }}"
       when: with_lighttpd
 
-  roles:
-    - docket
 
   environment:
    http_proxy:  "{{ http_proxy }}"

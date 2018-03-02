@@ -1,2 +1,7 @@
 ---
 # defaults file for stenographer
+stenographer_packagename: stenographer
+action: deploy
+stenographer_user: stenographer
+stenographer_group: stenographer
+enable_stenographer: true

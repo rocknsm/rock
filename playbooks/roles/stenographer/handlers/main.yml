@@ -1,2 +1,13 @@
 ---
 # handlers file for stenographer
+
+- name: start stenographer services
+  service:
+    name: stenographer
+    state: "{{ 'started' if enable_stenographer else 'stopped' }}"
+
+- name: start stenographer per interface
+  service:
+    name: "stenographer@{{ item }}"
+    state: "{{ 'started' if enable_stenographer else 'stopped' }}"
+  with_items: "{{ stenographer_monitor_interfaces }}"
