@@ -1,9 +1,23 @@
 ---
+# Everything that needs to satisfy dependencies should be run in this play
 - hosts: all
   vars:
     rock_debug: "{{ lookup('env', 'DEBUG') }}"
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
+  roles:
+    - { role: sensor-common }
+
+- hosts: all
+  gather_facts: False
+  vars:
+    rock_debug: "{{ lookup('env', 'DEBUG') }}"
+    http_proxy: "{{ lookup('env','http_proxy') }}"
+    https_proxy: "{{ lookup('env', 'https_proxy') }}"
+  roles:
+    - { role: stenographer, when: with_stenographer | bool, steno_monitor_intefaces: "{{rock_monifs}}"}
+    - { role: docket, when: with_docket | bool }
+
   tasks:
   - name: Get default settings
     include_vars: rocknsm_config.dist.yml
@@ -15,152 +29,6 @@
     import_tasks: debug.yml
     when: rock_debug is defined and rock_debug
 
-    ######################################################
-    ################# Data Directory #####################
-    ######################################################
-    ###############
-    ##### NOTE ####
-    ###############
-    # You will want to remount this to your "good" storage after the build.
-    # This is just to make sure all the paths in the configs are proper.
-    ###############  - file:
-  - name: Create ROCK data dir
-    file:
-      path: "{{ rock_data_dir }}"
-      mode: 0755
-      owner: "{{ rock_data_user }}"
-      group: "{{ rock_data_group }}"
-      state: directory
-
-  - name: Create ROCK NSM directory
-    file:
-      path: "{{ rocknsm_dir }}"
-      mode: 0755
-      owner: root
-      group: root
-      state: directory
-
-    ######################################################
-    ######### Configure the monitoring interface #########
-    ######################################################
-  - name: Set monitor interface config
-    template:
-      src: templates/ifcfg-monif.j2
-      dest: /etc/sysconfig/network-scripts/ifcfg-{{ item }}
-      mode: 0644
-      owner: root
-      group: root
-      force: yes
-    with_items: "{{ rock_monifs }}"
-
-  - name: Configure local ifup script
-    template:
-      src: templates/ifup-local.j2
-      dest: /sbin/ifup-local
-      mode: 0755
-      owner: root
-      group: root
-      force: yes
-    notify: configure monitor interfaces
-
-    #######################################################
-    #################### Disable IPv6 #####################
-    #######################################################
-  - name: Disable IPv6 for all interfaces
-    sysctl:
-      name: net.ipv6.conf.all.disable_ipv6
-      value: 1l
-      sysctl_file: "{{ rock_sysctl_file }}"
-
-  - name: Disable IPv6 for default interfaces
-    sysctl:
-      name: net.ipv6.conf.default.disable_ipv6
-      value: 1
-      sysctl_file: "{{ rock_sysctl_file }}"
-
-  - name: Disable IPv6 in SSHD
-    lineinfile:
-      dest: /etc/ssh/sshd_config
-      regexp: AddressFamily
-      line: AddressFamily inet
-    notify:
-    - sshd restart
-
-  - name: Remove localhost6 from hosts file
-    lineinfile:
-      dest: /etc/hosts
-      regexp: localhost6
-      state: absent
-
-    #######################################################
-    #################### DNS Changes ######################
-    #######################################################
-  - name: Set hostname in hosts file
-    lineinfile:
-      dest: /etc/hosts
-      insertafter: 127.0.0.1
-      line: 127.0.0.2  {{ rock_fqdn }}  {{ rock_hostname }}
-
-  - name: Set system hostname
-    hostname:
-      name: "{{ rock_fqdn }}"
-
-    #######################################################
-    ################## Setup Yum Repos ####################
-    #######################################################
-  - name: Setup EPEL repo
-    yum_repository:
-      name: epel
-      description: EPEL YUM repo
-      baseurl: "{{ epel_baseurl }}"
-      gpgkey: "{{ epel_gpgurl }}"
-      gpgcheck: yes
-    when: rock_online_install
-
-  - name: Manually trust CentOS GPG key
-    shell: >
-      rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7
-    when: rock_online_install
-
-  - name: Setup Elastic repo
-    yum_repository:
-      name: elastic-5.x
-      description: Elastic Stack repository for 5.x
-      baseurl: "{{ elastic_baseurl }}"
-      gpgkey:  "{{ elastic_gpgurl }}"
-      gpgcheck: no
-    when: rock_online_install
-
-  - name: Setup ROCK NSM repo
-    yum_repository:
-      name: rocknsm
-      description: ROCK NSM repository for devel
-      baseurl: "{{ rocknsm_baseurl }}"
-      gpgkey:  "{{ rocknsm_gpgurl }}"
-      gpgcheck: no
-      cost: 750
-    when: rock_online_install
-
-  - name: Setup local offline repo
-    yum_repository:
-      name: rocknsm-local
-      description: ROCKNSM Local Repository
-      baseurl: "{{ rocknsm_local_baseurl }}"
-      gpgcheck: no
-      cost: 500
-    when: not rock_online_install
-
-  - name: Configure default CentOS online repos
-    yum_repository:
-      name: "{{ item.name }}"
-      enabled: "{{ rock_online_install }}"
-      description: "CentOS-$releasever - {{ item.name | title }}"
-      mirrorlist: "{{ item.mirror }}"
-      file:  CentOS-Base
-    with_items:
-    - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
-    - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
-    - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
     #######################################################
     ############# Install/Remove Packages #################
@@ -179,7 +47,6 @@
     - { pkg: bro, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
-    - { pkg: stenographer, test: "{{with_stenographer}}", state: installed }
     - { pkg: docket, test: "{{with_docket}}", state: installed }
     - { pkg: suricata, test: "{{with_suricata}}", state: installed }
     - { pkg: snort, test: "{{with_snort}}", state: installed }
@@ -188,10 +55,7 @@
     - { pkg: kafka, test: "{{with_kafka}}", state: installed }
     - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
     - { pkg: fsf, test: "{{with_fsf}}", state: installed }
-    - { pkg: chrony, state: installed }
-    - { pkg: firewalld, state: installed }
     - { pkg: postfix, state: installed }
-    - { pkg: pyOpenSSL, state: installed }
 
   - name: Install packages
     yum:
@@ -224,27 +88,6 @@
       remote_src: yes
     when: "{{ with_pulledpork }}"
 
-    ######################################################
-    ################### Configure Time ###################
-    ######################################################
-  - name: Enable and start chrony
-    service:
-      name: chronyd
-      enabled: yes
-      state: started
-
-  - name: Set system timezone
-    command: /usr/bin/timedatectl set-timezone UTC
-    when: ansible_date_time.tz != "UTC"
-
-  - name: Check if RTC set to UTC
-    shell: timedatectl | awk '/RTC in local/ { print $5 }'
-    changed_when: false
-    register: chrony_local_utc
-
-  - name: Set system hardware clock to UTC
-    command: /usr/bin/timedatectl set-local-rtc no
-    when: chrony_local_utc == 'yes'
 
     #######################################################
     ################ Configure firewall ###################
@@ -806,61 +649,6 @@
     when: with_bro
     notify: reload bro
 
-    ######################################################
-    ################# Setup Stenographer #################
-    ######################################################
-  - name: Set stenographer config
-    template:
-      src: templates/stenographer-config.j2
-      dest: "/etc/stenographer/config.{{ item.1 }}"
-    with_indexed_items: "{{ rock_monifs }}"
-    when: with_stenographer
-
-  - name: Create Stenographer directories
-    file:
-      path: "{{ stenographer_data_dir }}/{{ item[0] }}/{{ item[1] }}"
-      mode: 0755
-      owner: "{{ stenographer_user }}"
-      group: "{{ stenographer_group }}"
-      state: directory
-    with_nested:
-      - "{{ rock_monifs }}"
-      - [ 'index', 'packets' ]
-    when: with_stenographer
-
-  - name: Install stenographer service files
-    copy:
-      src: "{{ item }}"
-      dest: "/etc/systemd/system/{{ item }}"
-      mode: 0644
-      owner: root
-      group: root
-    with_items:
-      - stenographer.service
-      - stenographer@.service
-    when: with_stenographer
-
-  - name: Generate stenographer keys
-    command: >
-      /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
-    args:
-      creates: /etc/stenographer/certs/client_key.pem
-    when: with_stenographer
-
-  - name: Configure Stenographer service
-    service:
-      name: stenographer
-      enabled: "{{ enable_stenographer }}"
-      state: "{{ 'started' if enable_stenographer else 'stopped' }}"
-    when: with_stenographer
-
-  - name: Configure Stenographer per-interface
-    service:
-      name: "stenographer@{{ item }}"
-      enabled: "{{ enable_stenographer }}"
-      state: "{{ 'started' if enable_stenographer else 'stopped' }}"
-    with_items: "{{ rock_monifs }}"
-    when: with_stenographer
 
     ######################################################
     ################## Setup Suricata ####################
@@ -1199,23 +987,23 @@
 
   - name: Generate sensor private key
     openssl_privatekey:
-      path: /etc/pki/bundle.key
+      path: "{{ http_tls_key }}"
     when: with_kibana and with_nginx
     notify:
       - Enable and start nginx
 
   - name: Generate sensor public key
     openssl_publickey:
-      path: /etc/pki/bundle.pub
-      privatekey_path: /etc/pki/bundle.key
+      path: "{{ http_tls_pub }}"
+      privatekey_path: "{{ http_tls_key }}"
     when: with_kibana and with_nginx
     notify:
       - Enable and start nginx
 
   - name: Generate sensor CSR
     openssl_csr:
-      path: /etc/pki/bundle.csr
-      privatekey_path: /etc/pki/bundle.key
+      path: "{{ http_tls_pub }}.csr"
+      privatekey_path: "{{ http_tls_key }}"
       country_name: US
       state_or_province_name: MO
       locality_name: St. Louis
@@ -1229,19 +1017,28 @@
 
   - name: Generate sensor certificate
     openssl_certificate:
-      path: /etc/pki/bundle.crt
-      privatekey_path: /etc/pki/bundle.key
-      csr_path: /etc/pki/bundle.csr
+      path: "{{ http_tls_crt }}"
+      privatekey_path: "{{ http_tls_key }}"
+      csr_path: "{{ http_tls_pub }}.csr"
       provider: selfsigned
     when: with_kibana and with_nginx
     notify:
       - Enable and start nginx
 
+  - name: Combine sensor cert and key
+    shell: >
+      cat {{http_tls_key}} {{http_tls_crt}} > {{http_tls_combined}}
+    args:
+      creates: "{{ http_tls_combined }}"
+    when: with_lighttpd
+    notify:
+      - Restart lighttpd
+
   - name: Generate DH parameters
     command: >
-      openssl dhparam -out /etc/pki/dh2048.pem 2048
+      openssl dhparam -out {{http_tls_dhparams}} 2048
     args:
-      creates: /etc/pki/dh2048.pem
+      creates: "{{http_tls_dhparams}}"
     when: with_kibana and with_nginx
     notify:
       - Enable and start nginx
@@ -1381,6 +1178,13 @@
         state: "{{ 'started' if enable_nginx else 'stopped' }}"
         enabled: "{{ enable_nginx }}"
       when: with_nginx
+
+    - name: Restart lighttpd
+      service:
+        name: lighttpd
+        state: "{{ 'started' if enable_lighttpd else 'stopped' }}"
+        enabled: "{{ enable_lighttpd }}"
+      when: with_lighttpd
 
 
   environment:

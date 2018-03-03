@@ -49,6 +49,14 @@
     size: 4096
   when: inventory_hostname in groups['docket']
 
+- name: docket | set perms on private key
+  file:
+    path: "{{docket_x509_key}}"
+    owner: "{{ docket_x509_user }}"
+    group: "{{ docket_x509_group }}"
+    mode: "0644"
+  when: inventory_hostname in groups['docket']
+
 - name: docket | check for certificate
   stat:
     path: "{{docket_x509_dir}}/docket-{{inventory_hostname}}_sensor-{{item}}_cert.pem"
@@ -113,7 +121,8 @@
     path: "{{steno_certs_dir}}/docket-{{hostvars[item].inventory_hostname}}_sensor-{{inventory_hostname}}_cert.pem"
     privatekey_path: "{{steno_ca_key}}"
     csr_path: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname}}.csr"
-    provider: selfsigned
+    provider: localsigned
+    cacert_path: "{{steno_ca_cert}}"
   with_items: "{{ groups['docket'] }}"
   when:
     - inventory_hostname in groups['stenographer']
@@ -142,6 +151,9 @@
   copy:
     src: "{{ansible_cache}}/docket-{{inventory_hostname}}_sensor-{{hostvars[item].inventory_hostname}}_cert.pem"
     dest: "{{docket_x509_dir}}/docket-{{inventory_hostname}}_sensor-{{hostvars[item].inventory_hostname}}_cert.pem"
+    owner: "{{ docket_x509_user }}"
+    group: "{{ docket_x509_group }}"
+    mode: "0644"
   with_items: "{{ groups['stenographer'] }}"
   when:
     - inventory_hostname in groups['docket']
@@ -151,6 +163,9 @@
   copy:
     src: "{{ansible_cache}}/{{hostvars[item].inventory_hostname}}_ca_cert.pem"
     dest: "{{docket_x509_dir}}/{{hostvars[item].inventory_hostname}}_ca_cert.pem"
+    owner: "{{ docket_x509_user }}"
+    group: "{{ docket_x509_group }}"
+    mode: "0644"
   with_items: "{{ groups['stenographer'] }}"
   when:
     - inventory_hostname in groups['docket']

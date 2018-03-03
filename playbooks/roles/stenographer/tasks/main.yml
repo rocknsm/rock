@@ -1,2 +1,3 @@
 ---
-# tasks file for stenographer
+import_tasks: "{{ action }}.yml"
+...
