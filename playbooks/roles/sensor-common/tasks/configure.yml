@@ -155,7 +155,7 @@
     baseurl: '{{ item.baseurl }}'
     file: rocknsm
   with_items:
-    - { name: rocknsm_2_1, baseurl: https://packagecloud.io/rocknsm/2_1/el/7/$basearch }
-    - { name: rocknsm_2_1, baseurl: https://packagecloud.io/rocknsm/2_1/el/7/SRPMS }
+    - { name: rocknsm_2_1, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/$basearch" }
+    - { name: rocknsm_2_1, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/SRPMS" }
 
 ...
