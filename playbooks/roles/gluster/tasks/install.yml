@@ -11,7 +11,7 @@
 
 - name: Install Repo
   yum:
-    name: "centos-release-gluster{{ centos_gluster_ver }}"
+    name: "centos-release-gluster{{ gluster_ver | replace('.','') }}"
     state: present
   when: ansible_distribution == 'CentOS'
 
@@ -20,7 +20,7 @@
     baseurl: "http://mirror.centos.org/centos/7/storage/x86_64/gluster-{{ gluster_ver }}/"
     description: "Gluster repository"
     gpgcheck: no
-    name: CentOS-Gluster-3.10
+    name: "CentOS-Gluster{{ gluster_ver }}"
   when: ansible_distribution == 'RedHat'
 
 - name: Install GlusterFS

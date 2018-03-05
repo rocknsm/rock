@@ -29,16 +29,31 @@ spec:
           - containerPort: {{ moloch_port }}
             name: webgui
         volumeMounts:
-        - name: config
-          mountPath: /etc/confd/configmaps/config.ini.tmpl
-          subPath: config.ini.tmpl
+        - name: vars
+          mountPath: /etc/icdm/
+        - name: templates
+          mountPath: /etc/icdm/templates/
+        - name: configs
+          mountPath: /etc/icdm/conf/
         - name: data
           mountPath: "{{ moloch_pcap_path }}"
       restartPolicy: Always
       volumes:
-      - name: config
+      - name: vars
+        configMap:
+          name: vars
+      - name: configs
         configMap:
           name: moloch
+          items:
+          - key: config.ini.conf
+            path: config.ini.conf
+      - name: templates
+        configMap:
+          name: moloch
+          items:
+          - key: config.ini.tmpl
+            path: config.ini.tmpl
       nodeSelector:
         role: sensor
       affinity:

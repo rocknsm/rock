@@ -2,7 +2,7 @@
 ---
 
 bro_image: "dwharve/bro"
-bro_ver: "latest"
+bro_ver: "icdm"
 bro_dir: "{{ install_dir }}/bro"
 bro_loggers: 1
 bro_interface: ens224

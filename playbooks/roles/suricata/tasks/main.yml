@@ -11,21 +11,36 @@
     group: root
     mode: u+rw,g+rw
 
-- name: Install templates
-  template:
-    src: "templates/{{ item }}.yml.j2"
-    dest: "{{ suricata_dir }}/{{ item }}.yml"
+- name: Copy files
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ suricata_dir }}/{{ item }}"
     group: root
     owner: root
     mode: 0644
   with_items:
-    - deploy
-    - suricata
+    - suricata.yaml.tmpl
+    - filebeat.yml.tmpl
+    - suricata.yaml.conf
+    - filebeat.yml.conf
+
+- name: Install templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ suricata_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - deploy.yml
 
 - name: Create ConfigMap
   shell: |
     kubectl delete configmap suricata
-    kubectl create configmap suricata --from-file={{ suricata_dir }}/suricata.yml
+    kubectl create configmap suricata --from-file={{ suricata_dir }}/suricata.yaml.tmpl \
+      --from-file={{ suricata_dir }}/filebeat.yml.tmpl \
+      --from-file={{ suricata_dir }}/suricata.yaml.conf \
+      --from-file={{ suricata_dir }}/filebeat.yml.conf
 
 - name: Deploy
   shell: |

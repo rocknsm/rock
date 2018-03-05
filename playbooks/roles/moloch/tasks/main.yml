@@ -13,11 +13,14 @@
 
 - name: 'Copy files'
   copy:
-    src: files/config.ini.tmpl
-    dest: "{{ moloch_dir }}/config.ini.tmpl"
+    src: files/{{ item }}
+    dest: "{{ moloch_dir }}/{{ item }}"
     owner: root
     group: root
     mode: 0644
+  with_items:
+    - config.ini.tmpl
+    - config.ini.conf
 
 - name: 'Copy config files'
   template:
@@ -42,20 +45,6 @@
     - deploy
     - svc
 
-- name: Get master IP
-  shell: |
-     sentinel_pod=$(kubectl get pods -l name==redis-sentinel | grep '1/1' | tail -n 1 | awk '{ print $1}')
-     master_info=$(kubectl exec -ti $sentinel_pod -- redis-cli -p {{ redis_sentinel_port }} sentinel get-master-addr-by-name mymaster | cut -d'"' -f 2)
-     echo "$sentinel_pod"
-     echo "$master_info"
-  register: master_info
-
-- name: Set Variables
-  shell: |
-    kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -h {{ master_info.stdout_lines.1 }} -p {{ master_info.stdout_lines.2 }} set {{ item.name }} "{{ item.val }}"
-  with_items:
-    - { name: "/moloch/elastic/url", val: "{{ moloch_elastic_url }}" }
-
 - name: "Wait for deployment to cleanup"
   shell: |
     while [ $(kubectl get pods | grep moloch | wc -l) -gt 0 ]; do
@@ -65,7 +54,8 @@
 
 - name: "Create kube config"
   shell: |
-    kubectl create configmap moloch --from-file {{ moloch_dir }}/config.ini.tmpl
+    kubectl create configmap moloch --from-file {{ moloch_dir }}/config.ini.tmpl \
+      --from-file {{ moloch_dir }}/config.ini.conf
 
 - name: Deploy Bootstrap
   command: kubectl create -f {{ moloch_dir }}/bootstrap.yml

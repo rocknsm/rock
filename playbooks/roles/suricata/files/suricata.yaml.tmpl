@@ -12,27 +12,27 @@
 vars:
   # more specifc is better for alert accuracy and performance
   address-groups:
-    HOME_NET: "{{ home_net }}"
+    HOME_NET: "[{{ home_net | default(['192.168.0.0/16','10.0.0.0/8','172.16.0.0/12'],true) | join(",") }}]"
     #HOME_NET: "[192.168.0.0/16]"
     #HOME_NET: "[10.0.0.0/8]"
     #HOME_NET: "[172.16.0.0/12]"
     #HOME_NET: "any"
 
-    EXTERNAL_NET: "!$HOME_NET"
+    EXTERNAL_NET: "!\$HOME_NET"
     #EXTERNAL_NET: "any"
 
-    HTTP_SERVERS: "$HOME_NET"
-    SMTP_SERVERS: "$HOME_NET"
-    SQL_SERVERS: "$HOME_NET"
-    DNS_SERVERS: "$HOME_NET"
-    TELNET_SERVERS: "$HOME_NET"
-    AIM_SERVERS: "$EXTERNAL_NET"
-    DNP3_SERVER: "$HOME_NET"
-    DNP3_CLIENT: "$HOME_NET"
-    MODBUS_CLIENT: "$HOME_NET"
-    MODBUS_SERVER: "$HOME_NET"
-    ENIP_CLIENT: "$HOME_NET"
-    ENIP_SERVER: "$HOME_NET"
+    HTTP_SERVERS: "\$HOME_NET"
+    SMTP_SERVERS: "\$HOME_NET"
+    SQL_SERVERS: "\$HOME_NET"
+    DNS_SERVERS: "\$HOME_NET"
+    TELNET_SERVERS: "\$HOME_NET"
+    AIM_SERVERS: "\$EXTERNAL_NET"
+    DNP3_SERVER: "\$HOME_NET"
+    DNP3_CLIENT: "\$HOME_NET"
+    MODBUS_CLIENT: "\$HOME_NET"
+    MODBUS_SERVER: "\$HOME_NET"
+    ENIP_CLIENT: "\$HOME_NET"
+    ENIP_SERVER: "\$HOME_NET"
 
   port-groups:
     HTTP_PORTS: "80"
@@ -41,7 +41,7 @@ vars:
     SSH_PORTS: 22
     DNP3_PORTS: 20000
     MODBUS_PORTS: 502
-    FILE_DATA_PORTS: "[$HTTP_PORTS,110,143]"
+    FILE_DATA_PORTS: "[\$HTTP_PORTS,110,143]"
     FTP_PORTS: 21
 
 
@@ -49,7 +49,7 @@ vars:
 ## Step 2: select the rules to enable or disable
 ##
 
-default-rule-path: /usr/local/etc/suricata/rules
+default-rule-path: /etc/suricata/rules
 rule-files:
  - botcc.rules
  # - botcc.portgrouped.rules
@@ -107,9 +107,9 @@ rule-files:
 # - dnp3-events.rules       # available in suricata sources under rules dir
 # - ntp-events.rules       # available in suricata sources under rules dir
 
-classification-file: /usr/local/etc/suricata/classification.config
-reference-config-file: /usr/local/etc/suricata/reference.config
-# threshold-file: /usr/local/etc/suricata/threshold.config
+classification-file: /etc/suricata/classification.config
+reference-config-file: /etc/suricata/reference.config
+# threshold-file: /etc/suricata/threshold.config
 
 
 ##
@@ -140,7 +140,7 @@ outputs:
   # Extensible Event Format (nicknamed EVE) event log in JSON format
   - eve-log:
       enabled: yes
-      filetype: kafka #regular|syslog|unix_dgram|unix_stream|redis
+      filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
       filename: eve.json
       #prefix: "@cee: " # prefix to prepend to each log entry
       # the following are valid when type: syslog above
@@ -148,15 +148,6 @@ outputs:
       #facility: local5
       #level: Info ## possible levels: Emergency, Alert, Critical,
                    ## Error, Warning, Notice, Info, Debug
-      kafka:
-        broker-list: kafka.default.svc.cluster.local:9092 # a comma separated list of brokers addresses
-        topic: suricata-raw             # the topic for kafka messages
-        compression: none           # compression codec: none, gzip, snappy
-        partition: 0                # below < 0 means Unassigned Partition
-        max-retries: 1              # number of retries if message delivery fails
-        backoff-ms: 10              # ms to wait for backoff
-        buffer-max-messages: 100000 # max of messages to keep in internal buffer
-        log-level: 7                # sames log levels as SC_LOG_LEVEL . Debug is 7.
       #redis:
       #  server: 127.0.0.1
       #  port: 6379
@@ -309,7 +300,7 @@ outputs:
       append: yes
       #extended: yes     # enable this for extended logging information
       #custom: yes       # enabled the custom logging format (defined by customformat)
-      #customformat: "{{'%'}}{{'{'}}%D-%H:%M:%S{{'}'}}t.%z {{'%'}}{{'{'}}X-Forwarded-For{{'}'}}i %H %m %h %u %s %B %a:%p -> %A:%P"
+      #customformat: "%{{'{'}}%D-%H:%M:%S{{'}'}}t.%z %{{'{'}}X-Forwarded-For{{'}'}}i %H %m %h %u %s %B %a:%p -> %A:%P"
       #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
 
   # a line based log of TLS handshake parameters (no alerts)
@@ -319,7 +310,7 @@ outputs:
       append: yes
       #extended: yes     # Log extended information like fingerprint
       #custom: yes       # enabled the custom logging format (defined by customformat)
-      #customformat: "{{'%'}}{{'{'}}%D-%H:%M:%S{{'}'}}t.%z %a:%p -> %A:%P %v %n %d %D"
+      #customformat: "%{{'{'}}%D-%H:%M:%S{{'}'}}t.%z %a:%p -> %A:%P %v %n %d %D"
       #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
       # output TLS transaction where the session is resumed using a
       # session id
@@ -499,7 +490,7 @@ outputs:
   # https://redmine.openinfosecfoundation.org/projects/suricata/wiki/Lua_Output
   - lua:
       enabled: no
-      #scripts-dir: /usr/local/etc/suricata/lua-output/
+      #scripts-dir: /etc/suricata/lua-output/
       scripts:
       #   - script1.lua
 
@@ -553,8 +544,8 @@ logging:
 
 # Linux high speed capture support
 af-packet:
-{% for iface in suricata_interfaces %}
-  - interface: {{ iface }}
+{% for iface in monitor_interfaces['$HOSTNAME'] %}
+  - interface: {{ iface | default("eth0", true) }}
     # Number of receive threads. "auto" uses the number of cores
     #threads: auto
     # Default clusterid. AF_PACKET will load balance packets based on flow.
@@ -630,7 +621,6 @@ af-packet:
     #copy-mode: ips
     #copy-iface: eth1
 {% endfor %}
-
   # Put default values here. These will be used for an interface that is not
   # in the list above.
   - interface: default
@@ -640,9 +630,9 @@ af-packet:
     #tpacket-v3: yes
 
 # Cross platform libpcap capture support
-#pcap:
-{% for iface in suricata_interfaces %}
-#  - interface: eth0
+pcap:
+{% for iface in monitor_interfaces['$HOSTNAME'] %}
+  - interface: {{ iface | default("eth0", true) }}
     # On Linux, pcap will try to use mmaped capture and will use buffer-size
     # as total of memory used by the ring. So set this to something bigger
     # than 1% of your bandwidth.
@@ -1032,8 +1022,8 @@ legacy:
 #   - alert
 
 # IP Reputation
-#reputation-categories-file: /usr/local/etc/suricata/iprep/categories.txt
-#default-reputation-path: /usr/local/etc/suricata/iprep
+#reputation-categories-file: /etc/suricata/iprep/categories.txt
+#default-reputation-path: /etc/suricata/iprep
 #reputation-files:
 # - reputation.list
 
@@ -1511,7 +1501,7 @@ profiling:
 # When running in NFQ inline mode, it is possible to use a simulated
 # non-terminal NFQUEUE verdict.
 # This permit to do send all needed packet to suricata via this a rule:
-#        iptables -I FORWARD -m mark ! --mark $MARK/$MASK -j NFQUEUE
+#        iptables -I FORWARD -m mark ! --mark \$MARK/\$MASK -j NFQUEUE
 # And below, you can have your standard filtering ruleset. To activate
 # this mode, you need to set mode to 'repeat'
 # If you want packet to be sent to another queue after an ACCEPT decision

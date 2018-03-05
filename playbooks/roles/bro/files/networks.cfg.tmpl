@@ -2,6 +2,6 @@
 # descriptive tag.
 # For example, "10.0.0.0/8" or "fe80::/64" are valid prefixes.
 
-10.0.0.0/8          Private IP space
-172.16.0.0/12       Private IP space
-192.168.0.0/16      Private IP space
+{% for net in ( home_net | default(['10.0.0.0/8','172.16.0.0/12','192.168.0.0/16'],true) ) %}
+{{- net }}
+{% endfor %}

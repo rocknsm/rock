@@ -90,12 +90,16 @@
      echo "$master_info"
   register: master_info
 
-- name: Set Variables
+- name: Set host specific variables
   shell: |
-    kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -h {{ master_info.stdout_lines.1 }} -p {{ master_info.stdout_lines.2 }} set /moloch/{{ item | replace('.','-') }}/monitor/interfaces "{{ hostvars[item].monitor_interfaces | join(",") }}"
-    kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -h {{ master_info.stdout_lines.1 }} -p {{ master_info.stdout_lines.2 }} set /moloch/{{ item | replace('.','-') }}/bro/workers {{ hostvars[item].bro_workers }}
+    kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -h {{ master_info.stdout_lines.1 }} -p {{ master_info.stdout_lines.2 }} set /{{ item | replace('.','-') }}/monitor/interfaces "{{ hostvars[item].monitor_interfaces | join(",") }}"
+    kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -h {{ master_info.stdout_lines.1 }} -p {{ master_info.stdout_lines.2 }} set /{{ item | replace('.','-') }}/bro/workers {{ hostvars[item].bro_workers }}
   with_items:
     - "{{ groups['sensors'] }}"
+
+- name: Set system wide variables
+  shell: |
+      kubectl exec -ti {{ master_info.stdout_lines.0 }} -- redis-cli -h {{ master_info.stdout_lines.1 }} -p {{ master_info.stdout_lines.2 }} set /bpf/filter "{{ bpf_filter }}"
 
 - name: Remove bootstrap
   shell: |

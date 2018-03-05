@@ -21,10 +21,6 @@ all:
         master-servers:
         nodes:
 
-    redis:
-      children:
-        master-servers:
-
     kibana:
       children:
         master-servers:
@@ -56,8 +52,12 @@ all:
     master-servers:
 
       vars:
-        home_net: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
+        home_net:
+          - "192.168.0.0/16"
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
         serivces_cidr: "10.11.4.240/29"
+        bpf_filter: ""
 
       hosts:
         rockserver1.lan:

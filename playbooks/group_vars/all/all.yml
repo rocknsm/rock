@@ -7,6 +7,7 @@ install_user: root
 install_group: root
 install_dir: /opt/dmss
 sysctl_file: /etc/sysctl.d/dmss.conf
+fqdn: default.svc.cluster.local
 
 # Redis
 redis_sentinel_port: 26379
@@ -14,6 +15,9 @@ redis_sentinel_port: 26379
 # Elasticsearch
 elastic_ver: '6.2.0'
 es_cluster_name: dmss
+elastic_fqdn: "elasticsearch.{{ fqdn }}"
+elastic_port: 9200
+
 # If you have licensing for x-pack set variable to true.
 xpack_license: 'true'
 
@@ -26,6 +30,8 @@ bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
 
 # Kafka
+kafka_fqdn: "kafka.{{ fqdn }}"
+kafka_port: 9092
 kafka_retention: 168
 
 # Common

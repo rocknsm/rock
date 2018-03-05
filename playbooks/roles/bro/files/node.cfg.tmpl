@@ -1,0 +1,31 @@
+{% for n in range( bro_loggers | default("1",true) | int) %}
+[logger-{{ n }}]
+type=logger
+host=localhost
+env_vars=fanout_id=0
+{% endfor %}
+
+[manager]
+type=manager
+host=localhost
+env_vars=fanout_id=0
+
+[proxy-1]
+type=proxy
+host=localhost
+env_vars=fanout_id=0
+
+{% for iface in ( monitor_interfaces['$HOSTNAME'] | default(['eth0'],true) ) -%}
+[{{ iface }}]
+type=worker
+host=localhost
+{%- if ( bro_workers['$HOSTNAME'] | default("1") | int ) > 1 %}
+interface=af_packet::{{ iface }}
+lb_method=custom
+lb_procs={{ bro_workers['$HOSTNAME'] | default("1") }}
+{%- else %}
+interface={{ iface }}
+{%- endif %}
+# This must be unique for every AF_PACKET "process group"
+env_vars=fanout_id={{ 50 - loop.index0 }}
+{% endfor %}

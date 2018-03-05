@@ -18,10 +18,25 @@ spec:
       - name: "moloch"
         image: "{{ moloch_image }}:{{ moloch_tag }}"
         volumeMounts:
-        - name: config
-          mountPath: /etc/confd/templates/config.ini.tmpl
-          subPath: config.ini.tmpl
+        - name: vars
+          mountPath: /etc/icdm/
+        - name: templates
+          mountPath: /etc/icdm/templates/
+        - name: configs
+          mountPath: /etc/icdm/conf/
       volumes:
-      - name: config
+      - name: vars
+        configMap:
+          name: vars
+      - name: configs
         configMap:
           name: moloch
+          items:
+          - key: config.ini.conf
+            path: config.ini.conf
+      - name: templates
+        configMap:
+          name: moloch
+          items:
+          - key: config.ini.tmpl
+            path: config.ini.tmpl

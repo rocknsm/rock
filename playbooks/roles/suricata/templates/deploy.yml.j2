@@ -18,9 +18,6 @@ spec:
       containers:
       - name: suricata
         image: {{ suricata_image }}:{{ suricata_ver }}
-        command:
-          - suricata
-          - --af-packet
         securityContext:
           capabilities:
             add:
@@ -28,13 +25,32 @@ spec:
               - NET_RAW
               - SYS_NICE
         volumeMounts:
-        - name: config
-          mountPath: /usr/local/etc/suricata/suricata.yaml
-          subPath: suricata.yml
+        - name: vars
+          mountPath: /etc/icdm/
+        - name: templates
+          mountPath: /etc/icdm/templates/
+        - name: configs
+          mountPath: /etc/icdm/conf/
       volumes:
-      - name: config
+      - name: vars
+        configMap:
+          name: vars
+      - name: configs
         configMap:
           name: suricata
+          items:
+          - key: suricata.yaml.conf
+            path: suricata.yaml.conf
+          - key: filebeat.yml.conf
+            path: filebeat.yml.conf
+      - name: templates
+        configMap:
+          name: suricata
+          items:
+          - key: suricata.yaml.tmpl
+            path: suricata.yaml.tmpl
+          - key: filebeat.yml.tmpl
+            path: filebeat.yml.tmpl
       nodeSelector:
         role: sensor
       affinity:

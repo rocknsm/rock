@@ -37,6 +37,10 @@ filter {
     "
   }
 
+  if [source] == "communication" {
+    drop { }
+  }
+
   if "" in [id.orig_h] and "" in [id.resp_h] {
     geoip {
       source => "id.orig_h"

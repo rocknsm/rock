@@ -11,6 +11,25 @@
     group: root
     mode: u+rw,g+rw
 
+- name: Copy Files
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ bro_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - broctl.cfg.tmpl
+    - node.cfg.tmpl
+    - networks.cfg.tmpl
+    - kafka.bro.tmpl
+    - local.bro.tmpl
+    - broctl.cfg.conf
+    - node.cfg.conf
+    - networks.cfg.conf
+    - kafka.bro.conf
+    - local.bro.conf
+
 - name: Install templates
   template:
     src: "templates/{{ item }}.j2"
@@ -20,24 +39,24 @@
     mode: 0644
   with_items:
     - deploy.yml
-    - broctl.cfg
-    - node.cfg
-    - bro-scripts.env
-    - networks.cfg
-    - kafka.bro
 
 - name: Flush Config Map
-  command: kubectl --kubeconfig {{ kubernetes_conf_file }} delete configmap bro-config
+  command: kubectl --kubeconfig {{ kubernetes_conf_file }} delete configmap bro
   ignore_errors: yes
 
 - name: Create Config Map
   shell: |
-    kubectl --kubeconfig {{ kubernetes_conf_file }} create configmap bro-config \
-    --from-file {{ bro_dir }}/broctl.cfg \
-    --from-file {{ bro_dir }}/node.cfg \
-    --from-file {{ bro_dir }}/bro-scripts.env \
-    --from-file {{ bro_dir }}/networks.cfg \
-    --from-file {{ bro_dir }}/kafka.bro
+    kubectl --kubeconfig {{ kubernetes_conf_file }} create configmap bro \
+    --from-file {{ bro_dir }}/broctl.cfg.tmpl \
+    --from-file {{ bro_dir }}/node.cfg.tmpl \
+    --from-file {{ bro_dir }}/networks.cfg.tmpl \
+    --from-file {{ bro_dir }}/kafka.bro.tmpl \
+    --from-file {{ bro_dir }}/local.bro.tmpl \
+    --from-file {{ bro_dir }}/broctl.cfg.conf \
+    --from-file {{ bro_dir }}/node.cfg.conf \
+    --from-file {{ bro_dir }}/networks.cfg.conf \
+    --from-file {{ bro_dir }}/kafka.bro.conf \
+    --from-file {{ bro_dir }}/local.bro.conf
 
 - name: Flush Deployments
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml'

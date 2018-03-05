@@ -83,7 +83,7 @@
 
 - name: Wait for Elasticsearch to be ready
   shell: |
-    while [ "$(kubectl get pods | grep es-data | head -n +1 | awk '{ print $2}')" != "1/1" ]; do
+    while [ "$(kubectl get pods | grep es-master | head -n +1 | awk '{ print $2}')" != "1/1" ]; do
       echo -n .;
       sleep 1;
     done;

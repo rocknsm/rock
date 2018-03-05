@@ -2,8 +2,7 @@
 ---
 
 suricata_image: 'dwharve/suricata'
-suricata_ver: 'kafkav1'
+suricata_ver: 'filebeat'
 suricata_dir: "{{ install_dir }}/suricata"
-suricata_interfaces:
-  - ens192
+
 ...

@@ -6,5 +6,5 @@ redef Kafka::json_timestamps = JSON::TS_ISO8601;
 redef Kafka::tag_json = T;
 
 redef Kafka::kafka_conf = table(
-  ["metadata.broker.list"] = "kafka.default.svc.cluster.local:9092"
+  ["metadata.broker.list"] = "{{ kafka_fqdn | default("kafka.default.svc.cluster.local",true) }}:{{ kafka_port | default("9092",true) }}"
 );

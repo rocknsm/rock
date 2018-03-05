@@ -17,11 +17,11 @@
 # Comma seperated list of elasticsearch host:port combinations.  If not using a
 # elasticsearch VIP, a different elasticsearch node in the cluster can be specified
 # for each Moloch node to help spread load on high volume clusters
-elasticsearch = {{ getv "/elastic/url" "http://elasticsearch:9200"}}
+elasticsearch = http://{{ elastic_fqdn | default("elasticsearch.default.svc.cluster.local",true)}}:{{ elastic_port | default("9200",true) }}
 
 # How often to create a new elasticsearch index. hourly,daily,weekly,monthly
 # Changing the value will cause previous sessions to be unreachable
-rotateIndex = {{ getv "/rotate/index" "hourly"}}
+rotateIndex = hourly
 
 # Cert file to use, comment out to use http instead
 # certFile = /data/moloch/etc/moloch.cert
@@ -54,10 +54,10 @@ httpRealm = Moloch
 # webBasePath = /moloch/
 
 # Semicolon ';' seperated list of interfaces to listen on for traffic
-interface = {{ join (split (getv "/${HOSTNAME/./-}/monitor/interfaces" "eth0") ",") ";" }}
+interface = {{ ( monitor_interfaces['$HOSTNAME'] | default(['eth0'], true) ) | join(';') }}
 
 # The bpf filter
-bpf = {{ getv "/bpf/filter" ""}}
+bpf = {{ bpf_filter | default("") }}
 
 # The yara file name
 #yara =
@@ -69,11 +69,11 @@ bpf = {{ getv "/bpf/filter" ""}}
 #accessLogFile = /data/moloch/logs/access.log
 
 # The directory to save raw pcap files to
-pcapDir = {{ getv "/pcap/dir" "/data/moloch/raw" }}
+pcapDir = /data/moloch/raw
 
 # The max raw pcap file size in gigabytes, with a max value of 36G.
 # The disk should have room for at least 10*maxFileSizeG
-maxFileSizeG = {{ getv "/max/pcap/size" "1"}}
+maxFileSizeG = 1
 
 # The max time in minutes between rotating pcap files.  Default is 0, which means
 # only rotate based on current file size and the maxFileSizeG variable
@@ -106,16 +106,16 @@ maxPackets = 10000
 # expressed as a percentage (ex: 5%).  This does NOT delete the session records in
 # the database. It is recommended this value is between 5% and 10% of the disk.
 # Database deletes are done by the db.pl expire script
-freeSpaceG = {{ getv "/free/space/reserve" "5" }}%
+freeSpaceG = 5%
 
 # The port to listen on, by default 8005
-viewPort = {{ getv "/viewer/port" "8005" }}
+viewPort = 8005
 
 # The host/ip to listen on, by default 0.0.0.0 which is ALL
 #viewHost = localhost
 
 # By default the viewer process is https://hostname:<viewPort> for each node.
-viewUrl = {{ getv "/viewer/url" "https://moloch:8005"}}
+viewUrl = http://moloch:8005
 
 # Path of the maxmind geoip country file.  Download free version from:
 #  https://updates.maxmind.com/app/update_secure?edition_id=GeoLite2-Country
@@ -134,10 +134,10 @@ rirFile = /data/moloch/etc/ipv4-address-space.csv
 ouiFile = /data/moloch/etc/oui.txt
 
 # User to drop privileges to. The pcapDir must be writable by this user or group below
-dropUser = nobody
+#dropUser = nobody
 
 # Group to drop privileges to. The pcapDir must be writable by this group or user above
-dropGroup = daemon
+#dropGroup = daemon
 
 # Semicolon ';' seperated list of tags which once capture sets for a session causes the
 # remaining pcap from being saved for the session.  It is likely that the initial packets
@@ -154,19 +154,19 @@ dropGroup = daemon
 #userNameHeader = moloch_user
 
 # Should we parse extra smtp traffic info
-parseSMTP = {{ getv "/parse/smtp" "true" }}
+parseSMTP = true
 
 # Should we parse extra smb traffic info
-parseSMB = {{ getv "/parse/smb" "true" }}
+parseSMB = true
 
 # Should we parse HTTP QS Values
-parseQSValue = {{ getv "/parse/qs" "false" }}
+parseQSValue = true
 
 # Should we calculate sha256 for bodies
-supportSha256=false
+supportSha256 = false
 
 # Only index HTTP request bodies less than this number of bytes */
-maxReqBody=64
+maxReqBody = 64
 
 # Only store request bodies that Utf-8?
 config.reqBodyOnlyUtf8 = true
@@ -201,7 +201,7 @@ pluginsDir = /opt/moloch/data/plugins
 
 # Specify the max number of indices we calculate spidata for.
 # ES will blow up if we allow the spiData to search too many indices.
-spiDataMaxIndices={{ getv "/spi/indices" "5" }}
+spiDataMaxIndices = 5
 
 # Uncomment the following to allow direct uploads.  This is experimental
 #uploadCommand=/data/moloch/bin/moloch-capture --copy -n {NODE} -r {TMPFILE} -c {CONFIG} {TAGS}
@@ -218,7 +218,7 @@ spiDataMaxIndices={{ getv "/spi/indices" "5" }}
 #titleTemplate=_cluster_ - _page_ _-view_ _-expression_
 
 # Number of threads processing packets
-packetThreads = {{ getv "/packet/threads" "4" }}
+packetThreads = 4
 
 # ADVANCED - Semicolon ';' seperated list of files to load for config.  Files are loaded
 # in order and can replace values set in this file or previous files.
@@ -242,10 +242,10 @@ dbBulkSize = 300000
 compressES = false
 
 # ADVANCED - Max number of connections to elastic search
-maxESConns = {{ getv "/max/es/conns" "30" }}
+maxESConns = 30
 
 # ADVANCED - Max number of es requests outstanding in q
-maxESRequests = {{ getv "/max/es/requests" "500" }}
+maxESRequests = 500
 
 # ADVANCED - Number of packets to ask libnids/libpcap to read per poll/spin
 # Increasing may hurt stats and ES performance

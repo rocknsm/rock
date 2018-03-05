@@ -3,7 +3,7 @@
 
 #### Moloch configuration variables ####
 moloch_image: 'dwharve/moloch'
-moloch_tag: '1.0.0'
+moloch_tag: 'icdm'
 moloch_port: "8005"
 moloch_threads: "2"
 moloch_spi_indices: "3"

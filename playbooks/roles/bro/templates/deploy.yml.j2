@@ -18,9 +18,7 @@ spec:
       containers:
       - name: bro
         image: {{ bro_image }}:{{ bro_ver }}
-        command: ['sh','-c','broctl deploy; while [ "1" == "1" ]; do sleep 60; done;']
         securityContext:
-          runAsUser: 0
           capabilities:
             add:
               - NET_ADMIN
@@ -32,25 +30,44 @@ spec:
           requests:
             cpu: 100m
         volumeMounts:
-        - name: bro-config
-          mountPath: /etc/bro/node.cfg
-          subPath: node.cfg
-        - name: bro-config
-          mountPath: /etc/bro/broctl.cfg
-          subPath: broctl.cfg
-        - name: bro-config
-          mountPath: /etc/sysconfig/bro-scripts.env
-          subPath: bro-scripts.env
-        - name: bro-config
-          mountPath: /etc/bro/networks.cfg
-          subPath: networks.cfg
-        - name: bro-config
-          mountPath: /usr/share/bro/site/scripts/plugins/kafka.bro
-          subPath: kafka.bro
+        - name: vars
+          mountPath: /etc/icdm/
+        - name: templates
+          mountPath: /etc/icdm/templates/
+        - name: configs
+          mountPath: /etc/icdm/conf/
       volumes:
-      - name: bro-config
+      - name: vars
         configMap:
-          name: bro-config
+          name: vars
+      - name: templates
+        configMap:
+          name: bro
+          items:
+          - key: broctl.cfg.tmpl
+            path: broctl.cfg.tmpl
+          - key: node.cfg.tmpl
+            path: node.cfg.tmpl
+          - key: networks.cfg.tmpl
+            path: networks.cfg.tmpl
+          - key: kafka.bro.tmpl
+            path: kafka.bro.tmpl
+          - key: local.bro.tmpl
+            path: local.bro.tmpl
+      - name: configs
+        configMap:
+          name: bro
+          items:
+          - key: kafka.bro.conf
+            path: kafka.bro.conf
+          - key: networks.cfg.conf
+            path: networks.cfg.conf
+          - key: node.cfg.conf
+            path: node.cfg.conf
+          - key: broctl.cfg.conf
+            path: broctl.cfg.conf
+          - key: local.bro.conf
+            path: local.bro.conf
       nodeSelector:
         role: sensor
       affinity:
