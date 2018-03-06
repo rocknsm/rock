@@ -141,6 +141,7 @@ kafka_config_path: /etc/kafka/server.properties
 es_user: elasticsearch
 es_group: elasticsearch
 es_data_dir: "{{ rock_data_dir }}/elasticsearch"
+es_log_dir: /var/log/elasticsearch
 es_cluster_name: rocknsm
 es_node_name: "{{ rock_hostname }}"
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
