@@ -1,15 +1,23 @@
 ---
-- name: docket | install rocknsm copr repo
+- name: docket | install rocknsm repo
   yum_repository:
-    name: rocknsm_copr
-    description: Copr repo for ROCKNSM devel
-    file: rocknsm_copr
-    baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-\$basearch/
-    gpgkey: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg
-    gpgcheck: yes
-    repo_gpgcheck: no
-    skip_if_unavailable: yes
+    file: rocknsm
+    name: "{{ item.name }}"
     enabled: yes
+    description: "{{ item.name }}"
+    baseurl: "{{ item.baseurl }}"
+    repo_gpgcheck: 1
+    gpgcheck: "{{ item.gpgcheck }}"
+    gpgkey:
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
+    sslverify: 1
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: 300
+    state: present
+  with_items:
+    - { name: "rocknsm_2_1", gpgcheck: yes, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/$basearch" }
+    - { name: "rocknsm_2_1-source", gpgcheck: no, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/SRPMS" }
   when: inventory_hostname in groups['docket'] and docket_install == "yumrepo"
 
 - name: docket | install packages

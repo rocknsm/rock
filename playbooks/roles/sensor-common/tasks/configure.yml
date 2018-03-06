@@ -103,8 +103,9 @@
   when: rock_online_install
 
 - name: Manually trust CentOS GPG key
-  shell: >
-    rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7
+  rpm_key:
+    state: present
+    key: http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7
   when: rock_online_install
 
 - name: Setup Elastic repo
@@ -147,15 +148,32 @@
   - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
   - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
+- name: Trust RockNSM GPG keys
+  rpm_key:
+    state: present
+    key: "{{ item }}"
+  with_items:
+    - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
+    - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1
+
 - name: Configure RockNSM online repos
   yum_repository:
+    file: rocknsm
     name: "{{ item.name }}"
     enabled: "{{ rock_online_install }}"
     description: "{{ item.name }}"
-    baseurl: '{{ item.baseurl }}'
-    file: rocknsm
+    baseurl: "{{ item.baseurl }}"
+    repo_gpgcheck: 1
+    gpgcheck: "{{ item.gpgcheck }}"
+    gpgkey:
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
+    sslverify: 1
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: 300
+    state: present
   with_items:
-    - { name: rocknsm_2_1, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/$basearch" }
-    - { name: rocknsm_2_1, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/SRPMS" }
+    - { name: "rocknsm_2_1", gpgcheck: yes, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/$basearch" }
+    - { name: "rocknsm_2_1-source", gpgcheck: no, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/SRPMS" }
 
 ...

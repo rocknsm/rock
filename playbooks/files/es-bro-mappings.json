@@ -19,7 +19,7 @@
     }
   },
   "mappings": {
-    "_default_": {
+    "_doc": {
       "dynamic_templates": [
         {
           "ip_addresses": {
@@ -58,11 +58,7 @@
               "ignore_above": 256
             }
           }
-        }
-      }
-    },
-    "detection": {
-      "properties": {
+        },
         "notice": {
           "properties": {
             "dst": {
@@ -93,11 +89,7 @@
               }
             }
           }
-        }
-      }
-    },
-    "file": {
-      "properties": {
+        },
         "files": {
           "properties": {
             "rx_hosts": {
@@ -107,11 +99,7 @@
               "type": "ip"
             }
           }
-        }
-      }
-    },
-    "network": {
-      "properties": {
+        },
         "@meta": {
           "properties": {
             "geoip_orig": {
@@ -359,11 +347,7 @@
               }
             }
           }
-        }
-      }
-    },
-    "observations": {
-      "properties": {
+        },
         "software": {
           "properties": {
             "unparsed_version": {
