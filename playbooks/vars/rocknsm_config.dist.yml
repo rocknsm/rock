@@ -94,9 +94,7 @@ docket_web_dhparams: "{{ http_tls_dhparams }}"
 
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
-elrepo_baseurl: http://elrepo.org/linux/kernel/el7/x86_64/
-elrepo_gpgurl: https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
-elastic_baseurl: https://artifacts.elastic.co/packages/5.x/yum
+elastic_baseurl: https://artifacts.elastic.co/packages/6.x/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 pulledpork_release: 0.7.2
 pulledpork_url: "https://github.com/shirkdog/pulledpork/archive/{{ pulledpork_release }}.tar.gz"
@@ -145,6 +143,7 @@ es_cluster_name: rocknsm
 es_node_name: "{{ rock_hostname }}"
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
 es_url: "http://localhost:9200"
+es_log_dir: /var/log/elasticsearch
 es_memlock_override: |
   [Service]
   LimitMEMLOCK=infinity

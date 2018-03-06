@@ -153,8 +153,8 @@
     state: present
     key: "{{ item }}"
   with_items:
-    - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
-    - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1
+    - /etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
+    - /etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1
 
 - name: Configure RockNSM online repos
   yum_repository:
