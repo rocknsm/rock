@@ -18,6 +18,7 @@
   service:
     name: redis
     state: restarted
+  when: docket_enable | bool
 
 - name: docket | seed random key
   lineinfile:
@@ -33,13 +34,16 @@
   with_items:
     - docket-celery-io
     - docket-celery-query
+  when: docket_enable | bool
 
 - name: docket | restart docket uwsgi
   service:
     name: docket
     state: restarted
+  when: docket_enable | bool
 
 - name: docket | restart lighttpd
   service:
     name: lighttpd
     state: restarted
+  when: docket_enable | bool

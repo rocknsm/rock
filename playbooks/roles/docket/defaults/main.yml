@@ -11,6 +11,7 @@ rocknsm_conf_group: root
 # yumrepo sets up the RockNSM repo that hosts docket
 # offline skips repo setup and assumes it's already configured
 docket_install: yumrepo
+docket_enable: true
 
 # Application config
 docket_debug: false

@@ -21,6 +21,7 @@
     - role: docket
       when: with_docket | bool
       docket_install: offline
+      docket_enable: "{{enable_docket | bool}}"
 
   tasks:
   - name: Get default settings
