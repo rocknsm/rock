@@ -1,5 +1,5 @@
 ---
-import_tasks: prechecks.yml
-import_tasks: install.yml
-import_task: config.yml
+- import_tasks: prechecks.yml
+- import_tasks: install.yml
+- import_tasks: config.yml
 ...

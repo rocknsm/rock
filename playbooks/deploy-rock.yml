@@ -15,8 +15,13 @@
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
   roles:
-    - { role: stenographer, when: with_stenographer | bool, steno_monitor_intefaces: "{{rock_monifs}}"}
-    - { role: docket, when: with_docket | bool }
+    - role: stenographer
+      when: with_stenographer | bool
+      stenographer_monitor_interfaces: "{{rock_monifs}}"
+    - role: docket
+      when: with_docket | bool
+      docket_install: offline
+      docket_enable: "{{enable_docket | bool}}"
 
   tasks:
   - name: Get default settings
@@ -233,13 +238,6 @@
       mode: 0644
       owner: root
       group: root
-    when: with_elasticsearch
-
-  - name: Setup elasticsearch data dir in sysconfig
-    lineinfile:
-      dest: /etc/sysconfig/elasticsearch
-      regexp: "DATA_DIR="
-      line: "DATA_DIR={{ es_data_dir }}"
     when: with_elasticsearch
 
   - name: Setup elasticsearch jvm options
@@ -876,6 +874,7 @@
             { "index.number_of_replicas" : "0",
               "index.number_of_shards" : "1" },
           "mappings" : { }, "aliases" : { } }
+      body_format: json
       status_code: 200,201
     when: with_kibana
 

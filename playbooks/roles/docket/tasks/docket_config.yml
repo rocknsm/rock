@@ -24,11 +24,12 @@
     name: redis
     enabled: yes
   notify: docket | restart redis
+  when: docket_enable
 
 - name: docket | enable docket celery services
   service:
     name: "{{ item }}"
-    enabled: yes
+    enabled: "{{ docket_enable | bool }}"
   notify: docket | restart docket celery services
   with_items:
     - docket-celery-io
@@ -37,5 +38,5 @@
 - name: docket | enable docket uwsgi service
   service:
     name: docket
-    enabled: yes
+    enabled: "{{ docket_enable | bool }}"
   notify: docket | restart docket uwsgi
