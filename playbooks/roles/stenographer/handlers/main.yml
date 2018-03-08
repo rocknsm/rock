@@ -1,7 +1,7 @@
 ---
 # handlers file for stenographer
 
-- name: start stenographer services
+- name: start stenographer service
   service:
     name: stenographer
     state: "{{ 'started' if enable_stenographer else 'stopped' }}"
