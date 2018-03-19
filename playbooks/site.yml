@@ -28,9 +28,9 @@
   roles:
     - kubernetes
 
-- hosts: gluster
+- hosts: ceph
   roles:
-    - gluster
+    - ceph
   gather_facts: no
 
 - hosts: elasticsearch
@@ -65,12 +65,7 @@
 
 - hosts: moloch
   roles:
-    #- moloch
+    - moloch
   gather_facts: no
-
-#- hosts: stenographer
-#  roles:
-#    - stenographer
-#  gather_facts: no
 
 ...

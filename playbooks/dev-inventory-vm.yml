@@ -16,10 +16,9 @@ all:
         master-servers:
         nodes:
 
-    gluster:
+    ceph:
       children:
         master-servers:
-        nodes:
 
     kibana:
       children:
@@ -45,11 +44,27 @@ all:
       children:
         master-servers:
 
+    moloch:
+      children:
+        master-servers:
+
     master-servers:
 
       vars:
-        home_net: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
-        serivces_cidr: "10.11.4.240/29"
+        home_net:
+          - "192.168.0.0/16"
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+        services_cidr: "10.11.4.200/29"
+        bpf_filter: ""
+        es_mem: 1
+        es_masters: 3
+        es_datas: 0
+        elastic_pv_size: 1
+        kafka_pv_size: 1
+        zookeeper_pv_size: 1
+        logstash_pv_size: 1
+        pcap_pv_size: 5
 
       hosts:
         devserver1.lan:
@@ -71,11 +86,9 @@ all:
               ansible_hostname: devsensor1.lan
               ansible_connection: ssh
               management_ipv4: 10.11.4.68
-              bro_workers: 2
-              bro_interfaces:
-                - ens192
-              suricata_interfaces:
-                - ens192
+              bro_workers: 24
+              monitor_interfaces:
+              - ens224
               data_disk_devices:
               - /dev/sdb
 
@@ -89,12 +102,13 @@ all:
               management_ipv4: 10.11.4.64
               data_disk_devices:
               - /dev/sdb
-            devserver3.lan:
-              ansible_hostname: devserver3.lan
-              ansible_user: root
-              ansible_connection: ssh
-              management_ipv4: 10.11.4.77
-              data_disk_devices:
-              - /dev/sdb
-              - /dev/sdc
-              - /dev/sdd
+
+#            devserver3.lan:
+#              ansible_hostname: devserver3.lan
+#              ansible_user: root
+#              ansible_connection: ssh
+#              management_ipv4: 10.11.4.77
+#              data_disk_devices:
+#              - /dev/sdb
+#              - /dev/sdc
+#              - /dev/sdd

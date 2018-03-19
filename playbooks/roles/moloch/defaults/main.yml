@@ -2,8 +2,8 @@
 ---
 
 #### Moloch configuration variables ####
-moloch_image: 'dwharve/moloch'
-moloch_tag: 'icdm'
+moloch_image: 'tfplenum/moloch'
+moloch_tag: 'latest'
 moloch_port: "8005"
 moloch_threads: "2"
 moloch_spi_indices: "3"

@@ -37,8 +37,7 @@
     - log4j2.properties
 
 - name: Flush ConfigMaps
-  command: 'kubectl delete configmap logstash'
-  ignore_errors: true
+  command: 'kubectl delete configmap logstash --ignore-not-found=true'
 
 - name: Create Main ConfigMap
   shell: |
@@ -52,13 +51,12 @@
 
 - name: Flush Deployment
   shell: |
-    kubectl delete -f {{ logstash_dir }}/deploy.yml
+    kubectl delete -f {{ logstash_dir }}/deploy.yml --ignore-not-found=true
     while [ $(kubectl get -f {{ logstash_dir }}/deploy.yml | tail -n +2 | wc -l) != '0' ]; do
       echo -n .;
       sleep 1;
     done;
     sleep 5;
-  ignore_errors: yes
 
 - name: Deploy Logstash
   shell: |

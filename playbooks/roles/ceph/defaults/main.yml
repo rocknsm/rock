@@ -1,0 +1,7 @@
+%YAML 1.1
+---
+
+ceph_dir: "{{ install_dir }}/ceph"
+ceph_deploy_rpm: "https://download.ceph.com/rpm-luminous/el7/noarch/ceph-deploy-1.5.39-0.noarch.rpm"
+osd_count: 0
+...

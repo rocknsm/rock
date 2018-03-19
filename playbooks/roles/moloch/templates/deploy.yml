@@ -71,7 +71,7 @@ spec:
       name: data
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: gluster-heketi
+      storageClassName: rbd
       resources:
         requests:
           storage: {{ pcap_pv_size }}Gi

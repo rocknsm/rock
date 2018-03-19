@@ -18,21 +18,21 @@ vars:
     #HOME_NET: "[172.16.0.0/12]"
     #HOME_NET: "any"
 
-    EXTERNAL_NET: "!\$HOME_NET"
+    EXTERNAL_NET: "!$HOME_NET"
     #EXTERNAL_NET: "any"
 
-    HTTP_SERVERS: "\$HOME_NET"
-    SMTP_SERVERS: "\$HOME_NET"
-    SQL_SERVERS: "\$HOME_NET"
-    DNS_SERVERS: "\$HOME_NET"
-    TELNET_SERVERS: "\$HOME_NET"
-    AIM_SERVERS: "\$EXTERNAL_NET"
-    DNP3_SERVER: "\$HOME_NET"
-    DNP3_CLIENT: "\$HOME_NET"
-    MODBUS_CLIENT: "\$HOME_NET"
-    MODBUS_SERVER: "\$HOME_NET"
-    ENIP_CLIENT: "\$HOME_NET"
-    ENIP_SERVER: "\$HOME_NET"
+    HTTP_SERVERS: "$HOME_NET"
+    SMTP_SERVERS: "$HOME_NET"
+    SQL_SERVERS: "$HOME_NET"
+    DNS_SERVERS: "$HOME_NET"
+    TELNET_SERVERS: "$HOME_NET"
+    AIM_SERVERS: "$EXTERNAL_NET"
+    DNP3_SERVER: "$HOME_NET"
+    DNP3_CLIENT: "$HOME_NET"
+    MODBUS_CLIENT: "$HOME_NET"
+    MODBUS_SERVER: "$HOME_NET"
+    ENIP_CLIENT: "$HOME_NET"
+    ENIP_SERVER: "$HOME_NET"
 
   port-groups:
     HTTP_PORTS: "80"
@@ -41,7 +41,7 @@ vars:
     SSH_PORTS: 22
     DNP3_PORTS: 20000
     MODBUS_PORTS: 502
-    FILE_DATA_PORTS: "[\$HTTP_PORTS,110,143]"
+    FILE_DATA_PORTS: "[$HTTP_PORTS,110,143]"
     FTP_PORTS: 21
 
 
@@ -544,7 +544,7 @@ logging:
 
 # Linux high speed capture support
 af-packet:
-{% for iface in monitor_interfaces['$HOSTNAME'] %}
+{% for iface in monitor_interfaces[host] %}
   - interface: {{ iface | default("eth0", true) }}
     # Number of receive threads. "auto" uses the number of cores
     #threads: auto
@@ -631,7 +631,7 @@ af-packet:
 
 # Cross platform libpcap capture support
 pcap:
-{% for iface in monitor_interfaces['$HOSTNAME'] %}
+{% for iface in monitor_interfaces[host] %}
   - interface: {{ iface | default("eth0", true) }}
     # On Linux, pcap will try to use mmaped capture and will use buffer-size
     # as total of memory used by the ring. So set this to something bigger
@@ -1501,7 +1501,7 @@ profiling:
 # When running in NFQ inline mode, it is possible to use a simulated
 # non-terminal NFQUEUE verdict.
 # This permit to do send all needed packet to suricata via this a rule:
-#        iptables -I FORWARD -m mark ! --mark \$MARK/\$MASK -j NFQUEUE
+#        iptables -I FORWARD -m mark ! --mark $MARK/$MASK -j NFQUEUE
 # And below, you can have your standard filtering ruleset. To activate
 # this mode, you need to set mode to 'repeat'
 # If you want packet to be sent to another queue after an ACCEPT decision

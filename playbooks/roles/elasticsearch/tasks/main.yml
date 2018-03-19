@@ -30,8 +30,7 @@
     - log4j2.properties
 
 - name: Flush Config
-  command: 'kubectl delete configmap elastic'
-  ignore_errors: true
+  command: 'kubectl delete configmap elastic --ignore-not-found=true'
 
 - name: Create Config
   shell: |
@@ -41,7 +40,7 @@
 
 - name: Flush Deployments
   shell: |
-    kubectl delete -f {{ elastic_dir }}/{{ item }}.yml
+    kubectl delete -f {{ elastic_dir }}/{{ item }}.yml --ignore-not-found=true
     while [ $(kubectl get -f {{ elastic_dir }}/{{ item }}.yml | tail -n +2 | wc -l) != '0' ]; do
       echo -n .;
       sleep 1;
@@ -56,7 +55,6 @@
     - elastichq-svc
 #    - es-client
 #    - es-data
-  ignore_errors: true
 
 - name: Deploy Pods
   shell: |
@@ -83,7 +81,8 @@
 
 - name: Wait for Elasticsearch to be ready
   shell: |
-    while [ "$(kubectl get pods | grep es-master | head -n +1 | awk '{ print $2}')" != "1/1" ]; do
+    ES_WANTED=$(kubectl get statefulset es-master | tail -n 1 | awk '{print $2}')
+    while [ "$(kubectl get pods | grep es-master | grep 1/1 | wc -l)" != "$ES_WANTED" ]; do
       echo -n .;
       sleep 1;
     done;

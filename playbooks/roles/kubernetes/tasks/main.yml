@@ -65,9 +65,9 @@
     name: "{{ item }}"
     state: 'installed'
   with_items:
-    - "kubeadm"
-    - "kubelet"
-    - "kubectl"
+    - "kubeadm-{{ kube_version }}"
+    - "kubelet-{{ kube_version }}"
+    - "kubectl-{{ kube_version }}"
   register: installed_packages
 
 - name: Reset Kubernetes Cluster
@@ -114,9 +114,9 @@
     name: "{{ item }}"
     state: present
   with_items:
-    - kubeadm
-    - kubelet
-    - kubectl
+    - "kubeadm-{{ kube_version }}"
+    - "kubelet-{{ kube_version }}"
+    - "kubectl-{{ kube_version }}"
   when: installed_packages is defined and not installed_packages.changed
 
 - name: 'Start Services'
@@ -169,7 +169,9 @@
 
 - name: 'Init Kubernetes cluster'
   #shell: "kubeadm init --config {{ kube_dir }}/kubeadm.yml | grep 'kubeadm join --token'"
-  shell: "kubeadm init --pod-network-cidr=10.244.0.0/16 | grep 'kubeadm join --token' | tee /etc/kubernetes/join-node.sh"
+  shell: |
+    echo "#!/bin/bash" > /etc/kubernetes/join-node.sh
+    kubeadm init --pod-network-cidr=10.244.0.0/16 --kubernetes-version 1.9.3 | grep 'kubeadm join --token' | tee -a /etc/kubernetes/join-node.sh
   register: kube_join_cluster_cmd
   when: inventory_hostname in groups['master-servers']
 
@@ -202,18 +204,27 @@
 
 - name: Retrieve generated credentials
   fetch:
-    src: "{{ kubernetes_conf_file }}"
-    dest: files/config
+    src: "{{ item }}"
+    dest: files/
     flat: yes
+  with_items:
+    - "{{ kubernetes_conf_file }}"
+    - /etc/kubernetes/join-node.sh
   when: "inventory_hostname in groups['master-servers']"
 
 - name: Propagate cluster admin credentials
   copy:
-    src: files/config
+    src: files/admin.conf
     dest: ~/.kube/config
     mode: 0644
 
-- name: 'Install pod network: kube-router'
+- name: Propagate join node command
+  copy:
+    src: files/join-node.sh
+    dest: /usr/bin/kubejoin
+    mode: 0555
+
+- name: 'Install pod network: flannel'
 #  shell: |
 #    export kubever=$(kubectl version | base64 | tr -d '\n')
 #    kubectl apply -f https://cloud.weave.works/k8s/net?k8s-version=$kubever
@@ -235,7 +246,11 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Wait for Master Node to be ready
-  shell: "NODES_READY=0; while [ $NODES_READY -lt 1 ]; do NODES_READY=1; for stat in $(kubectl get nodes | grep -v NAME | awk '{ print $2 }'); do if [ $stat != 'Ready' ]; then NODES_READY=0; echo -n .; sleep 1; fi done; done;"
+  shell: |
+    while [ "$(kubectl get node devserver1.lan | awk '{print $2}' | tail -n +2)" != "Ready" ]; do
+      echo -n .;
+      sleep 1;
+    done;
   register: debug_output
   when: "inventory_hostname in groups['master-servers']"
 
@@ -297,7 +312,7 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: 'Join Kubernetes cluster'
-  command: "{{ hostvars[item].kube_join_cluster_cmd.stdout }}"
+  command: "/usr/bin/kubejoin"
   register: debug_output
   when: "inventory_hostname in groups['nodes']"
   with_items: "{{ groups['master-servers'] }}"
@@ -407,6 +422,7 @@
   when: inventory_hostname in groups['master-servers']
 
 - name: Add Var configmap
-  command: "kubectl create configmap vars --from-file=v{{ kube_dir }}/vars.yml"
+  command: "kubectl create configmap vars --from-file={{ kube_dir }}/vars.yml"
+  when: inventory_hostname in groups['master-servers']
 
 ...

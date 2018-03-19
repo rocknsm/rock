@@ -41,8 +41,7 @@
     - deploy.yml
 
 - name: Flush Config Map
-  command: kubectl --kubeconfig {{ kubernetes_conf_file }} delete configmap bro
-  ignore_errors: yes
+  command: kubectl --kubeconfig {{ kubernetes_conf_file }} delete configmap bro --ignore-not-found=true
 
 - name: Create Config Map
   shell: |
@@ -59,8 +58,7 @@
     --from-file {{ bro_dir }}/local.bro.conf
 
 - name: Flush Deployments
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml'
-  ignore_errors: true
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml --ignore-not-found=true'
 
 - name: Deploy
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ bro_dir }}/deploy.yml'

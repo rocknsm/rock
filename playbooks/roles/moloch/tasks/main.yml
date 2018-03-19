@@ -76,7 +76,7 @@
   ignore_errors: yes
 
 - name: Configure Elasticsearch for moloch
-  shell: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- /usr/bin/expect /tmp/auto_init"
+  shell: "kubectl exec {{ moloch_bootstrap_pod.stdout }} -- /usr/bin/expect /tmp/auto_init"
   register: debug_output
   ignore_errors: yes
 

@@ -38,7 +38,9 @@ advertised.listeners: PLAINTEXT://kafka.default.svc.cluster.local:{{ kafka_port 
 ############################# Log Basics #############################
 
 # A comma seperated list of directories under which to store log files
-# log.dirs: /tmp/kafka-logs
+log.dirs: /tmp/kafka-logs/logs
+log.retention.bytes=9000000000
+log.retention.hours=24
 
 ############################# Zookeeper #############################
 

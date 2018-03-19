@@ -16,10 +16,9 @@ all:
         master-servers:
         nodes:
 
-    gluster:
+    ceph:
       children:
         master-servers:
-        nodes:
 
     kibana:
       children:
@@ -52,17 +51,30 @@ all:
     master-servers:
 
       vars:
-        home_net: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
-        serivces_cidr: "10.11.4.240/29"
+        home_net:
+          - "192.168.0.0/16"
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+        services_cidr: "10.11.4.240/29"
+        bpf_filter: ""
+        es_mem: 2
+        es_masters: 3
+        es_datas: 0
+        elastic_pv_size: 1000
+        kafka_pv_size: 10
+        zookeeper_pv_size: 10
+        logstash_pv_size: 10
+        pcap_pv_size: 100000
 
       hosts:
-        devserver1.lan:
-          ansible_hostname: devserver1.lan
+        hwserver1.lan:
+          ansible_hostname: hwserver1.lan
           ansible_user: root
           ansible_connection: ssh
-          management_ipv4: 10.11.4.49
+          management_ipv4: 10.11.4.164
           data_disk_devices:
           - /dev/sdb
+          - /dev/sda
 
     nodes:
 
@@ -71,32 +83,35 @@ all:
         sensors:
 
           hosts:
-            devsensor1.lan:
-              ansible_hostname: devsensor1.lan
+            hwsensor1.lan:
+              ansible_hostname: hwsensor1.lan
               ansible_connection: ssh
-              management_ipv4: 10.11.4.68
-              bro_workers: 2
+              management_ipv4: 10.11.4.141
+              bro_workers: 24
               monitor_interfaces:
-              - ens224
+              - lo
               data_disk_devices:
               - /dev/sdb
 
         servers:
 
           hosts:
-            devserver2.lan:
-              ansible_hostname: devserver2.lan
+            hwsensor2.lan:
+              ansible_hostname: hwsensor2.lan
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 10.11.4.64
+              management_ipv4: 10.11.4.140
+              monitor_interfaces:
+                - lo
               data_disk_devices:
               - /dev/sdb
-#            devserver3.lan:
-#              ansible_hostname: devserver3.lan
-#              ansible_user: root
-#              ansible_connection: ssh
-#              management_ipv4: 10.11.4.77
-#              data_disk_devices:
-#              - /dev/sdb
-#              - /dev/sdc
-#              - /dev/sdd
+              - /dev/sdc
+              - /dev/sdd
+
+            hwserver2.lan:
+              ansible_hostname: hwserver2.lan
+              ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: 10.11.4.143
+              data_disk_devices:
+              - /dev/sdb

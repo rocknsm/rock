@@ -21,6 +21,10 @@ all:
         master-servers:
         nodes:
 
+    ceph:
+      children:
+        master-servers:
+
     kibana:
       children:
         master-servers:
@@ -56,7 +60,7 @@ all:
           - "192.168.0.0/16"
           - "10.0.0.0/8"
           - "172.16.0.0/12"
-        serivces_cidr: "10.11.4.240/29"
+        services_cidr: "10.11.4.240/29"
         bpf_filter: ""
 
       hosts:

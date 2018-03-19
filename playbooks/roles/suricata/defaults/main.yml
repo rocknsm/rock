@@ -1,8 +1,8 @@
 %YAML 1.1
 ---
 
-suricata_image: 'dwharve/suricata'
-suricata_ver: 'filebeat'
+suricata_image: 'tfplenum/suricata'
+suricata_ver: 'latest'
 suricata_dir: "{{ install_dir }}/suricata"
 
 ...

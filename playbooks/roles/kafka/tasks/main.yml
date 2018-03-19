@@ -38,29 +38,26 @@
     - zookeeper_config_map
 
 - name: Flush Kafka Service
-  command: 'kubectl delete -f {{ kafka_dir}}/kafka-service.yml'
-  ignore_errors: yes
+  command: 'kubectl delete -f {{ kafka_dir}}/kafka-service.yml --ignore-not-found=true'
 
 - name: Flush Deployment
   shell: |
-    kubectl delete -f {{ kafka_dir }}/deploy.yml
+    kubectl delete -f {{ kafka_dir }}/deploy.yml --ignore-not-found=true
     while [ $(kubectl get -f {{ kafka_dir }}/deploy.yml | tail -n +2 | wc -l) != '0' ]; do
       echo -n .;
       sleep 1;
     done;
     sleep 5;
-  ignore_errors: yes
 
 - name: Flush Config Maps
-  command: 'kubectl delete configmap {{ item }}'
-  ignore_errors: yes
+  command: 'kubectl delete configmap {{ item }} --ignore-not-found=true'
   with_items:
     - kafka
     - zookeeper
 
 # This task uses kafka_config_map and feeds it into Kubernetes as a configuration map which it then uses
 # to build the container
-- name: Flush Kafka Config
+- name: Create Kafka Config
   command: 'kubectl create configmap kafka --from-file {{ kafka_dir }}/server.properties'
 
 # This does the same, but with Zookeeper
@@ -77,16 +74,3 @@
 
 - name: Deploy Kafka Service
   command: 'kubectl create -f {{ kafka_dir}}/kafka-service.yml'
-
-#- name: Create Topics
-#  command: >
-#    docker exec {{ kafka_container_name }} {{ kafka_install_dir }}/bin/kafka-topics.sh
-#      --zookeeper zookeeper:{{ zookeeper_port }}
-#      --create
-#      --replication-factor 1
-#      --topic {{ item }}-raw
-#      --partisions 1
-#  with_items:
-#    - bro
-#    - suricata
-#    - fsf

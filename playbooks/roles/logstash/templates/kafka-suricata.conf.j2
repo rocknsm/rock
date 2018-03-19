@@ -16,6 +16,10 @@ filter {
     drop { }
   }
 
+  #if [message][event_type] == "stats" {
+  #  drop { }
+  #}
+
   # Remove kafka_topic field
   mutate {
     remove_field => [ "kafka_topic" ]

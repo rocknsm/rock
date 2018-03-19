@@ -19,9 +19,12 @@ spec:
       - name: init-sysctl
         image: busybox:1.27.2
         command:
-        - sysctl
-        - -w
-        - vm.max_map_count=262144
+        - /bin/sh
+        - -c
+        - "sysctl -w vm.max_map_count=262144; chown -R 1000:1000 /usr/share/elasticsearch/data"
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
         securityContext:
           privileged: true
       containers:
@@ -47,8 +50,6 @@ spec:
               fieldPath: metadata.name
         - name: CLUSTER_NAME
           value: {{ es_cluster_name }}
-        - name: NUMBER_OF_MASTERS
-          value: "{{ es_masters }}"
         - name: NODE_MASTER
           value: "true"
         - name: NODE_INGEST
@@ -90,7 +91,7 @@ spec:
       name: data
     spec:
       accessModes: ["ReadWriteOnce"]
-      storageClassName: gluster-heketi
+      storageClassName: rbd
       resources:
         requests:
           storage: {{ elastic_pv_size }}Gi
