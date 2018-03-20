@@ -3,6 +3,20 @@
 #######################################################
 ---
 
+- name: Check presence of fastestmirror.conf
+  stat:
+    path: /etc/yum/pluginconf.d/fastestmirror.conf
+  register: fastestmirror
+
+# fastestmirror plugin actually slows down Ansible deployments
+- name: Disable fastestmirror plugin
+  lineinfile:
+    dest: /etc/yum/pluginconf.d/fastestmirror.conf
+    regexp: "^enabled=.*"
+    line: "enabled=0"
+    state: present
+  when: fastestmirror.stat.exists and ansible_distribution == 'CentOS'
+
 - name: Setup Deployer offline repo
   yum_repository:
     baseurl: "http://deployer.lan/centos/$releasever/offline/$basearch"
@@ -44,3 +58,5 @@
   - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
   - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
   when: "ansible_distribution == \"CentOS\""
+
+

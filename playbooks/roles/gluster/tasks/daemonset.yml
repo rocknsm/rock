@@ -1,0 +1,13 @@
+---
+- name: Gluster | Deploy Daemonset
+  command: "kubectl create -f {{ gluster_dir }}/glusterfs-daemonset.json"
+  register: gluster_deploy_daemonset_result
+
+- name: Gluster | Wait for daemonset
+  shell: "kubectl get ds glusterfs -o json"
+  register: output
+  until: (output.stdout|from_json).status.desiredNumberScheduled == (output.stdout|from_json).status.numberReady
+  retries: 30
+  delay: 15
+  #ignore_errors: yes
+  when: gluster_deploy_daemonset_result.rc == 0

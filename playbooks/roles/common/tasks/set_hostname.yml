@@ -2,14 +2,14 @@
 #################### DNS Changes ######################
 #######################################################
 ---
--
-  name: Set hostname in hosts file
-  lineinfile:
-    dest: /etc/hosts
-    insertafter: 127.0.0.1
-    line: 127.0.0.2  {{ inventory_hostname }}  {{ inventory_hostname_short }}
-
--
-  name: Set system hostname
+- name: Change the hostname to our standard
   hostname:
-    name: "{{ inventory_hostname }}"
+    name="{{ inventory_hostname }}"
+  register: hostname
+
+- name: Validate ansible_fqdn == inventory_hostname
+  tags:
+    - validate
+  assert:
+    that:
+      ansible_fqdn == inventory_hostname

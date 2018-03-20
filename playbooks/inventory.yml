@@ -6,96 +6,42 @@
 # file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
 
 all:
-
-  children:
-
-    # Role specific breakout
-
-    kubernetes:
-      children:
-        master-servers:
-        nodes:
-
-    gluster:
-      children:
-        master-servers:
-        nodes:
-
-    ceph:
-      children:
-        master-servers:
-
-    kibana:
-      children:
-        master-servers:
-
-    elasticsearch:
-      children:
-        master-servers:
-
-    logstash:
-      children:
-        master-servers:
-
-    suricata:
-      children:
-        master-servers:
-
-    kafka:
-      children:
-        master-servers:
-
-    bro:
-      children:
-        master-servers:
-
-    moloch:
-      children:
-        master-servers:
-
-    master-servers:
-
+  children:    
+    master-server:
       vars:
         home_net:
           - "192.168.0.0/16"
           - "10.0.0.0/8"
           - "172.16.0.0/12"
-        services_cidr: "10.11.4.240/29"
+        serivces_cidr: "192.168.86.248/29"
         bpf_filter: ""
-
       hosts:
         rockserver1.lan:
-          ansible_hostname: rockserver1.lan
           ansible_user: root
           ansible_connection: ssh
-          management_ipv4: 10.11.4.237
+          management_ipv4: 192.168.122.4
           data_disk_devices:
           - /dev/sdb
-
     nodes:
-
       children:
-
         sensors:
-
           hosts:
             rocksensor1.lan:
-              ansible_hostname: rocksensor1.lan
               ansible_connection: ssh
-              management_ipv4: 10.11.4.239
+              management_ipv4: 192.168.122.6
               bro_workers: 2
               monitor_interfaces:
-              - ens224
+              - enp0s3
               data_disk_devices:
               - /dev/sdb
-
         servers:
-
           hosts:
-            rockserver3.lan:
-              ansible_hostname: rockserver3.lan
+            rockserver2.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 10.11.4.238
+              management_ipv4: 192.168.122.5
               data_disk_devices:
               - /dev/sdb
+    nodes_to_remove:
+      hosts:
+        rocksensor1.lan:

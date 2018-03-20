@@ -1,0 +1,12 @@
+---
+# By default the cluster will not scehdule pods on the master for security reasons.
+# The below task removes that restriction.
+- name: 'Remove master taint from master'
+  command: 'kubectl taint nodes --all node-role.kubernetes.io/master-'
+
+- name: 'Label masters'
+  command: 'kubectl label nodes {{ansible_fqdn}} role=server --overwrite=true'
+
+
+- name: Add Var configmap
+  command: "kubectl create configmap vars --from-file {{ kube_dir }}/vars.yml"

@@ -1,0 +1,47 @@
+#######################################################
+###################  Kubernetes Setup Nodes ###############
+#######################################################
+---
+- name: Kube | Retrieve generated credentials
+  include_role:
+    name: kubernetes/common
+    tasks_from: creds
+
+- name: Kube | Copy join node cmd to nodes
+  copy:
+    src: 'files/join-node.sh'
+    dest: '/etc/kubernetes/join-node.sh'
+    mode: 0755
+
+- name: Kube | Join Kubernetes cluster
+  shell: '/etc/kubernetes/join-node.sh'
+
+- name: Kube | Wait for Nodes to Register
+  pause:
+    seconds: 10
+
+- name: Kube | Wait for Nodes to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: node_wait
+
+- name: Kube | Get kube-dns IP
+  shell: "kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'"
+  register: kube_dns_ip
+
+- name: Kube | Insert kube-dns into /etc/resolv.conf
+  lineinfile:
+    insertbefore: BOF
+    line: "nameserver {{ kube_dns_ip.stdout }}"
+    path: /etc/resolv.conf
+
+- name: Kube | Label sensors
+  command: 'kubectl label nodes {{ ansible_fqdn }} role=sensor --overwrite=true'
+  when: inventory_hostname in groups['sensors']
+
+- name: Kube | Label secondary servers
+  command: 'kubectl label nodes {{ ansible_fqdn }} role=server --overwrite=true'
+  when: inventory_hostname in groups['servers']
+  register: debug_output
+
+...

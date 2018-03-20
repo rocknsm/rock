@@ -1,0 +1,14 @@
+---
+
+- name: remove-node | Drain node except daemonsets resource
+  command: >-
+    kubectl drain
+      --force
+      --ignore-daemonsets
+      --grace-period {{ drain_grace_period }}
+      --timeout {{ drain_timeout }}
+      --delete-local-data {{ item }}
+  failed_when: false
+  delegate_to: "{{ groups['master-server'][0] }}"
+  ignore_errors: yes
+  with_items: "{{ groups['nodes_to_remove'] }}"

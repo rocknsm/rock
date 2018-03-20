@@ -1,0 +1,6 @@
+---
+- name: Propagate cluster admin credentials
+  copy:
+    src: files/admin.conf
+    dest: ~/.kube/config
+    mode: 0644

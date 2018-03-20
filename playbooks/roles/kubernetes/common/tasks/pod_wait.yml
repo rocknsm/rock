@@ -1,0 +1,12 @@
+---
+- name: Kube | Wait for Pods
+  shell: |
+    {% raw %}
+    GOPOD='{{range .items}}{{range .status.containerStatuses}}{{if ne .ready true}}{{.ready}}{{end}}{{end}}{{end}}'
+    kubectl get pods --all-namespaces -o go-template --template="$GOPOD"
+    {% endraw %} 
+  register: output
+  until: output.stdout == ""
+  retries: 30
+  delay: 15
+  #ignore_errors: yes

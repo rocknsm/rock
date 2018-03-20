@@ -1,0 +1,8 @@
+---
+
+- name: Delete node
+  shell: |
+     kubectl delete node {{ item }}
+  delegate_to: "{{ groups['master-server'][0] }}"
+  #ignore_errors: yes
+  with_items: "{{ groups['nodes_to_remove'] }}"

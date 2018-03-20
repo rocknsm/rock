@@ -1,0 +1,8 @@
+---
+- name: Swap Off
+  command: swapoff --all
+
+- name: 'Remove swap'
+  mount:
+    path: swap
+    state: absent

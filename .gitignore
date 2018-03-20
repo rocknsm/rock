@@ -12,6 +12,7 @@
 .kitchen.local.yml
 .kitchen/
 .vagrant
+.vs
 /cookbooks
 Berksfile.lock
 Gemfile.lock
@@ -20,5 +21,7 @@ Vagrantfile.vmware
 pkg/
 repo/
 tmp/
+playbooks/files/admin.conf
+playbooks/files/join-node.sh
 
 playbooks/roles/logstash/tasks/old-main\.yml

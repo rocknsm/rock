@@ -1,0 +1,50 @@
+#######################################################
+###################  Kubernetes Reset ###############
+#######################################################
+---
+- name: Reset Kubernetes Node
+  command: kubeadm reset
+  register: kube_reset_result
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes']
+
+- name: Remove Kubernetes Packages to clear cache
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - kubeadm
+    - kubelet
+    - kubectl
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove']
+
+- name: Stop Services
+  systemd:
+    name: docker
+    state: stopped
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove']
+
+- name: Remove Artifacts
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /var/lib/cni
+    - /var/lib/kubelet
+    - /etc/cni
+    - /etc/kubernetes
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove']
+
+- name: Remove Interfaces
+  shell: |
+    if [ $(ifconfig | grep {{ item }} | wc -l ) -gt 0 ]; then
+      ip link delete {{ item }};
+    fi
+  with_items:
+    - flannel.1
+    - cni0
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove']

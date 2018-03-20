@@ -6,66 +6,41 @@
 
 ---
 - hosts: all
-
   tasks:
-
-  # Useful for debugging, uncomment if you don't need it. This will post all
-  # ansible related variables to the file /tmp/ansible.all
-  #- name: Dump all vars
-  #  action: template src=templates/dumpall.j2 dest=/tmp/ansible-site.all
-
-# WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-# This should include all hosts and therefore is the only task on which gather_facts
-# will run. If for whatever reason you don't include the common role you MUST
-# add it back in for roles which apply to your servers or anything requiring
-# the gathered facts will fail.
-# WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
   roles:
     - common
     - chrony
 
-- hosts: kubernetes
+- name: Configure kube master
+  hosts: master-server
   roles:
-    - kubernetes
+    - kubernetes/common
+    - kubernetes/master
+  tags:
+  - kube-master
 
-- hosts: ceph
+- name: Configure kube nodes
+  hosts: nodes
   roles:
-    - ceph
-  gather_facts: no
+    - kubernetes/common
+    - kubernetes/node
+  tags:
+  - add-node
 
-- hosts: elasticsearch
-  roles:
-    - elasticsearch
-  gather_facts: no
+#- name: Setup GlusterFS
+#  hosts: 
+#  - master-server
+#  - nodes
+#  roles:
+#    - gluster
+#  tags:
+#  - gluster
 
-- hosts: kafka
-  roles:
-    - kafka
-  gather_facts: no
-
-- hosts: logstash
-  roles:
-    - logstash
-  gather_facts: no
-
-- hosts: suricata
-  roles:
-    - suricata
-  gather_facts: no
-
-- hosts: bro
-  roles:
-    - bro
-  gather_facts: no
-
-- hosts: kibana
-  roles:
-    - kibana
-  gather_facts: no
-
-- hosts: moloch
-  roles:
-    - moloch
-  gather_facts: no
-
+#- name: Deploy Elasticsearch
+#  hosts: master-server
+#  roles:
+#    - elasticsearch
+#  tags:
+#  - elasticsearch
+  
 ...

@@ -7,16 +7,8 @@
       echo -n .;
       sleep 1;
     done;
-  register: debug_output
-  when: inventory_hostname in groups['master-servers']
+  when: inventory_hostname in groups['master-server']
   ignore_errors: yes
-
-- name: Debug Output
-  debug:
-    msg:
-      - "Command is: {{ debug_output.cmd }}"
-      - "Stdout is: {{ debug_output.stdout }}"
-  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Flush Service Account
   shell: |
@@ -25,16 +17,8 @@
       echo -n .;
       sleep 1;
     done;
-  register: debug_output
-  when: inventory_hostname in groups['master-servers']
+  when: inventory_hostname in groups['master-server']
   ignore_errors: yes
-
-- name: Debug Output
-  debug:
-    msg:
-      - "Command is: {{ debug_output.cmd }}"
-      - "Stdout is: {{ debug_output.stdout }}"
-  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Flush Cluster Role Binding
   shell: |
@@ -43,16 +27,8 @@
       echo -n .;
       sleep 1;
     done;
-  register: debug_output
-  when: inventory_hostname in groups['master-servers']
+  when: inventory_hostname in groups['master-server']
   ignore_errors: yes
-
-- name: Debug Output
-  debug:
-    msg:
-      - "Command is: {{ debug_output.cmd }}"
-      - "Stdout is: {{ debug_output.stdout }}"
-  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Flush Secret
   shell: |
@@ -61,16 +37,8 @@
       echo -n .;
       sleep 1;
     done;
-  register: debug_output
-  when: inventory_hostname in groups['master-servers']
+  when: inventory_hostname in groups['master-server']
   ignore_errors: yes
-
-- name: Debug Output
-  debug:
-    msg:
-      - "Command is: {{ debug_output.cmd }}"
-      - "Stdout is: {{ debug_output.stdout }}"
-  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Flush Bootstrap
   shell: |
@@ -79,16 +47,8 @@
       echo -n .;
       sleep 1;
     done;
-  register: debug_output
-  when: inventory_hostname in groups['master-servers']
+  when: inventory_hostname in groups['master-server']
   ignore_errors: yes
-
-- name: Debug Output
-  debug:
-    msg:
-      - "Command is: {{ debug_output.cmd }}"
-      - "Stdout is: {{ debug_output.stdout }}"
-  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Flush Heketi Storage
   shell: |
@@ -97,16 +57,8 @@
       echo -n .;
       sleep 1;
     done;
-  register: debug_output
-  when: inventory_hostname in groups['master-servers']
+  when: inventory_hostname in groups['master-server']
   ignore_errors: yes
-
-- name: Debug Output
-  debug:
-    msg:
-      - "Command is: {{ debug_output.cmd }}"
-      - "Stdout is: {{ debug_output.stdout }}"
-  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Flush Deployment
   shell: |
@@ -115,16 +67,9 @@
       echo -n .;
       sleep 1;
     done;
-  register: debug_output
-  when: inventory_hostname in groups['master-servers']
+  when: inventory_hostname in groups['master-server']
   ignore_errors: yes
 
-- name: Debug Output
-  debug:
-    msg:
-      - "Command is: {{ debug_output.cmd }}"
-      - "Stdout is: {{ debug_output.stdout }}"
-  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Flush Storage Class
   shell: |
@@ -133,16 +78,9 @@
       echo -n .;
       sleep 1;
     done;
-  register: debug_output
-  when: inventory_hostname in groups['master-servers']
+  when: inventory_hostname in groups['master-server']
   ignore_errors: yes
 
-- name: Debug Output
-  debug:
-    msg:
-      - "Command is: {{ debug_output.cmd }}"
-      - "Stdout is: {{ debug_output.stdout }}"
-  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Uninstall GlusterFS client
   yum:
@@ -156,9 +94,9 @@
   yum:
     name: "{{ item }}"
     state: absent
-  when: ansible_distribution == 'CentOS'
   with_items:
     - "centos-release-gluster{{ centos_gluster_ver }}"
+  #when: ansible_distribution == 'CentOS'
 
 - name: "Remove RedHat repo"
   yum_repository:
@@ -186,4 +124,4 @@
     owner: root
     group: root
     mode: 0644
-  when: inventory_hostname in groups['master-servers']
+  when: inventory_hostname in groups['master-server']

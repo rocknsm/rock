@@ -1,0 +1,21 @@
+---
+- set_fact:
+    modlist:
+      - dm_thin_pool
+      - dm_snapshot
+
+- name: Enable modules for Gluster 
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - "{{ modlist }}"
+
+- name: Persist modules
+  copy:
+    dest: /etc/modules-load.d/99-gluster.conf
+    content: |
+      {% for m in modlist %}
+      {{ m }}
+      {% endfor %}
+  

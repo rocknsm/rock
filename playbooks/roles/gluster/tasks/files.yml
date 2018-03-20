@@ -1,0 +1,33 @@
+---
+- name: Create Gluster Directory
+  file:
+    path: "{{ gluster_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Install Templates
+  template:
+    src: templates/{{ item }}.j2
+    dest: "{{ gluster_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - topology.json
+    - heketi.json
+    - storage-class.yml
+    - heketi-deployment.json
+    - heketi-bootstrap.json
+
+- name: Copy Files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ gluster_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - glusterfs-daemonset.json
+    - heketi-service-account.json

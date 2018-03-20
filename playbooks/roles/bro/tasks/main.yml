@@ -19,16 +19,16 @@
     owner: root
     mode: 0644
   with_items:
-    - broctl.cfg.tmpl
-    - node.cfg.tmpl
-    - networks.cfg.tmpl
-    - kafka.bro.tmpl
-    - local.bro.tmpl
     - broctl.cfg.conf
-    - node.cfg.conf
-    - networks.cfg.conf
+    - broctl.cfg.tmpl
     - kafka.bro.conf
+    - kafka.bro.tmpl
     - local.bro.conf
+    - local.bro.tmpl
+    - networks.cfg.conf
+    - networks.cfg.tmpl
+    - node.cfg.conf
+    - node.cfg.tmpl
 
 - name: Install templates
   template:

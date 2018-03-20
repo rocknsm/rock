@@ -1,0 +1,11 @@
+---
+- name: 'Install MetalLB LoadBalancer'
+  command: 'kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
+
+- name: 'Apply MetalLB Config'
+  command: 'kubectl apply -f {{ kube_dir }}/metallb.yml'
+
+- name: Wait for all pods to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: pod_wait

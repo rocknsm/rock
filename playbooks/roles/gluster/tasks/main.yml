@@ -4,10 +4,46 @@
 ---
 
 # Uninstall GlusterFS
-- include_tasks: remove.yml
-  when: remove
+#- include_tasks: remove.yml
+#  when: remove
 # Install GlusterFS, this will fail spectacularly if this is not a fresh install,
 # or remove is not run first
+
+
+- include_tasks: repo.yml
+- include_tasks: packages.yml
+- include_tasks: kernel_mods.yml
+- include_tasks: sysctl.yml
+
+- include_tasks: files.yml
+  when: inventory_hostname in groups['master-server'] 
+
+- name: Label Nodes
+  command: "kubectl label node {{ item }} storagenode=glusterfs --overwrite=true"
+  with_items:
+    - "{{ groups['master-server'] }}"
+    - "{{ groups['nodes'] }}"
+
+- include_tasks: daemonset.yml
+  when: inventory_hostname in groups['master-server']
+
+- include_tasks: heketi_account.yml
+  when: inventory_hostname in groups['master-server'] 
+
 - include_tasks: install.yml
-  when: install
+  when: inventory_hostname in groups['master-server']
+
+- name: Add Env to Profile
+  copy:
+    dest: /etc/profile.d/99-dmss.sh
+    content: "export HEKETI_CLI_SERVER=\"http://{{ hostvars[groups['master-server'][0]]['heketi_pod_ip'] }}:8080\""
+
+- name: Source Profile
+  shell: "source /etc/profile"
+
+- include_tasks: wipe.yml
+
+- include_tasks: complete.yml
+  when: inventory_hostname in groups['master-server'] 
+
 ...

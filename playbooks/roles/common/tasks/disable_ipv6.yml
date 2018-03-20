@@ -2,17 +2,6 @@
 #################### Disable IPv6 #####################
 #######################################################
 ---
-- name: Disable IPv6 for all interfaces
-  sysctl:
-    name: net.ipv6.conf.all.disable_ipv6
-    value: 1
-    sysctl_file: "{{ sysctl_file }}"
-
-- name: Disable IPv6 for default interfaces
-  sysctl:
-    name: net.ipv6.conf.default.disable_ipv6
-    value: 1
-    sysctl_file: "{{ sysctl_file }}"
 
 - name: Disable IPv6 in SSHD
   lineinfile:
@@ -27,7 +16,3 @@
     dest: /etc/hosts
     regexp: localhost6
     state: absent
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1402961
-- name: Save change to initramfs
-  command: dracut -f

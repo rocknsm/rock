@@ -1,0 +1,12 @@
+---
+- name: Kube | Wait for Node
+  shell: |
+    {% raw %}
+    GONODE='{{range .items}}{{range .status.conditions}}{{if and (eq (.type) ("Ready")) (eq (.status) ("False"))}}{{.type}}{{end}}{{end}}{{end}}'
+    kubectl get no --all-namespaces -o go-template="$GONODE"
+    {% endraw %}
+  register: output
+  until: output.stdout == ""
+  retries: 30
+  delay: 15
+  #ignore_errors: no

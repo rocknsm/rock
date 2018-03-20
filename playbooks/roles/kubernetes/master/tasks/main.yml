@@ -1,0 +1,12 @@
+#######################################################
+###################  Kubernetes Setup Master ###############
+#######################################################
+---
+
+- include_tasks: files.yml
+- include_tasks: init_cluster.yml
+- include_tasks: setup_master_node.yml
+- include_tasks: metallb.yml
+- include_tasks: kube_dashboard.yml
+
+...

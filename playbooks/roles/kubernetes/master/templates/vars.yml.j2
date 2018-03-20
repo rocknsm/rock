@@ -1,0 +1,20 @@
+monitor_interfaces:
+{% for host in groups['sensors'] %}
+  {{ hostvars[host].inventory_hostname }}:
+{% for iface in hostvars[host].monitor_interfaces %}
+    - {{ iface }}
+{% endfor %}
+{% endfor %}
+bro_workers:
+{% for host in groups['sensors'] %}
+  {{ hostvars[host].inventory_hostname }}: {{ hostvars[host].bro_workers }}
+{% endfor %}
+bpf_filter: "{{ bpf_filter }}"
+home_net:
+{% for net in home_net %}
+  - "{{ net }}"
+{% endfor %}
+kafka_fqdn: {{ kafka_fqdn }}
+kafka_port: {{ kafka_port }}
+elastic_fqdn: {{ elastic_fqdn }}
+elastic_port: {{ elastic_port }}

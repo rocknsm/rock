@@ -1,0 +1,6 @@
+---
+- name: 'Disable Firewalld service'
+  systemd:
+    name: firewalld
+    enabled: no
+    state: stopped
