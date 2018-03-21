@@ -1,15 +1,17 @@
 ---
 - name: Gluster | Create Service Account
   shell: kubectl create -f {{ gluster_dir }}/heketi-service-account.json
-  register: heketi_service_account_result
-  register: result
-  failed_when: result.rc != 0 and not "AlreadyExists" in result.stderr
-
-- name: Gluster | Wait for service account
-  shell: "kubectl get sa heketi-service-account --no-headers=true | awk '{ print $1 }'"
-  register: ds_not_ready
-  until: ds_not_ready.stdout=='heketi-service-account'
-  retries: 10
-  delay: 5
-  ignore_errors: yes
-  when: heketi_service_account_result.rc == 0
+  register: heketi_create_service_account_result
+  failed_when: heketi_create_service_account_result.rc != 0 and not "AlreadyExists" in heketi_create_service_account_result.stderr
+  
+- name: Gluster | Wait for Service Account
+  shell: |
+    {% raw %}
+    GO='{{.metadata.name}}'
+    kubectl get sa heketi-service-account -o go-template="$GO"
+    {% endraw %}
+  register: output
+  until: output.stdout == 'heketi-service-account'
+  retries: 30
+  delay: 15
+  when: "(heketi_create_service_account_result.changed) and (heketi_create_service_account_result.rc == 0)"

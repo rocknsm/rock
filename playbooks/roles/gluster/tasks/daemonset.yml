@@ -1,14 +1,17 @@
 ---
-- name: Gluster | Deploy Daemonset
+- name: Gluster | Create Daemonset
   command: "kubectl create -f {{ gluster_dir }}/glusterfs-daemonset.json"
   register: gluster_deploy_daemonset_result
   failed_when: gluster_deploy_daemonset_result.rc != 0 and not "AlreadyExists" in gluster_deploy_daemonset_result.stderr
 
 - name: Gluster | Wait for daemonset
-  shell: "kubectl get ds glusterfs -o json"
+  shell: |
+    {% raw %}
+    DS='{{eq (.status.numberReady) (.status.desiredNumberScheduled)}}'
+    kubectl get ds glusterfs -o go-template="$DS"
+    {% endraw %}
   register: output
-  until: (output.stdout|from_json).status.desiredNumberScheduled == (output.stdout|from_json).status.numberReady
+  until: output.stdout == 'true'
   retries: 30
   delay: 15
-  #ignore_errors: yes
-  when: gluster_deploy_daemonset_result.rc == 0
+  when: "(gluster_deploy_daemonset_result.changed) and (gluster_deploy_daemonset_result.rc == 0)"

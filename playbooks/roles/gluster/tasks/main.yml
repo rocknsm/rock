@@ -4,11 +4,10 @@
 ---
 
 # Uninstall GlusterFS
-#- include_tasks: remove.yml
-#  when: remove
+- include_tasks: remove.yml
+  when: remove
 # Install GlusterFS, this will fail spectacularly if this is not a fresh install,
 # or remove is not run first
-
 
 - include_tasks: repo.yml
 - include_tasks: packages.yml
@@ -24,26 +23,31 @@
     - "{{ groups['master-server'] }}"
     - "{{ groups['nodes'] }}"
 
-- include_tasks: daemonset.yml
+- name: Deploy GlusterFS Daemonset
+  include_tasks: daemonset.yml
   when: inventory_hostname in groups['master-server']
 
-- include_tasks: heketi_account.yml
+- name: Deploy Heketi Service Account
+  include_tasks: heketi_account.yml
   when: inventory_hostname in groups['master-server'] 
 
-- include_tasks: install.yml
+- name: Bootstrap Heketi
+  include_tasks: heketi_bootstrap.yml
   when: inventory_hostname in groups['master-server']
 
-- name: Add Env to Profile
-  copy:
-    dest: /etc/profile.d/99-dmss.sh
-    content: "export HEKETI_CLI_SERVER=\"http://{{ hostvars[groups['master-server'][0]]['heketi_pod_ip'] }}:8080\""
+- name: Set Heketi Cli Environment Variable
+  include_tasks: heketi_cli_env.yml
 
-- name: Source Profile
-  shell: "source /etc/profile"
+- name: Wipe Raw Disks
+  include_tasks: wipe.yml
+  when: "(gluster_created_daemonset_result.changed) and (gluster_created_daemonset_result.rc == 0)"
 
-- include_tasks: wipe.yml
+- name: Setup Heketi Storage
+  include_tasks: heketi_storage_setup.yml
+  when: inventory_hostname in groups['master-server']
 
-- include_tasks: complete.yml
+- name: Setup Heketi Deployment
+  include_tasks: heketi_deploy.yml
   when: inventory_hostname in groups['master-server'] 
 
 ...

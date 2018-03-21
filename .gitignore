@@ -13,6 +13,7 @@
 .kitchen/
 .vagrant
 .vs
+.vscode/*
 /cookbooks
 Berksfile.lock
 Gemfile.lock
@@ -23,5 +24,5 @@ repo/
 tmp/
 playbooks/files/admin.conf
 playbooks/files/join-node.sh
-
+playbooks/inventory/dev/inventory-*.yml
 playbooks/roles/logstash/tasks/old-main\.yml

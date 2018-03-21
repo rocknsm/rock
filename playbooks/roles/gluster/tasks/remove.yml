@@ -1,86 +1,31 @@
 # Uninstall GlusterFS
-
-- name: Flush GlusterFS Daemonset
-  shell: |
-    kubectl delete -f {{ gluster_dir }}/glusterfs-daemonset.json
-    while [ $(kubectl get -f {{ gluster_dir }}/glusterfs-daemonset.json | wc -l) != '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
+---
+- name: Flush Heketi Bootstrap
+  shell: "kubectl delete all,svc,jobs,deploy,secret --selector=deploy-heketi"
   when: inventory_hostname in groups['master-server']
-  ignore_errors: yes
 
-- name: Flush Service Account
-  shell: |
-    kubectl delete -f {{ gluster_dir }}/heketi-service-account.json
-    while [ $(kubectl get -f {{ gluster_dir }}/heketi-service-account.json | wc -l) != '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
+- name: Flush Heketi
+  shell: "kubectl delete all,svc,deploy,secret,sa,clusterrolebinding --selector=heketi"
   when: inventory_hostname in groups['master-server']
-  ignore_errors: yes
-
-- name: Flush Cluster Role Binding
-  shell: |
-    kubectl delete clusterrolebinding heketi-gluster-admin
-    while [ $(kubectl get clusterrolebinding heketi-gluster-admin ]; do
-      echo -n .;
-      sleep 1;
-    done;
-  when: inventory_hostname in groups['master-server']
-  ignore_errors: yes
-
-- name: Flush Secret
-  shell: |
-    kubectl delete secret heketi-config-secret
-    while [ $(kubectl get secret heketi-config-secret]; do
-      echo -n .;
-      sleep 1;
-    done;
-  when: inventory_hostname in groups['master-server']
-  ignore_errors: yes
-
-- name: Flush Bootstrap
-  shell: |
-    kubectl delete -f {{ gluster_dir }}/heketi-bootstrap.json
-    while [ $(kubectl get deployments deploy-heketi | tail -n +2 | wc -l) != '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
-  when: inventory_hostname in groups['master-server']
-  ignore_errors: yes
 
 - name: Flush Heketi Storage
-  shell: |
-    kubectl delete -f {{ gluster_dir }}/heketi-storage.json
-    while [ $(kubectl get -f {{ gluster_dir }}/heketi-storage.json | wc -l) != '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
+  shell: "kubectl delete svc heketi-storage-endpoints"
+  when: inventory_hostname in groups['master-server'] 
+   
+- name: Remove Node Label
+  shell: "kubectl label nodes {{ item }} storagenode-"
   when: inventory_hostname in groups['master-server']
-  ignore_errors: yes
-
-- name: Flush Deployment
-  shell: |
-    kubectl delete -f {{ gluster_dir }}/heketi-deployment.json
-    while [ $(kubectl get -f {{ gluster_dir }}/heketi-deployment.json | wc -l) != '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
+  with_items:
+  - "{{ groups['master-server'] }}"
+  - "{{ groups['nodes'] }}"
+   
+- name: Flush Gluster Daemonset
+  shell: "kubectl delete ds --selector=glusterfs"
+  when: inventory_hostname in groups['master-server']   
+  
+- name: Flush Gluster Templates
+  shell: "kubectl delete template --selector=glusterfs"
   when: inventory_hostname in groups['master-server']
-  ignore_errors: yes
-
-
-- name: Flush Storage Class
-  shell: |
-    kubectl delete -f {{ gluster_dir }}/storage-class.yml
-    while [ $(kubectl get -f {{ gluster_dir }}/storage-class.yml | wc -l) != '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
-  when: inventory_hostname in groups['master-server']
-  ignore_errors: yes
-
 
 - name: Uninstall GlusterFS client
   yum:

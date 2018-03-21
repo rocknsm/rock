@@ -26,11 +26,26 @@
     name: Deployer-local
   when: "not online_install"
 
+- name: "Configure default CentOS online repos"
+  yum_repository:
+    description: "CentOS-$releasever - {{ item.name | title }}"
+    enabled: "{{ online_install }}"
+    file: CentOS-Base
+    mirrorlist: "{{ item.mirror }}"
+    name: "{{ item.name }}"
+    gpgcheck: true
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
+  with_items:
+  - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
+  - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
+  - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
+  when: "ansible_distribution == \"CentOS\""
+
 - name: Check if EPEL repo is already configured
   stat: path={{ epel_repofile_path }}
   register: epel_repofile_result
 
-- name: Install EPEL repo
+- name: Install EPEL release
   yum:
     name: "{{ epel_repo_url }}"
     state: present
@@ -43,17 +58,6 @@
     state: present
   when: not epel_repofile_result.stat.exists
 
-- name: "Configure default CentOS online repos"
-  yum_repository:
-    description: "CentOS-$releasever - {{ item.name | title }}"
-    enabled: "{{ online_install }}"
-    file: CentOS-Base
-    mirrorlist: "{{ item.mirror }}"
-    name: "{{ item.name }}"
-  with_items:
-  - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
-  - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
-  - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
-  when: "ansible_distribution == \"CentOS\""
-
-
+#- name: "Manually trust CentOS GPG key"
+#  shell: "rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7\n"
+#  when: "rock_online_install and ansible_distribution == \"CentOS\""

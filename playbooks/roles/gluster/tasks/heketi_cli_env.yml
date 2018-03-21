@@ -1,0 +1,12 @@
+---
+- name: Get Heketi Pod IP
+  include_tasks: heketi_pod_info.yml
+
+- name: Add Env to Profile
+  copy:
+    dest: /etc/profile.d/99-dmss.sh
+    content: "export HEKETI_CLI_SERVER=\"http://{{ heketi_pod_ip.stdout }}:8080\""
+  when: "heketi_pod_ip is defined and not 'no value' in heketi_pod_ip.stdout"
+
+- name: Source Profile
+  shell: "source /etc/profile"

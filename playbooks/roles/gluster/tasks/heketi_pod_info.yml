@@ -1,0 +1,8 @@
+---
+- name: Get Heketi Pod IP
+  shell: |
+    {% raw %}
+     GO='{{range .items}}{{.status.podIP}}{{end}}'
+    kubectl get pods -l deploy-heketi -o go-template="$GO"
+    {% endraw %}
+  register: heketi_pod_ip

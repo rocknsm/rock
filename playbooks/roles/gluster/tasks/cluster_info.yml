@@ -1,0 +1,8 @@
+---
+- name: Get Cluster IP
+  shell: |
+        {% raw %}
+        GO='{{.spec.clusterIP}}'
+        kubectl get svc heketi -o go-template="$GO"
+        {% endraw %}
+  register: heketi_cluster_ip

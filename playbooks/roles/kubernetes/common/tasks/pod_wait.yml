@@ -1,4 +1,9 @@
 ---
+
+# GOPOD is a go template which extracts the Ready and Status fields from the api in json format.
+# Pod Array -> Status -> containerStatues Array -> ready field
+# "kubectl get pods -o json" will return the full json structure
+
 - name: Kube | Wait for Pods
   shell: |
     {% raw %}

@@ -6,46 +6,42 @@
 # file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
 
 all:
-  children:
+  children:    
     master-server:
       vars:
         home_net:
           - "192.168.0.0/16"
           - "10.0.0.0/8"
           - "172.16.0.0/12"
-        serivces_cidr: "192.168.86.248/29"
+        serivces_cidr: # Network Cidr for Metallb ie: "192.168.86.248/29"
         bpf_filter: ""
       hosts:
         rockserver1.lan:
           ansible_user: root
           ansible_connection: ssh
-          management_ipv4: 10.11.4.51
-          #management_ipv4: 192.168.1.199
+          management_ipv4: # IP Address of node
           data_disk_devices:
-          - /dev/sdb
+          #- /dev/sdb <raw disk name>
     nodes:
       children:
         sensors:
           hosts:
             rocksensor1.lan:
               ansible_connection: ssh
-              management_ipv4: 10.11.4.53
-              #management_ipv4: 192.168.1.198
+              management_ipv4: # IP Address of node
               bro_workers: 2
               monitor_interfaces:
-              - enp0s8
+              #- eth0 <Interface Name>
               data_disk_devices:
-              - /dev/sdb
+              #- /dev/sdb <raw disk name>
         servers:
           hosts:
             rockserver2.lan:
-              ansible_hostname: rockserver2.lan
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 10.11.4.52
-              #management_ipv4: 192.168.1.1.194
+              management_ipv4: # IP Address of node
               data_disk_devices:
-              - /dev/sdb
+              #- /dev/sdb <raw disk name>
     nodes_to_remove:
       hosts:
         rocksensor1.lan:

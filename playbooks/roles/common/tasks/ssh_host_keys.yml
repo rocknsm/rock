@@ -19,4 +19,6 @@
     - "{{ host_keys }}"
 
 - name: Remove possible conflicting host keys from profile
-  shell: "rm -f ~/.ssh/known_hosts"
+  file:
+    path: "/root/.ssh/known_hosts"
+    state: absent

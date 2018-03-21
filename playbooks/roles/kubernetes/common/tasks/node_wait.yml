@@ -1,4 +1,9 @@
 ---
+
+# GONODE is a go template which extracts the Ready and Status fields from the api in json format.
+# Node Array -> Status -> Condition Array -> Type field (Ready) and Status Field
+# "kubectl get nodes -o json" will return the full json structure
+
 - name: Kube | Wait for Node
   shell: |
     {% raw %}
