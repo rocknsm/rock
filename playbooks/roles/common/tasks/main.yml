@@ -10,6 +10,7 @@
   when: hostvars[item].management_ipv4 is defined
   with_items: "{{ groups['all'] }}"
 
+
 - name: "Add Deployer to hosts file"
   lineinfile:
     dest: /etc/hosts
@@ -17,22 +18,6 @@
     line: "{{ deployer }} deployer deployer.lan"
     state: present
   when: deployer is defined
-
-- name: Install ROCK NSM /etc/issue
-  copy:
-    src: etc-issue.in
-    dest: /etc/issue.in
-    mode: 0644
-    owner: root
-    group: root
-
-- name: NetworkManager ROCK NSM hook
-  copy:
-    src: nm-issue-update
-    dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
-    mode: 0755
-    owner: root
-    group: root
 
 # main.yml - Common tasks for ROCK
 - include_tasks: set_hostname.yml

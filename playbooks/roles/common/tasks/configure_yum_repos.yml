@@ -26,25 +26,22 @@
     name: Deployer-local
   when: "not online_install"
 
-- name: Install EPEL release
+- name: Check if EPEL repo is already configured
+  stat: path={{ epel_repofile_path }}
+  register: epel_repofile_result
+
+- name: Install EPEL repo
   yum:
-    name: epel-release
-    state: installed
-  when: online_install
+    name: "{{ epel_repo_url }}"
+    state: present
+  register: result
+  when: not epel_repofile_result.stat.exists
 
-#- name: "Setup EPEL repo"
-#  yum_repository:
-#    baseurl: "{{ epel_baseurl }}"
-#    description: "EPEL YUM repo"
-#    gpgcheck: true
-#    gpgkey: "{{ epel_gpgurl }}"
-#    mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
-#    name: epel
-#  when: rock_online_install
-
-#- name: "Manually trust CentOS GPG key"
-#  shell: "rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7\n"
-#  when: "rock_online_install and ansible_distribution == \"CentOS\""
+- name: Import EPEL GPG key
+  rpm_key:
+    key: "{{ epel_repo_gpg_key_url }}"
+    state: present
+  when: not epel_repofile_result.stat.exists
 
 - name: "Configure default CentOS online repos"
   yum_repository:

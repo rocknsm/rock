@@ -2,7 +2,9 @@
 - name: Gluster | Create Service Account
   shell: kubectl create -f {{ gluster_dir }}/heketi-service-account.json
   register: heketi_service_account_result
-  
+  register: result
+  failed_when: result.rc != 0 and not "AlreadyExists" in result.stderr
+
 - name: Gluster | Wait for service account
   shell: "kubectl get sa heketi-service-account --no-headers=true | awk '{ print $1 }'"
   register: ds_not_ready

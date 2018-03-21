@@ -6,7 +6,7 @@
 # file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
 
 all:
-  children:    
+  children:
     master-server:
       vars:
         home_net:
@@ -19,7 +19,8 @@ all:
         rockserver1.lan:
           ansible_user: root
           ansible_connection: ssh
-          management_ipv4: 192.168.122.4
+          management_ipv4: 10.11.4.51
+          #management_ipv4: 192.168.1.199
           data_disk_devices:
           - /dev/sdb
     nodes:
@@ -28,18 +29,21 @@ all:
           hosts:
             rocksensor1.lan:
               ansible_connection: ssh
-              management_ipv4: 192.168.122.6
+              management_ipv4: 10.11.4.53
+              #management_ipv4: 192.168.1.198
               bro_workers: 2
               monitor_interfaces:
-              - enp0s3
+              - enp0s8
               data_disk_devices:
               - /dev/sdb
         servers:
           hosts:
             rockserver2.lan:
+              ansible_hostname: rockserver2.lan
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.122.5
+              management_ipv4: 10.11.4.52
+              #management_ipv4: 192.168.1.1.194
               data_disk_devices:
               - /dev/sdb
     nodes_to_remove:

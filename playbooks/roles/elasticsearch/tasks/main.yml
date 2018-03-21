@@ -3,13 +3,19 @@
 ######################################################
 ---
 
-- name: "Create directories"
-  file:
-    group: "{{ es_group }}"
-    owner: "{{ es_user }}"
-    mode: u+rw,g+rw
-    path: "{{ elastic_dir }}"
-    state: directory
+- name: Copy Files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ elastic_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - elastic-namespace.yml
+    - elasticsearch-discovery-service.yml
+    - elasticsearch-cluster-ip-service.yml
+    - custom-entrypoint
+    - log4j2.properties
 
 - name: Install Templates
   template:
@@ -19,70 +25,75 @@
     owner: "{{ es_user }}"
     mode: u+rw,g+rw
   with_items:
-    - es-discovery-svc.yml
-    - es-master.yml
-    - es-data.yml
-    - es-svc.yml
-    - elastichq.yml
-    - elastichq-svc.yml
-    - elasticsearch.yml
-    - jvm.options
-    - log4j2.properties
+    - elasticsearch-definition.yml
+    - Dockerfile
 
-- name: Flush Config
-  command: 'kubectl delete configmap elastic --ignore-not-found=true'
+- name: 'Build Elasticsearch container'
+  docker_image:
+    name: 'rocknsm/elasticsearch'
+    pull: yes
+    state: present
+    path: "{{ elastic_dir }}/"
+    dockerfile: 'Dockerfile'
 
 - name: Create Config
-  shell: |
-    kubectl create configmap elastic --from-file {{ elastic_dir }}/elasticsearch.yml \
-    --from-file {{ elastic_dir }}/jvm.options \
-    --from-file {{ elastic_dir }}/log4j2.properties
+  shell: kubectl create -f elasticsearch.yml
+  register: debug_output
 
-- name: Flush Deployments
-  shell: |
-    kubectl delete -f {{ elastic_dir }}/{{ item }}.yml --ignore-not-found=true
-    while [ $(kubectl get -f {{ elastic_dir }}/{{ item }}.yml | tail -n +2 | wc -l) != '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
-    sleep 5;
-  with_items:
-    - es-discovery-svc
-    - es-svc
-    - es-data
-    - es-master
-    - elastichq
-    - elastichq-svc
-#    - es-client
-#    - es-data
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
-- name: Deploy Pods
-  shell: |
-    kubectl create -f {{ elastic_dir }}/{{ item }}.yml
-    while [ $(kubectl get -f {{ elastic_dir }}/{{ item }}.yml | tail -n +2 | awk '{ print $5}') == '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
-  with_items:
-    - es-master
-    - es-data
-    - elastichq
-    #- es-client
-    #- es-data
+- name: Create Config
+  shell: kubectl create -f es-discovery-svc.yml
+  register: debug_output
 
-- name: Deploy Services
-  command: 'kubectl create -f {{ elastic_dir }}/{{ item }}.yml'
-  with_items:
-    - es-discovery-svc
-    - es-svc
-    - elastichq-svc
-#    - es-client
-#    - es-data
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
-- name: Wait for Elasticsearch to be ready
-  shell: |
-    ES_WANTED=$(kubectl get statefulset es-master | tail -n 1 | awk '{print $2}')
-    while [ "$(kubectl get pods | grep es-master | grep 1/1 | wc -l)" != "$ES_WANTED" ]; do
-      echo -n .;
-      sleep 1;
-    done;
+- name: Create Config
+  shell: kubectl create -f elasticsearch-cluster-ip-service.yml
+  register: debug_output
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Create Config
+  shell: kubectl create -f elasticsearch-loadbalancer-service.yml
+  register: debug_output
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Create Config
+  shell: kubectl create -f elasticsearch.yml
+  register: debug_output
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+#- name: Wait for Elasticsearch to be ready
+#  shell: |
+#    while [ "$(kubectl get pods | grep es-master | head -n +1 | awk '{ print $2}')" != "1/1" ]; do
+#      echo -n .;
+#      sleep 1;
+#    done;

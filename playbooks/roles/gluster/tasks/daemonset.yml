@@ -2,6 +2,7 @@
 - name: Gluster | Deploy Daemonset
   command: "kubectl create -f {{ gluster_dir }}/glusterfs-daemonset.json"
   register: gluster_deploy_daemonset_result
+  failed_when: gluster_deploy_daemonset_result.rc != 0 and not "AlreadyExists" in gluster_deploy_daemonset_result.stderr
 
 - name: Gluster | Wait for daemonset
   shell: "kubectl get ds glusterfs -o json"
