@@ -3,42 +3,13 @@
 ######################################################
 ---
 
-- name: Copy Files
-  copy:
-    src: "{{ item }}"
-    dest: "{{ elastic_dir }}/{{ item }}"
-    owner: root
-    group: root
-    mode: 0644
-  with_items:
-    - elastic-namespace.yml
-    - elasticsearch-discovery-service.yml
-    - elasticsearch-cluster-ip-service.yml
-    - custom-entrypoint
-    - log4j2.properties
-
-- name: Install Templates
-  template:
-    src: "templates/{{ item }}.j2"
-    dest: "{{ elastic_dir }}/{{ item }}"
-    group: "{{ es_group }}"
-    owner: "{{ es_user }}"
-    mode: u+rw,g+rw
-  with_items:
-    - elasticsearch-definition.yml
-    - Dockerfile
-
-- name: 'Build Elasticsearch container'
-  docker_image:
-    name: 'rocknsm/elasticsearch'
-    pull: yes
-    state: present
-    path: "{{ elastic_dir }}/"
-    dockerfile: 'Dockerfile'
+- include_tasks: install_docker_py.yml
+- include_tasks: copy_files.yml
 
 - name: Create Config
-  shell: kubectl create -f elasticsearch.yml
+  shell: kubectl create -f {{ elastic_dir }}/elastic-namespace.yml
   register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
 
 - name: Debug Output
   debug:
@@ -48,8 +19,9 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Create Config
-  shell: kubectl create -f es-discovery-svc.yml
+  shell: kubectl create --namespace=elasticsearch -f {{ elastic_dir }}/elasticsearch-discovery-service.yml
   register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
 
 - name: Debug Output
   debug:
@@ -59,8 +31,9 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Create Config
-  shell: kubectl create -f elasticsearch-cluster-ip-service.yml
+  shell: kubectl create --namespace=elasticsearch -f {{ elastic_dir }}/elasticsearch-cluster-ip-service.yml
   register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
 
 - name: Debug Output
   debug:
@@ -70,8 +43,9 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Create Config
-  shell: kubectl create -f elasticsearch-loadbalancer-service.yml
+  shell: kubectl create --namespace=elasticsearch -f {{ elastic_dir }}/elasticsearch-loadbalancer-service.yml
   register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
 
 - name: Debug Output
   debug:
@@ -81,8 +55,9 @@
   when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
 
 - name: Create Config
-  shell: kubectl create -f elasticsearch.yml
+  shell: kubectl create --namespace=elasticsearch -f {{ elastic_dir }}/elasticsearch-definition.yml
   register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
 
 - name: Debug Output
   debug:
