@@ -16,10 +16,8 @@
     mode: 0644
   with_items:
     - topology.json
-    - heketi.json
     - storage-class.yml
-    - heketi-deployment.json
-    - heketi-bootstrap.json
+    - heketi.json.template
 
 - name: Copy Files
   copy:
@@ -28,6 +26,17 @@
     owner: root
     group: root
     mode: 0644
-  with_items:
-    - glusterfs-daemonset.json
-    - heketi-service-account.json
+  with_items:    
+    - gk-deploy
+    - deploy-heketi-deployment.yaml
+    - glusterfs-daemonset.yaml
+    - heketi-deployment.yaml
+    - heketi-service-account.yaml
+    - test-storage.yml
+
+- name: Change gk deploy perms
+  file:
+    path: "{{ gluster_dir }}/gk-deploy"
+    mode: 0755
+    owner: root
+    group: root

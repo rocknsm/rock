@@ -1,0 +1,32 @@
+---
+- name: Copy Files
+  copy:
+    src: "{{ item }}"
+    dest: "{{ gluster_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - test-storage.yml
+
+- name: Create Storage
+  shell: kubectl create -f {{ gluster_dir }}/test-storage.yml
+  register: debug_output
+
+- name: Check Test PVC
+  shell: kubectl describe pvc test-pv-claim
+  register: test_result
+
+- name: Gluster | Wait for PV
+  shell: |
+    {% raw %}
+    GONODE='{{if ne .status.phase ("Bound")}}false{{end}}'
+    kubectl get pvc test-pv-claim -o go-template="$GONODE"
+    {% endraw %}
+  register: output
+  until: output.stdout == ""
+  retries: 10
+  delay: 2
+
+- name: Delete Test Storage
+  shell: kubectl delete -f {{ gluster_dir }}/test-storage.yml

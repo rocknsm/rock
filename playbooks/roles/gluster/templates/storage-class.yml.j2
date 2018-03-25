@@ -4,7 +4,7 @@ metadata:
   name: gluster-heketi
 provisioner: kubernetes.io/glusterfs
 parameters:
-  resturl: "http://heketi_cluster_ip:8080"
+  resturl: "heketi_endpoint_url"
   restuser: "user"
   restuserkey: "{{ heketi_user_key }}"
   volumeType: "none"

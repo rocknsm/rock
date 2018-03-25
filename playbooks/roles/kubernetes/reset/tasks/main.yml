@@ -6,7 +6,17 @@
   command: kubeadm reset
   register: kube_reset_result
   ignore_errors: yes
-  when: inventory_hostname in groups['nodes']
+  when: inventory_hostname in groups['nodes_to_remove'] and (kubeadm_reset is defined and kubeadm_reset)
+
+- name: Stop Services
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove']
+  with_items:
+    - docker
+    - kubelet
 
 - name: Remove Kubernetes Packages to clear cache
   yum:
@@ -19,12 +29,6 @@
   ignore_errors: yes
   when: inventory_hostname in groups['nodes_to_remove']
 
-- name: Stop Services
-  systemd:
-    name: docker
-    state: stopped
-  ignore_errors: yes
-  when: inventory_hostname in groups['nodes_to_remove']
 
 - name: Remove Artifacts
   file:
@@ -37,6 +41,7 @@
     - /etc/kubernetes
   ignore_errors: yes
   when: inventory_hostname in groups['nodes_to_remove']
+
 
 - name: Remove Interfaces
   shell: |

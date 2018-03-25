@@ -52,12 +52,47 @@ rm -rf /opt/rock && git clone -b <github_branch> <github_url> /opt/rock && cd /o
 # Example:
 # rm -rf /opt/rock && git clone -b logstash_feature https://github.com/tfplenum/rock /opt/rock && cd /opt/rock/playbooks
 ```
+9. Inventory: 
+* Copy the sample inventory file from playbooks/inventory/sample to playbooks/inventory/dev
+* Use the following naming convention to ensure your inventory file is not commited to git.
+    * inventory-<name>.yml - ie: inventory-bob.yml
+* Update your inventory file with your VMs network cidr (required for metallb), VM IP Address, and Network Interface
 
-9. Start the installer using the "ansible-playbook" command. To run only sensor/server related playbooks, use the "--limit" flag. Note: If you installed ssh keys you can omit the `--ask-pass` argument
+10. Start the installer using the "ansible-playbook" command. To run only sensor/server related playbooks, use the "--limit" flag. Note: If you installed ssh keys you can omit the `--ask-pass` argument
 ```bash
-ansible-playbook site.yml --ask-pass
-ansible-playbook site.yml --ask-pass --limit "sensors"
-ansible-playbook site.yml --ask-pass --limit "servers"
+ansible-playbook site.yml -i inventory/dev/inventory.yml --ask-pass
+ansible-playbook site.yml -i inventory/dev/inventory.yml -t <tag>
+ansible-playbook site.yml -i inventory/dev/inventory.yml -t kube-master
+ansible-playbook site.yml -i inventory/dev/inventory.yml -t gluster
+ansible-playbook site.yml -i inventory/dev/inventory.yml -t gluster -e "gluster_reload=true"
+```
+
+11. Tags and Extra Vars:
+  * Tags: 
+    * kube_master 
+    * kube_node 
+    * gluster
+  * Extra Vars: 
+    * "gluster_reload" (default is false)
+
+12. Playbooks
+* site.yml - Main playbook that will install and setup kubernetes, storage(glusterfs/ceph), and all applications.
+* add_node.yml - Add a node to kubernetes.
+* remove_node.yml - Remove a node from kubernetes.
+* Examples:
+```bash
+# Install full stack
+ansible-playbook site.yml -i inventory/dev/inventory.yml
+
+# Add new node to cluster
+ansible-playbook add_node.yml -i inventory/dev/inventory.yml -l rocksensor3.lan
+
+# Remove node from cluster
+# Add host to "node_to_remove" group in inventory
+ansible-playbook remove_node.yml -i inventory/dev/inventory.yml
+
+# Reinstall gluster
+ansible-playbook site.yml -i inventory/dev/inventory.yml -t gluster -e "gluster_reload=true"
 ```
 
 ## See Also

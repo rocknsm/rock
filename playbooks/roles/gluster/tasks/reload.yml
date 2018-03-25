@@ -3,14 +3,17 @@
 - name: Flush Heketi Bootstrap
   shell: "kubectl delete all,svc,jobs,deploy,secret --selector=deploy-heketi"
   when: inventory_hostname in groups['master-server']
+  ignore_errors: yes
 
 - name: Flush Heketi
   shell: "kubectl delete all,svc,deploy,secret,sa,clusterrolebinding --selector=heketi"
   when: inventory_hostname in groups['master-server']
+  ignore_errors: yes
 
 - name: Flush Heketi Storage
   shell: "kubectl delete svc heketi-storage-endpoints"
-  when: inventory_hostname in groups['master-server'] 
+  when: inventory_hostname in groups['master-server']
+  ignore_errors: yes
    
 - name: Remove Node Label
   shell: "kubectl label nodes {{ item }} storagenode-"
@@ -18,14 +21,18 @@
   with_items:
   - "{{ groups['master-server'] }}"
   - "{{ groups['nodes'] }}"
+  ignore_errors: yes
    
 - name: Flush Gluster Daemonset
   shell: "kubectl delete ds --selector=glusterfs"
-  when: inventory_hostname in groups['master-server']   
+  when: inventory_hostname in groups['master-server'] 
+  ignore_errors: yes
+
+- name: Flush Storage Class
+  shell: "kubectl delete storageclass gluster-heketi"
+  when: inventory_hostname in groups['master-server'] 
+  ignore_errors: yes 
   
-- name: Flush Gluster Templates
-  shell: "kubectl delete template --selector=glusterfs"
-  when: inventory_hostname in groups['master-server']
 
 - name: Uninstall GlusterFS client
   yum:
@@ -34,6 +41,7 @@
   with_items:
     - glusterfs-client
     - heketi-client
+  ignore_errors: yes
 
 - name: Remove Centos repo
   yum:
@@ -42,6 +50,7 @@
   with_items:
     - "centos-release-gluster{{ centos_gluster_ver }}"
   #when: ansible_distribution == 'CentOS'
+  ignore_errors: yes
 
 - name: "Remove RedHat repo"
   yum_repository:
@@ -51,6 +60,7 @@
     name: CentOS-Gluster-3.10
     state: absent
   when: ansible_distribution == 'RedHat'
+  ignore_errors: yes
 
 - name: Remove possible artifacts
   file:
@@ -61,6 +71,7 @@
     - /var/lib/glusterfs
     - /var/lib/glusterd
     - /etc/glusterfs
+  ignore_errors: yes
 
 - name: Remove Gluster Directory
   file:
@@ -70,3 +81,4 @@
     group: root
     mode: 0644
   when: inventory_hostname in groups['master-server']
+  ignore_errors: yes

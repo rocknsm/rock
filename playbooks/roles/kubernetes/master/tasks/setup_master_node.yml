@@ -3,6 +3,7 @@
 # The below task removes that restriction.
 - name: 'Remove master taint from master'
   command: 'kubectl taint nodes --all node-role.kubernetes.io/master-'
+  ignore_errors: yes
 
 - name: 'Label masters'
   command: 'kubectl label nodes {{ansible_fqdn}} role=server --overwrite=true'

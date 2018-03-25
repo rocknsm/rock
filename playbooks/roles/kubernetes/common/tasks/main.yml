@@ -3,16 +3,6 @@
 #######################################################
 ---
 
-- name: Check to see if default kube dir exists
-  stat:
-    path: "/etc/kubernetes"
-  register: kdir
-
-- name: Reset Kube
-  include_role:
-    name: kubernetes/reset
-  when: kdir.stat.exists and kdir.stat.isdir
-
 - include_tasks: disable_swap.yml
 - include_tasks: kernel_mods.yml
 - include_tasks: sysctl.yml

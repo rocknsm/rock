@@ -15,7 +15,7 @@
 
 - hosts: nodes_to_remove
   roles:
-    - { role: kubernetes/reset, tags: reset }
+    - { role: kubernetes/reset, tags: reset, vars: kubeadm_reset: false}
 
 - hosts: master-server
   roles:

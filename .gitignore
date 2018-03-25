@@ -22,7 +22,14 @@ Vagrantfile.vmware
 pkg/
 repo/
 tmp/
+playbooks/roles/logstash/tasks/old-main\.yml
+
+# We dont want to commit tokens to git
 playbooks/files/admin.conf
 playbooks/files/join-node.sh
+
+# Keep inventory files under inventory dir
+playbooks/inventory*.yml
+
+# Dont commit your inventory to git
 playbooks/inventory/dev/inventory-*.yml
-playbooks/roles/logstash/tasks/old-main\.yml

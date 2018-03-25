@@ -2,14 +2,9 @@
 ############### ROCKNSM Customization ################
 ######################################################
 - name: "Build hosts file"
-  lineinfile:
-    dest: /etc/hosts
-    regexp: '.*{{ item }}$'
-    line: "{{ hostvars[item].management_ipv4 }} {{item}} {{ hostvars[item].inventory_hostname_short }}"
-    state: present
-  when: hostvars[item].management_ipv4 is defined
-  with_items: "{{ groups['all'] }}"
-
+  template:
+    dest: '/etc/hosts'
+    src: 'hosts.j2'
 
 - name: "Add Deployer to hosts file"
   lineinfile:
