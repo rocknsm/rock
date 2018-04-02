@@ -24,7 +24,14 @@
     description: "Deployer Repository"
     gpgcheck: false
     name: Deployer-local
+    enabled: true
   when: "not online_install"
+
+- name: Remove Deployer offline repo
+  yum_repository:
+    state: absent
+    name: Deployer-local
+  when: online_install
 
 - name: "Configure default CentOS online repos"
   yum_repository:

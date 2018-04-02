@@ -3,6 +3,11 @@
 #######################################################
 ---
 
+- name: Reset Kube
+  include_role:
+    name: kubernetes/reset
+  when: kube_reload is defined and kube_reload
+
 - include_tasks: disable_swap.yml
 - include_tasks: kernel_mods.yml
 - include_tasks: sysctl.yml

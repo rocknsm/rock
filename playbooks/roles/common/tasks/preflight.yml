@@ -1,0 +1,11 @@
+#
+# Checking that required variables are set
+#
+- name: Checking that required variables are set
+  fail: msg="{{ item }} is not defined"
+  when: not item
+  with_items:
+    - management_ipv4
+    - epel_repo_url
+    - epel_repo_gpg_key_url
+    - epel_repofile_path

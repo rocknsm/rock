@@ -1,0 +1,39 @@
+---
+
+# Variables:
+# type (required): kubernetes resource type using one of the following: pod, pods, node
+# resource_name (optional): kubernetes resource name
+# namespace (optional): kubernetes namespace (ie: kube-system)
+#   Note: When using type node namespace can be any string
+# label (optional): kubernetes resource label
+
+# Example:
+# - name: Wait for Master Node
+#   include_role:
+#     name: kubernetes/common
+#     tasks_from: kube_check
+#   vars:
+#     type: "node"
+#     namespace: ""
+#     resource_name: "{{ ansible_fqdn }}"
+#     label: ""
+
+- set_fact:
+    GOPOD: !unsafe "'{{range .items}}{{range .status.containerStatuses}}{{if eq .ready true}}Ready{{end}}{{end}}{{end}}'"
+  when: type == 'pods'
+
+- set_fact:
+    GOPOD: !unsafe "'{{range .status.containerStatuses}}{{if eq .ready true}}Ready{{end}}{{end}}'"
+  when: type == 'pod'
+
+- set_fact:
+    GOPOD: !unsafe "'{{range .status.conditions}}{{if and (eq (.type) (\"Ready\")) (eq (.status) (\"True\"))}}Ready{{end}}{{end}}'"
+  when: type == 'node'
+
+- include_tasks: build_kubectl.yml
+
+- name: Kube | Check {{ type }}
+  shell: |
+    {{ kubectl }}
+  register: kube_check_result
+  failed_when: "kube_check_result.rc != 0 and kube_check_result.rc != 1"

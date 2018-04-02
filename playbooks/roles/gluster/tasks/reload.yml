@@ -1,38 +1,59 @@
 # Uninstall GlusterFS
 ---
-- name: Flush Heketi Bootstrap
-  shell: "kubectl delete all,svc,jobs,deploy,secret --selector=deploy-heketi"
-  when: inventory_hostname in groups['master-server']
+
+- name: Gluster | Scale down deploy-heketi gracefully
+  shell: "kubectl scale deployment deploy-heketi --replicas=0"
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Gluster | Scale down heketi gracefully
+  shell: "kubectl scale deployment heketi --replicas=0"
+  when: inventory_hostname in groups['master-servers']
+  ignore_errors: yes
+
+- name: Gluster | Wait for Scale Down
+  pause:
+    seconds: 35
+
+- name: Gluster | Wait for Pods To Terminate
+  shell: |
+    {% raw %}
+    GOPOD='{{range .items}}{{range .status.containerStatuses}}{{if .state.terminated}}terminated{{end}}{{end}}{{end}}'
+    kubectl get pods --selector=glusterfs -o go-template --template="$GOPOD"
+    {% endraw %} 
+  register: output
+  until: output.stdout == ""
+  retries: 30
+  delay: 15
+  when: inventory_hostname in groups['master-servers'] 
+
+- name: Flush Deploy Heketi
+  shell: |
+    kubectl delete all,svc,jobs,deploy,secret --selector="deploy-heketi"
   ignore_errors: yes
 
 - name: Flush Heketi
-  shell: "kubectl delete all,svc,deploy,secret,sa,clusterrolebinding --selector=heketi"
-  when: inventory_hostname in groups['master-server']
+  shell: |
+    kubectl delete all,svc,deploy,secret,sa,clusterrolebinding --selector="heketi"
   ignore_errors: yes
 
-- name: Flush Heketi Storage
-  shell: "kubectl delete svc heketi-storage-endpoints"
-  when: inventory_hostname in groups['master-server']
+- name: Flush Heketi
+  shell: |
+    kubectl delete svc heketi-storage-endpoints
   ignore_errors: yes
-   
+
 - name: Remove Node Label
   shell: "kubectl label nodes {{ item }} storagenode-"
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master-servers']
   with_items:
-  - "{{ groups['master-server'] }}"
+  - "{{ groups['master-servers'] }}"
   - "{{ groups['nodes'] }}"
   ignore_errors: yes
-   
-- name: Flush Gluster Daemonset
-  shell: "kubectl delete ds --selector=glusterfs"
-  when: inventory_hostname in groups['master-server'] 
-  ignore_errors: yes
 
-- name: Flush Storage Class
-  shell: "kubectl delete storageclass gluster-heketi"
-  when: inventory_hostname in groups['master-server'] 
-  ignore_errors: yes 
-  
+- name: Flush Heketi
+  shell: |
+    kubectl  delete ds --selector="glusterfs"
+  ignore_errors: yes
 
 - name: Uninstall GlusterFS client
   yum:
@@ -80,5 +101,5 @@
     owner: root
     group: root
     mode: 0644
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master-servers']
   ignore_errors: yes

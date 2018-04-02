@@ -1,0 +1,10 @@
+---
+- name: Check Worker Node
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_check
+  vars:
+    type: "node"
+    namespace: ""
+    resource_name: "{{ ansible_fqdn }}"
+    label: ""

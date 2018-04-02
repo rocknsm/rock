@@ -2,6 +2,7 @@
 - name: Kube | Init Kubernetes cluster
   shell: "kubeadm init --pod-network-cidr={{ kube_pod_cidr }} --kubernetes-version={{ kube_version }} | grep 'kubeadm join --token' | tee /etc/kubernetes/join-node.sh"
   register: init_kube_cluster_result
+  failed_when: "'ERROR' in init_kube_cluster_result.stderr"
 
 - name: Kube | Retrieve files
   fetch:
@@ -11,7 +12,6 @@
   with_items:
     - "{{ kubernetes_conf_file }}"
     - "/etc/kubernetes/join-node.sh"
-  when: init_kube_cluster_result.rc == 0
 
 - name: Retrieve generated credentials
   include_role:
@@ -24,4 +24,9 @@
 - name: Kube | Wait for Master Node to be ready
   include_role:
     name: kubernetes/common
-    tasks_from: node_wait
+    tasks_from: kube_wait
+  vars:
+    type: "node"
+    namespace: ""
+    resource_name: "{{ ansible_fqdn }}"
+    label: ""

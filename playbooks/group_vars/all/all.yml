@@ -23,6 +23,8 @@ xpack_license: 'true'
 
 # Kubernetes
 kubernetes_conf_file: /etc/kubernetes/admin.conf
+kube_dir: "{{ install_dir }}/kubernetes"
+kube_version: "1.9.3"
 
 # Bro
 pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350

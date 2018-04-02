@@ -7,9 +7,9 @@
     name: "{{ item }}"
     state: 'installed'
   with_items:
-    - "kubeadm"
-    - "kubelet"
-    - "kubectl"
+    - "kubeadm-{{ kube_version }}"
+    - "kubelet-{{ kube_version }}"
+    - "kubectl-{{ kube_version }}"
     - "docker"
     - "ebtables"
     - "ethtool"

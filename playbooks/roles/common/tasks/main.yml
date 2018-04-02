@@ -1,6 +1,21 @@
 ######################################################
 ############### ROCKNSM Customization ################
 ######################################################
+- name: Check known hosts
+  stat: 
+    path: /root/.ssh/known_hosts
+  register: know_hosts_check
+
+- name: Check ssh key
+  stat: 
+    path: /root/.ssh/id_rsa
+  register: ssh_key_check
+
+- name: Fail if know_hosts is not vaild
+  fail: msg="Error missing known hosts/ssh key - run generate_ssh_keys playbook"
+  when: (know_hosts_check is defined and not know_hosts_check.stat.exists)
+      or (ssh_key_check is defined and not ssh_key_check.stat.exists)
+
 - name: "Build hosts file"
   template:
     dest: '/etc/hosts'
@@ -17,7 +32,6 @@
 # main.yml - Common tasks for ROCK
 - include_tasks: set_hostname.yml
 - include_tasks: minimum_hardware_check.yml
-- include_tasks: ssh_host_keys.yml
 - include_tasks: configure_yum_repos.yml
 - include_tasks: configure_rock_repo.yml
 - include_tasks: disable_selinux.yml

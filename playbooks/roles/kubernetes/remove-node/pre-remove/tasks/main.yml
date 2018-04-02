@@ -9,6 +9,6 @@
       --timeout {{ drain_timeout }}
       --delete-local-data {{ item }}
   failed_when: false
-  delegate_to: "{{ groups['master-server'][0] }}"
+  delegate_to: "{{ groups['master-servers'][0] }}"
   ignore_errors: yes
   with_items: "{{ groups['nodes_to_remove'] }}"

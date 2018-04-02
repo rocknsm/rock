@@ -1,0 +1,9 @@
+---
+
+- name: Create config directory
+  file:
+    path: "{{ ceph_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw

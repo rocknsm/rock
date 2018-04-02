@@ -65,12 +65,17 @@
   command: 'kubectl create configmap zookeeper --from-file {{ zookeeper_dir }}/zookeeper_config_map'
 
 - name: Run the kafka/zookeeper deploy file
-  shell: |
-    kubectl apply -f {{ kafka_dir }}/deploy.yml
-    while [ $(kubectl get -f {{ kafka_dir }}/deploy.yml | tail -n +2 | awk '{ print $3}') == '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
+  shell: "kubectl apply -f {{ kafka_dir }}/deploy.yml"
+
+- name: Wait for kafka to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "kafka"
+    label: ""
 
 - name: Deploy Kafka Service
   command: 'kubectl create -f {{ kafka_dir}}/kafka-service.yml'

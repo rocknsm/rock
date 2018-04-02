@@ -6,7 +6,7 @@
   command: kubeadm reset
   register: kube_reset_result
   ignore_errors: yes
-  when: inventory_hostname in groups['nodes_to_remove'] and (kubeadm_reset is defined and kubeadm_reset)
+  when: inventory_hostname in groups['nodes_to_remove'] and (kube_reload is defined and kube_reload)
 
 - name: Stop Services
   systemd:
@@ -39,8 +39,11 @@
     - /var/lib/kubelet
     - /etc/cni
     - /etc/kubernetes
-  ignore_errors: yes
+    - /var/lib/etcd
+  #ignore_errors: yes
   when: inventory_hostname in groups['nodes_to_remove']
+  register: remove_artifacts_result
+  failed_when: "'Device or resource busy' in remove_artifacts_result"
 
 
 - name: Remove Interfaces

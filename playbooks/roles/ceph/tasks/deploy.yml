@@ -1,0 +1,24 @@
+---
+- name: Copy deploy file
+  template:
+    src: templates/deploy.yml.j2
+    dest: "{{ ceph_dir }}/deploy.yml"
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Flush provisioner
+  command: "kubectl delete -f {{ ceph_dir }}/deploy.yml --ignore-not-found=true"
+
+- name: Deploy provisioner
+  command: "kubectl create -f {{ ceph_dir }}/deploy.yml"
+
+- name: Wait for ceph provisioner to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "pods"
+    namespace: "kube-system"
+    resource_name: ""
+    label: "app=rbd-provisioner"

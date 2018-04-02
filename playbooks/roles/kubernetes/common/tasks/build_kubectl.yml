@@ -1,0 +1,25 @@
+---
+# Generates kubectl based passed on variables
+
+- name: Kube | Build kubectl base
+  set_fact:
+    kubectl: "kubectl get {{ type }}"
+
+- name: Kube | Build kubectl with resource name
+  set_fact:
+    kubectl: "{{ kubectl }} {{ resource_name }}"
+  when: resource_name is defined and resource_name != ''
+
+- name: Kube | Build kubectl with namespace
+  set_fact:
+    kubectl: "{{ kubectl }} -n {{ namespace }}"
+  when: namespace is defined and namespace != ''
+
+- name: Kube | Build kubectl with label
+  set_fact:
+    kubectl: "{{ kubectl }} -l {{ label }}"
+  when: label is defined and label != ''
+
+- name: Kube | Build kubectl with go template
+  set_fact:
+    kubectl: "{{ kubectl }} -o go-template --template={{ GOPOD }}"

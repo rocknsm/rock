@@ -28,8 +28,4 @@ playbooks/roles/logstash/tasks/old-main\.yml
 playbooks/files/admin.conf
 playbooks/files/join-node.sh
 
-# Keep inventory files under inventory dir
-playbooks/inventory*.yml
-
-# Dont commit your inventory to git
-playbooks/inventory/dev/inventory-*.yml
+*inventory*

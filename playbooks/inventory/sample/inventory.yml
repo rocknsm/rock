@@ -7,7 +7,7 @@
 
 all:
   children:    
-    master-server:
+    master-servers:
       vars:
         home_net:
           - "192.168.0.0/16"
@@ -17,8 +17,7 @@ all:
         bpf_filter: ""
       hosts:
         rockserver1.lan:
-          ansible_user: root
-          ansible_connection: ssh
+          ansible_user: root          
           management_ipv4: # IP Address of node
           data_disk_devices:
           #- /dev/sdb <raw disk name>
@@ -26,8 +25,7 @@ all:
       children:
         sensors:
           hosts:
-            rocksensor1.lan:
-              ansible_connection: ssh
+            rocksensor1.lan:              
               management_ipv4: # IP Address of node
               bro_workers: 2
               monitor_interfaces:
@@ -37,8 +35,7 @@ all:
         servers:
           hosts:
             rockserver2.lan:
-              ansible_user: root
-              ansible_connection: ssh
+              ansible_user: root              
               management_ipv4: # IP Address of node
               data_disk_devices:
               #- /dev/sdb <raw disk name>

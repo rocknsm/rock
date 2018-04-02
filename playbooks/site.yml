@@ -11,19 +11,8 @@
     - common
     - chrony
 
-#- name: Reset Kube
-#  hosts: 
-#    - master-server
-#    - nodes
-#  roles:
-#    - kubernetes/reset
-#  vars:
-#    kubeadm_reset: true
-#  tags:
-#  - kube-reset
-
 - name: Configure kube master
-  hosts: master-server
+  hosts: master-servers
   roles:
     - kubernetes/common
     - kubernetes/master
@@ -37,28 +26,49 @@
     - kubernetes/node
   tags:
   - add-node
+  - kube-node
 
-#- name: Setup Ceph
-#  hosts:
-#  - master-server
-#  - nodes
-#  roles:
-#    - ceph
-
-- name: Setup GlusterFS
-  hosts:
-  - master-server
-  - nodes
+- name: Setup Ceph
+  hosts: master-servers
   roles:
-    - gluster
+    - ceph
   tags:
-    - gluster
+  - ceph
 
 - name: Deploy Elasticsearch
-  hosts: master-server
+  hosts: master-servers
   roles:
     - elasticsearch
   tags:
-    - elasticsearch
+  - elasticsearch
+
+- name: Deploy Logstash
+  hosts: master-servers
+  roles:
+    - logstash
+  tags:
+  - logstash
+
+- name: Deploy Kafka
+  hosts: master-servers
+  roles:
+    - kafka
+  tags:
+  - kafka
+
+- name: Deploy Bro
+  hosts: master-servers
+  roles:
+    - bro
+  tags:
+  - bro
+
+- name: Deploy Kibana
+  hosts: master-servers
+  roles:
+    - kibana
+  tags:
+  - kibana
+
 
 ...

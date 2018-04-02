@@ -3,109 +3,26 @@
 ######################################################
 ---
 
-- name: Create config directory
-  file:
-    path: "{{ ceph_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u+rw,g+rw
+# Quick hack to get ssh keys working with ceph
+# - name: SSH Key  
+#   copy: 
+#     src: "/root/.ssh/{{ item }}"
+#     dest: "/root/.ssh"
+#     mode: 0400
+#   with_items:
+#     - "id_rsa"
+#     - "id_rsa.pub"
+#   when: inventory_hostname in groups['master-servers']
 
-- name: Install ceph-deploy
-  yum:
-    name: "{{ ceph_deploy_rpm }}"
-    state: installed
+- include_tasks: preflight.yml
 
-- name: Purge Ceph
-  shell: |
-    ceph-deploy purge \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
-    ceph-deploy purgedata \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
-    rm -rf {{ ceph_dir }}/*
-  args:
-    chdir: "{{ ceph_dir }}"
+- name: Ceph Deploy Block
+  block: 
+    - include_tasks: files.yml
+    - include_tasks: install.yml
+    - include_tasks: setup.yml
+    - include_tasks: deploy.yml
+  when: kube_check_result is defined and kube_check_result.stdout == "" 
 
-- name: Create config
-  shell: |
-    ceph-deploy new \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
-  args:
-    chdir: "{{ ceph_dir }}"
 
-- name: Install Ceph
-  shell: |
-    ceph-deploy install \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
-  args:
-    chdir: "{{ ceph_dir }}"
 
-- name: Configure and start mons
-  shell: |
-    ceph-deploy mon create-initial
-  args:
-    chdir: "{{ ceph_dir }}"
-
-- name: Propagate keys
-  shell: |
-    ceph-deploy admin \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
-  args:
-    chdir: "{{ ceph_dir }}"
-
-- name: Format drives
-  shell: |
-    ceph-deploy osd prepare --zap-disk --fs-type btrfs {{ item }}:{{ hostvars[item].data_disk_devices | join((" "+item+":")) }}
-  args:
-    chdir: "{{ ceph_dir }}"
-  with_items:
-    - "{{ (groups['master-servers'] + groups['nodes']) }}"
-
-- name: Reduce duplication
-  shell: |
-    ceph osd pool set rbd size 1
-    ceph osd getcrushmap -o /tmp/crush.ceph
-    crushtool -d /tmp/crush.ceph -o /tmp/crush.ceph.tmp
-    sed -i 's/weight [0-9]\{3,\}.[0-9]\{3\}/weight 100.000/g' /tmp/crush.ceph.tmp
-    sed -i 's/type host$/type osd/g' /tmp/crush.ceph.tmp
-    sed -i 's/max_size 10$/max_size 1/g' /tmp/crush.ceph.tmp
-    crushtool -c /tmp/crush.ceph.tmp -o /tmp/crush.ceph
-    ceph osd setcrushmap -i /tmp/crush.ceph
-
-- name: Declare osd amount
-  set_fact:
-    osd_count: "{{ osd_count | int + ( hostvars[item].data_disk_devices | length ) }}"
-  with_items:
-    - "{{ ( groups['master-servers'] + groups['nodes'] ) }}"
-
-- name: Set Placement Group count
-  shell: |
-    ceph osd pool set rbd pg_num {{ osd_count | int * 32 }}
-    sleep 1
-    ceph osd pool set rbd pgp_num {{ osd_count | int * 32 }}
-
-- name: Get Ceph key
-  shell: |
-    cat /etc/ceph/ceph.client.admin.keyring | grep key | awk '{printf $3}'
-  register: ceph_key
-
-- name: Copy deploy file
-  template:
-    src: templates/deploy.yml.j2
-    dest: "{{ ceph_dir }}/deploy.yml"
-    owner: root
-    group: root
-    mode: 0644
-
-- name: Flush provisioner
-  command: "kubectl delete -f {{ ceph_dir }}/deploy.yml --ignore-not-found=true"
-
-- name: Deploy provisioner
-  command: "kubectl create -f {{ ceph_dir }}/deploy.yml"
-
-- name: Wait for provisioner to start
-  shell: |
-    while [ "$(kubectl get pods -n kube-system | grep rbd-provisioner | awk '{print $2}')" != "1/1" ]; do
-      echo -n .;
-      sleep 1;
-    done

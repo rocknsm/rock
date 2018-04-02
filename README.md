@@ -72,8 +72,12 @@ ansible-playbook site.yml -i inventory/dev/inventory.yml -t gluster -e "gluster_
     * kube_master 
     * kube_node 
     * gluster
+    * elasticsearch
   * Extra Vars: 
-    * "gluster_reload" (default is false)
+    * "gluster_reload" (default = false)
+    * "kube_reload" (default = false)
+    * "online_install" (default = false)
+    * "debug_enabled" (default = false)
 
 12. Playbooks
 * site.yml - Main playbook that will install and setup kubernetes, storage(glusterfs/ceph), and all applications.

@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: es-master
+spec:
+  selector:
+    matchLabels:
+      component: elasticsearch
+      role: master
+  serviceName: "es-master"
+  replicas: {{ es_masters }}
+  template:
+    metadata:
+      labels:
+        component: elasticsearch
+        role: master
+    spec:
+      initContainers:
+      - name: init-sysctl
+        image: busybox:1.27.2
+        command:
+        - /bin/sh
+        - -c
+        - "sysctl -w vm.max_map_count=262144; chown -R 1000:1000 /usr/share/elasticsearch/data"
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+        securityContext:
+          privileged: true
+      containers:
+      - name: elasticsearch
+        image: {{ elastic_image }}:{{ elastic_ver }}
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+              - IPC_LOCK
+        resources:
+          requests:
+            memory: "{{ es_mem }}Gi"
+            cpu: "250m"
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: CLUSTER_NAME
+          value: {{ es_cluster_name }}
+        - name: NODE_MASTER
+          value: "true"
+        - name: NODE_INGEST
+          value: "false"
+        - name: NODE_DATA
+          value: "false"
+        - name: HTTP_ENABLE
+          value: "false"
+        - name: ES_JAVA_OPTS
+          value: -Xms{{ es_mem }}g -Xmx{{ es_mem }}g
+        ports:
+        - containerPort: {{ elastic_data_port }}
+          name: http
+        - containerPort: {{ elastic_management_port }}
+          name: transport
+        livenessProbe:
+          tcpSocket:
+            port: transport
+        volumeMounts:
+        - name: data
+          mountPath: {{ elastic_pv_data_path }}
+        - name: elastic
+          mountPath: {{ elastic_config_path }}/elasticsearch.yml
+          subPath: elasticsearch.yml
+        - name: elastic
+          mountPath: {{ elastic_config_path }}/jvm.options
+          subPath: jvm.options
+        - name: elastic
+          mountPath: {{ elastic_config_path }}/log4j2.properties
+          subPath: log4j2.properties
+      volumes:
+      - name: elastic
+        configMap:
+          name: elastic
+      nodeSelector:
+        role: server
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: rbd
+      resources:
+        requests:
+          storage: {{ elastic_pv_size }}Gi

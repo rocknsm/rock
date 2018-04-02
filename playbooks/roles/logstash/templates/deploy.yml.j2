@@ -17,29 +17,14 @@ spec:
     spec:
       initContainers:
       - name: volume-permissions
-        image: busybox
-        command: ['sh','-c','chown -R {{ logstash_user }}:{{ logstash_group }} {{ logstash_path }}']
+        image: busybox        
+        command:
+        - /bin/sh
+        - -c
+        - "chown -R {{ logstash_user }}:{{ logstash_group }} {{ logstash_path }}"
         securityContext:
           runAsUser: 0
         volumeMounts:
-          - name: logstash
-            mountPath: "{{ logstash_path }}/config/logstash.yml"
-            subPath: logstash.yml
-          - name: logstash
-            mountPath: "{{ logstash_path }}/config/log4j2.properties"
-            subPath: log4j2.properties
-          - name: logstash
-            mountPath: "{{ logstash_path }}/config/pipelines.yml"
-            subPath: pipelines.yml
-          - name: logstash
-            mountPath: "{{ logstash_path }}/pipeline/kafka-bro.conf"
-            subPath: kafka-bro.conf
-          - name: logstash
-            mountPath: "{{ logstash_path }}/pipeline/kafka-suricata.conf"
-            subPath: kafka-suricata.conf
-          - name: logstash
-            mountPath: "{{ logstash_path }}/pipeline/kafka-fsf.conf"
-            subPath: kafka-fsf.conf
           - name: data
             mountPath: "{{ logstash_path }}/data"
       containers:

@@ -61,7 +61,13 @@
 - name: Deploy Logstash
   shell: |
     kubectl create -f {{ logstash_dir }}/deploy.yml
-    while [ $(kubectl get -f {{ logstash_dir }}/deploy.yml | tail -n +2 | awk '{ print $5}') == '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
+
+- name: Wait for kafka to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "logstash"
+    label: ""

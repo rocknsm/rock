@@ -5,34 +5,20 @@
       - net.bridge.bridge-nf-call-iptables
 
 # kube-proxy needs net.bridge.bridge-nf-call-iptables enabled when found if br_netfilter is not a module
-- name: Check if bridge-nf-call-iptables key exists
-  command: "sysctl net.bridge.bridge-nf-call-iptables"
+- name: Check if key exists
+  command: "sysctl {{ item }}"
   failed_when: false
   changed_when: false
-  register: sysctl_bridge_nf_call_iptables
+  register: check_key_result
+  with_items: 
+    - "{{ sysctl_list }}"
 
-- name: Persist sysctl
-  copy:
-    dest: "{{ sysctl_file }}"
-    content: |
-      {% for s in sysctl_list %}
-      {{ s }} = 1
-      {% endfor %}
-
-- name: set default sysctl file path
-  set_fact:
-    sysctl_file_path: "{{ sysctl_file }}"
-
-- name: Enable bridge-nf-call tables
+- name: Enable and Reload sysctl
   sysctl:
-    name: "{{ item }}"
+    name: "{{ item.item }}"
     state: present
     value: 1
     reload: yes
-  when: sysctl_bridge_nf_call_iptables.rc == 0
+  when: item.rc == 0
   with_items:
-    - "{{ sysctl_list }}"
-
-# https://bugzilla.redhat.com/show_bug.cgi?id=1402961
-#- name: Save change to initramfs
-#  command: dracut -f
+    - "{{ check_key_result.results }}"

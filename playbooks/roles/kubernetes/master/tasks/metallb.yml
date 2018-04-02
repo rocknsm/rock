@@ -5,7 +5,12 @@
 - name: 'Apply MetalLB Config'
   command: 'kubectl apply -f {{ kube_dir }}/metallb.yml'
 
-- name: Wait for all pods to be ready
+- name: Wait for metallb to be ready
   include_role:
     name: kubernetes/common
-    tasks_from: pod_wait
+    tasks_from: kube_wait
+  vars:
+    type: "pods"
+    namespace: "metallb-system"
+    resource_name: ""
+    label: ""

@@ -16,3 +16,51 @@
     dest: /etc/hosts
     regexp: localhost6
     state: absent
+
+- set_fact:
+    sysctl_list:
+      - net.ipv6.conf.all.disable_ipv6
+      - net.ipv6.conf.default.disable_ipv6
+
+- name: Check if key exists
+  command: "sysctl {{ item }}"
+  failed_when: false
+  changed_when: false
+  register: check_key_result
+  with_items: 
+    - "{{ sysctl_list }}"
+
+- name: Enable and Reload sysctl
+  sysctl:
+    name: "{{ item.item }}"
+    state: present
+    value: 1
+    reload: yes
+  when: item.rc == 0
+  with_items:
+    - "{{ check_key_result.results }}"
+  register: sysctl_reload_result
+
+# Placeholder in case we need to use the grub
+# instead of sysctl to disable ipv6
+# kube-dns wont start if ipv6 is completely disabled in the kernel
+# - name: Disable Ipv6 in grub
+#   lineinfile:
+#     state: present
+#     dest: /etc/default/grub
+#     backrefs: yes
+#     regexp: '^(GRUB_CMDLINE_LINUX=(?!.*ipv6.disable)\"[^\"]+)(\".*)'
+#     line: '\1 ipv6.disable=1\2'
+#   register: grub_update
+
+# - name: Rebuild grub
+#   shell: "grub2-mkconfig -o /boot/grub2/grub.cfg"
+#   when: grub_update is defined and grub_update.changed
+#   register: rebuild_grub_result
+
+# https://bugzilla.redhat.com/show_bug.cgi?id=1402961
+# sda / sdb get swapped after reboot wtf!
+#- name: Save change to initramfs
+#  shell: "dracut -f"
+#  register: dracut_result
+#  when: sysctl_reload_result is defined and sysctl_reload_result.changed

@@ -8,7 +8,6 @@
     state: directory
   with_items:
     - "{{ kube_dir }}"
-    - "{{ kube_config_dir }}"
 
 - name: 'Install templates'
   template:
@@ -19,7 +18,6 @@
     mode: 0644
   with_items:
     - metallb
-    - kubeadm
     - kube-flannel
     - dashboard
     - vars

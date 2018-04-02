@@ -5,10 +5,7 @@
 # All high level Docker configuration variables for Docker install itself.
 # All image or container variables are stored in their particular role variables file.
 # These control how the docker service is installed and how services are installed using Docker.
-kube_version: "1.9.3"
+#kube_version: "1.9.3"
 kube_baseurl: "https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64"
 kube_gpgurl: "https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
-kube_dir: "{{ install_dir }}/kubernetes"
-kube_config_dir: "{{ kube_dir }}/configs"
-kube_cluster_cidr: "10.96.0.0/12"
-kube_pod_cidr: "10.244.0.0/16"
+kube_reload: false
