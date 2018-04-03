@@ -1,7 +1,7 @@
 ---
 - name: Purge Ceph
   shell: |
-    ceph-deploy purge \
+    timeout 120 ceph-deploy purge \
     {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
     ceph-deploy purgedata \
     {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}

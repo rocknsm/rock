@@ -41,4 +41,5 @@ all:
               #- /dev/sdb <raw disk name>
     nodes_to_remove:
       hosts:
+        # Modify hosts as needed
         rocksensor1.lan:
