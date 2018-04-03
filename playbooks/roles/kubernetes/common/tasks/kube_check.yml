@@ -30,7 +30,7 @@
     GOPOD: !unsafe "'{{range .status.conditions}}{{if and (eq (.type) (\"Ready\")) (eq (.status) (\"True\"))}}Ready{{end}}{{end}}'"
   when: type == 'node'
 
-- include_tasks: build_kubectl.yml
+- import_tasks: build_kubectl.yml
 
 - name: Kube | Check {{ type }}
   shell: |

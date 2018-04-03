@@ -33,11 +33,12 @@
       ssh_key_bits: 2048
       state: present
 
+  # This isn't really needed
   # Delete the known hosts key file from all the other hosts
-  - name: Delete existing known hosts
-    file:
-      path: /root/.ssh/known_hosts
-      state: absent
+  #- name: Delete existing known hosts
+  #  file:
+  #    path: /root/.ssh/known_hosts
+  #    state: absent
 
   - name: For each host, scan for its ssh public key
     shell: "ssh-keyscan {{ item }},`dig +short {{ item }}`"

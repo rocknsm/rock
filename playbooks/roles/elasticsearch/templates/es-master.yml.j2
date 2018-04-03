@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata:
   name: es-master
@@ -37,7 +37,7 @@ spec:
               - IPC_LOCK
         resources:
           requests:
-            memory: "{{ es_mem }}Gi"
+            memory: "{{ es_mem * 2 }}Gi"
             cpu: "250m"
         env:
         - name: NAMESPACE

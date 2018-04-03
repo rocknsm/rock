@@ -46,7 +46,7 @@
     GOPOD: !unsafe "'{{if ne (.status.replicas) (.status.readyReplicas)}}false{{end}}'"
   when: type == 'deployments'
 
-- include_tasks: build_kubectl.yml
+- import_tasks: build_kubectl.yml
 
 - name: Kube | Wait for {{ type }}
   shell: | 

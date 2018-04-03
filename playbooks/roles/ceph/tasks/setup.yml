@@ -64,7 +64,7 @@
 - name: Set Placement Group count
   shell: |
     ceph osd pool set rbd pg_num {{ osd_count | int * 32 }}
-    sleep 1
+    sleep 30
     ceph osd pool set rbd pgp_num {{ osd_count | int * 32 }}
 
 - name: Get Ceph key

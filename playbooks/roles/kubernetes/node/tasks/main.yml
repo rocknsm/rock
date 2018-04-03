@@ -3,7 +3,7 @@
 #######################################################
 ---
 
-- include_tasks: preflight.yml
+- import_tasks: preflight.yml
 
 - name: Install New Node
   import_tasks: install.yml

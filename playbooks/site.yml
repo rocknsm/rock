@@ -49,6 +49,13 @@
   tags:
   - logstash
 
+- name: Deploy Kibana
+  hosts: master-servers
+  roles:
+    - kibana
+  tags:
+  - kibana
+
 - name: Deploy Kafka
   hosts: master-servers
   roles:
@@ -63,12 +70,18 @@
   tags:
   - bro
 
-- name: Deploy Kibana
+- name: Deploy Moloch
   hosts: master-servers
   roles:
-    - kibana
+    - moloch
   tags:
-  - kibana
+  - moloch
 
+- name: Deploy Suricata
+  hosts: master-servers
+  roles:
+    - suricata
+  tags:
+  - suricata
 
 ...

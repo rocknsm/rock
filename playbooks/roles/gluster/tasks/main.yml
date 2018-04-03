@@ -9,22 +9,22 @@
 
 # Uninstall GlusterFS
 - name: Gluster | Remove
-  include_tasks: reload.yml
+  import_tasks: reload.yml
   when: (gluster_reload is defined and (gluster_reload))
 # (gdir.stat.exists and gdir.stat.isdir) or 
 
 # Install GlusterFS, this will fail spectacularly if this is not a fresh install,
 # or remove is not run first
 
-- include_tasks: repo.yml
-- include_tasks: packages.yml
-- include_tasks: kernel_mods.yml
+- import_tasks: repo.yml
+- import_tasks: packages.yml
+- import_tasks: kernel_mods.yml
 
-- include_tasks: files.yml
+- import_tasks: files.yml
   when: inventory_hostname in groups['master-servers'] 
 
 - name: Wipe Raw Disks
-  include_tasks: wipe.yml
+  import_tasks: wipe.yml
 
 - name: Run gk deploy
   shell: "{{ gluster_dir }}/gk-deploy {{ gluster_dir }}/topology.json -g -t {{ gluster_dir }} -y"
@@ -65,7 +65,7 @@
   when: inventory_hostname in groups['master-servers']
 
 - name: Test Storage
-  include_tasks: test_storage.yml
+  import_tasks: test_storage.yml
   when: inventory_hostname in groups['master-servers']
 
 

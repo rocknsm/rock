@@ -3,8 +3,8 @@
 ######################################################
 ---
 
-- include_tasks: install_docker_py.yml
-- include_tasks: copy_files.yml
+- import_tasks: install_docker_py.yml
+- import_tasks: copy_files.yml
 
 - name: Create Config
   shell: kubectl create -f {{ elastic_dir }}/elastic-namespace.yml

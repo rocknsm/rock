@@ -13,7 +13,7 @@ all:
           - "192.168.0.0/16"
           - "10.0.0.0/8"
           - "172.16.0.0/12"
-        serivces_cidr: "192.168.86.248/29"
+        serivces_cidr: "192.168.1.0/24"
         bpf_filter: ""
       hosts:
         rockserver1.lan:
@@ -31,7 +31,7 @@ all:
               management_ipv4: 192.168.1.198
               bro_workers: 2
               monitor_interfaces:
-              - eth0
+              - ens4
               data_disk_devices:
               - /dev/vdb
         servers:

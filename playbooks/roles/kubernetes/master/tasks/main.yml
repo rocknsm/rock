@@ -3,16 +3,16 @@
 #######################################################
 ---
 
-- include_tasks: preflight.yml
+- import_tasks: preflight.yml
 
 - name: Master Node Block
   block:
-    - include_tasks: files.yml  
-    - include_tasks: init_cluster.yml
-    - include_tasks: setup_master_node.yml
+    - import_tasks: files.yml
+    - import_tasks: init_cluster.yml
+    - import_tasks: setup_master_node.yml
   when: kube_check_result is defined and kube_check_result.stdout == ""
 
-- include_tasks: metallb.yml
-- include_tasks: kube_dashboard.yml
+- import_tasks: metallb.yml
+- import_tasks: kube_dashboard.yml
 
 ...

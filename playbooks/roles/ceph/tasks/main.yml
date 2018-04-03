@@ -4,8 +4,8 @@
 ---
 
 # Quick hack to get ssh keys working with ceph
-# - name: SSH Key  
-#   copy: 
+# - name: SSH Key
+#   copy:
 #     src: "/root/.ssh/{{ item }}"
 #     dest: "/root/.ssh"
 #     mode: 0400
@@ -14,15 +14,12 @@
 #     - "id_rsa.pub"
 #   when: inventory_hostname in groups['master-servers']
 
-- include_tasks: preflight.yml
+- import_tasks: preflight.yml
 
 - name: Ceph Deploy Block
-  block: 
-    - include_tasks: files.yml
-    - include_tasks: install.yml
-    - include_tasks: setup.yml
-    - include_tasks: deploy.yml
-  when: kube_check_result is defined and kube_check_result.stdout == "" 
-
-
-
+  block:
+    - import_tasks: files.yml
+    - import_tasks: install.yml
+    - import_tasks: setup.yml
+    - import_tasks: deploy.yml
+  when: kube_check_result is defined and kube_check_result.stdout == ""
