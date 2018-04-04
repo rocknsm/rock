@@ -8,3 +8,9 @@
     namespace: "kube-system"
     resource_name: ""
     label: "app=rbd-provisioner"
+
+- name: Get Ceph Health
+  shell: |
+    ceph health
+  register: ceph_status_result
+  ignore_errors: yes

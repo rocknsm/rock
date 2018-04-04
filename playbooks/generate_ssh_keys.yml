@@ -17,7 +17,8 @@
   tasks:
 
   - name: Fail if ask-pass is missing
-    fail: "msg=\"Error: Missing ask-pass. You need to add '--ask-pass' to the end of your command\""
+    fail:
+      msg: "Error: Missing ask-pass. You need to add '--ask-pass' to the end of your command"
     when: ansible_ssh_pass is undefined or (ansible_ssh_pass is defined and ansible_ssh_pass == '')
 
   - name: Install sshpass

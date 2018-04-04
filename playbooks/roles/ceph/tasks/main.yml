@@ -22,4 +22,5 @@
     - import_tasks: install.yml
     - import_tasks: setup.yml
     - import_tasks: deploy.yml
-  when: kube_check_result is defined and kube_check_result.stdout == ""
+    - import_tasks: validate.yml
+  when: (kube_check_result is defined and kube_check_result.stdout == "") or (ceph_status_result is defined and ceph_status_result != 'HEALTH_OK')

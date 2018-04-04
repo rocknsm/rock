@@ -48,12 +48,12 @@
 
 - import_tasks: build_kubectl.yml
 
-- name: Kube | Wait for {{ type }}
+- name: Kube | Wait for {{ resource_name }} {{ label }} {{ type }}
   shell: | 
     {{ kubectl }}
   register: kube_wait_result
   until: kube_wait_result.stdout == ""
-  retries: 30
-  delay: 15
+  retries: 90
+  delay: 5
   when: kubectl is defined
   #ignore_errors: yes

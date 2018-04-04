@@ -2,7 +2,8 @@
 # Checking that required variables are set
 #
 - name: Checking that required variables are set
-  fail: msg="{{ item }} is not defined"
+  fail:
+    msg: "{{ item }} is not defined"
   when: not item
   with_items:
     - kube_dir
@@ -15,14 +16,16 @@
     - elastic_port
 
 - name: Checking Sensor Vars
-  fail: msg="{{ item[1] }} is not defined for {{ item[0] }}"
+  fail:
+    msg: "{{ item[1] }} is not defined for {{ item[0] }}"
   when: not hostvars[item[0]][item[1]]
   with_nested:
     - "{{ groups['sensors']}}"
     -  [ 'monitor_interfaces', 'bro_workers' ]
 
 - name: Checking Master Group Vars
-  fail: msg="{{ item }} is not defined"
+  fail:
+    msg: "{{ item }} is not defined"
   when: not hostvars[groups['master-servers'][0]][item]
   with_items:
     - home_net

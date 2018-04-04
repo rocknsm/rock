@@ -12,7 +12,8 @@
   register: ssh_key_check
 
 - name: Fail if know_hosts is not vaild
-  fail: msg="Error missing known hosts/ssh key - run generate_ssh_keys playbook"
+  fail:
+    msg: "Error missing known hosts/ssh key - run generate_ssh_keys playbook"
   when: (know_hosts_check is defined and not know_hosts_check.stat.exists)
       or (ssh_key_check is defined and not ssh_key_check.stat.exists)
 
