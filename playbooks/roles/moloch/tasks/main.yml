@@ -36,7 +36,10 @@
     - svc.yml
 
 - name: "Clean up kube configmap"
-  command: "kubectl delete configmap moloch --ignore-not-found"
+  command: "kubectl delete configmap {{ item }} --ignore-not-found"
+  with_items:
+    - moloch
+    - moloch-bootstrap
 
 - name: "Clean up kube for deployment "
   command: "kubectl delete -f {{ moloch_dir }}/{{ item }}.yml --ignore-not-found"
@@ -55,7 +58,11 @@
 - name: "Create kube config"
   shell: |
     kubectl create configmap moloch --from-file {{ moloch_dir }}/config.ini.tmpl \
-      --from-file {{ moloch_dir }}/config.ini.conf
+      --from-file {{ moloch_dir }}/config.ini.conf \
+      --from-file {{ moloch_dir }}/auto_init
+
+- name: "Create kube bootstrap config"
+  shell: "kubectl create configmap moloch-boostrap --from-file {{ moloch_dir }}/auto_init"
 
 - name: Deploy Bootstrap
   command: kubectl create -f {{ moloch_dir }}/bootstrap.yml
@@ -67,9 +74,6 @@
     done;
     echo -n "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $1 }')"
   register: moloch_bootstrap_pod
-
-- name: Copy init script
-  command: "kubectl cp {{ moloch_dir }}/auto_init {{ moloch_bootstrap_pod.stdout }}:/tmp/auto_init"
 
 - name: Stop moloch services
   shell: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- /bin/bash -c 'systemctl stop molochcapture molochviewer'"
