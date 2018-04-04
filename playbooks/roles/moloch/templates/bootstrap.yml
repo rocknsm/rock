@@ -24,7 +24,13 @@ spec:
           mountPath: /etc/icdm/templates/
         - name: configs
           mountPath: /etc/icdm/conf/
+        - name: auto-init
+          mountPath: /tmp/auto_init
+          subPath: auto_init
       volumes:
+      - name: auto-init
+        configMap:
+          name: moloch-bootstrap
       - name: vars
         configMap:
           name: vars

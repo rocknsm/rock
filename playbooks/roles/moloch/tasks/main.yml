@@ -58,14 +58,13 @@
 - name: "Create kube config"
   shell: |
     kubectl create configmap moloch --from-file {{ moloch_dir }}/config.ini.tmpl \
-      --from-file {{ moloch_dir }}/config.ini.conf \
-      --from-file {{ moloch_dir }}/auto_init
+      --from-file {{ moloch_dir }}/config.ini.conf
 
 - name: "Create kube bootstrap config"
-  shell: "kubectl create configmap moloch-boostrap --from-file {{ moloch_dir }}/auto_init"
+  shell: "kubectl create configmap moloch-bootstrap --from-file {{ moloch_dir }}/auto_init"
 
 - name: Deploy Bootstrap
-  command: kubectl create -f {{ moloch_dir }}/bootstrap.yml
+  command: "kubectl create -f {{ moloch_dir }}/bootstrap.yml"
 
 - name: Get Bootstrap pod name
   shell: |
@@ -92,6 +91,9 @@
 
 - name: Remove Bootstrap
   command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml --ignore-not-found
+
+- name: Remove Bootstrap config
+  command: kubectl delete configmap moloch-bootstrap
 
 - name: "Deploy moloch"
   command: "kubectl create -f {{ moloch_dir }}/{{ item }}.yml"
