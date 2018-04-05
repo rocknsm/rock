@@ -10,8 +10,6 @@
     label: "app=rbd-provisioner"
 
 - name: Get Ceph Health
-  shell: |
-    ceph health
+  shell:  ceph health
   register: ceph_status_result
   failed_when: ceph_status_result.rc != 127 and ceph_status_result.rc != 0 and ceph_status_result.rc != 1
-  #ignore_errors: yes

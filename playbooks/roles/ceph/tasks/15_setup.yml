@@ -61,10 +61,17 @@
   with_items:
     - "{{ ( groups['master-servers'] + groups['nodes'] ) }}"
 
+- name: Set Placement Group pg_num
+  shell: "ceph osd pool set rbd pg_num {{ osd_count | int * 32 }}"
+  register: task_result
+  until: '"Error" not in task_result.stderr'
+  retries: 60
+  delay: 2
+
 - name: Set Placement Group pgp_num
   shell: ceph osd pool set rbd pgp_num {{ osd_count | int * 32 }}
   register: task_result
-  until: task_result.rc == 0 #"'EBUSY' not in ceph_result.stderr" Just in case rc doesnt work
+  until: task_result.rc == 0
   retries: 60
   delay: 2
 
