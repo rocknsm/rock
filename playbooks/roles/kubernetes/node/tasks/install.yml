@@ -20,14 +20,15 @@
   pause:
     seconds: 10
 
-- name: Kube | Wait for Nodes to be ready
+- name: Kube | Wait for Node to be ready
   include_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:
     type: "node"
-    namespace: "system"
+    namespace: ""
     resource_name: "{{ ansible_fqdn }}"
+    label: ""
 
 - name: Kube | Get kube-dns IP
   shell: "kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'"

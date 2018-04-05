@@ -62,7 +62,7 @@
   shell: |
     kubectl create -f {{ logstash_dir }}/deploy.yml
 
-- name: Wait for kafka to be ready
+- name: Wait for logstash to be ready
   include_role:
     name: kubernetes/common
     tasks_from: kube_wait

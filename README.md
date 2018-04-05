@@ -52,39 +52,42 @@ rm -rf /opt/rock && git clone -b <github_branch> <github_url> /opt/rock && cd /o
 # Example:
 # rm -rf /opt/rock && git clone -b logstash_feature https://github.com/tfplenum/rock /opt/rock && cd /opt/rock/playbooks
 ```
-9. Inventory: 
+9. Inventory Setup: 
 * Copy the sample inventory file from playbooks/inventory/sample to playbooks/inventory/dev
 * Use the following naming convention to ensure your inventory file is not commited to git.
     * inventory-<name>.yml - ie: inventory-bob.yml
 * Update your inventory file with your VMs network cidr (required for metallb), VM IP Address, and Network Interface
+* sample inventory will be the latest and greatest.  Periodically review sample invetory in case of updates.
 
-10. Start the installer using the "ansible-playbook" command. To run only sensor/server related playbooks, use the "--limit" flag. Note: If you installed ssh keys you can omit the `--ask-pass` argument
-```bash
-ansible-playbook site.yml -i inventory/dev/inventory.yml --ask-pass
-ansible-playbook site.yml -i inventory/dev/inventory.yml -t <tag>
-ansible-playbook site.yml -i inventory/dev/inventory.yml -t kube-master
-ansible-playbook site.yml -i inventory/dev/inventory.yml -t gluster
-ansible-playbook site.yml -i inventory/dev/inventory.yml -t gluster -e "gluster_reload=true"
-```
-
-11. Tags and Extra Vars:
-  * Tags: 
-    * kube_master 
-    * kube_node 
-    * gluster
+10. Tags and Extra Vars:
+  * Tags:
+    * bro
+    * ceph
+    * common
     * elasticsearch
-  * Extra Vars: 
-    * "gluster_reload" (default = false)
+    * kafka
+    * kibana
+    * kube-master
+    * kube-node
+    * logstash
+    * moloch
+    * suricata
+  * Extra Vars:
+    * "debug_enabled" (default = false)
+    * "gluster_reload" (default = false) (deprecated)
     * "kube_reload" (default = false)
     * "online_install" (default = false)
-    * "debug_enabled" (default = false)
 
-12. Playbooks
-* site.yml - Main playbook that will install and setup kubernetes, storage(glusterfs/ceph), and all applications.
+11. Playbooks and Examples:
 * add_node.yml - Add a node to kubernetes.
+* generate_ssh_keys.yml - Generates appropirate ssh keys, authorized_keys and known_hosts.  Required to be ran prior to site.yml.
 * remove_node.yml - Remove a node from kubernetes.
+* site.yml - Main playbook that will install/setup kubernetes, storage(ceph), and all applications.
 * Examples:
 ```bash
+# Generate ssh keys, authorized_keys and known_hosts files
+ansible-playbook generate_ssh_keys.yml -i inventory/dev/inventory.yml --ask-pass
+
 # Install full stack
 ansible-playbook site.yml -i inventory/dev/inventory.yml
 
@@ -95,8 +98,6 @@ ansible-playbook add_node.yml -i inventory/dev/inventory.yml -l rocksensor3.lan
 # Add host to "node_to_remove" group in inventory
 ansible-playbook remove_node.yml -i inventory/dev/inventory.yml
 
-# Reinstall gluster
-ansible-playbook site.yml -i inventory/dev/inventory.yml -t gluster -e "gluster_reload=true"
 ```
 
 ## See Also

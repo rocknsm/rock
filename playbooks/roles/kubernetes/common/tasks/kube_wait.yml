@@ -53,7 +53,8 @@
     {{ kubectl }}
   register: kube_wait_result
   until: kube_wait_result.stdout == ""
-  retries: 90
-  delay: 5
+  retries: 45
+  delay: 10
   when: kubectl is defined
+  failed_when: kube_wait_result.rc != 0 and kube_wait_result.rc != 1
   #ignore_errors: yes

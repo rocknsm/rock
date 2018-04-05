@@ -80,9 +80,11 @@
 #    - es-data
 
 - name: Wait for Elasticsearch to be ready
-  shell: |
-    ES_WANTED=$(kubectl get statefulset es-master | tail -n 1 | awk '{print $2}')
-    while [ "$(kubectl get pods | grep es-master | grep 1/1 | wc -l)" != "$ES_WANTED" ]; do
-      echo -n .;
-      sleep 1;
-    done;
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "es-master"
+    label: ""
