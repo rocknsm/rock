@@ -1,3 +1,7 @@
 ---
 - name: Install Dashboard
   command: "kubectl apply -f {{ kube_dir }}/dashboard.yml"
+  until: task_result.rc == 0
+  retries: 10
+  delay: 5
+  ignore_errors: yes
