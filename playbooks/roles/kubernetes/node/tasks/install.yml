@@ -34,6 +34,28 @@
   shell: "kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'"
   register: kube_dns_ip
 
+# This task retrieves the connection name of the network device with the management IP designated
+# in the inventory file
+- name: Kube | Get network manager connection name
+  shell: nmcli device show {{ item }} | grep GENERAL.CONNECTION | awk -F " " '{print $2}'
+  register: nmcli_conn_name
+  with_items: "{{ ansible_interfaces }}"
+  when:
+    - hostvars[inventory_hostname]['ansible_' + item] is defined
+    - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+    - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
+
+- name: Kube | Update DNS records for the management interface
+  nmcli:
+    conn_name: "{{ item.stdout }}"
+    type: ethernet
+    dns4:
+      - "{{ kube_dns_ip.stdout }}"
+      - "{{ ansible_controller_ip }}"
+    state: present
+  with_items: "{{ nmcli_conn_name.results }}"
+  when: item.stdout is defined
+
 - name: Kube | Insert kube-dns into /etc/resolv.conf
   lineinfile:
     insertbefore: BOF

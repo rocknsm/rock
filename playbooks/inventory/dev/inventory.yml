@@ -42,6 +42,8 @@ all:
               - ens4
               data_disk_devices:
               - /dev/vdb
+          vars:
+            ansible_controller_ip: 192.168.1.50
         servers:
           hosts:
             rockserver2.lan:
@@ -50,6 +52,10 @@ all:
               management_ipv4: 192.168.1.194
               data_disk_devices:
               - /dev/vdb
+          vars:
+            ansible_controller_ip: 192.168.1.50
     nodes_to_remove:
       hosts:
         rocksensor1.lan:
+        rockserver1.lan:
+        rockserver2.lan:

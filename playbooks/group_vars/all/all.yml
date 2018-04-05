@@ -66,6 +66,8 @@ package_list:
   - cockpit-packagekit
   - cockpit-storaged
   - cockpit-system
+  - python-gobject
+  - NetworkManager-glib
 
 # RockNSM
 #rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
