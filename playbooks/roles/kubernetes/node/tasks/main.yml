@@ -3,10 +3,11 @@
 #######################################################
 ---
 
-- import_tasks: preflight.yml
+- import_tasks: 00_preflight.yml
 
 - name: Install New Node
-  import_tasks: install.yml
+  import_tasks: 05_install.yml
+  any_errors_fatal: true
   when: kube_check_result is defined and kube_check_result.stdout == ""
 
 ...

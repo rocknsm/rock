@@ -6,7 +6,7 @@
   ignore_errors: yes
 
 - name: 'Label masters'
-  command: 'kubectl label nodes {{ansible_fqdn}} role=server --overwrite=true'
+  command: 'kubectl label nodes {{ ansible_fqdn }} role=server --overwrite=true'
 
 - name: Add Var configmap
   command: "kubectl create configmap vars --from-file {{ kube_dir }}/vars.yml"

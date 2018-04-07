@@ -22,6 +22,7 @@
     - import_tasks: 10_install.yml
     - import_tasks: 15_setup.yml
     - import_tasks: 20_deploy.yml
+  any_errors_fatal: true
   when: (kube_check_result is defined and kube_check_result.stdout == "")
     or (ceph_status_result is defined and 'HEALTH_ERR' in ceph_status_result.stdout)
     or (ceph_status_result is defined and 'HEALTH_WARN' in ceph_status_result.stdout)

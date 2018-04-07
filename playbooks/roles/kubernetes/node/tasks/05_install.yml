@@ -51,7 +51,7 @@
     type: ethernet
     dns4:
       - "{{ kube_dns_ip.stdout }}"
-      - "{{ ansible_controller_ip }}"
+      - "{{ dns_ip }}"
     state: present
   with_items: "{{ nmcli_conn_name.results }}"
   when: item.stdout is defined

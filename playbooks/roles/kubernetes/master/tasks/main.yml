@@ -10,6 +10,7 @@
     - import_tasks: 05_files.yml
     - import_tasks: 10_init_cluster.yml
     - import_tasks: 15_setup_master_node.yml
+  any_errors_fatal: true
   when: kube_check_result is defined and kube_check_result.stdout == ""
 
 - import_tasks: 20_metallb.yml

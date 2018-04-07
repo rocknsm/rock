@@ -43,7 +43,7 @@ all:
               data_disk_devices:
               - /dev/vdb
           vars:
-            ansible_controller_ip: 192.168.1.50
+            dns_ip: 192.168.1.50
         servers:
           hosts:
             rockserver2.lan:
@@ -53,7 +53,7 @@ all:
               data_disk_devices:
               - /dev/vdb
           vars:
-            ansible_controller_ip: 192.168.1.50
+            dns_ip: 192.168.1.50
     nodes_to_remove:
       hosts:
         rocksensor1.lan:

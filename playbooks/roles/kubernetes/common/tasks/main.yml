@@ -8,14 +8,16 @@
     name: kubernetes/reset
   when: kube_reload is defined and kube_reload
 
-- import_tasks: 00_disable_swap.yml
-- import_tasks: 05_kernel_mods.yml
-- import_tasks: 10_sysctl.yml
-- import_tasks: 15_repo.yml
-- import_tasks: 20_install.yml
-- import_tasks: 25_services.yml
-- import_tasks: 30_env.yml
-- import_tasks: 35_cred_dir.yml
+- import_tasks: 00_preflight.yml
+
+- import_tasks: 05_disable_swap.yml
+- import_tasks: 10_kernel_mods.yml
+- import_tasks: 15_sysctl.yml
+- import_tasks: 20_repo.yml
+- import_tasks: 25_install.yml
+- import_tasks: 30_services.yml
+- import_tasks: 35_env.yml
+- import_tasks: 40_cred_dir.yml
 - meta: flush_handlers
 
 ...

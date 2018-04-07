@@ -6,7 +6,7 @@
 # file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
 
 all:
-  children:    
+  children:
     master-servers:
       vars:
         home_net:
@@ -14,10 +14,17 @@ all:
           - "10.0.0.0/8"
           - "172.16.0.0/12"
         serivces_cidr: # Network Cidr for Metallb ie: "192.168.86.248/29"
-        bpf_filter: ""
-      hosts:
+        bpf_filter: "" # Use this to screen traffic from the Moloch PCAP capture
+        es_mem: 2 # The amount of memory you want to assign to each elasticsearch instance
+        es_masters: 3 # How many elasticsearch masters you would like to run
+        es_datas: 0 # How many elasticsearch data nodes you would like to run
+        elastic_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Elasticsearch
+        kafka_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Kafka
+        zookeeper_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Zookeeper
+        logstash_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Logstash
+        pcap_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Moloch
         rockserver1.lan:
-          ansible_user: root          
+          ansible_user: root
           management_ipv4: # IP Address of node
           data_disk_devices:
           #- /dev/sdb <raw disk name>
@@ -25,21 +32,27 @@ all:
       children:
         sensors:
           hosts:
-            rocksensor1.lan:              
+            rocksensor1.lan:
               management_ipv4: # IP Address of node
               bro_workers: 2
               monitor_interfaces:
               #- eth0 <Interface Name>
               data_disk_devices:
               #- /dev/sdb <raw disk name>
+          vars:
+            # dns_ip: <192.168.1.50> The IP address of the sensor's DNS server
         servers:
           hosts:
             rockserver2.lan:
-              ansible_user: root              
+              ansible_user: root
               management_ipv4: # IP Address of node
               data_disk_devices:
               #- /dev/sdb <raw disk name>
+          vars:
+            # dns_ip: <192.168.1.50> The IP address of the sensor's DNS server
     nodes_to_remove:
       hosts:
-        # Modify hosts as needed
+        # If you want to remove hosts from the Kubernetes cluster, you may add them here
+        # You cannot remove master nodes from the cluster
+        # To remove the nodes run ansible-playbook remove_nodes.yml <your_inventory>
         rocksensor1.lan:
