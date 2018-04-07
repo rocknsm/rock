@@ -1,0 +1,24 @@
+---
+- set_fact:
+    sysctl_list:
+      - net.bridge.bridge-nf-call-ip6tables
+      - net.bridge.bridge-nf-call-iptables
+
+# kube-proxy needs net.bridge.bridge-nf-call-iptables enabled when found if br_netfilter is not a module
+- name: Check if key exists
+  command: "sysctl {{ item }}"
+  failed_when: false
+  changed_when: false
+  register: check_key_result
+  with_items: 
+    - "{{ sysctl_list }}"
+
+- name: Enable and Reload sysctl
+  sysctl:
+    name: "{{ item.item }}"
+    state: present
+    value: 1
+    reload: yes
+  when: item.rc == 0
+  with_items:
+    - "{{ check_key_result.results }}"

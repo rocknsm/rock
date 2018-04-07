@@ -1,0 +1,22 @@
+version: "2"
+services:
+  logstash:
+    image: "docker.elastic.co/logstash/logstash:{{ elastic_ver }}"
+    container_name: "{{ logstash_container_name }}"
+    restart: always
+    volumes:
+    - "{{ logstash_dir }}/pipelines.yml:/usr/share/logstash/config/pipelines.yml"
+    - "{{ logstash_dir }}/logstash.yml:/usr/share/logstash/config/logstash.yml"
+    - "{{ logstash_config_dir }}:/usr/share/logstash/pipeline"
+    - "{{ logstash_data_dir }}:/usr/share/logstash/data/"
+    - "{{ logstash_log_dir }}:{{ logstash_log_dir }}"
+
+    networks:
+      - rocknsm_inside
+      - rocknsm_outside
+
+networks:
+  rocknsm_inside:
+    external: true
+  rocknsm_outside:
+    external: true

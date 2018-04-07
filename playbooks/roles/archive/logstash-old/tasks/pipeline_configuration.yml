@@ -1,0 +1,42 @@
+#Configure Logstash
+---
+
+# copy pipeline configuration files
+- name: "Install Bro-Kafka configuration for Logstash"
+  copy:
+    dest: "{{ logstash_config_dir }}/kafka-bro.conf"
+    group: "{{ logstash_group }}"
+    mode: 0754
+    owner: "{{ logstash_user }}"
+    src: 'kafka-bro.conf'
+
+- name: "Install Suricata-Kafka configuration for Logstash"
+  copy:
+    dest: "{{ logstash_config_dir }}/kafka-suricata.conf"
+    group: "{{ logstash_group }}"
+    mode: u+rw,g+rw,o+r
+    owner: "{{ logstash_user }}"
+    src: 'kafka-suricata.conf'
+
+- name: "Install FSF-Kafka configuration for Logstash"
+  copy:
+    dest: "{{ logstash_config_dir }}/kafka-fsf.conf"
+    group: "{{ logstash_group }}"
+    mode: 0754
+    owner: "{{ logstash_user }}"
+    src: 'kafka-fsf.conf'
+
+- name: "Copy pipelines.yml"
+  copy:
+    dest: "{{ logstash_dir }}/pipelines.yml"
+    group: "{{ logstash_group }}"
+    mode: 0754
+    owner: "{{ logstash_user }}"
+    src: 'pipelines.yml'
+
+- name: "Enable and start Logstash"
+  systemd:
+    enabled: yes
+    name: logstash
+    state: restarted
+    daemon-reload: yes

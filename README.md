@@ -1,7 +1,8 @@
+# **WARNING**
+This branch is under very active development. Do not expect it to be stable. Use Master if you want to try the project out (though it will not have Kubernetes)
+
 # **Temporary Instructions**
 \*These instructions are subject to change
-
-The Master branch will result in one fully working Sensor/Server stack with single nodes of everything. Work on Kubernetes is being done in the devel branch.
 
 # Quick Start Guide
 1. Install 2 CentOS 64bit machines. For the testing machines, minimum recommended hardware is:
@@ -51,16 +52,57 @@ rm -rf /opt/rock && git clone -b <github_branch> <github_url> /opt/rock && cd /o
 # Example:
 # rm -rf /opt/rock && git clone -b logstash_feature https://github.com/tfplenum/rock /opt/rock && cd /opt/rock/playbooks
 ```
+9. Inventory Setup: 
+* Copy the sample inventory file from playbooks/inventory/sample to playbooks/inventory/dev
+* Use the following naming convention to ensure your inventory file is not commited to git.
+    * inventory-<name>.yml - ie: inventory-bob.yml
+* Update your inventory file with your VMs network cidr (required for metallb), VM IP Address, and Network Interface
+* sample inventory will be the latest and greatest.  Periodically review sample invetory in case of updates.
 
-9. Start the installer using the "ansible-playbook" command. To run only sensor/server related playbooks, use the "--limit" flag. Note: If you installed ssh keys you can omit the `--ask-pass` argument
+10. Tags and Extra Vars:
+  * Tags:
+    * bro
+    * ceph
+    * common
+    * elasticsearch
+    * kafka
+    * kibana
+    * kube-master
+    * kube-node
+    * logstash
+    * moloch
+    * suricata
+  * Extra Vars:
+    * "debug_enabled" (default = false)
+    * "gluster_reload" (default = false) (deprecated)
+    * "kube_reload" (default = false)
+    * "online_install" (default = false)
+
+11. Playbooks and Examples:
+* add_node.yml - Add a node to kubernetes.
+* generate_ssh_keys.yml - Generates appropirate ssh keys, authorized_keys and known_hosts.  Required to be ran prior to site.yml.
+* remove_node.yml - Remove a node from kubernetes.
+* site.yml - Main playbook that will install/setup kubernetes, storage(ceph), and all applications.
+* Examples:
 ```bash
-ansible-playbook site.yml --ask-pass
-ansible-playbook site.yml --ask-pass --limit "sensors"
-ansible-playbook site.yml --ask-pass --limit "servers"
+# Generate ssh keys, authorized_keys and known_hosts files
+ansible-playbook generate_ssh_keys.yml -i inventory/dev/inventory.yml --ask-pass
+
+# Install full stack
+ansible-playbook site.yml -i inventory/dev/inventory.yml
+
+# Add new node to cluster
+ansible-playbook add_node.yml -i inventory/dev/inventory.yml -l rocksensor3.lan
+
+# Remove node from cluster
+# Add host to "node_to_remove" group in inventory
+ansible-playbook remove_node.yml -i inventory/dev/inventory.yml
+
 ```
 
 ## See Also
 
+* [Traffic Flow](docs/Traffic%20Flow.md)
 * [Quick DNS Server Setup](docs/Quick%20DNS%20Server%20Setup.md)
 * [Install CentOS Repositories on RedHat](docs/Install%20CentOS%20Repo%20on%20RedHat.md)
 * [Suggested Developer Environment Setup Guide](docs/Suggested%20Developer%20Environment%20Setup%20Guide.md)

@@ -1,4 +1,3 @@
-%YAML 1.1
 ---
 
 #### Retention Configuration ####
@@ -11,14 +10,13 @@ elastic_delete_interval: 60
 
 es_user: 1000
 es_group: 1000
-es_data_dir: "{{ rock_data_dir }}/elasticsearch"
-es_cluster_name: rocknsm
-es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
-
 elastic_data_port: '9200'
 elastic_management_port: '9300'
-elastic_container: 'docker.elastic.co/elasticsearch/elasticsearch'
-elastic_container_name: 'rock-elasticsearch'
-es_config_dir: '{{ rocknsm_dir }}/elasticsearch'
-es_log_dir: '/var/log/elasticsearch'
-elastic_config_file: '{{ es_config_dir }}/elasticsearch.yml'
+elastic_image: 'docker.elastic.co/elasticsearch/elasticsearch'
+elastic_dir: "{{ install_dir  }}/elasticsearch"
+elastic_pv_data_path: "/usr/share/elasticsearch/data"
+elastic_config_path: "/usr/share/elasticsearch/config"
+elastic_pv_size: 1
+es_mem: 2
+es_masters: 3
+es_datas: 0

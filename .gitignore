@@ -12,6 +12,8 @@
 .kitchen.local.yml
 .kitchen/
 .vagrant
+.vs
+.vscode/*
 /cookbooks
 Berksfile.lock
 Gemfile.lock
@@ -20,5 +22,11 @@ Vagrantfile.vmware
 pkg/
 repo/
 tmp/
-
 playbooks/roles/logstash/tasks/old-main\.yml
+
+# We dont want to commit tokens to git
+playbooks/files/admin.conf
+playbooks/files/join-node.sh
+
+*inventory*
+inventory/dev/*

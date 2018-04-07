@@ -1,0 +1,22 @@
+---
+
+version: '2'
+services:
+  filebeat:
+    image: {{ filebeat_image }}:{{ filebeat_ver }}
+    container_name: {{ filebeat_container_name }}
+    volumes:
+      - {{ filebeat_config_location }}/filebeat.yml:/usr/share/filebeat/filebeat.yml
+      - {{ suricata_log_location }}:{{ suricata_log_location }}
+      - {{ filebeat_log_dir }}:/usr/share/filebeat/logs
+    networks:
+      - rocknsm_inside
+      - rocknsm_outside
+
+networks:
+  rocknsm_inside:
+    external: true
+  rocknsm_outside:
+    external: true
+
+...

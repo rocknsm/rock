@@ -1,0 +1,38 @@
+input {
+  kafka {
+    topics => ["suricata-raw"]
+    # Set this to one per kafka partition to scale up
+    #consumer_threads => 4
+    group_id => "suricata_logstash"
+    client_id => "logstash-suricata"
+    bootstrap_servers => "{{ kafka_url }}:{{ kafka_port }}"
+    codec => json
+    auto_offset_reset => "earliest"
+  }
+}
+
+filter {
+  if "_jsonparsefailure" in [tags] {
+    drop { }
+  }
+
+  #if [message][event_type] == "stats" {
+  #  drop { }
+  #}
+
+  # Remove kafka_topic field
+  mutate {
+    remove_field => [ "kafka_topic" ]
+  }
+
+  # Set the timestamp
+  date { match => [ "timestamp", "ISO8601" ] }
+}
+
+output {
+  elasticsearch {
+    hosts => ["{{ elastic_url }}:{{ elastic_port }}"]
+    index => "suricata-%{+YYYY.MM.dd}"
+    manage_template => false
+  }
+}

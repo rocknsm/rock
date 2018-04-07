@@ -1,0 +1,60 @@
+---
+# GOPOD is a go template which extracts the Ready and Status fields from the api in json format.
+# Pod Array -> Status -> containerStatues Array -> ready field
+# "kubectl get pods -o json" will return the full json structure
+
+# Variables:
+# type (required): kubernetes resource type using one of the following: pod, pods, node, statefulset, ds
+# resource_name (optional): kubernetes resource name
+# namespace (optional): kubernetes namespace (ie: kube-system)
+#   Note: When using type node namespace can be any string
+# label (optional): kubernetes resource label
+
+# Example:
+# - name: Wait for Master Node
+#   include_role:
+#     name: kubernetes/common
+#     tasks_from: kube_wait
+#   vars:
+#     type: "node"
+#     namespace: ""
+#     resource_name: "{{ ansible_fqdn }}"
+#     label: ""
+
+
+- set_fact:
+    GOPOD: !unsafe "'{{range .items}}{{range .status.containerStatuses}}{{if ne .ready true}}false{{end}}{{end}}{{end}}'"
+  when: type == 'pods'
+
+- set_fact:
+    GOPOD: !unsafe "'{{range .status.containerStatuses}}{{if ne .ready true}}false{{end}}{{end}}'"
+  when: type == 'pod'
+
+- set_fact:
+    GOPOD: !unsafe "'{{range .status.conditions}}{{if and (eq (.type) (\"Ready\")) (eq (.status) (\"False\"))}}false{{end}}{{end}}'"
+  when: type == 'node'
+
+- set_fact:
+    GOPOD: !unsafe "'{{if ne (.status.replicas) (.status.readyReplicas)}}false{{end}}'"
+  when: type == 'statefulset'
+
+- set_fact:
+    GOPOD: !unsafe "'{{if ne (.status.numberReady) (.status.desiredNumberScheduled)}}false{{end}}'"
+  when: type == 'ds'
+
+- set_fact:
+    GOPOD: !unsafe "'{{if ne (.status.replicas) (.status.readyReplicas)}}false{{end}}'"
+  when: type == 'deployments'
+
+- import_tasks: build_kubectl.yml
+
+- name: Kube | Wait for "{{ resource_name }} {{ label }} {{ type }}"
+  shell: |
+    {{ kubectl }}
+  register: kube_wait_result
+  until: kube_wait_result.stdout == ""
+  retries: 45
+  delay: 10
+  when: kubectl is defined
+  failed_when: kube_wait_result.rc != 0 and kube_wait_result.rc != 1
+  #ignore_errors: yes

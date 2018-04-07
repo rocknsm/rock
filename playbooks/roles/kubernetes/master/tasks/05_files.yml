@@ -1,0 +1,23 @@
+---
+- name: "Create Kubernetes config directory"
+  file:
+    path: "{{ item }}"
+    mode: u+rw,g+rw
+    owner: root
+    group: root
+    state: directory
+  with_items:
+    - "{{ kube_dir }}"
+
+- name: 'Install templates'
+  template:
+    src: "{{ item }}.yml.j2"
+    dest: "{{ kube_dir }}/{{ item }}.yml"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - metallb
+    - kube-flannel
+    - dashboard
+    - vars

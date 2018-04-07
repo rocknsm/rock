@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: es-discovery-svc
+  labels:
+    app: es-discovery-svc
+    
+spec:
+
+  # the set of Pods targeted by this Service are determined by the Label Selector
+  selector:
+    app: elasticsearch
+
+  # exposing elasticsearch transport port (only)
+  # this service will be used by es-nodes for discovery;
+  # communication between es-nodes happens through
+  # the transport port (9300)
+  ports:
+  - protocol: TCP
+
+    # port exposed by the service (service reacheable at)
+    port: 9300
+
+    # port exposed by the Pod(s) the service abstracts (pod reacheable at)
+    # can be a string representing the name of the port @the pod (ex. transport)
+    targetPort: 9300
+    name: transport
+
+  # specifying this is a headless service by providing ClusterIp "None"
+  clusterIP: None

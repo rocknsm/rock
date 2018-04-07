@@ -1,0 +1,43 @@
+#
+# Checking that required variables are set
+#
+- name: Checking that required variables are set
+  fail:
+    msg: "{{ item }} is not defined"
+  when: not item
+  with_items:
+    - kube_dir
+    - kube_pod_cidr
+    - kube_version
+    - kubernetes_conf_file
+    - kafka_fqdn
+    - kafka_port
+    - elastic_fqdn
+    - elastic_port
+
+- name: Checking Sensor Vars
+  fail:
+    msg: "{{ item[1] }} is not defined for {{ item[0] }}"
+  when: not hostvars[item[0]][item[1]]
+  with_nested:
+    - "{{ groups['sensors']}}"
+    -  [ 'monitor_interfaces', 'bro_workers' ]
+
+- name: Checking Master Group Vars
+  fail:
+    msg: "{{ item }} is not defined"
+  when: not hostvars[groups['master-servers'][0]][item]
+  with_items:
+    - home_net
+    - serivces_cidr
+    #- bpf_filter
+
+- name: Check Master Node
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_check
+  vars:
+    type: "node"
+    namespace: ""
+    resource_name: "{{ ansible_fqdn }}"
+    label: ""

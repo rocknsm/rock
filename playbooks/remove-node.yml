@@ -1,0 +1,24 @@
+# Name: remove-node
+# Description: This playbook will unschedule and remove a node from the kubernetes cluster. BE CAREFUL!
+# Requirement: Add node to nodes_to_remove group in inventory.yml
+# Usage: ansible-playbook remove-node.yml -u <user>
+# Example: ansible-playbook -i inventory/misc/inventory.yml remove-node.yml -u root
+
+---
+- hosts: all
+  gather_facts: true
+
+
+- hosts: master-servers
+  roles:
+    - { role: kubernetes/remove-node/pre-remove, tags: pre-remove }
+
+- hosts: nodes_to_remove
+  roles:
+    - { role: kubernetes/reset, tags: reset, kubeadm_reset: false}
+
+- hosts: master-servers
+  roles:
+    - { role: kubernetes/remove-node/post-remove, tags: post-remove }
+
+...

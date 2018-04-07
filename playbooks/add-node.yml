@@ -1,0 +1,19 @@
+# Name: add-node
+# Description: This playbook will add a node to the kubernetes cluster
+# Requirement: Add new node to nodes group in inventory.yml
+# Usage: ansible-playbook add-node.yml -u <remote user> -l <new node>
+# Example: ansible-playbook add-node.yml -u root -l rocksensor2.lan
+
+---
+- hosts: all
+  gather_facts: true
+
+- name: Configure kube nodes
+  hosts: nodes
+  roles:
+    - kubernetes/common
+    - kubernetes/node
+  tags:
+  - add-node
+  
+...

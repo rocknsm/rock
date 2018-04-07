@@ -1,0 +1,10 @@
+---
+- import_tasks: "install.yml"
+- import_tasks: "configure.yml"
+- import_tasks: "service.yml"
+
+- name: 'Force time sync'
+  command: "chronyc -a 'burst 4/4'"
+
+- name: 'Force time sync'
+  command: "chronyc -a makestep"

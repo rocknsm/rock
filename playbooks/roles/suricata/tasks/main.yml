@@ -1,3 +1,52 @@
+######################################################
+################# Setup Kibana #######################
+######################################################
 ---
-- import_tasks: install_suricata.yml
-- import_tasks: setup_pulled_pork.yml
+
+- name: Create config directory
+  file:
+    path: "{{ suricata_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: Copy files
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ suricata_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - suricata.yaml.tmpl
+    - filebeat.yml.tmpl
+    - suricata.yaml.conf
+    - filebeat.yml.conf
+
+- name: Install templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ suricata_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - deploy.yml
+
+- name: Create ConfigMap
+  shell: |
+    kubectl delete configmap suricata
+    kubectl create configmap suricata --from-file={{ suricata_dir }}/suricata.yaml.tmpl \
+      --from-file={{ suricata_dir }}/filebeat.yml.tmpl \
+      --from-file={{ suricata_dir }}/suricata.yaml.conf \
+      --from-file={{ suricata_dir }}/filebeat.yml.conf
+
+- name: Deploy
+  shell: |
+    kubectl delete -f {{ suricata_dir }}/deploy.yml
+    kubectl apply -f {{ suricata_dir }}/deploy.yml
+    while [ $(kubectl get -f {{ suricata_dir }}/deploy.yml | tail -n +2 | awk '{print $5}') == '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;

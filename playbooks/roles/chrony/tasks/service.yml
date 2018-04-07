@@ -1,0 +1,8 @@
+---
+- name: 'Manage the chrony service'
+  become: yes
+  systemd:
+    name: '{{ chrony_service_name }}'
+    enabled: '{{ chrony_service_enabled }}'
+    state: '{{ chrony_service_state }}'
+  tags: 'chrony-service'

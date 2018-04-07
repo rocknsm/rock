@@ -1,0 +1,40 @@
+---
+# handlers file for rocknsm.docket
+- name: docket | cleanup csr on docket host
+  file:
+    path: "{{docket_x509_key}}.csr"
+    state: absent
+  when: inventory_hostname in groups['docket']
+
+- name: docket | cleanup csr on sensor hosts
+  file:
+    path: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname}}.csr"
+    state: absent
+  with_items: groups['docket']
+  when:
+    - inventory_hostname in groups['stenographer']
+
+- name: docket | restart redis
+  service:
+    name: redis
+    state: restart
+
+- name: docket | restart docket celery
+  service:
+    name: docket-celery
+    state: restart
+
+- name: docket | restart docket uwsgi
+  service:
+    name: docket
+    state: restart
+
+- name: docket | restart lighttpd
+  service:
+    name: lighttpd
+    state: restart
+
+- name: docket | cleanup {{ ansible_cache }} dir
+  file:
+    name: "{{ ansible_cache }}/"
+    state: absent

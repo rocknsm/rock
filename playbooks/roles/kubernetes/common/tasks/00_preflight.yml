@@ -1,0 +1,15 @@
+---
+
+# Verify that the kubernetes role has not already run
+- name: Check to see if Kubernetes directory is empty
+  find:
+    paths: "{{ kube_dir }}"
+    file_type: file
+  register: kubernetes_directory
+
+- name: Check for existing directories
+  fail:
+    msg: "It appears you have already run the Kubernetes role once. The {{ kube_dir }} directory exists and is not empty. If you are reloading, verify all the nodes you want removed are under nodes_to_remove in the inventory file."
+  when: kubernetes_directory.matched | int != 0
+
+...

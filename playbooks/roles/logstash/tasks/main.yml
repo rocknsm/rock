@@ -1,4 +1,73 @@
+######################################################
+################# Setup Logstash #####################
+######################################################
 ---
 
-- import_tasks: 'logstash_container.yml'
-- import_tasks: 'pipeline_configuration.yml'
+- name: "Create Logstash directory"
+  file:
+    path: "{{ logstash_dir }}"
+    mode: u+rw,g+rw
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    state: directory
+
+- name: Install Logstash templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ logstash_dir }}/{{ item }}"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0644
+  with_items:
+    - deploy.yml
+    - kafka-bro.conf
+    - kafka-fsf.conf
+    - kafka-suricata.conf
+    - logstash.yml
+
+- name: Copy Config Files
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ logstash_dir }}/{{ item }}"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0644
+  with_items:
+    - pipelines.yml
+    - log4j2.properties
+
+- name: Flush ConfigMaps
+  command: 'kubectl delete configmap logstash --ignore-not-found=true'
+
+- name: Create Main ConfigMap
+  shell: |
+    kubectl create configmap logstash \
+    --from-file {{ logstash_dir }}/logstash.yml \
+    --from-file {{ logstash_dir }}/pipelines.yml \
+    --from-file {{ logstash_dir }}/log4j2.properties \
+    --from-file {{ logstash_dir }}/kafka-bro.conf \
+    --from-file {{ logstash_dir }}/kafka-suricata.conf \
+    --from-file {{ logstash_dir }}/kafka-fsf.conf
+
+- name: Flush Deployment
+  shell: |
+    kubectl delete -f {{ logstash_dir }}/deploy.yml --ignore-not-found=true
+    while [ $(kubectl get -f {{ logstash_dir }}/deploy.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
+
+- name: Deploy Logstash
+  shell: |
+    kubectl create -f {{ logstash_dir }}/deploy.yml
+
+- name: Wait for logstash to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "logstash"
+    label: ""

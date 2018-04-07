@@ -1,0 +1,62 @@
+#!/bin/bash
+set -e
+
+OPTIND=1
+tmpfile="/tmp/.tmp.imglist.txt"
+dest=""
+imglist=""
+continue=0
+overwrite=0
+
+while getopts "h?cwd:" opt; do
+  case "$opt" in
+  h|\?)
+    cat <<EOF
+Usage: $(basename $0) [-cw] [-d directory] image_list
+    -w  Overwrite image files if they exist
+    -c  Continue where last operation stopped
+    -d  Director to save images"
+EOF
+    exit 0
+    ;;
+  d)
+    dest=$OPTARG
+    ;;
+  c)
+    continue=1
+    ;;
+  w)
+    overwrite=1
+  esac
+done
+
+shift $((OPTIND-1))
+[ "$1" = "--" ] && shift
+
+imglist=$1
+
+if [ -z "${imglist// }" ]; then
+  echo "Invalid image list";
+  exit 1;
+fi
+imglist=$( cd $(dirname $imglist); pwd -P)/$(basename $imglist)
+
+if [ ! -z "${dest// }" ]; then
+  dest="$( cd $(dirname $dest); pwd -P)/"
+fi
+
+if [ ! $continue ]; then
+  cat $imglist | grep -ve '^[[:space:]]*$' > $tmpfile
+elif [ ! -f $tmpfile ]
+  echo "Unable to continue last operation";
+  exit 1;
+fi
+while [ $(cat $tmpfile | grep -ve '^[[:space:]]$' | wc -l ) -gt 0 ]; do
+  img=$(head -n 1 $tmpfile)
+  imgfile=$dest$(echo t$img | sed 's/[\/:]/_/g').tar.gz
+  if [ ! $overwrite -a ! -f $imgfile ]; then
+    docker pull $img
+    docker save $img | gzip -9 > $imgfile
+    echo "$(tail -n +2 $tmpfile)" > $tmpfile
+  fi
+done

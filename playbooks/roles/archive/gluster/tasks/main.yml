@@ -1,0 +1,72 @@
+#######################################################
+###################  Gluster Install ##################
+#######################################################
+---
+#- name: Check to see if default gluster dir exists
+#  stat:
+#    path: "/var/lib/glusterd"
+#  register: gdir
+
+# Uninstall GlusterFS
+- name: Gluster | Remove
+  import_tasks: reload.yml
+  when: (gluster_reload is defined and (gluster_reload))
+# (gdir.stat.exists and gdir.stat.isdir) or 
+
+# Install GlusterFS, this will fail spectacularly if this is not a fresh install,
+# or remove is not run first
+
+- import_tasks: repo.yml
+- import_tasks: packages.yml
+- import_tasks: kernel_mods.yml
+
+- import_tasks: files.yml
+  when: inventory_hostname in groups['master-servers'] 
+
+- name: Wipe Raw Disks
+  import_tasks: wipe.yml
+
+- name: Run gk deploy
+  shell: "{{ gluster_dir }}/gk-deploy {{ gluster_dir }}/topology.json -g -t {{ gluster_dir }} -y"
+  register: gk_result
+  when: inventory_hostname in groups['master-servers']
+
+- name: Heketi | Get Endpoint
+  shell: |
+    kubectl describe svc/heketi | grep "Endpoints:" | awk '{print "http://"$2}'
+  when: inventory_hostname in groups['master-servers'] 
+    and gk_result.changed and "Deployment complete" in gk_result.stdout
+  register: heketi_endpoint 
+
+- name: Set IP in Storage Class
+  replace:
+    path: '{{ gluster_dir }}/storage-class.yml'
+    regexp: 'heketi_endpoint_url'
+    replace: '{{ heketi_endpoint.stdout }}'
+  when: inventory_hostname in groups['master-servers'] 
+    and heketi_endpoint.stdout is defined 
+    and heketi_endpoint.stdout != '' 
+    and 'none' not in heketi_endpoint.stdout
+
+- name: Check Storage Class
+  shell: |
+    kubectl get storageclass gluster-heketi --no-headers | awk '{ print $1 }'
+  when: inventory_hostname in groups['master-servers']
+  register: check_storage_class_result
+
+- name: Delete Storage Class
+  command: "kubectl delete -f {{ gluster_dir }}/storage-class.yml"
+  when: inventory_hostname in groups['master-servers'] 
+    and check_storage_class_result is defined 
+    and "gluster-heketi" in check_storage_class_result.stdout
+
+- name: Deploy Storage Class
+  command: "kubectl create -f {{ gluster_dir }}/storage-class.yml"
+  when: inventory_hostname in groups['master-servers']
+
+- name: Test Storage
+  import_tasks: test_storage.yml
+  when: inventory_hostname in groups['master-servers']
+
+
+...

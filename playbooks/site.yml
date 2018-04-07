@@ -5,111 +5,118 @@
 # We follow the guidance to include naming conventions there.
 
 ---
-- hosts: all
-
-  tasks:
-
-  # Useful for debugging, uncomment if you don't need it. This will post all
-  # ansible related variables to the file /tmp/ansible.all
-  #- name: Dump all vars
-  #  action: template src=templates/dumpall.j2 dest=/tmp/ansible-site.all
-
-# WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
-# This should include all hosts and therefore is the only task on which gather_facts
-# will run. If for whatever reason you don't include the common role you MUST
-# add it back in for roles which apply to your servers or anything requiring
-# the gathered facts will fail.
-# WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING WARNING
+- name: Common Setup
+  hosts: all
+  gather_facts: no
+  pre_tasks:
+    - setup:
   roles:
     - common
+    - chrony
+  tags:
+  - common
 
-- hosts: sensors
-  roles:
-    - sensor-common
+- name: Configure kube master
+  hosts: master-servers
   gather_facts: no
-
-- hosts: docker
+  pre_tasks:
+    - setup:
   roles:
-    - docker
-  gather_facts: no
+    - kubernetes/common
+    - kubernetes/master
+  tags:
+  - kube-master
 
-#************************************************
-# WARNING DNSMASQ is a temporary solution to getting a dns server up and running for developing.
-# It is not very secure! DO NOT USE ON A PRODUCTION ENVIRONMENT
-#************************************************
-- hosts: dnsmasq
+- name: Configure kube nodes
+  hosts: nodes
+  gather_facts: no
+  pre_tasks:
+    - setup:
   roles:
-    - dnsmasq
-  gather_facts: no
+    - kubernetes/common
+    - kubernetes/node
+  tags:
+  - add-node
+  - kube-node
 
-# kibana and portainer must come before haproxy as haproxy cannot run without
-# being able to contact at least one of each backend servers (1 kibana, 1 portainer,
-# 1 elasticsearch)
-- hosts: kibana
+- name: Setup Ceph
+  hosts: master-servers
+  gather_facts: no
+  pre_tasks:
+    - setup:
   roles:
-    - kibana
+    - ceph
+  tags:
+  - ceph
+
+- name: Deploy Elasticsearch
+  hosts: master-servers
   gather_facts: no
-
-- hosts: portainer
-  roles:
-    - portainer
-  gather_facts: no
-
-# haproxy must come before elasticsearch. The host running ansible will not
-# beable to contact elasticsearch without haproxy running, this is required
-# for elasticsearch's main tasks to complete. Adding haproxy to elasticsearch's
-# dependencies is not an option due to ansible installing haproxy on every host
-# that elasticsearch is assigned to.
-#- hosts: haproxy
-#  roles:
-#    - haproxy
-#  gather_facts: no
-
-- hosts: elasticsearch
+  pre_tasks:
+    - setup:
   roles:
     - elasticsearch
-  gather_facts: no
+  tags:
+  - elasticsearch
 
-- hosts: logstash
+- name: Deploy Logstash
+  hosts: master-servers
+  gather_facts: no
+  pre_tasks:
+    - setup:
   roles:
     - logstash
-  gather_facts: no
+  tags:
+  - logstash
 
-- hosts: bro
+- name: Deploy Kibana
+  hosts: master-servers
+  gather_facts: no
+  pre_tasks:
+    - setup:
   roles:
-    - bro
-  gather_facts: no
+    - kibana
+  tags:
+  - kibana
 
-- hosts: suricata
-  roles:
-    - suricata
+- name: Deploy Kafka
+  hosts: master-servers
   gather_facts: no
-
-- hosts: filebeat
-  roles:
-    - filebeat
-  gather_facts: no
-
-- hosts: zookeeper
-  roles:
-    - zookeeper
-  gather_facts: no
-
-- hosts: kafka
+  pre_tasks:
+    - setup:
   roles:
     - kafka
-  gather_facts: no
+  tags:
+  - kafka
 
-- hosts: stenographer
+- name: Deploy Bro
+  hosts: master-servers
+  gather_facts: no
+  pre_tasks:
+    - setup:
   roles:
-    - stenographer
-  gather_facts: no
+    - bro
+  tags:
+  - bro
 
-# Harbor must run last so that it uploads all containers installed on the machine.
-# Harbor has compose file issue, disabling for now
-#- hosts: harbor
-#  roles:
-#    - harbor
-#  gather_facts: no
+- name: Deploy Moloch
+  hosts: master-servers
+  gather_facts: no
+  pre_tasks:
+    - setup:
+  roles:
+    - moloch
+  tags:
+  - moloch
+
+- name: Deploy Suricata
+  hosts: master-servers
+  gather_facts: no
+  pre_tasks:
+    - setup:
+  roles:
+    - suricata
+  tags:
+  - suricata
 
 ...

@@ -1,0 +1,47 @@
+---
+# The inventory defines which hosts belong to which groups and what variables are applied to them. The playbooks
+# themselves in our scheme do not define any variables. The names you see on the far left here correspond to the limit
+# function you can run with the ansible-playbook command. For example ansible-playbook site.yml --limit sensor would
+# look at this inventory file and see the hosts that are part of the sensor group. When site.yml imports the sensors.yml
+# file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
+
+all:
+  children:    
+    master-servers:
+      vars:
+        home_net:
+          - "192.168.0.0/16"
+          - "10.0.0.0/8"
+          - "172.16.0.0/12"
+        serivces_cidr: "192.168.86.248/29"
+        bpf_filter: ""
+      hosts:
+        rockserver1.lan:
+          ansible_user: root
+          ansible_connection: ssh
+          management_ipv4:
+          data_disk_devices:
+          - /dev/sdb 
+    nodes:
+      children:
+        sensors:
+          hosts:
+            rocksensor1.lan:
+              ansible_connection: ssh
+              management_ipv4
+              bro_workers: 2
+              monitor_interfaces:
+              - eth0
+              data_disk_devices:
+              - /dev/sdb
+        servers:
+          hosts:
+            rockserver2.lan:
+              ansible_user: root
+              ansible_connection: ssh
+              management_ipv4:
+              data_disk_devices:
+              - /dev/sdb
+    nodes_to_remove:
+      hosts:
+        rocksensor1.lan:

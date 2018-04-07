@@ -1,0 +1,61 @@
+#######################################################
+###################  Kubernetes Reset ###############
+#######################################################
+---
+- name: Reset Kubernetes Node
+  command: kubeadm reset
+  register: kube_reset_result
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove'] and (kube_reload is defined and kube_reload)
+
+- name: Stop Services
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove']
+  with_items:
+    - docker
+    - kubelet
+
+- name: Remove Kubernetes Packages to clear cache
+  yum:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+    - kubeadm
+    - kubelet
+    - kubectl
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove']
+
+- name: Remove Artifacts
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - /var/lib/cni
+    - /var/lib/kubelet
+    - /etc/cni
+    - /etc/kubernetes
+    - /var/lib/etcd
+  #ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove']
+  register: remove_artifacts_result
+  failed_when: "'Device or resource busy' in remove_artifacts_result"
+
+- name: Delete Kubernetes directory
+  file:
+    path: "{{ kube_dir }}"
+    state: absent
+
+- name: Remove Interfaces
+  shell: |
+    if [ $(ifconfig | grep {{ item }} | wc -l ) -gt 0 ]; then
+      ip link delete {{ item }};
+    fi
+  with_items:
+    - flannel.1
+    - cni0
+  ignore_errors: yes
+  when: inventory_hostname in groups['nodes_to_remove']

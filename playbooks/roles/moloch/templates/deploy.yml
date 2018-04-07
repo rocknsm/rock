@@ -1,0 +1,77 @@
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: moloch
+  labels:
+    component: moloch
+spec:
+  serviceName: moloch
+  replicas: {{ groups['sensors'] | length }}
+  selector:
+    matchLabels:
+     component: moloch
+  template:
+    metadata:
+      labels:
+        component: moloch
+    spec:
+      hostNetwork: true
+      containers:
+      - name: "moloch"
+        image: "{{ moloch_image}}:{{ moloch_tag }}"
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
+        ports:
+          - containerPort: {{ moloch_port }}
+            name: webgui
+        volumeMounts:
+        - name: vars
+          mountPath: /etc/icdm/
+        - name: templates
+          mountPath: /etc/icdm/templates/
+        - name: configs
+          mountPath: /etc/icdm/conf/
+        - name: data
+          mountPath: "{{ moloch_pcap_path }}"
+      restartPolicy: Always
+      volumes:
+      - name: vars
+        configMap:
+          name: vars
+      - name: configs
+        configMap:
+          name: moloch
+          items:
+          - key: config.ini.conf
+            path: config.ini.conf
+      - name: templates
+        configMap:
+          name: moloch
+          items:
+          - key: config.ini.tmpl
+            path: config.ini.tmpl
+      nodeSelector:
+        role: sensor
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - sensor
+            topologyKey: "kubernetes.io/hostname"
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: rbd
+      resources:
+        requests:
+          storage: {{ pcap_pv_size }}Gi

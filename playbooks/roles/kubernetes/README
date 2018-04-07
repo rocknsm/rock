@@ -1,0 +1,7 @@
+Kubernetes
+==========
+
+<h1>Helpful Commands</h1>
+
+<h4>Check Container Status in Pod</h4>
+kubectl --kubeconfig=/etc/kubernetes/admin.conf describe pod kafka-7675f87fd7-tzlfn

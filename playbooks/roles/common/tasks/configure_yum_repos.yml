@@ -3,38 +3,68 @@
 #######################################################
 ---
 
-- name: "Setup EPEL repo"
-  yum_repository:
-    baseurl: "{{ epel_baseurl }}"
-    description: "EPEL YUM repo"
-    gpgcheck: true
-    gpgkey: "{{ epel_gpgurl }}"
-    mirrorlist: "https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch"
-    name: epel
-  when: rock_online_install
+- name: Check presence of fastestmirror.conf
+  stat:
+    path: /etc/yum/pluginconf.d/fastestmirror.conf
+  register: fastestmirror
 
-- name: "Manually trust CentOS GPG key"
-  shell: "rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7\n"
-  when: "rock_online_install and ansible_distribution == \"CentOS\""
+# fastestmirror plugin actually slows down Ansible deployments
+- name: Disable fastestmirror plugin
+  lineinfile:
+    dest: /etc/yum/pluginconf.d/fastestmirror.conf
+    regexp: "^enabled=.*"
+    line: "enabled=0"
+    state: present
+  when: fastestmirror.stat.exists and ansible_distribution == 'CentOS'
 
-- name: "Setup local offline repo"
+- name: Setup Deployer offline repo
   yum_repository:
-    baseurl: "{{ rocknsm_local_baseurl }}"
+    baseurl: "http://deployer.lan/centos/$releasever/offline/$basearch"
     cost: 500
-    description: "ROCKNSM Local Repository"
+    description: "Deployer Repository"
     gpgcheck: false
-    name: rocknsm-local
-  when: "not rock_online_install"
+    name: Deployer-local
+    enabled: true
+  when: "not online_install"
+
+- name: Remove Deployer offline repo
+  yum_repository:
+    state: absent
+    name: Deployer-local
+  when: online_install
 
 - name: "Configure default CentOS online repos"
   yum_repository:
     description: "CentOS-$releasever - {{ item.name | title }}"
-    enabled: "{{ rock_online_install }}"
+    enabled: "{{ online_install }}"
     file: CentOS-Base
     mirrorlist: "{{ item.mirror }}"
     name: "{{ item.name }}"
+    gpgcheck: true
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
   with_items:
   - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
   - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
   - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
   when: "ansible_distribution == \"CentOS\""
+
+- name: Check if EPEL repo is already configured
+  stat: path={{ epel_repofile_path }}
+  register: epel_repofile_result
+
+- name: Install EPEL release
+  yum:
+    name: "{{ epel_repo_url }}"
+    state: present
+  register: result
+  when: not epel_repofile_result.stat.exists
+
+- name: Import EPEL GPG key
+  rpm_key:
+    key: "{{ epel_repo_gpg_key_url }}"
+    state: present
+  when: not epel_repofile_result.stat.exists
+
+#- name: "Manually trust CentOS GPG key"
+#  shell: "rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7\n"
+#  when: "rock_online_install and ansible_distribution == \"CentOS\""

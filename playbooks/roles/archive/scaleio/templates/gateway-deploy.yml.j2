@@ -1,0 +1,27 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: scaleio-gateway
+  labels:
+    component: scaleio-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: scaleio-gateway
+  template:
+    metadata:
+      labels:
+        component: scaleio-gateway
+    spec:
+      containers:
+      - name: scaleio-gateway
+        image: {{ scaleio_image }}:{{ scaleio_ver }}
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        ports:
+        - containerPort: 443
+          name: transport

@@ -1,0 +1,14 @@
+%YAML 1.1
+---
+
+#### Main Role Configuration ####
+
+# TODO: These do not appear to be in use
+# zookeeper_user: zookeeper
+# zookeeper_group: zookeeper
+zookeeper_port: 2181
+zookeeper_data_dir: "{{ rock_data_dir }}/zookeeper"
+zookeeper_dir: "{{ rocknsm_dir }}/zookeeper"
+zookeeper_log_dir: '/var/log/zookeeper'
+zookeeper_container: zookeeper
+zookeeper_ver: 3.4.11

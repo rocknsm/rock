@@ -1,0 +1,10 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: StorageClass
+metadata:
+  name: gluster-heketi
+provisioner: kubernetes.io/glusterfs
+parameters:
+  resturl: "heketi_endpoint_url"
+  restuser: "user"
+  restuserkey: "{{ heketi_user_key }}"
+  volumeType: "none"

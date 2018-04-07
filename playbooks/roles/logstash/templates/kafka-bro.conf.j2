@@ -1,0 +1,94 @@
+input {
+  kafka {
+    topics => ["bro-raw"]
+    # Set this to one per kafka partition to scale up
+    #consumer_threads => 4
+    group_id => "bro_logstash"
+    client_id => "logstash-bro"
+    bootstrap_servers => "{{ kafka_url }}:{{ kafka_port }}"
+    codec => json
+    auto_offset_reset => "earliest"
+  }
+}
+
+filter {
+  if "_jsonparsefailure" in [tags] {
+    drop { }
+  }
+
+  # Set the timestamp
+  date { match => [ "ts", "UNIX" ] }
+
+  ruby {
+    code => "
+      require 'logstash/event'
+      logtype = ''
+      hash = event.to_hash
+      hash.each do |k,v|
+        if k[0,1] != '@' && k[0,1] != '_' && k != tags
+          logtype = k
+          v.each do |ik,iv|
+            event.set('['+ik+']',iv)
+          end
+        end
+      end
+      event.remove('['+logtype+']')
+      event.set('[source]',logtype)
+    "
+  }
+
+  if [source] == "communication" or [source] == "stats" or [source] == "capture_loss" {
+    drop { }
+  }
+
+  if "" in [id.orig_h] and "" in [id.resp_h] {
+    geoip {
+      source => "id.orig_h"
+      target => "[geoip_orig]"
+    }
+    cidr {
+      address => [ "%{id.orig_h}" ]
+      network => [ "10.0.0.0/8", "127.0.0.1", "192.168.0.0/16", "172.16.0.0/12" ]
+      remove_tag => "_geoip_lookup_failure"
+    }
+    geoip {
+      source => "id.resp_h"
+      target => "[geoip_resp]"
+    }
+    cidr {
+      address => [ "%{id.resp_h}" ]
+      network => [ "10.0.0.0/8", "127.0.0.1", "192.168.0.0/16", "172.16.0.0/12" ]
+      remove_tag => "_geoip_lookup_failure"
+    }
+  }
+
+  translate {
+    field => "conn_state"
+
+    destination => "conn_state_full"
+
+    dictionary => [
+                  "S0", "Connection attempt seen, no reply",
+                  "S1", "Connection established, not terminated",
+                  "S2", "Connection established and close attempt by originator seen (but no reply from responder)",
+                  "S3", "Connection established and close attempt by responder seen (but no reply from originator)",
+                  "SF", "Normal SYN/FIN completion",
+                  "REJ", "Connection attempt rejected",
+                  "RSTO", "Connection established, originator aborted (sent a RST)",
+                  "RSTR", "Established, responder aborted",
+                  "RSTOS0", "Originator sent a SYN followed by a RST, we never saw a SYN-ACK from the responder",
+                  "RSTRH", "Responder sent a SYN ACK followed by a RST, we never saw a SYN from the (purported) originator",
+                  "SH", "Originator sent a SYN followed by a FIN, we never saw a SYN ACK from the responder (hence the connection was 'half' open)",
+                      "SHR", "Responder sent a SYN ACK followed by a FIN, we never saw a SYN from the originator",
+                  "OTH", "No SYN seen, just midstream traffic (a 'partial connection' that was not later closed)"
+                  ]
+  }
+}
+
+output {
+  elasticsearch {
+    hosts => ["{{ elastic_url }}:{{ elastic_port }}"]
+    index => "bro-%{+YYYY.MM.dd}"
+    manage_template => false
+  }
+}

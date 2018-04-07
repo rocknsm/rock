@@ -1,0 +1,40 @@
+{
+  "index_patterns": "bro-detection*",
+  "mappings": {
+    "doc": {
+      "properties": {
+        "notice": {
+          "properties": {
+            "dst": {
+              "type": "ip"
+            },
+            "id_orig_h": {
+              "type": "ip"
+            },
+            "id_orig_p": {
+              "type": "long"
+            },
+            "id_resp_h": {
+              "type": "ip"
+            },
+            "id_resp_p": {
+              "type": "long"
+            },
+            "src": {
+              "type": "ip"
+            },
+            "msg": {
+              "type": "text",
+              "fields": {
+                "keyword": {
+                  "type": "keyword",
+                  "ignore_above": 256
+                         }
+                       }
+                   }
+                 }
+               }
+              }
+            }
+          }
+        }

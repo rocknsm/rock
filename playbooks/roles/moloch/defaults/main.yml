@@ -1,0 +1,34 @@
+%YAML 1.1
+---
+
+#### Moloch configuration variables ####
+moloch_image: 'tfplenum/moloch'
+moloch_tag: 'latest'
+moloch_port: "8005"
+moloch_threads: "2"
+moloch_spi_indices: "3"
+moloch_elastic_url: "elasticsearch.default.svc.cluster.local:9200"
+moloch_bpf: ""
+
+# User/Group and permissions for files copied
+moloch_user: "1000"
+moloch_group: "1000"
+moloch_dir_mode: "0660"
+moloch_file_mode: "0644"
+moloch_exec_mode: "0755"
+
+# Username and password for Web login
+moloch_login: 'assessor'
+moloch_pass: 'password'
+
+# Location of moloch dirs/files
+moloch_dir: '{{ install_dir }}/moloch'
+moloch_path: /data/moloch
+moloch_config_path: "{{ moloch_path }}/etc"
+moloch_pcap_path: "{{ moloch_path }}/raw"
+
+# Kubernetes variables
+moloch_pv_data: "moloch-data"
+pcap_pv_size: "5"
+
+...

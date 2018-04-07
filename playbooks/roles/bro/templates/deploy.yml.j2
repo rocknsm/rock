@@ -1,0 +1,82 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: bro
+  labels:
+    component: bro
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+     component: bro
+  template:
+    metadata:
+      labels:
+        component: bro
+    spec:
+      hostNetwork: true
+      containers:
+      - name: bro
+        image: {{ bro_image }}:{{ bro_ver }}
+        securityContext:
+          capabilities:
+            add:
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        volumeMounts:
+        - name: vars
+          mountPath: /etc/icdm/
+        - name: templates
+          mountPath: /etc/icdm/templates/
+        - name: configs
+          mountPath: /etc/icdm/conf/
+      volumes:
+      - name: vars
+        configMap:
+          name: vars
+      - name: templates
+        configMap:
+          name: bro
+          items:
+          - key: broctl.cfg.tmpl
+            path: broctl.cfg.tmpl
+          - key: node.cfg.tmpl
+            path: node.cfg.tmpl
+          - key: networks.cfg.tmpl
+            path: networks.cfg.tmpl
+          - key: kafka.bro.tmpl
+            path: kafka.bro.tmpl
+          - key: local.bro.tmpl
+            path: local.bro.tmpl
+      - name: configs
+        configMap:
+          name: bro
+          items:
+          - key: kafka.bro.conf
+            path: kafka.bro.conf
+          - key: networks.cfg.conf
+            path: networks.cfg.conf
+          - key: node.cfg.conf
+            path: node.cfg.conf
+          - key: broctl.cfg.conf
+            path: broctl.cfg.conf
+          - key: local.bro.conf
+            path: local.bro.conf
+      nodeSelector:
+        role: sensor
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - sensor
+            topologyKey: "kubernetes.io/hostname"

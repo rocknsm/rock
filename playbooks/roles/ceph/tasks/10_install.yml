@@ -1,0 +1,5 @@
+---
+- name: Install ceph-deploy
+  yum:
+    name: "{{ ceph_deploy_rpm }}"
+    state: installed

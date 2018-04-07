@@ -1,0 +1,74 @@
+######################################################
+################# Setup Elasticsearch ################
+######################################################
+---
+
+- import_tasks: install_docker_py.yml
+- import_tasks: copy_files.yml
+
+- name: Create Config
+  shell: kubectl create -f {{ elastic_dir }}/elastic-namespace.yml
+  register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Create Config
+  shell: kubectl create --namespace=elasticsearch -f {{ elastic_dir }}/elasticsearch-discovery-service.yml
+  register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Create Config
+  shell: kubectl create --namespace=elasticsearch -f {{ elastic_dir }}/elasticsearch-cluster-ip-service.yml
+  register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Create Config
+  shell: kubectl create --namespace=elasticsearch -f {{ elastic_dir }}/elasticsearch-loadbalancer-service.yml
+  register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+- name: Create Config
+  shell: kubectl create --namespace=elasticsearch -f {{ elastic_dir }}/elasticsearch-definition.yml
+  register: debug_output
+  failed_when: debug_output.rc != 0 and not "AlreadyExists" in debug_output.stderr
+
+- name: Debug Output
+  debug:
+    msg:
+      - "Command is: {{ debug_output.cmd }}"
+      - "Stdout is: {{ debug_output.stdout }}"
+  when: debug_enabled is defined and debug_enabled and debug_output.stdout is defined
+
+#- name: Wait for Elasticsearch to be ready
+#  shell: |
+#    while [ "$(kubectl get pods | grep es-master | head -n +1 | awk '{ print $2}')" != "1/1" ]; do
+#      echo -n .;
+#      sleep 1;
+#    done;

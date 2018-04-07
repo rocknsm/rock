@@ -1,0 +1,81 @@
+---
+- name: Purge Ceph
+  shell: |
+    timeout 120 ceph-deploy purge \
+    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+    ceph-deploy purgedata \
+    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+    rm -rf {{ ceph_dir }}/*
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Create config
+  shell: |
+    ceph-deploy new \
+    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Install Ceph
+  shell: |
+    ceph-deploy install \
+    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Configure and start mons
+  shell: |
+    ceph-deploy mon create-initial
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Propagate keys
+  shell: |
+    ceph-deploy admin \
+    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Format drives
+  shell: |
+    ceph-deploy osd prepare --zap-disk --fs-type btrfs {{ item }}:{{ hostvars[item].data_disk_devices | join((" "+item+":")) }}
+  args:
+    chdir: "{{ ceph_dir }}"
+  with_items:
+    - "{{ (groups['master-servers'] + groups['nodes']) }}"
+
+- name: Reduce duplication
+  shell: |
+    ceph osd pool set rbd size 1
+    ceph osd getcrushmap -o /tmp/crush.ceph
+    crushtool -d /tmp/crush.ceph -o /tmp/crush.ceph.tmp
+    sed -i 's/weight [0-9]\{3,\}.[0-9]\{3\}/weight 100.000/g' /tmp/crush.ceph.tmp
+    sed -i 's/type host$/type osd/g' /tmp/crush.ceph.tmp
+    sed -i 's/max_size 10$/max_size 1/g' /tmp/crush.ceph.tmp
+    crushtool -c /tmp/crush.ceph.tmp -o /tmp/crush.ceph
+    ceph osd setcrushmap -i /tmp/crush.ceph
+
+- name: Declare osd amount
+  set_fact:
+    osd_count: "{{ osd_count | int + ( hostvars[item].data_disk_devices | length ) }}"
+  with_items:
+    - "{{ ( groups['master-servers'] + groups['nodes'] ) }}"
+
+- name: Set Placement Group pg_num
+  shell: "ceph osd pool set rbd pg_num {{ osd_count | int * 32 }}"
+  register: task_result
+  until: '"Error" not in task_result.stderr'
+  retries: 60
+  delay: 2
+
+- name: Set Placement Group pgp_num
+  shell: ceph osd pool set rbd pgp_num {{ osd_count | int * 32 }}
+  register: task_result
+  until: task_result.rc == 0
+  retries: 60
+  delay: 2
+
+- name: Get Ceph key
+  shell: |
+    cat /etc/ceph/ceph.client.admin.keyring | grep key | awk '{printf $3}'
+  register: ceph_key

@@ -1,0 +1,24 @@
+#######################################################
+###################  Kubernetes Install ###############
+#######################################################
+---
+- name: 'Install Kubernetes packages'
+  yum:
+    name: "{{ item }}"
+    state: 'installed'
+  with_items:
+    - "kubeadm-{{ kube_version }}"
+    - "kubelet-{{ kube_version }}"
+    - "kubectl-{{ kube_version }}"
+    - "docker"
+    - "ebtables"
+    - "ethtool"
+  register: installed_packages
+  notify: 
+    - restart docker
+    - restart kubelet
+
+- name: Install Cockpit for Kubernetes
+  yum:
+    name: cockpit-kubernetes
+    state: installed
