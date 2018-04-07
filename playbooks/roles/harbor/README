@@ -1,4 +1,0 @@
-Harbor is a suite of software built in Docker to allow a local repository of images. 
-It provides a web frontend and all backend requirements for a Docker repo.
-
-Docker is required to run Harbor

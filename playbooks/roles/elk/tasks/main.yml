@@ -1,6 +1,0 @@
----
-
-- include_tasks: 'kibana_dashboards.yml'
-
-...
-

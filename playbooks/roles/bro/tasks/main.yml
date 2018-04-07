@@ -65,11 +65,3 @@
 
 - name: Wait for deployment to finish
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ bro_dir }}/deploy.yml'
-
-- name: Enable and start broctl
-  systemd:
-    name: bro
-    enabled: true
-    #This set of variables not yet implemented in this version
-    #enabled: "{{ enable_bro }}"
-    daemon_reload: yes

@@ -1,0 +1,14 @@
+---
+- name: Configure firewalld
+  firewalld:
+    port: "{{ item[1].port }}"
+    source: "{{ item[0] }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_nested:
+    - "{{ haproxy_mgnt_nets }}"
+    -
+      - { port: "{{ haproxy_stats_port }}/tcp" }
+      - { port: "{{ elastic_lb_port }}/tcp" }
+...

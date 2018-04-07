@@ -1,6 +1,0 @@
----
--
-  name: Install Chrony package
-  yum:
-    name: chrony
-    state: installed

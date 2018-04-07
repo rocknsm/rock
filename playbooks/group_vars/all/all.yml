@@ -5,8 +5,8 @@ online_install: true
 debug_enabled: true
 install_user: root
 install_group: root
-install_dir: /opt/dmss
-sysctl_file: /etc/sysctl.d/dmss.conf
+install_dir: /opt/rock
+sysctl_file: /etc/sysctl.d/rock.conf
 fqdn: default.svc.cluster.local
 
 # Redis
@@ -14,7 +14,7 @@ redis_sentinel_port: 26379
 
 # Elasticsearch
 elastic_ver: '6.2.2'
-es_cluster_name: dmss
+es_cluster_name: rock
 elastic_fqdn: "elasticsearch.{{ fqdn }}"
 elastic_port: 9200
 

@@ -1,0 +1,23 @@
+---
+# #script to setup openvpn creds#
+
+- hosts: all
+  tasks:
+
+  - name: Sets Remote path for OpenVPN config
+    set_fact: remote_file_path=/usr/bin/vpn_config.sh
+
+  # Create a blank file
+  - name: Creates a blank file to place OpenVPN config
+    file: path="{{ remote_file_path }}" state=touch owner=root group=root mode=0644
+
+  # Sets remote path
+  - stat: path="{{ remote_file_path }}"
+    register: file_path
+
+  # Write file content in file_content variable
+  - set_fact: file_content='/bin/bash -c "/sbin/dhclient -r tap0"\n/bin/bash -c "/sbin/dhclient tap0&"\necho search rock > /etc/resolv.conf\necho nameserver 192.168.5.1 >> /etc/resolv.conf'
+
+  # If file exist then copy content in remote file.
+  - copy: content="{{ file_content }}" dest="{{ remote_file_path }}"
+    when: file_path.stat.exists == true

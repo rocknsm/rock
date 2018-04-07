@@ -1,9 +1,0 @@
-%YAML 1.1
----
-
-#### Portainer configuration variables ####
-# All Portainer configuration variables for Portainer install itself.
-portainer_container_name: 'rock-portainer'
-portainer_port: '9000'
-portainer_log_dir: '/var/log/portainer'
-...
