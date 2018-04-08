@@ -5,7 +5,7 @@ metadata:
   labels:
     component: bro
 spec:
-  replicas: 1
+  replicas: {{ num_bro_replicas }}
   selector:
     matchLabels:
      component: bro
