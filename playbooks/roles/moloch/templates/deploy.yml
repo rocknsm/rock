@@ -61,10 +61,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: role
+              - key: component
                 operator: In
                 values:
-                - sensor
+                - moloch
             topologyKey: "kubernetes.io/hostname"
   volumeClaimTemplates:
   - metadata:

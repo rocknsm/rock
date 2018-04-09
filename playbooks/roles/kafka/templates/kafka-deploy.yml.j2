@@ -76,10 +76,10 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchExpressions:
-              - key: role
+              - key: component
                 operator: In
                 values:
-                - sensor
+                - kafka
             topologyKey: "kubernetes.io/hostname"
       volumes:
       - name: kafka
