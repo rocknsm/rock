@@ -3,6 +3,18 @@
 ######################################################
 ---
 
+- name: 'Install python-docker-py'
+  yum:
+    name: 'python-docker-py.noarch'
+    state: 'installed'
+
+- name: Download Kube State Metric Containers
+  docker_image:
+    name: "{{ item }}"
+  with_items:
+    - tfplenum/kube-state-metrics-amd64:{{ kube_state_metrics_version }}
+    - tfplenum/kube-state-metrics:{{ kube_state_metrics_version }}
+
 - name: "Create config directory"
   file:
     path: "{{ metricbeat_dir }}"
@@ -11,22 +23,51 @@
     group: root
     mode: u+rw,g+rw
 
+- name: Copy Kube State Metric folder
+  copy:
+    src: kube-state-metric
+    dest: "{{ metricbeat_dir }}/"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: Install templates
   template:
-    src: "templates/{{ item }}.yml.j2"
-    dest: "{{ metricbeat_dir }}/{{ item }}.yml"
+    src: "templates/metricbeat-deploy.yml.j2"
+    dest: "{{ metricbeat_dir }}/metricbeat-deploy.yml"
     group: root
     owner: root
     mode: 0644
-  with_items:
-    - metricbeat-deploy
 
-- name: Export
-  shell: |
-    export KUBECONFIG=/etc/kubernetes/kubernetes.conf
+- name: Flush Metricbeat Config
+  command: "kubectl delete -f {{ metricbeat_dir }}/metricbeat-deploy.yml --ignore-not-found=true"
 
-- name: Deploy
-  shell: |
-    kubectl create -f "{{ metricbeat_dir }}"/metricbeat-deploy.yml
+# TODO SHOULD ALSO FLUSH KUBE STATE METRIC
+
+- name: Deploy Kube State Metric
+  shell: kubectl apply -f {{ metricbeat_dir }}/kube-state-metric
+
+- name: Wait for Kube State Metrics to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "kube-system"
+    resource_name: "kube-state-metrics"
+    label: ""
+
+- name: Deploy metricbeats
+  shell: kubectl create -f "{{ metricbeat_dir }}"/metricbeat-deploy.yml
+
+- name: Wait for Metricbeat to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "kube-system"
+    resource_name: "metricbeat"
+    label: ""
 
 ...

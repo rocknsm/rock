@@ -14,7 +14,7 @@
     - common
     - chrony
   tags:
-  - common
+    - common
 
 - name: Configure kube master
   hosts: master-servers
@@ -25,7 +25,7 @@
     - kubernetes/common
     - kubernetes/master
   tags:
-  - kube-master
+    - kube-master
 
 - name: Configure kube nodes
   hosts: nodes
@@ -36,8 +36,8 @@
     - kubernetes/common
     - kubernetes/node
   tags:
-  - add-node
-  - kube-node
+    - add-node
+    - kube-node
 
 - name: Setup Ceph
   hosts: master-servers
@@ -47,7 +47,7 @@
   roles:
     - ceph
   tags:
-  - ceph
+    - ceph
 
 - name: Deploy Elasticsearch
   hosts: master-servers
@@ -57,7 +57,7 @@
   roles:
     - elasticsearch
   tags:
-  - elasticsearch
+    - elasticsearch
 
 - name: Deploy Logstash
   hosts: master-servers
@@ -67,7 +67,17 @@
   roles:
     - logstash
   tags:
-  - logstash
+    - logstash
+
+- name: Deploy metricbeats
+  hosts: master-servers
+  gather_facts: no
+  pre_tasks:
+    - setup:
+  roles:
+    - metricbeat
+  tags:
+    - metricbeat
 
 - name: Deploy Kibana
   hosts: master-servers
@@ -77,7 +87,7 @@
   roles:
     - kibana
   tags:
-  - kibana
+    - kibana
 
 - name: Deploy Kafka
   hosts: master-servers
@@ -87,7 +97,7 @@
   roles:
     - kafka
   tags:
-  - kafka
+    - kafka
 
 - name: Deploy Bro
   hosts: master-servers
@@ -107,7 +117,7 @@
   roles:
     - moloch
   tags:
-  - moloch
+    - moloch
 
 - name: Deploy Suricata
   hosts: master-servers
@@ -117,6 +127,6 @@
   roles:
     - suricata
   tags:
-  - suricata
+    - suricata
 
 ...

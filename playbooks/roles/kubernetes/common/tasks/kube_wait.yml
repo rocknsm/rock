@@ -4,7 +4,7 @@
 # "kubectl get pods -o json" will return the full json structure
 
 # Variables:
-# type (required): kubernetes resource type using one of the following: pod, pods, node, statefulset, ds
+# type (required): kubernetes resource type using one of the following: pod, pods, node, statefulset, ds, deployments
 # resource_name (optional): kubernetes resource name
 # namespace (optional): kubernetes namespace (ie: kube-system)
 #   Note: When using type node namespace can be any string
