@@ -8,6 +8,6 @@
 - name: Install New Node
   import_tasks: 05_install.yml
   any_errors_fatal: true
-  when: kube_check_result is defined and kube_check_result.stdout == ""
+  when: (kube_reload is defined and kube_reload) or (kube_check_result is defined and kube_check_result.stdout == "")
 
 ...

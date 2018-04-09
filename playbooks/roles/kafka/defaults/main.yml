@@ -3,16 +3,20 @@
 
 #### Main Role Configuration ####
 
-kafka_image: "rocknsm/kafka"
+kafka_image: "prodian0013/tfplenum-kafka"
 kafka_port: 9092
 kafka_ver: latest
 kafka_dir: "{{ install_dir }}/kafka"
-kafka_data_path: "/tmp/kafka-logs"
+kafka_data_path: "/data/kafka"
 kafka_pv_size: 1
+kafka_home: /opt/kafka
 
 zookeeper_port: 2181
 zookeeper_dir: "{{ install_dir }}/zookeeper"
 zookeeper_data_path: "/data"
+zookeeper_datalog_path: "/datalog"
 zookeeper_pv_size: 1
-zookeeper_image: rocknsm/zookeeper
+zookeeper_image: prodian0013/tfplenum-zookeeper
 zookeeper_ver: latest
+zookeeper_replicas: 3
+zookeeper_home: /opt/zookeeper

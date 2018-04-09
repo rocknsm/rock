@@ -1,0 +1,76 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+spec:
+  ports:
+  - port: 2888
+    name: server
+  - port: 3888
+    name: leader-election
+  clusterIP: None
+  selector:
+    app: zookeeper
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata: 
+  name: zookeeper
+spec: 
+  replicas: {{ zookeeper_replicas }}
+  serviceName: zookeeper
+  template:
+    metadata: 
+      labels: 
+        app: zookeeper
+    spec:
+      securityContext: 
+      containers:
+      - name: zookeeper
+        image: {{ zookeeper_image }}:{{ zookeeper_ver }}
+        imagePullPolicy: Always
+        ports: 
+        - containerPort: {{ zookeeper_port }}
+          name: client
+        - containerPort: 2888
+          name: server
+        - containerPort: 3888
+          name: leader-election
+        volumeMounts: 
+        - mountPath: {{ zookeeper_data_path }}
+          name: zookeeper-data
+        - mountPath: {{ zookeeper_datalog_path }}
+          name: zookeeper-datalog        
+        - name: configs
+          mountPath: {{ zookeeper_home }}/conf/
+      volumes:
+      - name: configs
+        configMap:
+          name: zookeeper
+          items:
+          - key: zoo.cfg
+            path: zoo.cfg
+          - key: log4j.properties
+            path: log4j.properties
+          - key: configuration.xsl
+            path: configuration.xsl
+  volumeClaimTemplates:
+  - metadata:
+      name: zookeeper-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: rbd
+      resources:
+        requests:
+          storage: {{ zookeeper_pv_size }}Gi
+  - metadata:
+      name: zookeeper-datalog
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: rbd
+      resources:
+        requests:
+          storage: {{ zookeeper_pv_size }}Gi

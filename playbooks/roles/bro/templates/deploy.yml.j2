@@ -5,7 +5,7 @@ metadata:
   labels:
     component: bro
 spec:
-  replicas: {{ num_bro_replicas }}
+  replicas: {{ groups['sensors'] | length }}
   selector:
     matchLabels:
      component: bro

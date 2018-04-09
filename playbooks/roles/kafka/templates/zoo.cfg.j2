@@ -1,0 +1,10 @@
+tickTime=2000
+standaloneEnabled=false
+dataDir={{ zookeeper_data_path }}
+dataLogDir={{ zookeeper_datalog_path }}
+initLimit=5
+syncLimit=2
+clientPort={{ zookeeper_port }}
+{% for i in range(zookeeper_replicas) %}
+server.{{ i }}=zookeeper-{{ i }}.zookeeper.default.svc.cluster.local:2888:3888
+{% endfor %}

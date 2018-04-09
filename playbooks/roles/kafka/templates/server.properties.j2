@@ -18,7 +18,9 @@
 ############################# Server Basics #############################
 
 # The id of the broker. This must be set to a unique integer for each broker.
-broker.id=0
+# This will be overridden at start up based on the pod number, 
+# for example kafka-0 would get broker.id 0 kafka-1 broker.id 1
+broker.id=256
 
 ############################# Socket Server Settings #############################
 
@@ -28,17 +30,19 @@ broker.id=0
 #     listeners = listener_name://host_name:port
 #   EXAMPLE:
 #     listeners = PLAINTEXT://your.host.name:9092
-#listeners: PLAINTEXT://kafka.default.svc.cluster.local:{{ kafka_port }}
+# listeners: PLAINTEXT://kafka.default.svc.cluster.local:{{ kafka_port }}
+listeners=PLAINTEXT://:{{ kafka_port }}
 
 # Hostname and port the broker will advertise to producers and consumers. If not set,
 # it uses the value for "listeners" if configured.  Otherwise, it will use the value
 # returned from java.net.InetAddress.getCanonicalHostName().
-advertised.listeners: PLAINTEXT://kafka.default.svc.cluster.local:{{ kafka_port }}
+advertised.listeners=PLAINTEXT://:{{ kafka_port }}
+
 
 ############################# Log Basics #############################
 
 # A comma seperated list of directories under which to store log files
-log.dirs: /tmp/kafka-logs/logs
+log.dirs={{ kafka_data_path }}/logs
 log.retention.bytes=9000000000
 log.retention.hours=24
 
@@ -49,11 +53,15 @@ log.retention.hours=24
 # server. e.g. "127.0.0.1:3000,127.0.0.1:3001,127.0.0.1:3002".
 # You can also append an optional chroot string to the urls to specify the
 # root directory for all kafka znodes.
-zookeeper.connect: localhost:{{ zookeeper_port }}
+zookeeper.connect={% for i in range(zookeeper_replicas) %}zookeeper-{{ i }}.zookeeper.default.svc.cluster.local:{{ zookeeper_port }},{% endfor %}
 
 ############################## Others ##############################
-offsets.topic.replication.factor: 1
+offsets.topic.replication.factor=1
 # KAFKA_USER: "kafka"
 # KAFKA_DATADIR: "/var/lib/kafka/"
 # KAFKA_LOG4J_LOGDIR: "/var/log/kafka/"
 # KAFKA_LOG4J_LEVEL: "INFO"
+
+# num.partitions=1
+# default.replication.factor=2
+zookeeper.connection.timeout.ms=12000

@@ -22,10 +22,19 @@
     owner: root
     mode: 0644
   with_items:
-    - deploy.yml
-    - kafka-service.yml
+    - kafka-deploy.yml
     - server.properties
-    - zookeeper_config_map
+    
+- name: Copy files
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ zookeeper_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - configuration.xsl
+    - log4j.properties
 
 - name: Install Zookeeper Templates
   template:
@@ -35,15 +44,22 @@
     owner: root
     mode: 0644
   with_items:
-    - zookeeper_config_map
+    - zoo.cfg
+    - zookeeper-deploy.yml
 
-- name: Flush Kafka Service
-  command: 'kubectl delete -f {{ kafka_dir}}/kafka-service.yml --ignore-not-found=true'
-
-- name: Flush Deployment
+- name: Flush Kafka
   shell: |
-    kubectl delete -f {{ kafka_dir }}/deploy.yml --ignore-not-found=true
+    kubectl delete -f {{ kafka_dir }}/kafka-deploy.yml --ignore-not-found=true
     while [ $(kubectl get -f {{ kafka_dir }}/deploy.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
+
+- name: Flush Zookeeper
+  shell: |
+    kubectl delete -f {{ zookeeper_dir }}/zookeeper-deploy.yml --ignore-not-found=true
+    while [ $(kubectl get -f {{ zookeeper_dir }}/zookeeper-deploy.yml | tail -n +2 | wc -l) != '0' ]; do
       echo -n .;
       sleep 1;
     done;
@@ -62,10 +78,26 @@
 
 # This does the same, but with Zookeeper
 - name: Create Zookeeper Config
-  command: 'kubectl create configmap zookeeper --from-file {{ zookeeper_dir }}/zookeeper_config_map'
+  shell: |
+    kubectl create configmap zookeeper --from-file={{ zookeeper_dir }}/zoo.cfg \
+       --from-file={{ zookeeper_dir }}/configuration.xsl \
+       --from-file={{ zookeeper_dir }}/log4j.properties
 
-- name: Run the kafka/zookeeper deploy file
-  shell: "kubectl apply -f {{ kafka_dir }}/deploy.yml"
+- name: Run the zookeeper deploy file
+  shell: "kubectl apply -f {{ zookeeper_dir }}/zookeeper-deploy.yml"
+
+- name: Wait for zookeeper to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "zookeeper"
+    label: ""
+
+- name: Run the kafka deploy file
+  shell: "kubectl apply -f {{ kafka_dir }}/kafka-deploy.yml"
 
 - name: Wait for kafka to be ready
   include_role:
@@ -76,6 +108,3 @@
     namespace: "default"
     resource_name: "kafka"
     label: ""
-
-- name: Deploy Kafka Service
-  command: 'kubectl create -f {{ kafka_dir}}/kafka-service.yml'
