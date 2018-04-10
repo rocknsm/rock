@@ -37,7 +37,7 @@
 # This task retrieves the connection name of the network device with the management IP designated
 # in the inventory file
 - name: Kube | Get network manager connection name
-  shell: nmcli device show {{ item }} | grep GENERAL.CONNECTION | awk -F " " '{print $2}'
+  shell: nmcli device show {{ item }} | grep GENERAL.CONNECTION | awk -F "GENERAL.CONNECTION{{":"}} *" '{print $2}'
   register: nmcli_conn_name
   with_items: "{{ ansible_interfaces }}"
   when:
