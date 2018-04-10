@@ -11,6 +11,13 @@
   yum:
     name: "sshpass"
     state: installed
+#This vars prompt prompts for the SSH password so you don't need --ask-pass
+  vars_prompt:
+    name: "ansible_ssh_pass"
+    prompt: "Enter the SSH pass: "
+    private: yes
+
+  tasks:
 
 - name: Install bind-utils
   yum:
