@@ -1,6 +1,19 @@
 #
 # Checking that required variables are set
 #
+- name: ping ansiblecontroller
+  shell: "ping -c 1 ansiblecontroller"
+
+- name: ping all ips in inventory
+  shell: "ping -c 1 {{item}}"
+  with_items: "{{groups['all']}}"
+
+- name: ping google DNS by IP
+  shell: "ping -c 1 8.8.8.8"
+
+- name: ping www.Google.com
+  shell: "ping -c 1 www.google.com"
+
 - name: Checking that required variables are set
   fail:
     msg: "{{ item }} is not defined"
