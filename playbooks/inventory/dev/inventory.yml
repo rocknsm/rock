@@ -25,19 +25,20 @@ all:
         logstash_pv_size: 10
         pcap_pv_size: 100000
       hosts:
-        rockserver1.lan:
+        rockserver9.lan:
           ansible_user: root
           ansible_connection: ssh
-          management_ipv4: 192.168.1.199
+          management_ipv4: 192.168.1.86
           data_disk_devices:
           - /dev/vdb
     nodes:
       children:
         sensors:
           hosts:
-            rocksensor1.lan:
+            rocksensor9.lan:
+              ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.198
+              management_ipv4: 192.168.1.88
               bro_workers: 2
               monitor_interfaces:
               - ens4
@@ -47,16 +48,16 @@ all:
             dns_ip: 192.168.1.50
         servers:
           hosts:
-            rockserver2.lan:
+            rockserver10.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.194
+              management_ipv4: 192.168.1.87
               data_disk_devices:
               - /dev/vdb
           vars:
             dns_ip: 192.168.1.50
     nodes_to_remove:
       hosts:
-        rocksensor1.lan:
-        rockserver1.lan:
-        rockserver2.lan:
+        rocksensor9.lan:
+        rockserver9.lan:
+        rockserver10.lan:

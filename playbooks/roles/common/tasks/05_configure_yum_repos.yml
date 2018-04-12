@@ -25,13 +25,13 @@
     gpgcheck: false
     name: Deployer-local
     enabled: true
-  when: "not online_install"
+  when: "not online_install and ansible_distribution == 'CentOS'"
 
 - name: Remove Deployer offline repo
   yum_repository:
     state: absent
     name: Deployer-local
-  when: online_install
+  when: online_install and ansible_distribution == 'CentOS'
 
 - name: "Configure default CentOS online repos"
   yum_repository:

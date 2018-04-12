@@ -8,6 +8,11 @@
 #    - { pkg: chrony, state: installed }
 #    - { pkg: postfix, state: installed }
 
+- name: Enable RHSM repositories on RHEL nodes
+  shell: "subscription-manager repos --enable={{ item }}"
+  with_items: "{{ redhat_repos }}"
+  when: ansible_os_family == 'RedHat'
+
 - name: Install packages
   yum:
     name: "{{ item }}"

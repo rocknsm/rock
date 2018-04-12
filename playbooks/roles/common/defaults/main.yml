@@ -4,3 +4,10 @@
 epel_repo_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm"
 epel_repo_gpg_key_url: "https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}"
 epel_repofile_path: "/etc/yum.repos.d/epel.repo"
+ssh_known_hosts_command: "ssh-keyscan -T 10"
+ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
+ssh_known_hosts: "{{ groups['all'] }}"
+ssh_short_known_hosts: "{{ groups['all'] | map('regex_replace','(.lan)','' ) | list }}"
+redhat_repos:
+  - rhel-7-server-extras-rpms
+  - rhel-7-server-optional-rpms
