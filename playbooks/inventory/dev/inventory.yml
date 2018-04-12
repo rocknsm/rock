@@ -17,6 +17,7 @@ all:
         bpf_filter: ""
         es_mem: 2
         es_masters: 3
+        pcap_bpf_filter: ""
         es_datas: 0
         elastic_pv_size: 1000
         kafka_pv_size: 10

@@ -57,8 +57,8 @@ httpRealm = Moloch
 interface = {{ ( monitor_interfaces[host] | default(['eth0'], true) ) | join(';') }}
 
 # The bpf filter
-bpf = {{ bpf_filter | default("") }}
-
+bpf = "{{ bpf_filter | default("") }}"
+dontSaveBPFs = "{{ pcap_bpf_filter | default("") }}"
 # The yara file name
 #yara =
 

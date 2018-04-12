@@ -18,11 +18,14 @@ spec:
       - name: init-sysctl
         image: busybox:1.27.2
         command:
-        - sysctl
-        - -w
-        - vm.max_map_count=262144
+        - /bin/sh
+        - -c
+        - "sysctl -w vm.max_map_count=262144; chown -R 1000:1000 /usr/share/elasticsearch/data"
         securityContext:
           privileged: true
+        volumeMounts:
+        - name: data
+          mountPath: {{ elastic_pv_data_path }}
       containers:
       - name: es-data
         image: {{ elastic_image }}:{{ elastic_ver }}
