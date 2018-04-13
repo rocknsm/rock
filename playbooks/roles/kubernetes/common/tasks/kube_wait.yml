@@ -35,7 +35,7 @@
   when: type == 'node'
 
 - set_fact:
-    GOPOD: !unsafe "'{{if ne (.status.replicas) (.status.readyReplicas)}}false{{end}}'"
+    GOPOD: !unsafe "'{{if ne (.status.replicas) (.spec.replicas)}}false{{end}}'"
   when: type == 'statefulset'
 
 - set_fact:
@@ -56,5 +56,5 @@
   retries: 45
   delay: 10
   when: kubectl is defined
-  failed_when: kube_wait_result.rc != 0 and kube_wait_result.rc != 1
+  failed_when: kube_wait_result.rc != 0 or (kube_wait_result.rc == 1 and "'Error executing template' in kube_wait_result.stderr")
   #ignore_errors: yes
