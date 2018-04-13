@@ -1,41 +1,7 @@
-######################################################
-############### ROCKNSM Customization ################
-######################################################
-- name: Check known hosts
-  stat:
-    path: /root/.ssh/known_hosts
-  register: know_hosts_check
-
-- name: Check ssh key
-  stat:
-    path: /root/.ssh/id_rsa
-  register: ssh_key_check
-
-#Commenting this out while I debug new generate_ssh_keys role
-############################################################################
-#- name: Fail if know_hosts is not vaild
-#  fail:
-#    msg: "Error missing known hosts/ssh key - run generate_ssh_keys playbook"
-#  when: (know_hosts_check is defined and not know_hosts_check.stat.exists)
-#      or (ssh_key_check is defined and not ssh_key_check.stat.exists)
-############################################################################
-
-- name: "Build hosts file"
-  template:
-    dest: '/etc/hosts'
-    src: 'hosts.j2'
-
-- name: "Add Deployer to hosts file"
-  lineinfile:
-    dest: /etc/hosts
-    regexp: '.*deployer.lan$'
-    line: "{{ deployer }} deployer deployer.lan"
-    state: present
-  when: deployer is defined
 
 # main.yml - Common tasks for ROCK
+- import_tasks: 00_preflight.yml
 - import_tasks: 05_configure_yum_repos.yml
-- import_tasks: 10_generate_ssh_keys.yml
 - import_tasks: 15_set_hostname.yml
 - import_tasks: 20_minimum_hardware_check.yml
 - import_tasks: 25_configure_rock_repo.yml
@@ -44,6 +10,11 @@
 - import_tasks: 40_create_directories.yml
 - import_tasks: 45_disable_ipv6.yml
 - import_tasks: 50_disable_firewall.yml
-#- import_tasks: ensure_cache_directory_exists.yml
-#- import_tasks: enable_firewall.yml
-- import_tasks: 55_reboot.yml
+- import_tasks: 55_banner.yml
+
+# TODO: This should be in production, but takes too long for a dev
+# environment
+#- name: Update all system packages to latest
+  #yum: name=* state=latest
+
+- import_tasks: 95_reboot.yml
