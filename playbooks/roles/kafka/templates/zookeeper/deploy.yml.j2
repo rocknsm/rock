@@ -1,35 +1,18 @@
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: zookeeper
-  labels:
-    app: zookeeper
-spec:
-  ports:
-  - port: 2888
-    name: server
-  - port: 3888
-    name: leader-election
-  clusterIP: None
-  selector:
-    app: zookeeper
----
 apiVersion: apps/v1beta1
 kind: StatefulSet
 metadata: 
-  name: zookeeper
+  name: {{ zk_app_name }}
 spec: 
-  replicas: {{ zookeeper_replicas }}
-  serviceName: zookeeper
+  replicas: {{ zk_replica_count }}
+  serviceName: {{ zk_app_name }}
   template:
     metadata: 
       labels: 
-        app: zookeeper
+        component: {{ zk_app_name }}
     spec:
-      securityContext: 
       containers:
-      - name: zookeeper
+      - name: {{ zk_app_name }}
         image: {{ zookeeper_image }}:{{ zookeeper_ver }}
         imagePullPolicy: Always
         ports: 
@@ -49,7 +32,7 @@ spec:
       volumes:
       - name: configs
         configMap:
-          name: zookeeper
+          name: {{ zk_app_name }}
           items:
           - key: zoo.cfg
             path: zoo.cfg
@@ -57,6 +40,40 @@ spec:
             path: log4j.properties
           - key: configuration.xsl
             path: configuration.xsl
+{% if remote %}
+      - name: zookeeper-data
+        hostPath:      
+          path: /data/zookeeper/data      
+          type: Directory
+      - name: zookeeper-datalog
+        hostPath:      
+          path: /data/zookeeper/datalog      
+          type: Directory
+{% endif %}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: role
+                operator: In
+                values:
+{% if remote %}
+                - {{ node_label }}
+{% else %}
+                - sensor
+                - server
+{% endif %}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - {{ zk_app_name }}
+            topologyKey: "kubernetes.io/hostname"
+{% if remote == false %}
   volumeClaimTemplates:
   - metadata:
       name: zookeeper-data
@@ -74,3 +91,4 @@ spec:
       resources:
         requests:
           storage: {{ zookeeper_pv_size }}Gi
+{% endif %}

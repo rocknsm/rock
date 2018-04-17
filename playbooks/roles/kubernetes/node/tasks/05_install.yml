@@ -54,6 +54,7 @@
       - "{{ kube_dns_ip.stdout }}"
       - "{{ dns_ip }}"
     state: present
+    autoconnect: yes
   with_items: "{{ nmcli_conn_name.results }}"
   when: item.stdout is defined
 

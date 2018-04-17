@@ -27,7 +27,9 @@
     - genkeys
 
 - name: Common Setup
-  hosts: all
+  hosts:
+    - master-servers
+    - nodes
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -127,7 +129,8 @@
   pre_tasks:
     - setup:
   roles:
-    - kafka
+    - { role: kafka, remote: true }
+    - { role: kafka, remote: false }
   tags:
     - kafka
 

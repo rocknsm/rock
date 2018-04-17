@@ -3,10 +3,14 @@
 #######################################################
 ---
 
+
+
 - import_tasks: 00_preflight.yml
 
 - name: Install New Node
-  import_tasks: 05_install.yml
+  block:
+    - import_tasks: 05_install.yml
+    - import_tasks: 10_remote_sensor.yml
   when: (kube_reload is defined and kube_reload) or (kube_check_result is defined and kube_check_result.stdout == "")
 
 - name: Label master node with appropriate roles

@@ -1,0 +1,184 @@
+{% if remote %}
+{% for host in groups['remote-sensors'] %}
+{% set kafka_app_name = 'kafka-' + hostvars[host].inventory_hostname_short %}
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ kafka_app_name }}
+  labels:
+    component: {{ kafka_app_name }}
+spec:
+  serviceName: "{{ kafka_app_name }}-broker"
+  replicas: 1
+  selector:
+    matchLabels:
+     component: {{ kafka_app_name }}
+  template:
+    metadata:
+      labels:
+        component: {{ kafka_app_name }}
+    spec:
+      containers:
+      - name: {{ kafka_app_name }}
+        image: {{ kafka_image }}:{{ kafka_ver }}
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        ports:
+        - containerPort: {{ kafka_port }}
+          name: transport
+        volumeMounts:
+          - name: kafka-data
+            mountPath: "{{ kafka_data_path }}"
+          - name: kafka
+            mountPath: {{ kafka_home }}/config/server.properties
+            subPath: server.properties
+        env:
+        - name: ZOOKEEPER_REPLICAS
+          value: "1"
+        - name: ZOOKEEPER_PORT
+          value: "{{ zookeeper_port }}"
+        - name: KAFKA_PORT
+          value: "{{ kafka_port }}"
+        - name: INSTANCE_ID
+          value: "1"        
+      - name: {{ zk_app_name }}
+        image: {{ zookeeper_image }}:{{ zookeeper_ver }}
+        imagePullPolicy: Always
+        ports: 
+        - containerPort: {{ zookeeper_port }}
+          name: client
+        - containerPort: 2888
+          name: server
+        - containerPort: 3888
+          name: leader-election
+        volumeMounts: 
+        - mountPath: {{ zookeeper_data_path }}
+          name: zookeeper-data
+        - mountPath: {{ zookeeper_datalog_path }}
+          name: zookeeper-datalog        
+        - name: configs
+          mountPath: {{ zookeeper_home }}/conf/
+        env:
+        - name: INSTANCE_ID
+          value: "1"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - {{ hostvars[host].inventory_hostname }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - {{ kafka_app_name }}
+            topologyKey: "kubernetes.io/hostname"
+      volumes:
+      - name: kafka
+        configMap:
+          name: remote-kafka
+      - name: kafka-data
+        hostPath:      
+          path: /data/kafka      
+          type: Directory
+      - name: configs
+        configMap:
+          name: remote-zookeeper
+          items:
+          - key: zoo.cfg
+            path: zoo.cfg
+          - key: log4j.properties
+            path: log4j.properties
+          - key: configuration.xsl
+            path: configuration.xsl
+      - name: zookeeper-data
+        hostPath:      
+          path: /data/zookeeper/data      
+          type: Directory
+      - name: zookeeper-datalog
+        hostPath:      
+          path: /data/zookeeper/datalog      
+          type: Directory
+{% endfor %}
+{% endif %}
+{% if not remote %}
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: {{ kafka_app_name }}
+  labels:
+    component: {{ kafka_app_name }}
+spec:
+  serviceName: "{{ kafka_app_name }}-broker"
+  replicas: {{ kafka_replica_count }}
+  selector:
+    matchLabels:
+     component: {{ kafka_app_name }}
+  template:
+    metadata:
+      labels:
+        component: {{ kafka_app_name }}
+    spec:
+      containers:
+      - name: {{ kafka_app_name }}
+        image: {{ kafka_image }}:{{ kafka_ver }}
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        ports:
+        - containerPort: {{ kafka_port }}
+          name: transport
+        volumeMounts:
+          - name: kafka-data
+            mountPath: "{{ kafka_data_path }}"
+          - name: kafka
+            mountPath: {{ kafka_home }}/config/server.properties
+            subPath: server.properties
+        env:
+        - name: ZOOKEEPER_REPLICAS
+          value: "{{ zookeeper_replicas }}"
+        - name: ZOOKEEPER_PORT
+          value: "{{ zookeeper_port }}"
+        - name: KAFKA_PORT
+          value: "{{ kafka_port }}"   
+      nodeSelector:
+        role: {{ node_label }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - {{ kafka_app_name }}
+            topologyKey: "kubernetes.io/hostname"
+      volumes:
+      - name: kafka
+        configMap:
+          name: {{ kafka_app_name }}
+  volumeClaimTemplates:
+  - metadata:
+      name: kafka-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: rbd
+      resources:
+        requests:
+          storage: {{ kafka_pv_size }}Gi
+{% endif %}

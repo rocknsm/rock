@@ -5,7 +5,7 @@ input {
     #consumer_threads => 4
     group_id => "bro_logstash"
     client_id => "logstash-bro"
-    bootstrap_servers => "{{ kafka_url }}:{{ kafka_port }}"
+    bootstrap_servers => "{{ kafka_url }}:{{ kafka_port }}{% for host in groups['remote-sensors'] %},kafka-{{ hostvars[host].inventory_hostname_short }}.default.svc.cluster.local:{{ kafka_port }}{% endfor %}"
     codec => json
     auto_offset_reset => "earliest"
   }

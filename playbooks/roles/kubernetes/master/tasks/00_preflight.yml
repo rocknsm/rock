@@ -20,7 +20,7 @@
     msg: "{{ item[1] }} is not defined for {{ item[0] }}"
   when: not hostvars[item[0]][item[1]]
   with_nested:
-    - "{{ groups['sensors']}}"
+    - "{{ groups['sensors'] }}"
     -  [ 'monitor_interfaces', 'bro_workers' ]
 
 - name: Checking Master Group Vars

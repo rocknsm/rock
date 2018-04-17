@@ -38,3 +38,5 @@ spec:
         ports:
         - containerPort: {{ kibana_port }}
           name: http
+      nodeSelector:
+        role: server

@@ -5,9 +5,25 @@ monitor_interfaces:
     - {{ iface }}
 {% endfor %}
 {% endfor %}
+{% for host in groups['remote-sensors'] %}
+  {{ hostvars[host].inventory_hostname }}:
+{% for iface in hostvars[host].monitor_interfaces %}
+    - {{ iface }}
+{% endfor %}
+{% endfor %}
 bro_workers:
 {% for host in groups['sensors'] %}
   {{ hostvars[host].inventory_hostname }}: {{ hostvars[host].bro_workers }}
+{% endfor %}
+{% for host in groups['remote-sensors'] %}
+  {{ hostvars[host].inventory_hostname }}: {{ hostvars[host].bro_workers }}
+{% endfor %}
+remote:
+{% for host in groups['sensors'] %}
+  {{ hostvars[host].inventory_hostname }}: false
+{% endfor %}
+{% for host in groups['remote-sensors'] %}
+  {{ hostvars[host].inventory_hostname }}: true
 {% endfor %}
 bpf_filter: "{{ bpf_filter }}"
 home_net:

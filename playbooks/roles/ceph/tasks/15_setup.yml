@@ -1,4 +1,11 @@
 ---
+
+- set_fact:
+    ceph_host_pool: "{{ ( groups['master-servers'] + groups['servers'] + groups['sensors']) | join(' ') }}"
+
+- set_fact:
+    ceph_host_pool_list: "{{ ( groups['master-servers'] + groups['servers'] + groups['sensors']) }}"
+
 - name: Purge Ceph
   shell: |
     timeout 120 ceph-deploy purge {{ groups['ceph'] | join(' ') }}
