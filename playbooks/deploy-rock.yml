@@ -564,26 +564,12 @@
       state: present
     when: with_bro
 
-  - name: Add AF_PACKET workaround to local.bro
-    lineinfile:
-      dest: "{{ bro_site_dir }}/local.bro"
-      line: "@load scripts/rock/plugins/afpacket"
-      state: present
-    when: with_bro
-
   - name: Enable Bro Kafka output to local.bro
     lineinfile:
       dest: "{{ bro_site_dir }}/local.bro"
       line: "@load scripts/rock/plugins/kafka"
       state: present
     when: with_bro and with_kafka
-
-  - name: Enable the SMB Analyzer in local.bro
-    lineinfile:
-      dest: "{{ bro_site_dir }}/local.bro"
-      line: "@load policy/protocols/smb # Enable Bro SMB Analyzer"
-      state: present
-    when: with_bro
 
   - name: Add bro aliases
     copy:
@@ -670,6 +656,15 @@
     copy:
       src: "suricata.service"
       dest: "/etc/systemd/system/suricata.service"
+      mode: 0644
+      owner: root
+      group: root
+    when: with_suricata
+
+  - name: Setup suricata tmpfiles
+    copy:
+      src: "suricata.tmpfiles"
+      dest: "/etc/tmpfiles.d/suricata.conf"
       mode: 0644
       owner: root
       group: root
