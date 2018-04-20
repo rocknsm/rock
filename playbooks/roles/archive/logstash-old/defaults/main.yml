@@ -1,9 +1,0 @@
----
-
-logstash_user: 1000
-logstash_group: 1000
-logstash_container_name: 'rock-logstash'
-logstash_data_dir: "{{ rock_data_dir }}/logstash"
-logstash_dir: "{{ rocknsm_dir }}/logstash"
-logstash_config_dir: "{{ logstash_dir }}/configs"
-logstash_log_dir: "/var/log/logstash"

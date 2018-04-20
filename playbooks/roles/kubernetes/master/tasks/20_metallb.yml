@@ -1,6 +1,15 @@
 ---
+
+- name: Copy Config File
+  copy:
+    src: "metallb.yaml"
+    dest: "{{ kube_dir }}/metallb.yaml"
+    owner: root
+    group: root
+    mode: 0644
+
 - name: 'Install MetalLB LoadBalancer'
-  command: 'kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.3.1/manifests/metallb.yaml'
+  command: 'kubectl apply -f {{ kube_dir }}/metallb.yaml'
 
 - name: 'Apply MetalLB Config'
   command: 'kubectl apply -f {{ kube_dir }}/metallb.yml'

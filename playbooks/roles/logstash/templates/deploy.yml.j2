@@ -1,11 +1,10 @@
 apiVersion: apps/v1beta1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: logstash
   labels:
     component: logstash
 spec:
-  serviceName: logstash
   replicas: 1
   selector:
     matchLabels:
@@ -15,18 +14,6 @@ spec:
       labels:
         component: logstash
     spec:
-      initContainers:
-      - name: volume-permissions
-        image: busybox        
-        command:
-        - /bin/sh
-        - -c
-        - "chown -R {{ logstash_user }}:{{ logstash_group }} {{ logstash_path }}"
-        securityContext:
-          runAsUser: 0
-        volumeMounts:
-          - name: data
-            mountPath: "{{ logstash_path }}/data"
       containers:
       - name: logstash
         image: {{ logstash_image }}:{{ logstash_ver }}
@@ -58,20 +45,9 @@ spec:
           - name: logstash
             mountPath: "{{ logstash_path }}/pipeline/kafka-fsf.conf"
             subPath: kafka-fsf.conf
-          - name: data
-            mountPath: "{{ logstash_path }}/data"
       nodeSelector:
-        role: server
+        logstash: "true"
       volumes:
         - name: logstash
           configMap:
             name: logstash
-  volumeClaimTemplates:
-  - metadata:
-      name: data
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      storageClassName: rbd
-      resources:
-        requests:
-          storage: {{ logstash_pv_size }}Gi

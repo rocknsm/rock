@@ -7,7 +7,7 @@
 
 all:
   children:
-    master-servers:
+    master-server:
       vars:
         home_net:
           - "192.168.0.0/16"

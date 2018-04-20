@@ -3,17 +3,6 @@
 ######################################################
 ---
 
-# Quick hack to get ssh keys working with ceph
-# - name: SSH Key
-#   copy:
-#     src: "/root/.ssh/{{ item }}"
-#     dest: "/root/.ssh"
-#     mode: 0400
-#   with_items:
-#     - "id_rsa"
-#     - "id_rsa.pub"
-#   when: inventory_hostname in groups['master-servers']
-
 - import_tasks: 00_preflight.yml
 
 - name: Ceph Deploy Block

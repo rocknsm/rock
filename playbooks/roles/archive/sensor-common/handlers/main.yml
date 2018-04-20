@@ -1,9 +1,0 @@
----
-- name: configure monitor interfaces
-  shell: >
-    for intf in {{ rock_monifs | join(' ') }}; do
-      /sbin/ifup ${intf};
-    done
-    
-- name: sshd restart
-  service: name=sshd state=restarted

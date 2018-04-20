@@ -1,3 +1,0 @@
----
-- import_tasks: install_suricata.yml
-- import_tasks: setup_pulled_pork.yml

@@ -1,7 +1,0 @@
----
-
-- import_tasks: 'enable_firewall.yml'
-
-- import_tasks: 'haproxy_container.yml'
-
-...

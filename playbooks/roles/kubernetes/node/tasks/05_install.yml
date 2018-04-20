@@ -49,6 +49,7 @@
   nmcli:
     conn_name: "{{ item.stdout }}"
     type: ethernet
+    autoconnect: yes
     dns4:
       - "{{ kube_dns_ip.stdout }}"
       - "{{ dns_ip }}"

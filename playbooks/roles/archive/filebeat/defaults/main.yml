@@ -1,9 +1,0 @@
-
----
-
-filebeat_ver: "{{ elastic_ver }}"
-filebeat_image: 'docker.elastic.co/beats/filebeat'
-filebeat_container_name: 'rock-filebeat'
-filebeat_config_location: "{{ rocknsm_dir }}/filebeat"
-filebeat_log_dir: '/var/log/filebeat'
-...

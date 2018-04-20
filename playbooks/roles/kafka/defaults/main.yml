@@ -20,3 +20,8 @@ zookeeper_image: prodian0013/tfplenum-zookeeper
 zookeeper_ver: latest
 zookeeper_replicas: 3
 zookeeper_home: /opt/zookeeper
+
+# The num.io.threads property should be set to a value equal to or greater than
+# the number of disks dedicated for Kafka. Recommendation: start by setting this
+# property equal to the number of disks.
+num_of_pvcs: 1

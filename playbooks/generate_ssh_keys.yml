@@ -5,19 +5,12 @@
 - name: Fail if ask-pass is missing
   fail:
     msg: "Error: Missing ask-pass. You need to add '--ask-pass' to the end of your command"
-  when: ansible_ssh_pass is undefined or (ansible_ssh_pass is defined and ansible_ssh_pass == '')
+  when: ansible_ssh_pass is undefined or (ansible_ssh_pass is defined and ansible_ssh_pass == '') 
 
 - name: Install sshpass
   yum:
     name: "sshpass"
     state: installed
-#This vars prompt prompts for the SSH password so you don't need --ask-pass
-  vars_prompt:
-    name: "ansible_ssh_pass"
-    prompt: "Enter the SSH pass: "
-    private: yes
-
-  tasks:
 
 - name: Install bind-utils
   yum:

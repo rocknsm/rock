@@ -26,7 +26,7 @@
 - name: Checking Master Group Vars
   fail:
     msg: "{{ item }} is not defined"
-  when: not hostvars[groups['master-servers'][0]][item]
+  when: not hostvars[groups['master-server'][0]][item]
   with_items:
     - home_net
     - serivces_cidr

@@ -1,0 +1,36 @@
+#######################################################
+###################  ScaleIO Install ###############
+#######################################################
+---
+
+- name: 'Create Directory'
+  file:
+    path: "{{ scaleio_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+  when: inventory_hostname in groups['master-server']
+
+- name: Install templates
+  template:
+    src: "templates/{{ item }}.yml.j2"
+    dest: "{{ scaleio_dir }}/{{ item }}.yml"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - gateway-deploy
+    - gateway-svc
+    - secret
+  when: inventory_hostname in groups['master-server']
+
+- name: 'Deploy Gateway'
+  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ scaleio_dir }}/{{ item }}.yml'
+  with_items:
+    - gateway-deploy
+    - gateway-svc
+    - secret
+  when: inventory_hostname in groups['master-server']
+
+...

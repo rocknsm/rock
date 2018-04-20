@@ -52,7 +52,7 @@ spec:
           - key: filebeat.yml.tmpl
             path: filebeat.yml.tmpl
       nodeSelector:
-        role: sensor
+        suricata: "true"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

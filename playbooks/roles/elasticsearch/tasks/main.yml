@@ -20,23 +20,19 @@
     mode: u+rw,g+rw
   with_items:
     - es-discovery-svc.yml
-    - es-master.yml
-    - es-data.yml
+    - es-master-statefulset.yml
+    - es-data-statefulset.yml
     - es-svc.yml
     - elastichq.yml
     - elastichq-svc.yml
     - elasticsearch.yml
-    - jvm.options
-    - log4j2.properties
 
 - name: Flush Config
   command: 'kubectl delete configmap elastic --ignore-not-found=true'
 
 - name: Create Config
   shell: |
-    kubectl create configmap elastic --from-file {{ elastic_dir }}/elasticsearch.yml \
-    --from-file {{ elastic_dir }}/jvm.options \
-    --from-file {{ elastic_dir }}/log4j2.properties
+    kubectl create configmap elastic --from-file {{ elastic_dir }}/elasticsearch.yml
 
 - name: Flush Deployments
   shell: |
@@ -49,12 +45,10 @@
   with_items:
     - es-discovery-svc
     - es-svc
-    - es-data
-    - es-master
+    - es-data-statefulset
+    - es-master-statefulset
     - elastichq
     - elastichq-svc
-#    - es-client
-#    - es-data
 
 - name: Deploy Pods
   shell: |
@@ -64,11 +58,9 @@
       sleep 1;
     done;
   with_items:
-    - es-master
-    - es-data
+    - es-master-statefulset
+    - es-data-statefulset
     - elastichq
-    #- es-client
-    #- es-data
 
 - name: Deploy Services
   command: 'kubectl create -f {{ elastic_dir }}/{{ item }}.yml'
@@ -76,8 +68,6 @@
     - es-discovery-svc
     - es-svc
     - elastichq-svc
-#    - es-client
-#    - es-data
 
 - name: Wait for Elasticsearch to be ready
   include_role:
@@ -86,5 +76,5 @@
   vars:
     type: "statefulset"
     namespace: "default"
-    resource_name: "es-master"
+    resource_name: "es-master-statefulset"
     label: ""

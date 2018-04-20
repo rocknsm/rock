@@ -1,25 +1,19 @@
 ---
 - name: Purge Ceph
   shell: |
-    timeout 120 ceph-deploy purge \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
-    ceph-deploy purgedata \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+    timeout 120 ceph-deploy purge {{ groups['ceph'] | join(' ') }}
+    ceph-deploy purgedata {{ groups['ceph'] | join(' ') }}
     rm -rf {{ ceph_dir }}/*
   args:
     chdir: "{{ ceph_dir }}"
 
 - name: Create config
-  shell: |
-    ceph-deploy new \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+  shell: ceph-deploy new {{ groups['ceph'] | join(' ') }}
   args:
     chdir: "{{ ceph_dir }}"
 
 - name: Install Ceph
-  shell: |
-    ceph-deploy install --stable luminous \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+  shell: ceph-deploy install --stable luminous {{ groups['ceph'] | join(' ') }}
   args:
     chdir: "{{ ceph_dir }}"
 
@@ -48,9 +42,7 @@
     state: present
 
 - name: Propagate keys
-  shell: |
-    ceph-deploy --overwrite-conf admin \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+  shell: ceph-deploy --overwrite-conf admin {{ groups['ceph'] | join(' ') }}
   args:
     chdir: "{{ ceph_dir }}"
 
@@ -67,7 +59,7 @@
   args:
     chdir: "{{ ceph_dir }}"
   with_items:
-    - "{{ (groups['master-servers'] + groups['nodes']) }}"
+    - "{{ groups['ceph'] }}"
 
 - name: Declare osd amount
   set_fact:

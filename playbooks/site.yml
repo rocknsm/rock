@@ -11,6 +11,7 @@
     - localhost
     - all
   connection: ssh
+  any_errors_fatal: true
   vars:
     ssh_known_hosts_command: "ssh-keyscan -T 10"
     ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
@@ -22,10 +23,13 @@
   tasks:
     - import_tasks: generate_ssh_keys.yml
       when: genkeys is defined and genkeys
+  tags:
+    - genkeys
 
 - name: Common Setup
   hosts: all
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -35,8 +39,9 @@
     - common
 
 - name: Configure kube master
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -46,8 +51,11 @@
     - kube-master
 
 - name: Configure kube nodes
-  hosts: nodes
+  hosts:
+    - sensors
+    - servers
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -58,8 +66,9 @@
     - kube-node
 
 - name: Setup Ceph
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -68,8 +77,9 @@
     - ceph
 
 - name: Deploy Elasticsearch
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -78,8 +88,9 @@
     - elasticsearch
 
 - name: Deploy Logstash
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -88,8 +99,9 @@
     - logstash
 
 - name: Deploy Kibana
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -98,8 +110,9 @@
     - kibana
 
 - name: Deploy metricbeats
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -108,8 +121,9 @@
     - metricbeat
 
 - name: Deploy Kafka
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -118,8 +132,9 @@
     - kafka
 
 - name: Deploy Bro
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -128,8 +143,9 @@
   - bro
 
 - name: Deploy Moloch
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:
@@ -138,8 +154,9 @@
     - moloch
 
 - name: Deploy Suricata
-  hosts: master-servers
+  hosts: master-server
   gather_facts: no
+  any_errors_fatal: true
   pre_tasks:
     - setup:
   roles:

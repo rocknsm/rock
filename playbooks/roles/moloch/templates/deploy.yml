@@ -6,7 +6,7 @@ metadata:
     component: moloch
 spec:
   serviceName: moloch
-  replicas: {{ groups['sensors'] | length }}
+  replicas: {{ groups['moloch'] | length }}
   selector:
     matchLabels:
      component: moloch
@@ -55,7 +55,7 @@ spec:
           - key: config.ini.tmpl
             path: config.ini.tmpl
       nodeSelector:
-        role: sensor
+        moloch: "true"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

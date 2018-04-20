@@ -35,7 +35,7 @@ metadata:
     component: kafka
 spec:
   serviceName: "kafka-broker"
-  replicas: {{ groups['sensors'] | length }}
+  replicas: {{ groups['kafka'] | length }}
   selector:
     matchLabels:
      component: kafka
@@ -69,8 +69,20 @@ spec:
           value: "{{ zookeeper_port }}"
         - name: KAFKA_PORT
           value: "{{ kafka_port }}"
+# TODO
+# https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.2/bk_kafka-component-guide/content/prepare-kafka-env.html
+# We need to set the following Java options
+#-Xmx6g
+#-Xms6g
+#-XX:MetaspaceSize=96m
+#-XX:+UseG1GC
+#-XX:MaxGCPauseMillis=20
+#-XX:InitiatingHeapOccupancyPercent=35
+#-XX:G1HeapRegionSize=16M
+#-XX:MinMetaspaceFreeRatio=50
+#-XX:MaxMetaspaceFreeRatio=80
       nodeSelector:
-        role: sensor
+        kafka: "true"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

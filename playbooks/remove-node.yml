@@ -9,7 +9,7 @@
   gather_facts: true
 
 
-- hosts: master-servers
+- hosts: master-server
   roles:
     - { role: kubernetes/remove-node/pre-remove, tags: pre-remove }
 
@@ -17,7 +17,7 @@
   roles:
     - { role: kubernetes/reset, tags: reset, kubeadm_reset: false}
 
-- hosts: master-servers
+- hosts: master-server
   roles:
     - { role: kubernetes/remove-node/post-remove, tags: post-remove }
 

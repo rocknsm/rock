@@ -6,39 +6,70 @@
 # file, sensor.yml will only apply itself to the servers listed in the sensors group in this inventory file.
 
 all:
+  vars:
+    home_net:
+      - "192.168.0.0/16"
+      - "10.0.0.0/8"
+      - "172.16.0.0/12"
+    serivces_cidr: "192.168.1.16/28"
+    bpf_filter: ""
+    es_mem: 2
+    es_masters: 3
+    pcap_bpf_filter: ""
+    es_datas: 1
+    elastic_pv_size: 3
+    kafka_pv_size: 1
+    zookeeper_pv_size: 1
+    pcap_pv_size: 6
+
   children:
-    master-servers:
-      vars:
-        home_net:
-          - "192.168.0.0/16"
-          - "10.0.0.0/8"
-          - "172.16.0.0/12"
-        serivces_cidr: "192.168.1.0/24"
-        bpf_filter: ""
-        es_mem: 2
-        es_masters: 3
-        pcap_bpf_filter: ""
-        es_datas: 0
-        elastic_pv_size: 1000
-        kafka_pv_size: 10
-        zookeeper_pv_size: 10
-        logstash_pv_size: 10
-        pcap_pv_size: 100000
-      hosts:
-        rockserver9.lan:
-          ansible_user: root
-          ansible_connection: ssh
-          management_ipv4: 192.168.1.86
-          data_disk_devices:
-          - /dev/vdb
-    nodes:
+
+    ceph:
+      children:
+        nodes:
+
+    elasticsearch:
+      children:
+        nodes:
+
+    logstash:
+      children:
+        elasticsearch:
+
+    kibana:
+      children:
+        master-server:
+
+    metricbeat:
+      children:
+        nodes:
+
+    kafka:
       children:
         sensors:
+
+    bro:
+      children:
+        sensors:
+
+    moloch:
+      children:
+        sensors:
+
+    suricata:
+      children:
+        sensors:
+
+    nodes:
+
+      children:
+
+        sensors:
           hosts:
-            rocksensor9.lan:
+            rocksensor4.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.88
+              management_ipv4: 192.168.1.181
               bro_workers: 2
               monitor_interfaces:
               - ens4
@@ -46,18 +77,24 @@ all:
               - /dev/vdb
           vars:
             dns_ip: 192.168.1.50
+
         servers:
+
           hosts:
-            rockserver10.lan:
+            rockserver5.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.87
+              management_ipv4: 192.168.1.183
               data_disk_devices:
               - /dev/vdb
           vars:
             dns_ip: 192.168.1.50
-    nodes_to_remove:
-      hosts:
-        rocksensor9.lan:
-        rockserver9.lan:
-        rockserver10.lan:
+
+        master-server:
+          hosts:
+            rockserver4.lan:
+              ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: 192.168.1.180
+              data_disk_devices:
+              - /dev/vdb

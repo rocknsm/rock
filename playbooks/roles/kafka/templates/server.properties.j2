@@ -18,9 +18,13 @@
 ############################# Server Basics #############################
 
 # The id of the broker. This must be set to a unique integer for each broker.
-# This will be overridden at start up based on the pod number, 
+# This will be overridden at start up based on the pod number,
 # for example kafka-0 would get broker.id 0 kafka-1 broker.id 1
 broker.id=256
+
+# See: https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.2/bk_kafka-component-guide/content/prepare-kafka-env.html
+# for reasoning
+num.io.threads={{ num_of_pvcs+1 }}
 
 ############################# Socket Server Settings #############################
 

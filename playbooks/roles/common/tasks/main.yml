@@ -1,10 +1,3 @@
-######################################################
-############### ROCKNSM Customization ################
-######################################################
-- name: Check known hosts
-  stat:
-    path: /root/.ssh/known_hosts
-  register: know_hosts_check
 
 # main.yml - Common tasks for ROCK
 - import_tasks: 00_preflight.yml
@@ -18,10 +11,6 @@
 - import_tasks: 45_disable_ipv6.yml
 - import_tasks: 50_disable_firewall.yml
 - import_tasks: 55_banner.yml
-- name: Check ssh key
-  stat:
-    path: /root/.ssh/id_rsa
-  register: ssh_key_check
 
 # TODO: This should be in production, but takes too long for a dev
 # environment
@@ -29,25 +18,3 @@
   #yum: name=* state=latest
 
 - import_tasks: 95_reboot.yml
-
-- name: "Add Deployer to hosts file"
-  lineinfile:
-    dest: /etc/hosts
-    regexp: '.*deployer.lan$'
-    line: "{{ deployer }} deployer deployer.lan"
-    state: present
-  when: deployer is defined
-
-# main.yml - Common tasks for ROCK
-- import_tasks: set_hostname.yml
-- import_tasks: minimum_hardware_check.yml
-- import_tasks: configure_yum_repos.yml
-- import_tasks: configure_rock_repo.yml
-- import_tasks: disable_selinux.yml
-- import_tasks: install_common_packages.yml
-- import_tasks: create_directories.yml
-- import_tasks: disable_ipv6.yml
-- import_tasks: disable_firewall.yml
-#- import_tasks: ensure_cache_directory_exists.yml
-#- import_tasks: enable_firewall.yml
-- import_tasks: reboot.yml
