@@ -48,22 +48,22 @@ spec:
         - name: INSTANCE_ID
           value: "1"
         - name: KAFKA_LISTENERS
-          value: "PLAINTEXT://:9092"        
+          value: "PLAINTEXT://:9092"
       - name: {{ zk_app_name }}
         image: {{ zookeeper_image }}:{{ zookeeper_ver }}
         imagePullPolicy: Always
-        ports: 
+        ports:
         - containerPort: {{ zookeeper_port }}
           name: client
         - containerPort: 2888
           name: server
         - containerPort: 3888
           name: leader-election
-        volumeMounts: 
+        volumeMounts:
         - mountPath: {{ zookeeper_data_path }}
           name: zookeeper-data
         - mountPath: {{ zookeeper_datalog_path }}
-          name: zookeeper-datalog        
+          name: zookeeper-datalog
         - name: configs
           mountPath: {{ zookeeper_home }}/conf/
         env:
@@ -92,8 +92,8 @@ spec:
         configMap:
           name: remote-kafka
       - name: kafka-data
-        hostPath:      
-          path: /data/kafka      
+        hostPath:
+          path: /data/kafka
           type: Directory
       - name: configs
         configMap:
@@ -106,12 +106,12 @@ spec:
           - key: configuration.xsl
             path: configuration.xsl
       - name: zookeeper-data
-        hostPath:      
-          path: /data/zookeeper/data      
+        hostPath:
+          path: /data/zookeeper/data
           type: Directory
       - name: zookeeper-datalog
-        hostPath:      
-          path: /data/zookeeper/datalog      
+        hostPath:
+          path: /data/zookeeper/datalog
           type: Directory
 {% endfor %}
 {% endif %}
@@ -158,11 +158,24 @@ spec:
         - name: ZOOKEEPER_PORT
           value: "{{ zookeeper_port }}"
         - name: KAFKA_PORT
-          value: "{{ kafka_port }}"   
+          value: "{{ kafka_port }}"
         - name: KAFKA_LISTENERS
           value: "PLAINTEXT://:9092"
+# TODO
+# https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.2/bk_kafka-component-guide/content/prepare-kafka-env.html
+# We need to set the following Java options
+#-Xmx6g
+#-Xms6g
+#-XX:MetaspaceSize=96m
+#-XX:+UseG1GC
+#-XX:MaxGCPauseMillis=20
+#-XX:InitiatingHeapOccupancyPercent=35
+#-XX:G1HeapRegionSize=16M
+#-XX:MinMetaspaceFreeRatio=50
+#-XX:MaxMetaspaceFreeRatio=80
       nodeSelector:
         role: {{ node_label }}
+        kafka: "true"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
