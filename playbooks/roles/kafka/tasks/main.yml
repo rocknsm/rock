@@ -3,3 +3,4 @@
 ######################################################
 ---
 - import_tasks: 05_install.yml
+  when: ((groups['remote-sensors'] | length) > 0 and remote) or  ((groups['sensors'] | length) > 0 and not remote)

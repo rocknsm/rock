@@ -1,6 +1,7 @@
 {% if remote %}
 {% for host in groups['remote-sensors'] %}
 {% set kafka_app_name = 'kafka-' + hostvars[host].inventory_hostname_short %}
+{% set zk_app_name = 'zookeeper-' + hostvars[host].inventory_hostname_short %}
 ---
 apiVersion: apps/v1beta1
 kind: StatefulSet
@@ -45,7 +46,9 @@ spec:
         - name: KAFKA_PORT
           value: "{{ kafka_port }}"
         - name: INSTANCE_ID
-          value: "1"        
+          value: "1"
+        - name: KAFKA_LISTENERS
+          value: "PLAINTEXT://:9092"        
       - name: {{ zk_app_name }}
         image: {{ zookeeper_image }}:{{ zookeeper_ver }}
         imagePullPolicy: Always
@@ -156,6 +159,8 @@ spec:
           value: "{{ zookeeper_port }}"
         - name: KAFKA_PORT
           value: "{{ kafka_port }}"   
+        - name: KAFKA_LISTENERS
+          value: "PLAINTEXT://:9092"
       nodeSelector:
         role: {{ node_label }}
       affinity:

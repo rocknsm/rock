@@ -1,0 +1,35 @@
+---
+
+#- name: Configure packages
+#  set_fact:
+#    package_list: "{{ package_list }} + [ '{{ item.pkg }}']"
+#  when: (item.test is undefined) or (item.test)
+#  with_items:
+#    - { pkg: chrony, state: installed }
+#    - { pkg: postfix, state: installed }
+
+- name: Yum Utils Check
+  shell: rpm -qa yum-utils
+  register: results
+
+- name: Clean Yum Transactions
+  shell: "yum-complete-transaction --cleanup-only && yum clean all"
+  when: results.stdout.find('is not installed') != -1
+
+- name: Install packages
+  yum:
+    name: "{{ item }}"
+    state: installed
+  when: (item.test is undefined) or (item.test)
+  with_items:
+    - "{{ package_list }}"
+
+- name: Enable Cockpit
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+    daemon_reload: yes
+  with_items:
+    # - cockpit cockpit uses a socket to listen
+    - cockpit.socket

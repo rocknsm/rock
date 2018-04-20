@@ -137,12 +137,13 @@
   include_role:
     name: kubernetes/common
     tasks_from: kube_wait
+  when: not remote
   vars:
     type: "statefulset"
     namespace: "default"
     resource_name: "{{ zk_app_name }}"
     label: ""
-  when: not remote
+  
 
 - name: Run the kafka deploy file
   shell: "kubectl apply -f {{ kafka_dir }}/{{ app_type }}/deploy.yml"
@@ -151,9 +152,10 @@
   include_role:
     name: kubernetes/common
     tasks_from: kube_wait
+  when: not remote
   vars:
     type: "statefulset"
     namespace: "default"
     resource_name: "{{ kafka_app_name }}"
     label: ""
-  when: not remote
+  
