@@ -6,7 +6,7 @@
   command: kubeadm reset
   register: kube_reset_result
   ignore_errors: yes
-  when: inventory_hostname in groups['nodes_to_remove'] and (kube_reload is defined and kube_reload)
+  when: inventory_hostname in groups['nodes_to_remove'] and (reinstall is defined and reinstall)
 
 - name: Stop Services
   systemd:
