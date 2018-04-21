@@ -1,10 +1,10 @@
 ---
 
 - set_fact:
-    ceph_host_pool: "{{ ( groups['master-servers'] + groups['servers'] + groups['sensors']) | join(' ') }}"
+    ceph_host_pool: "{{ ( groups['ceph']) | join(' ') }}"
 
 - set_fact:
-    ceph_host_pool_list: "{{ ( groups['master-servers'] + groups['servers'] + groups['sensors']) }}"
+    ceph_host_pool_list: "{{ ( groups['ceph']) }}"
 
 - name: Purge Ceph
   shell: |
@@ -56,7 +56,7 @@
 - name: Install Managers
   shell: |
     ceph-deploy mgr create \
-    {{ (groups['master-servers'] + groups['nodes']) | join(' ') }}
+    {{ (groups['ceph']) | join(' ') }}
   args:
     chdir: "{{ ceph_dir }}"
 
@@ -72,7 +72,7 @@
   set_fact:
     osd_count: "{{ osd_count | int + ( hostvars[item].data_disk_devices | length ) }}"
   with_items:
-    - "{{ ( groups['master-servers'] + groups['nodes'] ) }}"
+    - "{{ ( groups['ceph'] ) }}"
 
 - name: Create Pool
   shell: |

@@ -11,11 +11,13 @@
 - name: Yum Utils Check
   shell: rpm -qa yum-utils
   register: results
+  args:
+    warn: false
 
 - name: Clean Yum Transactions
   shell: "yum-complete-transaction --cleanup-only && yum clean all"
   when: results.stdout.find('is not installed') != -1
-  
+
 - name: Enable RHSM repositories on RHEL nodes
   shell: "subscription-manager repos --enable={{ item }}"
   with_items: "{{ redhat_repos }}"

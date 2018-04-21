@@ -28,7 +28,7 @@
 
 - name: Common Setup
   hosts:
-    - master-servers
+    - master-server
     - nodes
   gather_facts: no
   any_errors_fatal: true

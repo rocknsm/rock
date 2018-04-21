@@ -1,10 +1,13 @@
-#
-# Checking that required variables are set
-#
+
+- name: Check if remote-sensors is defined
+  add_host:
+    name: ""
+    groups: remote-sensors
+  when: "'remote-sensors' not in groups"
 
 - name: ping all ips in inventory
   shell: "ping -c 1 {{ item }}"
-  with_items: "{{ groups['all'] }}"
+  with_items: "{{ groups['nodes'] }}"
   changed_when: False
 
 - name: ping google DNS by IP
@@ -15,6 +18,7 @@
   shell: "ping -c 1 www.google.com"
   changed_when: False
 
+# Checking that required variables are set
 - name: Checking that required variables are set
   fail:
     msg: "{{ item }} is not defined"
