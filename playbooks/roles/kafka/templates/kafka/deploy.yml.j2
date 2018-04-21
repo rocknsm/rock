@@ -173,9 +173,6 @@ spec:
 #-XX:G1HeapRegionSize=16M
 #-XX:MinMetaspaceFreeRatio=50
 #-XX:MaxMetaspaceFreeRatio=80
-      nodeSelector:
-        role: {{ node_label }}
-        kafka: "true"
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

@@ -28,3 +28,5 @@
 - name: Label with suricata
   command: 'kubectl label nodes {{ ansible_fqdn }} suricata=true --overwrite=true'
   when: inventory_hostname in groups['suricata']
+
+...

@@ -34,8 +34,20 @@
     - svc
   ignore_errors: true
 
-- name: Kibana | Deploy Deployment
-  shell: "kubectl --kubeconfig {{ kubernetes_conf_file }} create -f {{ kibana_dir }}/deploy.yml"
+# This is here because Kubernetes repeatedly failed to download the Kibana image.
+# See: https://github.com/kubernetes/kubernetes/issues/59376
+# Pulling it through Docker resolves the issue
+- name: Perform Kibana download workaround
+  docker_image:
+    name: "{{ kibana_image }}:{{ kibana_ver }}"
+
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create.yml
+  vars:
+    name: "Kibana"
+    file_name: "{{ kibana_dir }}/deploy.yml"
 
 - name: Wait for kibana to be ready
   import_role:
@@ -47,5 +59,10 @@
     resource_name: "kibana"
     label: ""
 
-- name: Kibana | Deploy Service
-  shell: "kubectl --kubeconfig {{ kubernetes_conf_file }} create -f {{ kibana_dir }}/svc.yml"
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create.yml
+  vars:
+    name: "Kibana Service"
+    file_name: "{{ kibana_dir }}/svc.yml"

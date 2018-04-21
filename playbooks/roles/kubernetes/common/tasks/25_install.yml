@@ -2,6 +2,7 @@
 ###################  Kubernetes Install ###############
 #######################################################
 ---
+
 - name: 'Install Kubernetes packages'
   yum:
     name: "{{ item }}"
@@ -14,7 +15,7 @@
     - "ebtables"
     - "ethtool"
   register: installed_packages
-  notify: 
+  notify:
     - restart docker
     - restart kubelet
 
@@ -22,3 +23,5 @@
   yum:
     name: cockpit-kubernetes
     state: installed
+
+...

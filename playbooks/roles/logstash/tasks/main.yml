@@ -58,16 +58,22 @@
     done;
     sleep 5;
 
-- name: Deploy Logstash
-  shell: |
-    kubectl create -f {{ logstash_dir }}/deploy.yml
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create.yml
+  vars:
+    name: "Logstash"
+    file_name: "{{ logstash_dir }}/deploy.yml"
 
 - name: Wait for logstash to be ready
   import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:
-    type: "statefulset"
+    type: "deployments"
     namespace: "default"
     resource_name: "logstash"
     label: ""
+
+...

@@ -1,4 +1,3 @@
-{% set replicas = ((groups['sensors'] | length) + (groups['remote-sensors'] | length)) %}
 apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
@@ -69,14 +68,15 @@ spec:
             path: broctl.cfg.conf
           - key: local.bro.conf
             path: local.bro.conf
-      affinity:              
+      affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
             - matchExpressions:
               - key: role
                 operator: In
-                values: bro
+                values:
+                - bro
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:

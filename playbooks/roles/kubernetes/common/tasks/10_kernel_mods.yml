@@ -2,7 +2,7 @@
 - set_fact:
     module: "br_netfilter"
 
-- name: Enable modules 
+- name: Enable modules
   modprobe:
     name: "{{ module }}"
     state: present
@@ -19,3 +19,5 @@
 - lineinfile:
     path: /etc/modules-load.d/99-k8.conf
     line: '{{ module }}'
+
+...

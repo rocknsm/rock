@@ -49,12 +49,11 @@
 - import_tasks: build_kubectl.yml
 
 - name: Kube | Wait for "{{ resource_name }} {{ label }} {{ type }}"
-  shell: |
-    {{ kubectl }}
+  shell: "{{ kubectl }}"
   register: kube_wait_result
   until: kube_wait_result.stdout == ""
   retries: 45
   delay: 10
   when: kubectl is defined
-  failed_when: kube_wait_result.rc != 0 or (kube_wait_result.rc == 1 and "'Error executing template' in kube_wait_result.stderr")
-  #ignore_errors: yes
+  # TODO: (kube_wait_result.rc == 1 and "'Error executing template' in kube_wait_result.stderr") appears incorrect or unnecessary?
+  failed_when: (kube_wait_result.rc != 0 or (kube_wait_result.rc == 1 and "'Error executing template' in kube_wait_result.stderr")) and ("'the server was unable to return a response in the time allotted, but may still be processing the request' not in kube_wait_result.stderr")

@@ -23,3 +23,5 @@
 - name: Kube | Build kubectl with go template
   set_fact:
     kubectl: "{{ kubectl }} -o go-template --template={{ GOPOD }}"
+
+...

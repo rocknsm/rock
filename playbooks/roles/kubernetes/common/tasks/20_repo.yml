@@ -2,6 +2,7 @@
 ###################  Kubernetes Repo ###############
 #######################################################
 ---
+
 - name: "Setup Kubernetes repo"
   yum_repository:
     baseurl: "{{ kube_baseurl }}"
@@ -9,3 +10,5 @@
     gpgcheck: true
     gpgkey: "{{ kube_gpgurl }}"
     name: kubernetes
+
+...

@@ -57,8 +57,13 @@
     resource_name: "kube-state-metrics"
     label: ""
 
-- name: Deploy metricbeats
-  shell: kubectl create -f "{{ metricbeat_dir }}"/metricbeat-deploy.yml
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create.yml
+  vars:
+    name: "Metricbeat"
+    file_name: "{{ metricbeat_dir }}/metricbeat-deploy.yml"
 
 - name: Wait for Metricbeat to be ready
   import_role:

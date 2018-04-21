@@ -20,6 +20,7 @@ all:
     elastic_pv_size: 3
     kafka_pv_size: 1
     zookeeper_pv_size: 1
+    zookeeper_replicas: 3
     pcap_pv_size: 6
 
   children:
@@ -47,18 +48,22 @@ all:
     kafka:
       children:
         sensors:
+        remote-sensors:
 
     bro:
       children:
         sensors:
+        remote-sensors:
 
     moloch:
       children:
         sensors:
+        remote-sensors:
 
     suricata:
       children:
         sensors:
+        remote-sensors:
 
     nodes:
 
@@ -66,10 +71,10 @@ all:
 
         sensors:
           hosts:
-            rocksensor4.lan:
+            rocksensor1.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.181
+              management_ipv4: 192.168.1.198
               bro_workers: 2
               monitor_interfaces:
               - ens4
@@ -83,10 +88,10 @@ all:
         servers:
 
           hosts:
-            rockserver5.lan:
+            rockserver2.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.183
+              management_ipv4: 192.168.1.194
               data_disk_devices:
               - /dev/vdb
           vars:
@@ -94,9 +99,15 @@ all:
 
         master-server:
           hosts:
-            rockserver4.lan:
+            rockserver1.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.180
+              management_ipv4: 192.168.1.199
               data_disk_devices:
               - /dev/vdb
+
+    nodes_to_remove:
+      hosts:
+        rocksensor1.lan:
+        rockserver2.lan:
+        rockserver1.lan:

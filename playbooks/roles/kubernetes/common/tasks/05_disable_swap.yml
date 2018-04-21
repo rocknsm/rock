@@ -11,3 +11,5 @@
   mount:
     path: swap
     state: absent
+
+...

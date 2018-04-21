@@ -20,13 +20,24 @@
 # Checking that required variables are set
 - name: Checking that required variables are set
   fail:
-    msg: "{{ item }} is not defined"
+    msg: "{{ item }} is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: not item
   with_items:
     - management_ipv4
     - epel_repo_url
     - epel_repo_gpg_key_url
     - epel_repofile_path
+    - home_net
+    - services_cidr
+    - es_mem
+    - es_masters
+    - pcap_bpf_filter
+    - es_datas
+    - elastic_pv_size
+    - kafka_pv_size
+    - zookeeper_pv_size
+    - zookeeper_replicas
+    - pcap_pv_size
 
 - name: Verify Elasticsearch heap memory is less than half of physical RAM
   fail:

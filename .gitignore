@@ -29,3 +29,5 @@ playbooks/files/admin.conf
 playbooks/files/join-node.sh
 
 inventory/dev/*
+
+.remote-sync.json

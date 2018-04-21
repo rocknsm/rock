@@ -13,7 +13,7 @@ fqdn: default.svc.cluster.local
 redis_sentinel_port: 26379
 
 # Elasticsearch
-elastic_ver: '6.2.2'
+elastic_ver: '6.2.4'
 es_cluster_name: rock
 elastic_fqdn: "elasticsearch.{{ fqdn }}"
 elastic_port: 9200
@@ -57,6 +57,7 @@ package_list:
   - NetworkManager-glib
   - nmap
   - mlocate
+  - python-docker-py.noarch
 
 # RockNSM
 #rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch

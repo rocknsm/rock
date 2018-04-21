@@ -63,8 +63,13 @@
 - name: "Create kube bootstrap config"
   shell: "kubectl create configmap moloch-bootstrap --from-file {{ moloch_dir }}/auto_init"
 
-- name: Deploy Bootstrap
-  command: "kubectl create -f {{ moloch_dir }}/bootstrap.yml"
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create.yml
+  vars:
+    name: "Moloch Bootstrap"
+    file_name: "{{ moloch_dir }}/bootstrap.yml"
 
 - name: Get Bootstrap pod name
   shell: |
@@ -96,8 +101,13 @@
 - name: Remove Bootstrap config
   command: kubectl delete configmap moloch-bootstrap
 
-- name: "Deploy moloch"
-  command: "kubectl create -f {{ moloch_dir }}/{{ item }}.yml"
+- name: Deploy Services
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create.yml
+  vars:
+    name: "Moloch"
+    file_name: "{{ moloch_dir }}/{{ item }}.yml"
   with_items:
     - deploy
     - svc

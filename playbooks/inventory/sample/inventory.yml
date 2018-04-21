@@ -78,3 +78,9 @@ all:
               #- /dev/sdb <raw disk name>
           vars:
             # dns_ip: <192.168.1.50> The IP address of the sensor's DNS server
+    nodes_to_remove:
+      hosts:
+        # If you want to remove hosts from the Kubernetes cluster, you may add them here
+        # You cannot remove master nodes from the cluster
+        # To remove the nodes run ansible-playbook remove_nodes.yml <your_inventory>
+        rocksensor1.lan:

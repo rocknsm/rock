@@ -45,7 +45,7 @@
     - deploy.yml
     - svc.yml
     - server.properties
-    
+
 - name: Copy files
   copy:
     src: "files/{{ item }}"
@@ -118,10 +118,10 @@
     - "{{ zookeeper_dir }}/{{ app_type }}"
     - "{{ kafka_dir }}/{{ app_type }}"
   when: not remote
-  
+
 - name: Create Kafka Remote Svc
   shell: "kubectl apply -f {{ item }}/svc.yml"
-  with_items:    
+  with_items:
     - "{{ kafka_dir }}/{{ app_type }}"
   when: remote
 
@@ -143,7 +143,6 @@
     namespace: "default"
     resource_name: "{{ zk_app_name }}"
     label: ""
-  
 
 - name: Run the kafka deploy file
   shell: "kubectl apply -f {{ kafka_dir }}/{{ app_type }}/deploy.yml"
@@ -158,4 +157,3 @@
     namespace: "default"
     resource_name: "{{ kafka_app_name }}"
     label: ""
-  

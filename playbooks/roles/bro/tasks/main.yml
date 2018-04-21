@@ -60,8 +60,23 @@
 - name: Flush Deployments
   command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml --ignore-not-found=true'
 
-- name: Deploy
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" create -f {{ bro_dir }}/deploy.yml'
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create.yml
+  vars:
+    name: "Bro"
+    file_name: "{{ bro_dir }}/deploy.yml"
 
-- name: Wait for deployment to finish
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ bro_dir }}/deploy.yml'
+#- name: Wait for deployment to finish
+#  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ bro_dir }}/deploy.yml'
+
+- name: Wait for Bro to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "bro"
+    label: ""
