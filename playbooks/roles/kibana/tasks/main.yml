@@ -38,7 +38,7 @@
   shell: "kubectl --kubeconfig {{ kubernetes_conf_file }} create -f {{ kibana_dir }}/deploy.yml"
 
 - name: Wait for kibana to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:

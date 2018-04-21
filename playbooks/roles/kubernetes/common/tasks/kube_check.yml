@@ -9,7 +9,7 @@
 
 # Example:
 # - name: Wait for Master Node
-#   include_role:
+#   import_role:
 #     name: kubernetes/common
 #     tasks_from: kube_check
 #   vars:

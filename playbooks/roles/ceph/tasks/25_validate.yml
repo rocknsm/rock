@@ -1,6 +1,6 @@
 ---
 
-- include_tasks: preflight.yml
+- import_tasks: preflight.yml
 
 - name: Fail if ceph unhealthy
   fail:

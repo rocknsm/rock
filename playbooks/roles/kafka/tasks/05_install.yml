@@ -134,7 +134,7 @@
   when: not remote
 
 - name: Wait for zookeeper to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   when: not remote
@@ -149,7 +149,7 @@
   shell: "kubectl apply -f {{ kafka_dir }}/{{ app_type }}/deploy.yml"
 
 - name: Wait for kafka to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   when: not remote

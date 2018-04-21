@@ -14,7 +14,7 @@
   command: "kubectl create -f {{ ceph_dir }}/deploy.yml"
 
 - name: Wait for ceph provisioner to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:

@@ -3,7 +3,7 @@
 #######################################################
 ---
 - name: Kube | Retrieve generated credentials
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: creds
 
@@ -21,7 +21,7 @@
     seconds: 10
 
 - name: Kube | Wait for Node to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:

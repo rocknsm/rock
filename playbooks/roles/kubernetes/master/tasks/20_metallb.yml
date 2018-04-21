@@ -15,7 +15,7 @@
   command: 'kubectl apply -f {{ kube_dir }}/metallb.yml'
 
 - name: Wait for metallb to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:

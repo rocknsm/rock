@@ -78,6 +78,8 @@ all:
           vars:
             dns_ip: 192.168.1.50
 
+        remote-sensors:
+
         servers:
 
           hosts:

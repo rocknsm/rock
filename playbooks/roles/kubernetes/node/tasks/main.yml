@@ -14,7 +14,7 @@
   when: (kube_reload is defined and kube_reload) or (kube_check_result is defined and kube_check_result.stdout == "")
 
 - name: Label master node with appropriate roles
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: label_nodes.yml
 ...

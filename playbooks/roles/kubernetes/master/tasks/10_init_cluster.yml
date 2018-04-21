@@ -14,7 +14,7 @@
     - "/etc/kubernetes/join-node.sh"
 
 - name: Retrieve generated credentials
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: creds
 
@@ -22,7 +22,7 @@
   command: "kubectl apply -f {{ kube_dir }}/kube-flannel.yml"
 
 - name: Kube | Wait for Master Node to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:

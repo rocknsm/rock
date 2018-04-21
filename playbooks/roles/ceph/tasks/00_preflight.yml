@@ -1,6 +1,6 @@
 ---
 - name: Check Provisioner
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_check
   vars:

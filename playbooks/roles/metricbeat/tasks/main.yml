@@ -48,7 +48,7 @@
   shell: kubectl apply -f {{ metricbeat_dir }}/kube-state-metric
 
 - name: Wait for Kube State Metrics to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:
@@ -61,7 +61,7 @@
   shell: kubectl create -f "{{ metricbeat_dir }}"/metricbeat-deploy.yml
 
 - name: Wait for Metricbeat to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:

@@ -70,7 +70,7 @@
     - elastichq-svc
 
 - name: Wait for Elasticsearch to be ready
-  include_role:
+  import_role:
     name: kubernetes/common
     tasks_from: kube_wait
   vars:

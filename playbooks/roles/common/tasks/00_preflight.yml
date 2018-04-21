@@ -1,8 +1,7 @@
 
 - name: Check if remote-sensors is defined
-  add_host:
-    name: ""
-    groups: remote-sensors
+  fail:
+    msg: 'Verify you have the remote-sensors group in your inventory file. It must be defined. See sample inventory. If you have no remote sensors you can define an empty group with just remote-senors: under nodes.'
   when: "'remote-sensors' not in groups"
 
 - name: ping all ips in inventory

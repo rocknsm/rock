@@ -7,6 +7,7 @@
     file_type: file
   register: kubernetes_directory
 
+# TODO update this error message
 - name: Check for existing directories
   fail:
     msg: "It appears you have already run the Kubernetes role once. The {{ kube_dir }} directory exists and is not empty. If you are reinstalling, verify all the nodes are under nodes_to_remove in the inventory file."
