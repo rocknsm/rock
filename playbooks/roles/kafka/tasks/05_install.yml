@@ -3,6 +3,16 @@
 ######################################################
 ---
 
+# This is here because Kubernetes repeatedly failed to download the image.
+# See: https://github.com/kubernetes/kubernetes/issues/59376
+# Pulling it through Docker resolves the issue
+- name: Perform Kafka/Zookeeper download workaround
+  docker_image:
+    name: "{{ item }}"
+  with_items:
+    - "{{ kafka_image }}:{{ kafka_ver }}"
+    - "{{ zookeeper_image }}:{{ zookeeper_ver }}"
+
 - name: Set vars for cluster sensor
   set_fact:
     kafka_app_name: "kafka"

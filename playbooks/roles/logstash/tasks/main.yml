@@ -3,6 +3,13 @@
 ######################################################
 ---
 
+# This is here because Kubernetes repeatedly failed to download the image.
+# See: https://github.com/kubernetes/kubernetes/issues/59376
+# Pulling it through Docker resolves the issue
+- name: Perform image download workaround
+  docker_image:
+    name: "{{ logstash_image }}:{{ logstash_ver }}"
+
 - name: "Create Logstash directory"
   file:
     path: "{{ logstash_dir }}"

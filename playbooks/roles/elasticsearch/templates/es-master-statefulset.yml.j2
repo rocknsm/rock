@@ -29,7 +29,7 @@ spec:
           privileged: true
       containers:
       - name: elasticsearch
-        image: tfplenum/elasticsearch:latest
+        image: {{ elasticsearch_image }}:{{ elastic_ver }}
         securityContext:
           privileged: true
           capabilities:

@@ -3,6 +3,13 @@
 ######################################################
 ---
 
+# This is here because Kubernetes repeatedly failed to download the image.
+# See: https://github.com/kubernetes/kubernetes/issues/59376
+# Pulling it through Docker resolves the issue
+- name: Perform image download workaround
+  docker_image:
+    name: "{{ suricata_image }}:{{ suricata_ver }}"
+
 - name: Create config directory
   file:
     path: "{{ suricata_dir }}"

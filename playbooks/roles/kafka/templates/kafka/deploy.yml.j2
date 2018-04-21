@@ -183,6 +183,14 @@ spec:
                 values:
                 - {{ kafka_app_name }}
             topologyKey: "kubernetes.io/hostname"
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kafka
+                operator: In
+                values:
+                - "true"
       volumes:
       - name: kafka
         configMap:

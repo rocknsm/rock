@@ -3,6 +3,13 @@
 ######################################################
 ---
 
+# This is here because Kubernetes repeatedly failed to download the image.
+# See: https://github.com/kubernetes/kubernetes/issues/59376
+# Pulling it through Docker resolves the issue
+- name: Perform Elasticsearch image download workaround
+  docker_image:
+    name: "{{ elasticsearch_image }}:{{ elastic_ver }}"
+
 - name: "Create directories"
   file:
     group: "{{ es_group }}"
@@ -50,14 +57,13 @@
     - elastichq
     - elastichq-svc
 
-# TODO: What is the function of the while loop below?
 - name: Deploy Pods
-  shell: |
-    kubectl create -f {{ elastic_dir }}/{{ item }}.yml
-    while [ $(kubectl get -f {{ elastic_dir }}/{{ item }}.yml | tail -n +2 | awk '{ print $5}') == '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create.yml
+  vars:
+    name: "Elasticsearch Pods"
+    file_name: "{{ elastic_dir }}/{{ item }}"
   with_items:
     - es-master-statefulset
     - es-data-statefulset
@@ -68,7 +74,7 @@
     name: kubernetes/common
     tasks_from: kube_create.yml
   vars:
-    name: "Elasticsearch"
+    name: "Elasticsearch Services"
     file_name: "{{ elastic_dir }}/{{ item }}"
   with_items:
     - es-discovery-svc

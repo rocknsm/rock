@@ -7,13 +7,13 @@
 
 all:
   vars:
-    bpf_filter: "" # Use this to screen traffic from the Moloch PCAP capture
-    dns_ip: # <192.168.1.50> The IP address of the sensor's DNS server
+    bpf_filter: "" # Use this to screen traffic from the Moloch PCAP capture. Format is <IP_ADDRESS>/<CIDR>
+    dns_ip: # <192.168.1.50> The IP address of the sensor's DNS server. You must define this.
     es_datas: 0 # How many elasticsearch data nodes you would like to run
     es_masters: 3 # How many elasticsearch masters you would like to run
     es_mem: 2 # The amount of memory you want to assign to each elasticsearch instance
     elastic_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Elasticsearch
-    home_net:
+    home_net: # This is used to define the homenet for bro/suricata
       - "192.168.0.0/16"
       - "10.0.0.0/8"
       - "172.16.0.0/12"
@@ -21,66 +21,115 @@ all:
     logstash_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Logstash
     pcap_bpf_filter: "" # Packets that match this filter will NOT be saved to disk by Moloch
     pcap_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Moloch
-    serivces_cidr: # Network Cidr for Metallb ie: "192.168.86.248/29"
+    # services_cidr is the range of addresses kubernetes will use for external services like Moloch and Kibana
+    # It must be at least a /28
+    serivces_cidr: # Ex: "192.168.1.16/28"
     zookeeper_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Zookeeper
     zookeeper_replicas: 3 # Number of zookeeper replicas to be created
+
   children:
-    master-server:
-      vars:
-        home_net:
-          - "192.168.0.0/16"
-          - "10.0.0.0/8"
-          - "172.16.0.0/12"
-        serivces_cidr: # Network Cidr for Metallb ie: "192.168.86.248/29"
-        bpf_filter: "" # Only packets that match this filter will be processed by Moloch
-        pcap_bpf_filter: "" # Packets that match this filter will NOT be saved to disk by Moloch
-        es_mem: 2 # The amount of memory you want to assign to each elasticsearch instance
-        es_masters: 3 # How many elasticsearch masters you would like to run
-        es_datas: 0 # How many elasticsearch data nodes you would like to run
-        elastic_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Elasticsearch
-        kafka_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Kafka
-        zookeeper_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Zookeeper
-        logstash_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Logstash
-        pcap_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Moloch
-        rockserver1.lan:
-          ansible_user: root
-          management_ipv4: # IP Address of node
-          data_disk_devices:
-          #- /dev/sdb <raw disk name>
-    nodes:
+
+    # Any host in this group will be used in the ceph cluster. By default this is all hosts
+    ceph:
       children:
-        # If a host group is empty comment out "hosts:" section but leave the host group name or you will suffer greatly
+        nodes:
+
+    # Any host in this group will be eligible for use in the elasticsearch cluster. By default this is all hosts
+    elasticsearch:
+      children:
+        nodes:
+
+    # Any host in this group will be eligible to run logstash. By default this is any host that also has elasticsearch
+    logstash:
+      children:
+        elasticsearch:
+
+    # Any host in this group will be eligible to run kibana. By default this is any host that also has elasticsearch
+    kibana:
+      children:
+        elasticsearch:
+
+    # Any host in this group will run Kafka. By default this is all sensors and remote sensors
+    kafka:
+      children:
+        sensors:
+        remote-sensors:
+
+    # Any host in this group will  run Bro. By default this is all sensors and remote sensors
+    bro:
+      children:
+        sensors:
+        remote-sensors:
+
+    # Any host in this group will run Moloch. By default this is all sensors and remote sensors
+    moloch:
+      children:
+        sensors:
+        remote-sensors:
+
+    # Any host in this group will run Suricata. By default this is all sensors and remote sensors
+    suricata:
+      children:
+        sensors:
+        remote-sensors:
+
+    nodes:
+
+      children:
+
         sensors:
           hosts:
             rocksensor1.lan:
               ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: # Ex: 192.168.1.198 This is the IP address of the node. You must define this.
               bro_workers: 2
-              data_disk_devices:
-              #- /dev/sdb <raw disk name>
-              management_ipv4: # IP Address of node
-              monitor_interfaces:
-              #- eth0 <Interface Name>
+              monitor_interfaces: # This is the interface the sensor in question will listen on.
+              - # Ex: ens4
+              data_disk_devices: # These are the disks that ceph will use. It must be a full physical disk
+              # - /dev/vdb (You must define this)
+
+        # If you have a deployment where the majority of the kit is in one location, but some sensors remotely
+        # deployed away from the central servers put them in this group. This will remove any clustering dependencies
+        # among nodes. For example: Kafka will not try to cluster with other kafka instances nearby. If you have
+        # no remote sensors, leave the group defined, but everything after the group name empty. Ex: you could
+        # have an inventory with just "remote-sensors:", but no hosts defined.
         remote-sensors:
-          hosts:
-            rocksensor2.lan:
-              ansible_user: root
-              bro_workers: 2
-              data_disk_devices:
+          #hosts:
+          #  rocksensor2.lan:
+          #    ansible_user: root
+          #    bro_workers: 2
+          #    data_disk_devices:
               #- /dev/sdb <raw disk name>
-              management_ipv4: # IP Address of node
-              monitor_interfaces:
+          #    management_ipv4: # IP Address of node
+          #    monitor_interfaces:
               #- eth0 <Interface Name>
         servers:
+
           hosts:
             rockserver2.lan:
               ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: #Ex: 192.168.1.194
               data_disk_devices:
-              #- /dev/sdb <raw disk name>
-          vars:
-            # dns_ip: <192.168.1.50> The IP address of the sensor's DNS server
+              #- /dev/vdb
+
+        master-server:
+          hosts:
+            rockserver1.lan:
+              ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: #Ex: 192.168.1.199
+              data_disk_devices:
+              #- /dev/vdb
+
+    # This is used when you add -e reinstall=true to your ansible-playbook command. This has the effect
+    # of resetting kubernetes on all nodes defined below
     nodes_to_remove:
-      hosts:
-        # If you want to remove hosts from the Kubernetes cluster, you may add them here
-        # You cannot remove master nodes from the cluster
-        # To remove the nodes run ansible-playbook remove_nodes.yml <your_inventory>
-        rocksensor1.lan:
+      # Example: (you need to define your own hosts)
+      #hosts:
+      #  rocksensor1.lan:
+      #  rockserver2.lan:
+      #  rockserver1.lan:
+
+...

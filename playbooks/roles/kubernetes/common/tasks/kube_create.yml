@@ -1,6 +1,6 @@
 ---
 
-- name: Deploy "{{ name }}" Service
+- name: Deploy "{{ name }}"
   block:
     - command: 'kubectl create -f {{ file_name }}'
       register: deploy_result

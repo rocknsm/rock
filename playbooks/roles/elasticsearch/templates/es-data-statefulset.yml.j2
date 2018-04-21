@@ -28,7 +28,7 @@ spec:
           mountPath: {{ elastic_pv_data_path }}
       containers:
       - name: es-data
-        image: tfplenum/elasticsearch:latest
+        image: {{ elasticsearch_image }}:{{ elastic_ver }}
         securityContext:
           privileged: true
           capabilities:

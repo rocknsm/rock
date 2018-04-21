@@ -20,3 +20,4 @@ elastic_pv_size: 1
 es_mem: 2
 es_masters: 3
 es_datas: 0
+elasticsearch_image: 'tfplenum/elasticsearch'
