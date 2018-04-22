@@ -2,6 +2,6 @@
 
 metricbeat_dir: "{{ install_dir }}/metricbeat"
 kube_state_metrics_version: v1.3.0
-metricbeat_version: {{ elastic_ver }}
+metricbeat_version: "{{ elastic_ver }}"
 
 ...

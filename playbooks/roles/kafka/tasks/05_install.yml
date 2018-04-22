@@ -130,9 +130,7 @@
   when: not remote
 
 - name: Create Kafka Remote Svc
-  shell: "kubectl apply -f {{ item }}/svc.yml"
-  with_items:
-    - "{{ kafka_dir }}/{{ app_type }}"
+  shell: "kubectl apply -f {{ kafka_dir }}/{{ app_type }}/svc.yml"
   when: remote
 
 - name: Wait for Services
