@@ -141,16 +141,20 @@
   shell: "kubectl apply -f {{ zookeeper_dir }}/{{ app_type }}/deploy.yml"
   when: not remote
 
-- name: Wait for zookeeper to be ready
-  import_role:
-    name: kubernetes/common
-    tasks_from: kube_wait
-  when: not remote
-  vars:
-    type: "statefulset"
-    namespace: "default"
-    resource_name: "{{ zk_app_name }}"
-    label: ""
+# TODO: Need to fix this task
+#- name: Wait for zookeeper to be ready
+#  import_role:
+#    name: kubernetes/common
+#    tasks_from: kube_wait
+#  when: not remote
+#  vars:
+#    type: "statefulset"
+#    namespace: "default"
+#    resource_name: "{{ zk_app_name }}"
+#    label: ""
+- name: "Wait 60 seconds for zookeeper to come up. Note: This is a temporary fix."
+  wait_for: timeout=60
+  delegate_to: localhost
 
 - name: Run the kafka deploy file
   shell: "kubectl apply -f {{ kafka_dir }}/{{ app_type }}/deploy.yml"
