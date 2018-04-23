@@ -1,1 +1,1 @@
-yum install -y epel-release.noarch && yum update -y && yum install -y python-pip && pip install netaddr
+yum install -y epel-release.noarch && yum update -y && yum install -y python-pip && pip install netaddr && pip install --upgrade pip

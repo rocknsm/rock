@@ -36,8 +36,8 @@
 
 - name: Verify kube_dns is valid
   fail:
-    msg: "We were not able to get kubedns with kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'. This means we couldn't update resolv.conf with kubedns which would cause a failure so we are exiting. This means that for whatever reason Kubernetes' DNS service wasn't running."
-  when: not kube_dns_ip | ipv4
+    msg: "We were not able to get kubedns with kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'. Kubedns value is {{ kube_dns_ip }}. This means we couldn't update resolv.conf with kubedns which would cause a failure so we are exiting. This means that for whatever reason Kubernetes' DNS service wasn't running."
+  when: (kube_dns_ip.stdout | ipv4) != kube_dns_ip.stdout
 
 # This task retrieves the connection name of the network device with the management IP designated
 # in the inventory file
