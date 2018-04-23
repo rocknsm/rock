@@ -20,7 +20,7 @@
     app_type: cluster
     node_label: sensor
     kafka_replica_count: "{{ groups['sensors'] | length }}"
-    zk_replica_count: "{{ groups['sensors'] | length }}"
+    zk_replica_count: "{{ zookeeper_replicas }}"
   when: remote == false
 
 - name: Set vars for remote sensor
@@ -30,7 +30,7 @@
     app_type: remote
     node_label: remote-sensor
     kafka_replica_count: "{{ groups['remote-sensors'] | length }}"
-    zk_replica_count: " {{ zookeeper_replicas }}"
+    zk_replica_count: "1"
   when: remote
 
 - name: "Create Directories"

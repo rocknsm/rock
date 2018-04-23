@@ -29,15 +29,19 @@ all:
 
   children:
 
-    # Any host in this group will be used in the ceph cluster. By default this is all hosts
+    # Any host in this group will be used in the ceph cluster. By default this is all hosts except remote-sensors
     ceph:
       children:
-        nodes:
+        master-server:
+        servers:
+        sensors:
 
-    # Any host in this group will be eligible for use in the elasticsearch cluster. By default this is all hosts
+    # Any host in this group will be eligible for use in the elasticsearch cluster. By default this is all hosts except remote-sensors
     elasticsearch:
       children:
-        nodes:
+        master-server:
+        servers:
+        sensors:
 
     # Any host in this group will be eligible to run logstash. By default this is any host that also has elasticsearch
     logstash:

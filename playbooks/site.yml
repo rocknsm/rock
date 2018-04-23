@@ -54,6 +54,7 @@
 
 - name: Configure kube nodes
   hosts:
+    - remote-sensors
     - sensors
     - servers
   gather_facts: no

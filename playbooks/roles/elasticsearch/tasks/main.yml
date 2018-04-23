@@ -50,36 +50,38 @@
     done;
     sleep 5;
   with_items:
-    - es-discovery-svc
-    - es-svc
-    - es-data-statefulset
-    - es-master-statefulset
-    - elastichq
-    - elastichq-svc
-
-- name: Deploy Pods
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_create.yml
-  vars:
-    name: "Elasticsearch Pods"
-    file_name: "{{ elastic_dir }}/{{ item }}.yml"
-  with_items:
-    - es-master-statefulset
-    - es-data-statefulset
-    - elastichq
+    - es-discovery-svc.yml
+    - es-svc.yml
+    - es-data-statefulset.yml
+    - es-master-statefulset.yml
+    - elastichq.yml
+    - elastichq-svc.yml
 
 - name: Deploy Services
   include_role:
     name: kubernetes/common
-    tasks_from: kube_create.yml
+    tasks_from: kube_create
+  vars:
+    name: "Elasticsearch Pods"
+    file_name: "{{ elastic_dir }}/{{ item }}.yml"
+  with_items:
+    - es-discovery-svc.yml
+    - es-svc.yml
+    - elastichq-svc.yml
+
+- name: Deploy Pods
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
   vars:
     name: "Elasticsearch Services"
     file_name: "{{ elastic_dir }}/{{ item }}.yml"
   with_items:
-    - es-discovery-svc
-    - es-svc
-    - elastichq-svc
+    - es-master-statefulset.yml
+    - es-data-statefulset.yml
+    - elastichq.yml
+
+
 
 - name: Wait for Elasticsearch to be ready
   import_role:
