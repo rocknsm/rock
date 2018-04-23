@@ -55,7 +55,7 @@ all:
         sensors:
         remote-sensors:
 
-    # Any host in this group will  run Bro. By default this is all sensors and remote sensors
+    # Any host in this group will run Bro. By default this is all sensors and remote sensors
     bro:
       children:
         sensors:

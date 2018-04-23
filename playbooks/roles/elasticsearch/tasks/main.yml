@@ -63,7 +63,7 @@
     tasks_from: kube_create.yml
   vars:
     name: "Elasticsearch Pods"
-    file_name: "{{ elastic_dir }}/{{ item }}"
+    file_name: "{{ elastic_dir }}/{{ item }}.yml"
   with_items:
     - es-master-statefulset
     - es-data-statefulset
@@ -75,7 +75,7 @@
     tasks_from: kube_create.yml
   vars:
     name: "Elasticsearch Services"
-    file_name: "{{ elastic_dir }}/{{ item }}"
+    file_name: "{{ elastic_dir }}/{{ item }}.yml"
   with_items:
     - es-discovery-svc
     - es-svc
