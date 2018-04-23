@@ -10,6 +10,7 @@ metadata:
   labels:
     component: {{ kafka_app_name }}
 spec:
+  podManagementPolicy: "Parallel"
   serviceName: "{{ kafka_app_name }}-broker"
   replicas: 1
   selector:
@@ -124,6 +125,7 @@ metadata:
   labels:
     component: {{ kafka_app_name }}
 spec:
+  podManagementPolicy: "Parallel"
   serviceName: "{{ kafka_app_name }}-broker"
   replicas: {{ kafka_replica_count }}
   selector:
