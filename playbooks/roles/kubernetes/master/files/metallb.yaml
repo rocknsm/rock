@@ -168,7 +168,7 @@ spec:
             cpu: "0.1"
             memory: "100Mi"
         securityContext:
-          allowPrivilegeEscalation: false
+          allowPrivilegeEscalation: true
           capabilities:
             drop:
             - all
@@ -220,7 +220,7 @@ spec:
             cpu: "0.1"
             memory: "100Mi"
         securityContext:
-          allowPrivilegeEscalation: false
+          allowPrivilegeEscalation: true
           readOnlyRootFilesystem: true
           capabilities:
             drop:
