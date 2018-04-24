@@ -8,7 +8,7 @@
 
 - name: Purge Ceph
   shell: |
-    timeout 120 ceph-deploy purge {{ groups['ceph'] | join(' ') }}
+    ceph-deploy purge {{ groups['ceph'] | join(' ') }}
     ceph-deploy purgedata {{ groups['ceph'] | join(' ') }}
     rm -rf {{ ceph_dir }}/*
   args:
