@@ -1,9 +1,12 @@
 ---
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata: 
   name: {{ zk_app_name }}
-spec: 
+spec:
+  selector:
+    matchLabels:
+      component: {{ zk_app_name }}
   podManagementPolicy: "Parallel"
   replicas: {{ zk_replica_count }}
   serviceName: {{ zk_app_name }}
@@ -23,6 +26,13 @@ spec:
           name: server
         - containerPort: 3888
           name: leader-election
+        livenessProbe:
+          tcpSocket:
+            port: client
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+          periodSeconds: 15
+          failureThreshold: 5
         volumeMounts: 
         - mountPath: {{ zookeeper_data_path }}
           name: zookeeper-data

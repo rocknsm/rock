@@ -44,7 +44,15 @@
 - name: Deploy Services
   import_role:
     name: kubernetes/common
-    tasks_from: kube_create.yml
+    tasks_from: kube_create
+  vars:
+    name: "Kibana Service"
+    file_name: "{{ kibana_dir }}/svc.yml"
+
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
   vars:
     name: "Kibana"
     file_name: "{{ kibana_dir }}/deploy.yml"
@@ -58,11 +66,3 @@
     namespace: "default"
     resource_name: "kibana"
     label: ""
-
-- name: Deploy Services
-  import_role:
-    name: kubernetes/common
-    tasks_from: kube_create.yml
-  vars:
-    name: "Kibana Service"
-    file_name: "{{ kibana_dir }}/svc.yml"

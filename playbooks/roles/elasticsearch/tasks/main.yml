@@ -43,8 +43,8 @@
 
 - name: Flush Deployments
   shell: |
-    kubectl delete -f {{ elastic_dir }}/{{ item }}.yml --ignore-not-found=true
-    while [ $(kubectl get -f {{ elastic_dir }}/{{ item }}.yml | tail -n +2 | wc -l) != '0' ]; do
+    kubectl delete -f {{ elastic_dir }}/{{ item }} --ignore-not-found=true
+    while [ $(kubectl get -f {{ elastic_dir }}/{{ item }} | tail -n +2 | wc -l) != '0' ]; do
       echo -n .;
       sleep 1;
     done;
@@ -80,8 +80,6 @@
     - es-master-statefulset.yml
     - es-data-statefulset.yml
     - elastichq.yml
-
-
 
 - name: Wait for Elasticsearch to be ready
   import_role:

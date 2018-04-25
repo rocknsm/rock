@@ -6,6 +6,14 @@
 
 ---
 
+- name: Install Controller Dependancies
+  hosts: localhost
+  tasks:
+  - name: Install python-netaddr package
+    yum:
+      name: "python-netaddr"
+      state: installed
+
 - name: Generate SSH keys
   hosts:
     - localhost

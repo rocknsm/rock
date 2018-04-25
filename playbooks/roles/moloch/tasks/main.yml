@@ -73,7 +73,7 @@
 - name: Deploy Services
   import_role:
     name: kubernetes/common
-    tasks_from: kube_create.yml
+    tasks_from: kube_create
   vars:
     name: "Moloch Bootstrap"
     file_name: "{{ moloch_dir }}/bootstrap.yml"
@@ -111,12 +111,12 @@
 - name: Deploy Services
   include_role:
     name: kubernetes/common
-    tasks_from: kube_create.yml
+    tasks_from: kube_create
   vars:
     name: "Moloch"
-    file_name: "{{ moloch_dir }}/{{ item }}.yml"
+    file_name: "{{ moloch_dir }}/{{ item }}"
   with_items:
-    - deploy
-    - svc
+    - svc.yml
+    - deploy.yml
 
 ...

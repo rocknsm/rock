@@ -1,11 +1,12 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: es-data
-  labels:
-    component: elasticsearch
-    role: data
 spec:
+  selector:
+    matchLabels:
+      component: elasticsearch
+      role: data
   serviceName: "es-data"
   replicas: {{ es_datas }}
   template:

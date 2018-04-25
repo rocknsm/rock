@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: moloch
@@ -9,7 +9,7 @@ spec:
   replicas: {{ groups['moloch'] | length }}
   selector:
     matchLabels:
-     component: moloch
+      component: moloch
   template:
     metadata:
       labels:

@@ -35,7 +35,7 @@
   when: type == 'node'
 
 - set_fact:
-    GOPOD: !unsafe "'{{if ne (.status.replicas) (.spec.replicas)}}false{{end}}'"
+    GOPOD: !unsafe "'{{if ne (.status.replicas) (.status.readyReplicas)}}false{{end}}'"
   when: type == 'statefulset'
 
 - set_fact:
@@ -48,6 +48,11 @@
 
 - import_tasks: build_kubectl.yml
 
+# - name: Wait for statefulset rollout
+#   shell: "kubectl rollout status sts/{{ resource_name }}"
+#   register: sts_result
+#   when: kubectl is defined and type == 'statefulset'
+ 
 - name: Kube | Wait for "{{ resource_name }} {{ label }} {{ type }}"
   shell: "{{ kubectl }}"
   register: kube_wait_result

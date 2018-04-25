@@ -13,7 +13,7 @@
 - name: Deploy Services
   import_role:
     name: kubernetes/common
-    tasks_from: kube_create.yml
+    tasks_from: kube_create
   vars:
     name: "Ceph Provisioner"
     file_name: "{{ ceph_dir }}/deploy.yml"

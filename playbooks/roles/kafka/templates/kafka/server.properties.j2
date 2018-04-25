@@ -47,8 +47,9 @@ advertised.listeners=PLAINTEXT://:{{ kafka_port }}
 
 # A comma seperated list of directories under which to store log files
 log.dirs={{ kafka_data_path }}/logs
-log.retention.bytes=9000000000
-log.retention.hours=24
+log.retention.bytes={{ ((kafka_pv_size*1073741824)/3) | int }}
+log.retention.hours=0
+log.retention.minutes=5
 
 ############################# Zookeeper #############################
 

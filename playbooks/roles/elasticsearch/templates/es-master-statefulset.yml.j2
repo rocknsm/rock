@@ -1,15 +1,15 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: es-master-statefulset
 spec:
   selector:
-    matchLabels:
+    matchLabels:      
       component: elasticsearch
       role: master
   serviceName: "es-master-statefulset"
   replicas: {{ es_masters }}
-  template:
+  template:    
     metadata:
       labels:
         component: elasticsearch
@@ -68,6 +68,10 @@ spec:
         livenessProbe:
           tcpSocket:
             port: transport
+          initialDelaySeconds: 20
+          timeoutSeconds: 1
+          periodSeconds: 15
+          failureThreshold: 5
         volumeMounts:
         - name: data
           mountPath: {{ elastic_pv_data_path }}

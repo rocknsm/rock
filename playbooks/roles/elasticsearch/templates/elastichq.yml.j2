@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: elastichq
@@ -6,6 +6,9 @@ metadata:
     component: elastichq
 spec:
   replicas: 1
+  selector:
+    matchLabels:      
+      component: elastichq
   template:
     metadata:
       labels:

@@ -63,7 +63,7 @@
 - name: Deploy Services
   import_role:
     name: kubernetes/common
-    tasks_from: kube_create.yml
+    tasks_from: kube_create
   vars:
     name: "Bro"
     file_name: "{{ bro_dir }}/deploy.yml"
