@@ -176,4 +176,26 @@
   tags:
     - suricata
 
+- name: Deploy Stenographer
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - stenographer
+  tags:
+    - stenographer
+
+- name: Deploy Docket
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - docket
+  tags:
+    - docket
+
 ...

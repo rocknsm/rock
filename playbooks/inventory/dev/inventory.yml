@@ -70,6 +70,12 @@ all:
         sensors:
         remote_sensors:
 
+    docket:
+      children:
+        rockserver1.lan:
+          ansible_user: root
+          ansible_connection: ssh
+
     nodes:
 
       children:

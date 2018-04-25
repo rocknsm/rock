@@ -1,2 +1,4 @@
 ---
 # vars file for rocknsm.docket
+
+rocknsm_conf_dir: "{{ install_dir }}"

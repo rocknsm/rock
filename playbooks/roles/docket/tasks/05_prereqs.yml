@@ -9,6 +9,10 @@
       - "{{ ('stenographer' in groups) and (groups['stenographer'] | length) > 0 }}"
     msg: "The [docket] and [stenographer] inventory groups must each have at least one host."
 
+- name: Install PyOpenSSL
+  pip:
+    name: pyopenssl
+
 - name: docket | check docket and stenographer hosts for pyopenssl
   yum:
     list=*pyOpenSSL

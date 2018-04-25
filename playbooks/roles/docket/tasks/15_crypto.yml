@@ -45,13 +45,13 @@
 # Use new openssl module in ansible 2.3
 - name: docket | create docket private key
   openssl_privatekey:
-    path: "{{docket_x509_key}}"
+    path: "{{ docket_x509_key }}"
     size: 4096
   when: inventory_hostname in groups['docket']
 
 - name: docket | set perms on private key
   file:
-    path: "{{docket_x509_key}}"
+    path: "{{ docket_x509_key }}"
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
     mode: "0644"
@@ -59,7 +59,7 @@
 
 - name: docket | check for certificate
   stat:
-    path: "{{docket_x509_dir}}/docket-{{inventory_hostname}}_sensor-{{item}}_cert.pem"
+    path: "{{ docket_x509_dir }}/docket-{{ inventory_hostname }}_sensor-{{ item }}_cert.pem"
   register: docket_cert
   changed_when: false
   with_items: "{{ groups['stenographer'] }}"
@@ -84,8 +84,8 @@
 
 - name: docket | fetch csr
   fetch:
-    src: "{{docket_x509_key}}.csr"
-    dest: "{{ ansible_cache }}/{{inventory_hostname}}.csr"
+    src: "{{ docket_x509_key }}.csr"
+    dest: "{{ ansible_cache }}/{{ inventory_hostname }}.csr"
     flat: yes
   when:
     - inventory_hostname in groups['docket']
@@ -108,8 +108,8 @@
 
 - name: docket | push csr to stenographer hosts
   copy:
-    src: "{{ansible_cache}}/{{hostvars[item].inventory_hostname}}.csr"
-    dest: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname}}.csr"
+    src: "{{ ansible_cache }}/{{ hostvars[item].inventory_hostname }}.csr"
+    dest: "{{ steno_certs_dir }}/{{ hostvars[item].inventory_hostname }}.csr"
   with_items:
     - "{{ groups['docket'] }}"
   when:
@@ -118,11 +118,11 @@
 
 - name: docket | sign certificate signing requests
   openssl_certificate:
-    path: "{{steno_certs_dir}}/docket-{{hostvars[item].inventory_hostname}}_sensor-{{inventory_hostname}}_cert.pem"
-    privatekey_path: "{{steno_ca_key}}"
-    csr_path: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname}}.csr"
+    path: "{{ steno_certs_dir }}/docket-{{ hostvars[item].inventory_hostname }}_sensor-{{ inventory_hostname }}_cert.pem"
+    privatekey_path: "{{ steno_ca_key }}"
+    csr_path: "{{ steno_certs_dir }}/{{ hostvars[item].inventory_hostname }}.csr"
     provider: localsigned
-    cacert_path: "{{steno_ca_cert}}"
+    cacert_path: "{{ steno_ca_cert }}"
   with_items: "{{ groups['docket'] }}"
   when:
     - inventory_hostname in groups['stenographer']
@@ -140,8 +140,8 @@
 
 - name: docket | pull back ca certificates
   fetch:
-    src: "{{steno_ca_cert}}"
-    dest: "{{ansible_cache}}/{{inventory_hostname}}_ca_cert.pem"
+    src: "{{ steno_ca_cert }}"
+    dest: "{{ ansible_cache }}/{{ inventory_hostname }}_ca_cert.pem"
     flat: yes
   when:
     - inventory_hostname in groups['stenographer']
@@ -149,8 +149,8 @@
 
 - name: docket | push certificates to docket hosts
   copy:
-    src: "{{ansible_cache}}/docket-{{inventory_hostname}}_sensor-{{hostvars[item].inventory_hostname}}_cert.pem"
-    dest: "{{docket_x509_dir}}/docket-{{inventory_hostname}}_sensor-{{hostvars[item].inventory_hostname}}_cert.pem"
+    src: "{{ ansible_cache }}/docket-{{ inventory_hostname }}_sensor-{{ hostvars[item].inventory_hostname }}_cert.pem"
+    dest: "{{ docket_x509_dir }}/docket-{{ inventory_hostname }}_sensor-{{ hostvars[item].inventory_hostname }}_cert.pem"
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
     mode: "0644"
@@ -161,8 +161,8 @@
 
 - name: docket | push stenographer ca certs
   copy:
-    src: "{{ansible_cache}}/{{hostvars[item].inventory_hostname}}_ca_cert.pem"
-    dest: "{{docket_x509_dir}}/{{hostvars[item].inventory_hostname}}_ca_cert.pem"
+    src: "{{ ansible_cache }}/{{ hostvars[item].inventory_hostname }}_ca_cert.pem"
+    dest: "{{ docket_x509_dir }}/{{ hostvars[item].inventory_hostname }}_ca_cert.pem"
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
     mode: "0644"
