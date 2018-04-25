@@ -1,0 +1,29 @@
+#   Run with: ansible-playbook -i inventory/<YOUR_INVENTORY> drive_checker.yml
+
+- name: Store hosts of 'all'
+  hosts:
+    - all
+  any_errors_fatal: True
+  connection: ssh
+
+  tasks:
+  - name: Query host to verify that the drive listed for ceph installation exists
+    command: "lsblk -o NAME"
+    register: command_result
+    changed_when: False
+    failed_when:
+     - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') not in command_result.stdout"
+
+  - name: Verify that the drive is a seperate disk and not a partition or optical drive
+    command: bash -c "lsblk | grep '{{ hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') }}.*disk'"
+    register: command_result
+    failed_when:
+     - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') not in command_result.stdout"
+    changed_when: False
+
+  - name: Verify that the drive does not contain root
+    command: bash -c "lsblk | grep '{{ hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') }}.*/'"
+    register: command_result
+    failed_when:
+     - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') in command_result.stdout"
+    changed_when: False
