@@ -43,16 +43,17 @@
     creates: /etc/stenographer/certs/client_key.pem
 
 - name: Configure Stenographer service
-  service:
+  systemd:
     name: stenographer
-    enabled: "{{ enable_stenographer }}"
-  notify: start stenographer service
+    daemon_reload: yes
+    enabled: yes
+    state: started
 
 - name: configure stenographer per interface
-  service:
+  systemd:
     name: "stenographer@{{ item }}"
-    enabled: "{{ enable_stenographer }}"
+    enabled: yes
+    daemon_reload: yes
   with_items: "{{ stenographer_monitor_interfaces }}"
-  notify: start stenographer per interface
 
 ...
