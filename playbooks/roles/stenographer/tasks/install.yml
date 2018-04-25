@@ -1,8 +1,0 @@
-- name: Install packages
-  yum:
-    name: "{{ stenographer_packagename }}"
-    state: "present"
-  tags:
-    - yum
-    - stenographer
-    - install
