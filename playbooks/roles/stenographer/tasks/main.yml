@@ -1,4 +1,9 @@
 ---
+
+- name: Install packages
+  yum:
+    name: stenographer
+
 # tasks file for stenographer
   ######################################################
   ################# Config Stenographer #################
@@ -49,4 +54,5 @@
     enabled: "{{ enable_stenographer }}"
   with_items: "{{ stenographer_monitor_interfaces }}"
   notify: start stenographer per interface
+
 ...
