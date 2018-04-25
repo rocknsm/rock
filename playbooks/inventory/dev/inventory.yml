@@ -65,6 +65,11 @@ all:
         sensors:
         remote-sensors:
 
+    stenographer:
+      children:
+        sensors:
+        remote_sensors:
+
     nodes:
 
       children:
