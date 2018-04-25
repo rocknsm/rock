@@ -89,7 +89,7 @@
     flat: yes
   when:
     - inventory_hostname in groups['docket']
-    - not new_csr|skipped
+    - not new_csr is skipped
 
 - debug:
     msg: "{{ hostvars[item].docket_cert|json_query('results[?stat.exists==`false`]')|length }}"

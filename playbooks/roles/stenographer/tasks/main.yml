@@ -44,10 +44,10 @@
 
 - name: Configure Stenographer service
   systemd:
-    name: stenographer
+    state: started
     daemon_reload: yes
     enabled: yes
-    state: started
+    name: stenographer
 
 - name: configure stenographer per interface
   systemd:

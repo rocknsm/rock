@@ -10,4 +10,4 @@ ExecReload=/bin/true
 WorkingDirectory=/etc/stenographer
 
 [Install]
-WantedBy=multi-user.targe
+WantedBy=multi-user.target
