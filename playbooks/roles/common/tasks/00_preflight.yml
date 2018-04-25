@@ -39,6 +39,7 @@
     - zookeeper_replicas
     - pcap_pv_size
 
+# Perform Elasticsearch checks
 - name: Verify Elasticsearch heap memory is less than half of physical RAM
   fail:
     msg: 'Ensure your elasticsearch memory is half your physical RAM or less. See https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html'
@@ -53,3 +54,25 @@
   fail:
     msg: "es_mem (elasticsearch memory) consumes es_mem*2 for performance reasons. Your host has {{ ansible_memory_mb.real.total * 1024 }} and you have requested {{ es_mem * 2 * 1024 }}MB for Elasticsearch."
   when: inventory_hostname in groups['elasticsearch'] and (es_mem * 2 * 1024) > ansible_memory_mb.real.total
+
+# Verify drives in inventory file are correct
+- name: Query host to verify that the drive listed for ceph installation exists
+  command: "lsblk -o NAME"
+  register: command_result
+  failed_when:
+   - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') not in command_result.stdout"
+  changed_when: False
+
+- name: Verify that the drive is a seperate disk and not a partition or optical drive
+  command: bash -c "lsblk | grep '{{ hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') }}.*disk'"
+  register: command_result
+  failed_when:
+   - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') not in command_result.stdout"
+  changed_when: False
+
+- name: Verify that the drive does not contain root
+  command: bash -c "lsblk | grep '{{ hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') }}.*/'"
+  register: command_result
+  failed_when:
+   - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') in command_result.stdout"
+  changed_when: False
