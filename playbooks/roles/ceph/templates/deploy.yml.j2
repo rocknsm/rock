@@ -67,13 +67,16 @@ metadata:
   name: rbd-provisioner
   namespace: kube-system
 spec:
+  selector:
+    matchLabels:
+      name: rbd-provisioner
   replicas: 1
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: rbd-provisioner
+        name: rbd-provisioner
     spec:
       containers:
       - name: rbd-provisioner
