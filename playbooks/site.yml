@@ -177,7 +177,7 @@
     - suricata
 
 - name: Deploy Stenographer
-  hosts: master-server
+  hosts: all
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -188,7 +188,7 @@
     - stenographer
 
 - name: Deploy Docket
-  hosts: master-server
+  hosts: all
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
