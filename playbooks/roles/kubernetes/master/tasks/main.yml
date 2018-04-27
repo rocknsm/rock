@@ -14,6 +14,7 @@
 
 - import_tasks: 20_metallb.yml
 - import_tasks: 25_kube_dashboard.yml
+- import_tasks: 30_heapster.yml
 
 - name: Label master node with appropriate roles
   import_role:
