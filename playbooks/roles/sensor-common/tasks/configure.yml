@@ -53,7 +53,7 @@
 - name: Disable IPv6 for all interfaces
   sysctl:
     name: net.ipv6.conf.all.disable_ipv6
-    value: 1l
+    value: 1
     sysctl_file: "{{ rock_sysctl_file }}"
 
 - name: Disable IPv6 for default interfaces
