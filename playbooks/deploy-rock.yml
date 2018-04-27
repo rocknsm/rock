@@ -24,23 +24,30 @@
       docket_enable: "{{enable_docket | bool}}"
 
   tasks:
-  - name: Get default settings
-    include_vars: rocknsm_config.dist.yml
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true
     failed_when: false
+
   - name: Debug variables
     import_tasks: debug.yml
     when: rock_debug is defined and rock_debug
 
-
     #######################################################
     ############# Install/Remove Packages #################
     #######################################################
-  - name: Configure packages
-    set_fact:
-      rocknsm_package_list: "{{ rocknsm_package_list }} + [ '{{ item.pkg }}']"
+  - name: Install packages
+    yum:
+      name: "{{ item.pkg }}"
+      state: "{{ item.state }}"
+    when: (item.test is undefined) or (item.test)
+    with_items:
+      - { pkg: "{{ rocknsm_package_list }}", state: installed }
+
+  - name: Install optional packages
+    yum:
+      name: "{{ item.pkg }}"
+      state: "{{ item.state }}"
     when: (item.test is undefined) or (item.test)
     with_items:
     - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
@@ -61,14 +68,6 @@
     - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
     - { pkg: fsf, test: "{{with_fsf}}", state: installed }
     - { pkg: postfix, state: installed }
-
-  - name: Install packages
-    yum:
-      name: "{{ item.pkg }}"
-      state: "{{ item.state }}"
-    when: (item.test is undefined) or (item.test)
-    with_items:
-      - { pkg: "{{ rocknsm_package_list }}", state: installed }
 
   - name: Ensure cache directory exists
     file:
