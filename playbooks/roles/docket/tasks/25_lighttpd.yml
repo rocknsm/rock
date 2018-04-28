@@ -8,7 +8,6 @@
   template:
     src: docket_lighttpd_vhost.conf.j2
     dest: /etc/lighttpd/vhosts.d/docket.conf
-  notify: docket | restart lighttpd
 
 - name: docket | create vhost logdir
   file:
@@ -23,17 +22,16 @@
     path: /etc/lighttpd/lighttpd.conf
     regexp: '^#?\s*include.*vhosts\.d/.*$'
     line: include "/etc/lighttpd/vhosts.d/*.conf"
-  notify: docket | restart lighttpd
 
 - name: docket | add lighttpd into docket group
   user:
     name: lighttpd
     append: yes
     groups: "{{ docket_group }}"
-  notify: docket | restart lighttpd
 
 - name: docket | enable lighttpd service
-  service:
+  systemd:
     name: lighttpd
     enabled: yes
-  notify: docket | restart lighttpd
+    state: started
+    daemon_reload: yes

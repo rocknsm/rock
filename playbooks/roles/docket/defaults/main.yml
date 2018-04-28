@@ -15,6 +15,7 @@ docket_enable: true
 
 # Application config
 docket_debug: false
+docket_dir: '{{ install_dir }}/docket'
 docket_testing: false
 docket_secret: "{{ lookup('password', '/dev/null chars=letters,digits length=64') }}"
 docket_session_cookie: DOCKET_SESSION

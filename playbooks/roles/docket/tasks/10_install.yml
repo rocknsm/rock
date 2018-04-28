@@ -1,4 +1,14 @@
 ---
+
+- name: "Create directories"
+  file:
+    group: root
+    owner: root
+    mode: u+rw,g+rw
+    path: "{{ docket_dir }}"
+    state: directory
+  when: inventory_hostname in groups['docket']
+
 - name: docket | install rocknsm repo
   yum_repository:
     file: rocknsm

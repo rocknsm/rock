@@ -4,17 +4,21 @@
 
 # Ensure `stenographer` and `nginx` groups exists
 - import_tasks: 05_prereqs.yml
+  when: inventory_hostname in groups['docket']
 
 # Install packages
 - import_tasks: 10_install.yml
+  when: inventory_hostname in groups['docket']
 
 # Generate/copy x509 client cert/keys and CA certs
 - import_tasks: 15_crypto.yml
 
 # Configure docket app settings
 - import_tasks: 20_docket_config.yml
+  when: inventory_hostname in groups['docket']
 
 # Configure web server settings
 - import_tasks: 25_lighttpd.yml
+  when: inventory_hostname in groups['docket']
 
 # Enable / Activate Services
