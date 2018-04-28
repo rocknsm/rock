@@ -85,12 +85,21 @@ all:
             rocksensor1.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.198
+              management_ipv4: 192.168.1.92
               bro_workers: 2
               monitor_interfaces:
-              - ens4
+              - ens34
               data_disk_devices:
-              - /dev/vdb
+              - /dev/sdb
+            rocksensor1.lan:
+              ansible_user: root
+              ansible_connection: ssh
+              management_ipv4: 192.168.1.93
+              bro_workers: 2
+              monitor_interfaces:
+              - ens224
+              data_disk_devices:
+              - /dev/sdb
           vars:
             dns_ip: 192.168.1.50
 
@@ -102,9 +111,9 @@ all:
             rockserver2.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.194
+              management_ipv4: 192.168.1.91
               data_disk_devices:
-              - /dev/vdb
+              - /dev/sdb
           vars:
             dns_ip: 192.168.1.50
 
@@ -113,9 +122,9 @@ all:
             rockserver1.lan:
               ansible_user: root
               ansible_connection: ssh
-              management_ipv4: 192.168.1.199
+              management_ipv4: 192.168.1.90
               data_disk_devices:
-              - /dev/vdb
+              - /dev/sdb
 
     nodes_to_remove:
       hosts:

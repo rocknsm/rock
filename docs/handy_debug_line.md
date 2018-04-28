@@ -18,3 +18,6 @@ ansible rockserver1.lan -i inventory/dev/inventory.yml -m setup
       insertbefore: BOF
       line: "nameserver 192.168.1.5"
       path: /etc/resolv.conf
+
+# Delete evicted pods in Kubernetes
+kubectl get po -a --all-namespaces -o json | jq  '.items[] | select(.status.reason!=null) | select(.status.reason | contains("Evicted")) | "kubectl delete po \(.metadata.name) -n \(.metadata.namespace)"' | xargs -n 1 bash -c
