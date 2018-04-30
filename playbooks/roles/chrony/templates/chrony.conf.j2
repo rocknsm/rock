@@ -5,9 +5,7 @@
 pool {{ chrony_pool }}
 {% endif %}
 
-{% if chrony_server %}
-server {{ chrony_server }}
-{% endif %}
+server {{ chrony_server }} iburst
 
 keyfile {{ chrony_keyfile }}
 commandkey 1

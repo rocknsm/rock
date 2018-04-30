@@ -20,3 +20,5 @@
 
 - name: 'Force time sync'
   command: "chronyc -a makestep"
+
+- import_tasks: "sync.yml"

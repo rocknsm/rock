@@ -6,7 +6,7 @@ chrony_conf_file: '/etc/chrony.conf'
 chrony_keyfile: '/etc/chrony/chrony.keys'
 chrony_pool: # 2.debian.pool.ntp.org offline iburst
 # AWS Time Sync service default
-chrony_server: 'time.google.com prefer iburst'
+chrony_server: "{{ groups['master-server'][0] }}"
 chrony_driftfile: '/var/lib/chrony/drift'
 chrony_log: 'tracking measurements statistics'
 chrony_logdir: '/var/log/chrony'

@@ -1,7 +1,16 @@
 ---
-- name: 'Configure Chrony'
+- name: 'Configure Node Chrony'
   become: yes
   template:
     src: 'chrony.conf.j2'
     dest: "{{ chrony_conf_file }}"
   notify: 'restart chrony'
+  when: inventory_hostname not in groups['master-server']
+
+- name: 'Configure Server Chrony'
+  become: yes
+  template:
+    src: 'chrony-server.conf.j2'
+    dest: "{{ chrony_conf_file }}"
+  notify: 'restart chrony'
+  when: inventory_hostname in groups['master-server']
