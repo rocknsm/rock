@@ -55,21 +55,79 @@
     msg: "es_mem (elasticsearch memory) consumes es_mem*2 for performance reasons. Your host has {{ ansible_memory_mb.real.total * 1024 }} and you have requested {{ es_mem * 2 * 1024 }}MB for Elasticsearch."
   when: inventory_hostname in groups['elasticsearch'] and (es_mem * 2 * 1024) > ansible_memory_mb.real.total
 
-# Verify drives in inventory file are correct
-- name: Query host to verify that the drive listed for ceph installation exists
-  command: "lsblk -o NAME"
-  register: command_result
-  failed_when:
-   - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') not in command_result.stdout"
-  changed_when: False
+# This grabs the drive from each machine. For example /dev/sdb would give you sdb
+- name: Get the drive names
+  shell: "echo {{ item.split('/')[2] }}"
+  loop: "{{ hostvars[inventory_hostname].data_disk_devices }}"
+  register: disk_names
+  changed_when: false
 
-- name: Verify that the drive is a seperate disk and not a partition or optical drive
-  command: bash -c "lsblk | grep '{{ hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') }}.*disk'"
-  register: command_result
-  failed_when:
-   - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') not in command_result.stdout"
-  changed_when: False
+# This is just an array with all the disk names
+- name: Create array with correct disk name
+  set_fact:
+    data_disks: "{{ disk_names.results | map(attribute='stdout') | list }}"
 
+# This will throw an error if the disk name provided isn't in the list of
+# available ansible devices
+- name: Verify that all devices are actually drives
+  fail:
+    msg: "{{ item }} is not a drive. Make sure that you provided the name of a full drive and not a partition."
+  when: item not in ansible_devices
+  with_items: "{{ data_disks }}"
+
+# This next portion of the code is pure magic. I challenge someone to find
+# a way to get Ansible to do this in a cleaner way.
+
+# This grabs the size portion of each valid ansible device. In this case,
+# the valid disks would be things like sda, sdb, etc (assuming those are
+# the names of the disks on the actual server).  The split.(' ')[0] you see
+# is because the size is a string like 30 GB and if you leave the GB in there
+# it won't convert to an int correctly. The split just grabs the numerical
+# portion.
+- set_fact:
+    disk_size: "{{ item.value.size.split(' ')[0] | int }}"
+  with_dict: "{{ hostvars[inventory_hostname].ansible_devices }}"
+  register: valid_disks
+  when: item.key in data_disks
+
+# This will take all the valid disks on the server and add them up. So if
+# a server has two disks sda and sdb both with 30GB this would be 60.
+- set_fact:
+    total_size_on_server: "{{ valid_disks.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.disk_size') | map('int') | sum(start=0) }}"
+
+# Here is the big problem with Ansible. Each server now has a fact called
+# total_size_on_server. The problem is a single server can't access that
+# fact on other servers so we have to find a way to get each server that
+# information IN A SINGLE LIST. This is because constraints ansible has
+# with nested variables. (Like I said - I challenge you to come up with a
+# better way to do this.)
+- set_fact:
+    total_space: "{{ hostvars[item].total_size_on_server }}"
+  register: disk_results
+  loop: "{{ groups['ceph'] }}"
+  when: hostvars[item].total_size_on_server is defined
+
+# Now we can use the map function (because everything is in a single dictionary)
+# to sum everything in our list
+- set_fact:
+    total_space_available: "{{ disk_results.results | map(attribute='ansible_facts.total_space') | map('int') | sum(start=0) }}"
+
+- debug:
+    msg: "{{ total_space_available }}"
+
+# TODO - this should include stenographer, but currently does not
+- set_fact:
+    total_space_required: "{{ (elastic_pv_size * ( groups['elasticsearch'] | length )) + ( kafka_pv_size * ( groups['kafka'] | length )) + ( zookeeper_pv_size * ( hostvars[inventory_hostname].zookeeper_replicas )) + ( pcap_pv_size * ( groups['moloch'] | length )) }}"
+
+- debug:
+    msg: "{{ total_space_required }}"
+
+- name: Verify there is sufficient space for the PVs requested
+  fail:
+    msg: "The drives {{ data_disks }} do not have enough collective space to house the data you requested. You requested {{ total_space_required }} GB, which exceeds the {{ total_space_available }} GB you have on your drives."
+  when: (total_space_available | int) < (total_space_required | int)
+
+# TODO: There is a bug here - it will only check the first drive provided
 - name: Verify that the drive does not contain root
   command: bash -c "lsblk | grep '{{ hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') }}.*/'"
   register: command_result
