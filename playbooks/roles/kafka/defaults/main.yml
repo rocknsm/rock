@@ -17,7 +17,7 @@ zookeeper_data_path: "/data"
 zookeeper_datalog_path: "/datalog"
 zookeeper_pv_size: 1
 zookeeper_image: prodian0013/tfplenum-zookeeper
-zookeeper_ver: alpine
+zookeeper_ver: alpine.1
 zookeeper_home: /opt/zookeeper
 
 # The num.io.threads property should be set to a value equal to or greater than

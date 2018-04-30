@@ -27,8 +27,11 @@ spec:
         - containerPort: 3888
           name: leader-election
         livenessProbe:
-          tcpSocket:
-            port: client
+          exec:
+            command:
+            - sh
+            - -c
+            - zkOk
           initialDelaySeconds: 15
           timeoutSeconds: 1
           periodSeconds: 15
@@ -37,20 +40,23 @@ spec:
         - mountPath: {{ zookeeper_data_path }}
           name: zookeeper-data
         - mountPath: {{ zookeeper_datalog_path }}
-          name: zookeeper-datalog        
-        - name: configs
-          mountPath: {{ zookeeper_home }}/conf/
+          name: zookeeper-datalog                       
+        - name: {{ zk_app_name }}
+          mountPath: "{{ zookeeper_home }}/conf/zoo.cfg"
+          subPath: zoo.cfg
+        - name: {{ zk_app_name }}
+          mountPath: "{{ zookeeper_home }}/conf/log4j.properties"
+          subPath: log4j.properties
+        - name: {{ zk_app_name }}
+          mountPath: "{{ zookeeper_home }}/conf/configuration.xsl"
+          subPath: configuration.xsl
+        env:        
+        - name: ZOOKEEPER_PORT
+          value: "{{ zookeeper_port }}"
       volumes:
-      - name: configs
+      - name: {{ zk_app_name }}
         configMap:
           name: {{ zk_app_name }}
-          items:
-          - key: zoo.cfg
-            path: zoo.cfg
-          - key: log4j.properties
-            path: log4j.properties
-          - key: configuration.xsl
-            path: configuration.xsl
 {% if remote %}
       - name: zookeeper-data
         hostPath:      
