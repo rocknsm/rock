@@ -65,16 +65,11 @@ all:
         sensors:
         remote-sensors:
 
+    # This role is not yet completed. Do not use.
     stenographer:
-      children:
-        sensors:
-        remote_sensors:
 
+    # This role is not yet completed. Do not use.
     docket:
-      hosts:
-        rockserver1.lan:
-          ansible_user: root
-          ansible_connection: ssh
 
     nodes:
 
