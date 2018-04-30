@@ -39,6 +39,7 @@
     - /etc/cni
     - /etc/kubernetes
     - /var/lib/etcd
+    - ~/.kube
   #ignore_errors: yes
   when: inventory_hostname in groups['nodes_to_remove']
   register: remove_artifacts_result

@@ -31,8 +31,6 @@
   tasks:
     - import_tasks: generate_ssh_keys.yml
       when: genkeys is defined and genkeys
-  tags:
-    - genkeys
 
 - name: Common Setup
   hosts:

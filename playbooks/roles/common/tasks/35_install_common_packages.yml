@@ -13,6 +13,7 @@
   register: results
   args:
     warn: false
+  changed_when: false
 
 - name: Clean Yum Transactions
   shell: "yum-complete-transaction --cleanup-only && yum clean all"

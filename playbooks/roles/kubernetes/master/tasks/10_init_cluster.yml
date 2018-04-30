@@ -1,6 +1,6 @@
 ---
 - name: Kube | Init Kubernetes cluster
-  shell: "kubeadm init --pod-network-cidr={{ kube_pod_cidr }} --kubernetes-version={{ kube_version }} | grep 'kubeadm join --token' | tee /etc/kubernetes/join-node.sh"
+  shell: "kubeadm init --pod-network-cidr={{ kube_pod_cidr }} --kubernetes-version={{ kube_version }} | grep 'kubeadm join' | tee /etc/kubernetes/join-node.sh"
   register: init_kube_cluster_result
   failed_when: "'ERROR' in init_kube_cluster_result.stderr"
 

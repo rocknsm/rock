@@ -12,6 +12,8 @@
     - "kubelet-{{ kube_version }}"
     - "kubectl-{{ kube_version }}"
     - "docker"
+    - "device-mapper-persistent-data"
+    - "lvm2"
     - "ebtables"
     - "ethtool"
   register: installed_packages

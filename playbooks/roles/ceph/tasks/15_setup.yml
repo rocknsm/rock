@@ -1,26 +1,23 @@
 ---
 
 - set_fact:
-    ceph_host_pool: "{{ ( groups['ceph']) | join(' ') }}"
-
-- set_fact:
-    ceph_host_pool_list: "{{ ( groups['ceph']) }}"
+    ceph_host_pool_list: "{{ groups['ceph'] | join(' ') }}"
 
 - name: Purge Ceph
   shell: |
-    ceph-deploy purge {{ groups['ceph'] | join(' ') }}
-    ceph-deploy purgedata {{ groups['ceph'] | join(' ') }}
+    ceph-deploy purge {{ ceph_host_pool_list }}
+    ceph-deploy purgedata {{ ceph_host_pool_list }}
     rm -rf {{ ceph_dir }}/*
   args:
     chdir: "{{ ceph_dir }}"
 
 - name: Create config
-  shell: ceph-deploy new {{ groups['ceph'] | join(' ') }}
+  shell: ceph-deploy new {{ ceph_host_pool_list }}
   args:
     chdir: "{{ ceph_dir }}"
 
 - name: Install Ceph
-  shell: ceph-deploy install --stable luminous {{ groups['ceph'] | join(' ') }}
+  shell: ceph-deploy install --stable luminous {{ ceph_host_pool_list }}
   args:
     chdir: "{{ ceph_dir }}"
 
@@ -49,14 +46,14 @@
     state: present
 
 - name: Propagate keys
-  shell: ceph-deploy --overwrite-conf admin {{ groups['ceph'] | join(' ') }}
+  shell: ceph-deploy --overwrite-conf admin {{ ceph_host_pool_list }}
   args:
     chdir: "{{ ceph_dir }}"
 
 - name: Install Managers
   shell: |
     ceph-deploy mgr create \
-    {{ (groups['ceph']) | join(' ') }}
+    {{ ceph_host_pool_list }}
   args:
     chdir: "{{ ceph_dir }}"
 
@@ -68,15 +65,21 @@
   with_items:
     - "{{ groups['ceph'] }}"
 
+- set_fact:
+    osd_count: 0
+
 - name: Declare osd amount
   set_fact:
-    osd_count: "{{ osd_count | int + ( hostvars[item].data_disk_devices | length ) }}"
-  with_items:
-    - "{{ ( groups['ceph'] ) }}"
+    osd_count: "{{ osd_count + ( hostvars[item].data_disk_devices | length ) }}"
+  register: osd_results
+  loop: "{{ groups['ceph'] }}"
+
+- set_fact:
+    osd_count: "{{ osd_results.results | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
 
 - name: Create Pool
   shell: |
-    ceph osd pool create rbd {{ osd_count | int * 32 }} replicated
+    ceph osd pool create rbd {{ osd_count | int * 32 }} {{ osd_count | int * 32 }} replicated
 
 - name: Reduce duplication
   shell: |

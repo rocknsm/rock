@@ -13,11 +13,11 @@ all:
       - "172.16.0.0/12"
     serivces_cidr: "192.168.1.16/28"
     bpf_filter: ""
-    es_mem: 2
-    es_masters: 3
+    es_mem: 3
+    es_masters: 4
     pcap_bpf_filter: ""
-    es_datas: 1
-    elastic_pv_size: 3
+    es_datas: 0
+    elastic_pv_size: 7
     kafka_pv_size: 1
     zookeeper_pv_size: 1
     zookeeper_replicas: 3
@@ -91,7 +91,7 @@ all:
               - ens34
               data_disk_devices:
               - /dev/sdb
-            rocksensor1.lan:
+            rocksensor2.lan:
               ansible_user: root
               ansible_connection: ssh
               management_ipv4: 192.168.1.93
