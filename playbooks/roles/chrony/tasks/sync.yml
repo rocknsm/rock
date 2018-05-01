@@ -5,7 +5,7 @@
 - name: Make sure Chronyd Service is running on master
   service:
     name: chronyd
-    state: started
+    state: restarted
   when: inventory_hostname in groups['master-server']
 
 - name: Stop Chronyd Service on all nodes except master

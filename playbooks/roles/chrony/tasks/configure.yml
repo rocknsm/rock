@@ -14,3 +14,5 @@
     dest: "{{ chrony_conf_file }}"
   notify: 'restart chrony'
   when: inventory_hostname in groups['master-server']
+
+- meta: flush_handlers
