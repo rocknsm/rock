@@ -84,6 +84,8 @@
 - name: Reduce duplication
   shell: |
     ceph osd pool set rbd size 1
+    ceph osd pool set rbd compression_mode force
+    ceph osd pool set rbd compression_algorithm zlib
     ceph osd getcrushmap -o /tmp/crush.ceph
     crushtool -d /tmp/crush.ceph -o /tmp/crush.ceph.tmp
     sed -i 's/weight [0-9]\{3,\}.[0-9]\{3\}/weight 100.000/g' /tmp/crush.ceph.tmp
