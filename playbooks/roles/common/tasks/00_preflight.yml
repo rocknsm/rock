@@ -4,6 +4,14 @@
     msg: 'Verify you have the remote-sensors group in your inventory file. It must be defined. See sample inventory. If you have no remote sensors you can define an empty group with just remote-senors: under nodes.'
   when: "'remote-sensors' not in groups"
 
+#The below code ssh's to every node from every node.
+#the -oBatchMode=yes tells SSH to fail if prompted for a password
+#without that option the ssh terminal will hang if it cannot connect via keys
+- name: Verify all nodes can SSH to each other with keys not passwords
+  shell: "ssh -oBatchMode=yes root@{{ item }}"
+  with_items: "{{ groups['nodes'] }}"
+  changed_when: false
+
 - name: ping all ips in inventory
   shell: "ping -c 1 {{ item }}"
   with_items: "{{ groups['nodes'] }}"
