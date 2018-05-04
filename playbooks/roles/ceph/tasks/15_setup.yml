@@ -70,7 +70,7 @@
 
 - name: Declare osd amount
   set_fact:
-    osd_count: "{{ osd_count + ( hostvars[item].data_disk_devices | length ) }}"
+    osd_count: "{{ (osd_count | int) + ( hostvars[item].data_disk_devices | length | int ) }}"
   register: osd_results
   loop: "{{ groups['ceph'] }}"
 

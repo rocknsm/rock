@@ -50,6 +50,9 @@ spec:
         - name: {{ zk_app_name }}
           mountPath: "{{ zookeeper_home }}/conf/configuration.xsl"
           subPath: configuration.xsl
+        - name: {{ zk_app_name }}
+          mountPath: "{{ zookeeper_home }}/conf/java.env"
+          subPath: java.env
         env:        
         - name: ZOOKEEPER_PORT
           value: "{{ zookeeper_port }}"

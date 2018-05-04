@@ -43,6 +43,7 @@
   with_items:
     - "{{ zookeeper_dir }}/{{ app_type }}"
     - "{{ kafka_dir }}/{{ app_type }}"
+    - "{{ kafka_dir }}/manager"
 
 - name: Install Kafka Templates
   template:
@@ -55,6 +56,18 @@
     - deploy.yml
     - svc.yml
     - server.properties
+
+- name: Install Kafka Manager Templates
+  template:
+    src: "templates/manager/{{ item }}.j2"
+    dest: "{{ kafka_dir }}/manager/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - deploy.yml
+    - svc.yml
+  when: not remote
 
 - name: Copy files
   copy:
@@ -78,6 +91,7 @@
     - zoo.cfg
     - deploy.yml
     - svc.yml
+    - java.env
 
 - name: Flush Services
   shell: |
@@ -89,6 +103,7 @@
     sleep 5;
   with_items:
     - "{{ kafka_dir }}/{{ app_type }}"
+    - "{{ kafka_dir }}/manager"
     - "{{ zookeeper_dir }}/{{ app_type }}"
 
 - name: Flush Deploy
@@ -101,6 +116,7 @@
     sleep 5;
   with_items:
     - "{{ kafka_dir }}/{{ app_type }}"
+    - "{{ kafka_dir }}/manager"
     - "{{ zookeeper_dir }}/{{ app_type }}"
 
 - name: Flush Config Maps
@@ -120,13 +136,15 @@
   shell: |
     kubectl create configmap {{ zk_app_name }} --from-file={{ zookeeper_dir }}/{{ app_type }}/zoo.cfg \
        --from-file={{ zookeeper_dir }}/{{ app_type }}/configuration.xsl \
-       --from-file={{ zookeeper_dir }}/{{ app_type }}/log4j.properties
+       --from-file={{ zookeeper_dir }}/{{ app_type }}/log4j.properties \
+       --from-file={{ zookeeper_dir }}/{{ app_type }}/java.env
 
 - name: Create Zookeeper & Kafka Svc
   shell: "kubectl apply -f {{ item }}/svc.yml"
   with_items:
     - "{{ zookeeper_dir }}/{{ app_type }}"
     - "{{ kafka_dir }}/{{ app_type }}"
+    - "{{ kafka_dir }}/manager"
   when: not remote
 
 - name: Create Kafka Remote Svc
@@ -155,6 +173,10 @@
 
 - name: Run the kafka deploy file
   shell: "kubectl apply -f {{ kafka_dir }}/{{ app_type }}/deploy.yml"
+
+- name: Run the kafka manager deploy file
+  shell: "kubectl apply -f {{ kafka_dir }}/manager/deploy.yml"
+  when: not remote
 
 - name: Wait for kafka to be ready
   import_role:

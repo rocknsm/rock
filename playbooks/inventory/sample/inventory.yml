@@ -17,6 +17,7 @@ all:
       - "192.168.0.0/16"
       - "10.0.0.0/8"
       - "172.16.0.0/12"
+    kafka_mem: 1 # Kafka JVM Memory
     kafka_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Kafka
     logstash_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Logstash
     pcap_bpf_filter: "" # Packets that match this filter will NOT be saved to disk by Moloch
@@ -24,9 +25,10 @@ all:
     # services_cidr is the range of addresses kubernetes will use for external services like Moloch and Kibana
     # It must be at least a /28
     serivces_cidr: # Ex: "192.168.1.16/28"
+    zookeeper_mem: 1 # Zookeeper JVM Memory
     zookeeper_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Zookeeper
     zookeeper_replicas: 3 # Number of zookeeper replicas to be created
-
+    
   children:
 
     # Any host in this group will be used in the ceph cluster. By default this is all hosts except remote-sensors

@@ -22,6 +22,8 @@ all:
     zookeeper_pv_size: 1
     zookeeper_replicas: 3
     pcap_pv_size: 6
+    zookeeper_mem: 1
+    kafka_mem: 1
 
   children:
 
