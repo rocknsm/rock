@@ -3,8 +3,6 @@
 #######################################################
 ---
 
-
-
 - import_tasks: 00_preflight.yml
 
 - name: Install New Node

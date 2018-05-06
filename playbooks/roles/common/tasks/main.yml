@@ -1,6 +1,6 @@
+---
 
 # main.yml - Common tasks for ROCK
-- import_tasks: 00_preflight.yml
 - import_tasks: 05_configure_yum_repos.yml
 - import_tasks: 15_set_hostname.yml
 - import_tasks: 20_minimum_hardware_check.yml
@@ -18,3 +18,5 @@
   #yum: name=* state=latest
 
 - import_tasks: 95_reboot.yml
+
+...

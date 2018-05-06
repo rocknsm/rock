@@ -11,7 +11,7 @@ all:
       - "192.168.0.0/16"
       - "10.0.0.0/8"
       - "172.16.0.0/12"
-    serivces_cidr: "192.168.1.16/28"
+    services_cidr: "192.168.1.16/28"
     bpf_filter: ""
     es_mem: 3
     es_masters: 4
@@ -24,6 +24,7 @@ all:
     pcap_pv_size: 6
     zookeeper_mem: 1
     kafka_mem: 1
+    dns_ip: 192.168.1.50
 
   children:
 
@@ -97,8 +98,6 @@ all:
               - ens224
               data_disk_devices:
               - /dev/sdb
-          vars:
-            dns_ip: 192.168.1.50
 
         remote-sensors:
 
@@ -111,8 +110,6 @@ all:
               management_ipv4: 192.168.1.91
               data_disk_devices:
               - /dev/sdb
-          vars:
-            dns_ip: 192.168.1.50
 
         master-server:
           hosts:
@@ -128,3 +125,4 @@ all:
         rocksensor1.lan:
         rockserver2.lan:
         rockserver1.lan:
+        rocksensor2.lan:

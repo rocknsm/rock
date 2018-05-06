@@ -14,6 +14,12 @@
       name: "python-netaddr"
       state: installed
 
+- name: Perform preflight checks
+  hosts: all
+  roles:
+    - preflight_checks
+  tags: preflight
+
 - name: Generate SSH keys
   hosts:
     - localhost

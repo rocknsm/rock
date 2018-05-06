@@ -24,7 +24,7 @@ all:
     pcap_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Moloch
     # services_cidr is the range of addresses kubernetes will use for external services like Moloch and Kibana
     # It must be at least a /28
-    serivces_cidr: # Ex: "192.168.1.16/28"
+    services_cidr: # Ex: "192.168.1.16/28"
     zookeeper_mem: 1 # Zookeeper JVM Memory
     zookeeper_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Zookeeper
     zookeeper_replicas: 3 # Number of zookeeper replicas to be created

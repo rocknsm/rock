@@ -1,0 +1,20 @@
+---
+
+#######################################
+# Perform layer 3 functionality test  #
+#######################################
+
+- name: ping all ips in inventory
+  shell: "ping -c 1 {{ item }}"
+  with_items: "{{ groups['nodes'] }}"
+  changed_when: False
+
+- name: ping google DNS by IP
+  shell: "ping -c 1 8.8.8.8"
+  changed_when: False
+
+- name: ping www.Google.com
+  shell: "ping -c 1 www.google.com"
+  changed_when: False
+
+...

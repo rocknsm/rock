@@ -1,59 +1,8 @@
+---
 
-- name: Check if remote-sensors is defined
-  fail:
-    msg: 'Verify you have the remote-sensors group in your inventory file. It must be defined. See sample inventory. If you have no remote sensors you can define an empty group with just remote-senors: under nodes.'
-  when: "'remote-sensors' not in groups"
-
-- name: ping all ips in inventory
-  shell: "ping -c 1 {{ item }}"
-  with_items: "{{ groups['nodes'] }}"
-  changed_when: False
-
-- name: ping google DNS by IP
-  shell: "ping -c 1 8.8.8.8"
-  changed_when: False
-
-- name: ping www.Google.com
-  shell: "ping -c 1 www.google.com"
-  changed_when: False
-
-# Checking that required variables are set
-- name: Checking that required variables are set
-  fail:
-    msg: "{{ item }} is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: not item
-  with_items:
-    - management_ipv4
-    - epel_repo_url
-    - epel_repo_gpg_key_url
-    - epel_repofile_path
-    - home_net
-    - services_cidr
-    - es_mem
-    - es_masters
-    - pcap_bpf_filter
-    - es_datas
-    - elastic_pv_size
-    - kafka_pv_size
-    - zookeeper_pv_size
-    - zookeeper_replicas
-    - pcap_pv_size
-
-# Perform Elasticsearch checks
-- name: Verify Elasticsearch heap memory is less than half of physical RAM
-  fail:
-    msg: 'Ensure your elasticsearch memory is half your physical RAM or less. See https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html'
-  when: inventory_hostname in groups['elasticsearch'] and (ansible_memory_mb.real.total / 2) < es_mem * 1024
-
-- name: Verify Elasticsearch memory does not exceed 26GB
-  fail:
-    msg: 'For optimization, Elasticsearch memory should not exceed 26GB. See https://www.elastic.co/guide/en/elasticsearch/reference/current/heap-size.html'
-  when: inventory_hostname in groups['elasticsearch'] and es_mem > 26
-
-- name: Verify double es_mem is available on the machine
-  fail:
-    msg: "es_mem (elasticsearch memory) consumes es_mem*2 for performance reasons. Your host has {{ ansible_memory_mb.real.total * 1024 }} and you have requested {{ es_mem * 2 * 1024 }}MB for Elasticsearch."
-  when: inventory_hostname in groups['elasticsearch'] and (es_mem * 2 * 1024) > ansible_memory_mb.real.total
+#######################################
+# Check hard drive space requirements #
+#######################################
 
 # This grabs the drive from each machine. For example /dev/sdb would give you sdb
 - name: Get the drive names
@@ -112,25 +61,13 @@
 - set_fact:
     total_space_available: "{{ disk_results.results | map(attribute='ansible_facts.total_space') | map('int') | sum(start=0) }}"
 
-- debug:
-    msg: "{{ total_space_available }}"
-
 # TODO - this should include stenographer, but currently does not
 - set_fact:
     total_space_required: "{{ (elastic_pv_size * ( groups['elasticsearch'] | length )) + ( kafka_pv_size * ( groups['kafka'] | length )) + ( zookeeper_pv_size * ( hostvars[inventory_hostname].zookeeper_replicas )) + ( pcap_pv_size * ( groups['moloch'] | length )) }}"
-
-- debug:
-    msg: "{{ total_space_required }}"
 
 - name: Verify there is sufficient space for the PVs requested
   fail:
     msg: "The drives {{ data_disks }} do not have enough collective space to house the data you requested. You requested {{ total_space_required }} GB, which exceeds the {{ total_space_available }} GB you have on your drives."
   when: (total_space_available | int) < (total_space_required | int)
 
-# TODO: There is a bug here - it will only check the first drive provided
-- name: Verify that the drive does not contain root
-  command: bash -c "lsblk | grep '{{ hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') }}.*/'"
-  register: command_result
-  failed_when:
-   - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') in command_result.stdout"
-  changed_when: False
+...
