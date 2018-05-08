@@ -201,7 +201,7 @@ pluginsDir = /data/moloch/plugins
 
 # Specify the max number of indices we calculate spidata for.
 # ES will blow up if we allow the spiData to search too many indices.
-spiDataMaxIndices = 5
+spiDataMaxIndices = {{ moloch_spiDataMaxIndices | default("5") }}
 
 # Uncomment the following to allow direct uploads.  This is experimental
 #uploadCommand=/data/moloch/bin/moloch-capture --copy -n {NODE} -r {TMPFILE} -c {CONFIG} {TAGS}
@@ -218,7 +218,7 @@ spiDataMaxIndices = 5
 #titleTemplate=_cluster_ - _page_ _-view_ _-expression_
 
 # Number of threads processing packets
-packetThreads = 4
+packetThreads = {{ moloch_threads | default("4") }}
 
 # ADVANCED - Semicolon ';' seperated list of files to load for config.  Files are loaded
 # in order and can replace values set in this file or previous files.
@@ -228,29 +228,29 @@ packetThreads = 4
 #  simple          = use O_DIRECT if available, writes in pcapWriteSize chunks,
 #                    a file per packet thread.
 #  simple-nodirect = don't use O_DIRECT.  Required for zfs and others
-pcapWriteMethod = simple
+pcapWriteMethod = {{ moloch_pcapWriteMethod | default("simple") }}
 
 # ADVANCED - Buffer size when writing pcap files.  Should be a multiple of the raid 5 or xfs
 # stripe size.  Defaults to 256k
-pcapWriteSize = 262143
+pcapWriteSize = {{ moloch_pcapWriteSize | default("262143") }}
 
 # ADVANCED - Number of bytes to bulk index at a time
-dbBulkSize = 300000
+dbBulkSize = {{ moloch_dbBulkSize | default("300000") }}
 
 # ADVANCED - Compress requests to ES, reduces ES bandwidth by ~80% at the cost
 # of increased CPU. MUST have "http.compression: true" in elasticsearch.yml file
 compressES = false
 
 # ADVANCED - Max number of connections to elastic search
-maxESConns = 30
+maxESConns = {{ moloch_maxESConns | default("30") }}
 
 # ADVANCED - Max number of es requests outstanding in q
-maxESRequests = 500
+maxESRequests = {{ moloch_maxESRequests | default("500") }}
 
 # ADVANCED - Number of packets to ask libnids/libpcap to read per poll/spin
 # Increasing may hurt stats and ES performance
 # Decreasing may cause more dropped packets
-packetsPerPoll = 50000
+packetsPerPoll = {{ moloch_packetsPerPoll | default("50000") }}
 
 # ADVANCED - Moloch will try to compensate for SYN packet drops by swapping
 # the source and destination addresses when a SYN-acK packet was captured first.
@@ -273,13 +273,13 @@ logFileCreation = true
 
 ### High Performance settings
 # https://github.com/aol/moloch/wiki/Settings#High_Performance_Settings
-# magicMode=basic
+magicMode= {{ moloch_magicMode | default("libmagic") }}
 # pcapReadMethod=tpacketv3
 # tpacketv3NumThreads=2
 # pcapWriteMethod=simple
 # pcapWriteSize = 2560000
 # packetThreads=5
-# maxPacketsInQueue = 200000
+maxPacketsInQueue = {{ moloch_maxPacketsInQueue | default("200000") }}
 
 ### Low Bandwidth settings
 # packetThreads=1

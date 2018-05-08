@@ -19,8 +19,8 @@ all:
       - "172.16.0.0/12"
     kafka_mem: 1 # Kafka JVM Memory
     kafka_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Kafka
-    logstash_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Logstash
     pcap_bpf_filter: "" # Packets that match this filter will NOT be saved to disk by Moloch
+    pcap_cluster: false # Set to true to utilize clustered storage for pcap files
     pcap_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Moloch
     # services_cidr is the range of addresses kubernetes will use for external services like Moloch and Kibana
     # It must be at least a /28
@@ -28,7 +28,18 @@ all:
     zookeeper_mem: 1 # Zookeeper JVM Memory
     zookeeper_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Zookeeper
     zookeeper_replicas: 3 # Number of zookeeper replicas to be created
-    
+
+    # Advanced Moloch settings, do not touch unless you know what you're doing
+    moloch_spiDataMaxIndices: 5
+    moloch_pcapWriteMethod: "simple"
+    moloch_pcapWriteSize: 262143
+    moloch_dbBulkSize: 300000
+    moloch_maxESConns: 30
+    moloch_maxESRequests: 500
+    moloch_packetsPerPoll: 50000
+    moloch_magicMode: "libmagic"
+    moloch_maxPacketsInQueue: 200000
+
   children:
 
     # Any host in this group will be used in the ceph cluster. By default this is all hosts except remote-sensors
@@ -43,7 +54,6 @@ all:
       children:
         master-server:
         servers:
-        sensors:
 
     # Any host in this group will be eligible to run logstash. By default this is any host that also has elasticsearch
     logstash:
@@ -90,6 +100,7 @@ all:
               ansible_connection: ssh
               management_ipv4: # Ex: 192.168.1.198 This is the IP address of the node. You must define this.
               bro_workers: 2
+              moloch_threads: 8
               monitor_interfaces: # This is the interface the sensor in question will listen on.
               - # Ex: ens4
               data_disk_devices: # These are the disks that ceph will use. It must be a full physical disk
@@ -105,6 +116,7 @@ all:
           #  rocksensor2.lan:
           #    ansible_user: root
           #    bro_workers: 2
+          #    moloch_threads: 8
           #    data_disk_devices:
               #- /dev/sdb <raw disk name>
           #    management_ipv4: # IP Address of node
