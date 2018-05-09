@@ -135,10 +135,12 @@
     msg: "The drives {{ data_disks }} do not have enough collective space to house the data you requested. You requested {{ total_space_required }} GB, which exceeds the {{ total_space_available }} GB you have on your drives."
   when: (total_space_available | int) < (total_space_required | int)
 
-# TODO: There is a bug here - it will only check the first drive provided
-- name: Verify that the drive does not contain root
-  command: bash -c "lsblk | grep '{{ hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') }}.*/'"
+# The below code will verify, per host, that every drive listed in the inventory file for that host does not contain the root directory / the OS
+- name: Verify the drives do not contain root
+  shell: "lsblk | grep '{{ item[item.rfind('/') + 1:] }}'"
+  with_items:
+    - "{{ data_disk_devices }}"
   register: command_result
   failed_when:
-   - "hostvars[ansible_host].data_disk_devices[0][hostvars[ansible_host].data_disk_devices[0].rfind('/') + 1:] | join('') in command_result.stdout"
+   - "'/' in command_result.stdout"
   changed_when: False
