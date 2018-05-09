@@ -14,6 +14,14 @@
       name: "python-netaddr"
       state: installed
 
+- name: Verify Ansible meets version requirements
+  hosts: localhost
+  tasks:
+  - fail:
+      msg: "You must update Ansible to at least 2.5.0 to use this code. Verify you have the EPEL repository enabled and then update Ansible."
+    when: "ansible_version.full is version('2.5', '<=')"
+  tags: preflight
+
 - name: Perform preflight checks
   hosts: all
   roles:
@@ -31,8 +39,10 @@
     ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
     ssh_known_hosts: "{{ groups['all'] }}"
 
-    # See https://www.linkedin.com/pulse/winning-ansible-how-manipulate-items-list-carlos-nunez/
-    # for explanation
+    # This takes the groups['all'] list, which is every host, feeds it into map, which then
+    # performs a regex_replace on each element. The regex_replace replaces .lan in each
+    # element to nothing or ''. Finally, we feed that back into list because Ansible
+    # expects the final product to be a list.
     ssh_short_known_hosts: "{{ groups['all'] | map('regex_replace','(.lan)','' ) | list }}"
   tasks:
     - import_tasks: generate_ssh_keys.yml
