@@ -29,6 +29,9 @@ common:
 common-nokeys:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common
 
+common-nokeys:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq
+
 genkeys:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t genkeys
 
@@ -67,6 +70,9 @@ stenographer:
 
 docket:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t docket
+
+dnsmasq-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata -e reinstall=true
 
 kubernetes-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata -e reinstall=true

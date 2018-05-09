@@ -26,16 +26,15 @@
     type: ethernet
     autoconnect: yes
     dns4:
-      - "{{ kube_dns_ip.stdout }}"
-      - "{{ dns_ip }}"
+      - "{{ hostvars[groups['master-server'][0]].management_ipv4 }}"
     state: present
   with_items: "{{ nmcli_conn_name.results }}"
   when: item.stdout is defined
 
-- name: Kube | Insert kube-dns into /etc/resolv.conf
+- name: Kube | Insert kube-dns into dnsmasq
   lineinfile:
-    insertbefore: BOF
-    line: "nameserver {{ kube_dns_ip.stdout }}"
-    path: /etc/resolv.conf
-
+    path: /etc/dnsmasq.conf
+    regexp: '^server='
+    line: 'server=/cluster.local/{{ kube_dns_ip.stdout }}'
+  when: inventory_hostname in groups['master-server']
 ...

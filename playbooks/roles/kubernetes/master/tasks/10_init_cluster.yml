@@ -18,7 +18,7 @@
     name: kubernetes/common
     tasks_from: creds
 
-- name: 'Install pod network: kube-router'
+- name: 'Install pod network: flannel'
   command: "kubectl apply -f {{ kube_dir }}/kube-flannel.yml"
 
 - name: Kube | Wait for Master Node to be ready

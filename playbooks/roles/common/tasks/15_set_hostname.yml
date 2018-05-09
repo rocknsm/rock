@@ -2,14 +2,24 @@
 #################### DNS Changes ######################
 #######################################################
 ---
-- name: Change the hostname to our standard
-  hostname:
-    name="{{ inventory_hostname }}"
+
+- name: Set hostname
+  command: "hostnamectl set-hostname {{inventory_hostname}}"
+
+- name: Check hostname
+  command: "hostname -f"
   register: hostname
 
-- name: Validate ansible_fqdn == inventory_hostname
+#- name: Change the hostname to our standard
+#  hostname:
+#    name: "{{ inventory_hostname }}"
+#  register: hostname
+
+- debug: "msg={{ansible_nodename}}"
+
+- name: Validate ansible_nodename == inventory_hostname
   tags:
     - validate
   assert:
     that:
-      ansible_fqdn == inventory_hostname
+      ansible_nodename == inventory_hostname

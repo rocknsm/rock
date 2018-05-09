@@ -62,6 +62,17 @@
   tags:
     - common
 
+- name: Dnsmasq
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - dnsmasq
+  tags:
+    dnsmasq
+
 - name: Configure kube master
   hosts: master-server
   gather_facts: no
