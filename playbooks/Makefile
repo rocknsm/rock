@@ -5,29 +5,32 @@ CHECK := $(shell command -v ansible-playbook 2> /dev/null)
 INVENTORY='inventory/dev/inventory.yml'
 PLAYBOOK='site.yml'
 
-.PHONY: all dev rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun
+.PHONY: all dev genkeys rerun common common-nokeys kubernetes ceph elasticsearch logstash kibana metricbeat kafka bro moloch suricata stenographer docket kubernetes-rerun ceph-rerun elasticsearch-rerun logstash-rerun kibana-rerun metricbeat-rerun kafka-rerun bro-rerun moloch-rerun suricata-rerun
 
 # Default target, build *and* run tests
 all:
 ifndef CHECK
 	$(error Ansible is not installed. Install Ansible with 'yum update -y && yum install -y ansible')
 endif
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e genkeys=true --ask-pass
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass
 
 preflight:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight
 
 dev:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e genkeys=true --ask-pass
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass
 
 rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)
 
 common:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -e genkeys=true --ask-pass -t common
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t genkeys,common
 
 common-nokeys:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common
+
+genkeys:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t genkeys
 
 kubernetes:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node -e reinstall=true

@@ -99,4 +99,59 @@
     msg: "bro_workers is not defined. Make sure it is defined in your inventory file. See sample inventory for help. This host is in the bro group and subsequently must have a bro workers count. Keep in mind bro_workers must be non-zero. If you want to get rid of bro, take the host out of the bro group."
   when: inventory_hostname in groups['bro'] and (bro_workers is not defined or bro_wokers is none or (bro_workers | int) == 0)
 
+- name: Checking that moloch_spiDataMaxIndices is set
+  fail:
+    msg: "moloch_spiDataMaxIndices is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_spiDataMaxIndices is not defined or moloch_spiDataMaxIndices is none
+
+- name: Checking that moloch_pcapWriteMethod is set
+  fail:
+    msg: "moloch_pcapWriteMethod is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_pcapWriteMethod is not defined or moloch_pcapWriteMethod is none
+
+- name: Checking that moloch_pcapWriteSize is set
+  fail:
+    msg: "moloch_pcapWriteSize is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_pcapWriteSize is not defined or moloch_pcapWriteSize is none
+
+- name: Checking that moloch_pcapWriteMethod is set
+  fail:
+    msg: "moloch_pcapWriteMethod is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_pcapWriteMethod is not defined or moloch_pcapWriteMethod is none
+
+- name: Checking that moloch_maxESConns is set
+  fail:
+    msg: "moloch_maxESConns is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_maxESConns is not defined or moloch_maxESConns is none
+
+- name: Checking that moloch_maxESRequests is set
+  fail:
+    msg: "moloch_maxESRequests is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_maxESRequests is not defined or moloch_maxESRequests is none
+
+- name: Checking that moloch_packetsPerPoll is set
+  fail:
+    msg: "moloch_packetsPerPoll is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_packetsPerPoll is not defined or moloch_packetsPerPoll is none
+
+- name: Checking that moloch_magicMode is set
+  fail:
+    msg: "moloch_magicMode is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_magicMode is not defined or moloch_magicMode is none
+
+- name: Checking that moloch_maxPacketsInQueue is set
+  fail:
+    msg: "moloch_maxPacketsInQueue is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_maxPacketsInQueue is not defined or moloch_maxPacketsInQueue is none
+
+- name: Checking that pcap_cluster is set
+  fail:
+    msg: "pcap_cluster is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: pcap_cluster is not defined or pcap_cluster is none
+
+- name: Checking that moloch_threads is set
+  fail:
+    msg: "moloch_threads is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: inventory_hostname in groups['sensors'] and moloch_threads is not defined or moloch_threads is none
+
 ...

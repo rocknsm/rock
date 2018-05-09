@@ -18,6 +18,17 @@
     mode: "{{ moloch_dir_mode }}"
     state: directory
 
+- name: 'Create unclustered pcap directories'
+  file:
+    path: "/pcap"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: directory
+  delegate_to: "{{ item }}"
+  with_items:
+    - "{{ groups['moloch'] }}"
+
 - name: 'Copy files'
   copy:
     src: files/{{ item }}

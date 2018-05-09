@@ -62,6 +62,7 @@
     ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].data_disk_devices | join((" "+item+":")) }}
   args:
     chdir: "{{ ceph_dir }}"
+  when: hostvars[item].data_disk_devices and hostvars[item].data_disk_devices | length > 0
   with_items:
     - "{{ groups['ceph'] }}"
 
