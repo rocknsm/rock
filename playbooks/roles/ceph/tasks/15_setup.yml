@@ -62,11 +62,12 @@
     ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].data_disk_devices | join((" "+item+":")) }}
   args:
     chdir: "{{ ceph_dir }}"
-  when: hostvars[item].data_disk_devices and hostvars[item].data_disk_devices | length > 0
   with_items:
     - "{{ groups['ceph'] }}"
+  when: hostvars[item].data_disk_devices and hostvars[item].data_disk_devices | length > 0
 
-- set_fact:
+- name: Default osd_count to 0
+  set_fact:
     osd_count: 0
 
 - name: Declare osd amount
@@ -74,9 +75,10 @@
     osd_count: "{{ (osd_count | int) + ( hostvars[item].data_disk_devices | length | int ) }}"
   register: osd_results
   loop: "{{ groups['ceph'] }}"
+  when: hostvars[item].data_disk_devices and hostvars[item].data_disk_devices | length > 0
 
 - set_fact:
-    osd_count: "{{ osd_results.results | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
+    osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
 
 - name: Create Pool
   shell: |
