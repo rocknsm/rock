@@ -1,5 +1,10 @@
 ---
 
+- name: Override DNS if not provided
+  set_fact:
+    dns_ip: "{{ hostvars[groups['master-server'][0]].management_ipv4 }}"
+  when: dns_ip is not defined or dns_ip is none
+
 - name: Kube | Get kube-dns IP
   shell: "kubectl get svc -n kube-system | grep kube-dns | awk '{print $3}'"
   register: kube_dns_ip
@@ -22,12 +27,12 @@
     daemon-reload: yes
     state: restarted
 
-- name: Deploy Kube DNS Config Map
-  include_role:
-    name: kubernetes/common
-    tasks_from: kube_create
-  vars:
-    name: "Kubernetes DNS Configuration"
-    file_name: "{{ kube_dir }}/kube_dns_config_map.yml"
+#- name: Deploy Kube DNS Config Map
+  #include_role:
+  #  name: kubernetes/common
+  #  tasks_from: kube_create
+  #vars:
+  #  name: "Kubernetes DNS Configuration"
+  #  file_name: "{{ kube_dir }}/kube_dns_config_map.yml"
 
 ...

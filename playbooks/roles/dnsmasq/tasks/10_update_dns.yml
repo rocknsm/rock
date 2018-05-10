@@ -11,7 +11,7 @@
     - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
     - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
 
-- name: Override DNS if provided
+- name: Override DNS if not provided
   set_fact:
     dns_ip: "{{ hostvars[groups['master-server'][0]].management_ipv4 }}"
   when: dns_ip is not defined or dns_ip is none
