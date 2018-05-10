@@ -44,25 +44,36 @@
   set_fact:
     disk_size: "{{ item.value.size.split(' ')[0] | int }}"
   with_dict: "{{ hostvars[inventory_hostname].ansible_devices }}"
-  register: valid_disks
+  register: valid_disks_gb
   when: ( data_disks | length ) > 0 and item.key in data_disks and item.value.size.split(' ')[1] == 'GB'
 
 - set_fact:
     disk_size: "{{ item.value.size.split(' ')[0] | int * 1024 }}"
   with_dict: "{{ hostvars[inventory_hostname].ansible_devices }}"
-  register: valid_disks
+  register: valid_disks_tb
   when: ( data_disks | length ) > 0 and item.key in data_disks and item.value.size.split(' ')[1] == 'TB'
-
-- name: Set hard drive size to zero for nodes without data disks
-  set_fact:
-    disk_size: 0
-  when: ( data_disks | length ) == 0
 
 # This will take all the valid disks on the server and add them up. So if
 # a server has two disks sda and sdb both with 30GB this would be 60.
+- name: Get server's total size on server when in GB
+  set_fact:
+    total_size_on_server_gb: "{{ valid_disks_gb.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.disk_size') | map('int') | sum(start=0) }}"
+  when: ( data_disks | length ) > 0 and valid_disks_gb is defined
+
 - name: Get server's total size on server
   set_fact:
-    total_size_on_server: "{{ valid_disks.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.disk_size') | map('int') | sum(start=0) }}"
+    total_size_on_server_tb: "{{ valid_disks_tb.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.disk_size') | map('int') | sum(start=0) }}"
+  when: ( data_disks | length ) > 0 and valid_disks_tb is defined
+
+- name: Get total size
+  set_fact:
+    total_size_on_server: "{{ ( total_size_on_server_gb | int ) + ( total_size_on_server_tb | int ) }}"
+  when: ( data_disks | length ) > 0
+
+- name: Set total size to zero for nodes without data disks
+  set_fact:
+    total_size_on_server: 0
+  when: ( data_disks | length ) == 0
 
 # Here is the big problem with Ansible. Each server now has a fact called
 # total_size_on_server. The problem is a single server can't access that
