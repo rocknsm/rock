@@ -17,10 +17,17 @@
   args:
     chdir: "{{ ceph_dir }}"
 
-- name: Install Ceph
+- name: Install Ceph on CentOS
   shell: ceph-deploy install --stable luminous {{ ceph_host_pool_list }}
   args:
     chdir: "{{ ceph_dir }}"
+  when: ansible_distribution == 'CentOS'
+
+- name: Install Ceph on RHEL
+  yum:
+    name: ceph
+    state: installed
+  when: ansible_distribution == 'RedHat'
 
 - name: Configure and start mons
   shell: |

@@ -3,7 +3,7 @@
 # This task retrieves the connection name of the network device with the management IP designated
 # in the inventory file
 - name: Get network manager connection name
-  shell: nmcli device show {{ item }} | grep GENERAL.CONNECTION | awk -F "GENERAL.CONNECTION{{":"}} *" '{print $2}'
+  shell: nmcli device show {{ item }} | grep GENERAL.CONNECTION | cut -d ":" -f 2 | awk '{$1=$1}1'
   register: nmcli_conn_name
   with_items: "{{ ansible_interfaces }}"
   when:
@@ -16,6 +16,15 @@
     dns_ip: "{{ hostvars[groups['master-server'][0]].management_ipv4 }}"
   when: dns_ip is not defined or dns_ip is none
 
+- name: Get management interface device id
+  set_fact:
+    management_interface: "{{ item }}"
+  with_items: "{{ ansible_interfaces }}"
+  when:
+    - hostvars[inventory_hostname]['ansible_' + item] is defined
+    - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
+    - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4  
+
 - name: Update DNS records for the management interface
   nmcli:
     conn_name: "{{ item.stdout }}"
@@ -24,7 +33,7 @@
     dns4:
       - "{{ dns_ip }}"
     state: present
-  with_items: "{{ nmcli_conn_name.results }}"
+  with_items: "{{ management_interface }}"
   when: item.stdout is defined
 
 - name: Bump the network service
