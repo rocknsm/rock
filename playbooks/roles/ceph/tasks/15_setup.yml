@@ -101,3 +101,8 @@
   shell: |
     cat /etc/ceph/ceph.client.admin.keyring | grep key | awk '{printf $3}'
   register: ceph_key
+
+# See: https://ceph.com/community/new-luminous-pool-tags/
+# This was required to pull ceph out of health warn
+- name: Set RBD Application Pool
+  shell: ceph osd pool application enable rbd rbd
