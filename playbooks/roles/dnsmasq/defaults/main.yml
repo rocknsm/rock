@@ -1,0 +1,6 @@
+---
+
+host_file: /etc/dnsmasq_static_hosts
+conf_file: /etc/dnsmasq.conf
+
+...

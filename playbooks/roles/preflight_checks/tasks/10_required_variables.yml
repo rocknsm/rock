@@ -74,11 +74,6 @@
     msg: "pcap_pv_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: pcap_pv_size is not defined or pcap_pv_size is none
 
-- name: Checking that dns_ip is set
-  fail:
-    msg: "dns_ip is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: dns_ip is not defined or dns_ip is none
-
 - name: Checking that zookeeper_mem is set
   fail:
     msg: "zookeeper_mem is not defined. Make sure it is defined in your inventory file. See sample inventory for help."

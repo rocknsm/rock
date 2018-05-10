@@ -22,6 +22,16 @@
     when: "ansible_version.full is version('2.5', '<=')"
   tags: preflight
 
+- name: dnsmasq
+  hosts: all
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - dnsmasq
+  tags: dnsmasq
+
 - name: Perform preflight checks
   hosts: all
   roles:
@@ -61,17 +71,6 @@
     - chrony
   tags:
     - common
-
-- name: Dnsmasq
-  hosts: master-server
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - dnsmasq
-  tags:
-    dnsmasq
 
 - name: Configure kube master
   hosts: master-server

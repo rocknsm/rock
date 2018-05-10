@@ -7,3 +7,5 @@ epel_repofile_path: "/etc/yum.repos.d/epel.repo"
 redhat_repos:
   - rhel-7-server-extras-rpms
   - rhel-7-server-optional-rpms
+
+...

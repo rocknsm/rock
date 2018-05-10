@@ -24,7 +24,7 @@ all:
     pcap_pv_size: 6
     zookeeper_mem: 1
     kafka_mem: 1
-    dns_ip: 192.168.1.50
+    dns_ip:
     pcap_cluster: false
 
     moloch_spiDataMaxIndices: 5
@@ -99,6 +99,7 @@ all:
               monitor_interfaces:
               - ens34
               data_disk_devices:
+              moloch_threads: 4
             rocksensor2.lan:
               ansible_user: root
               ansible_connection: ssh
@@ -107,6 +108,7 @@ all:
               monitor_interfaces:
               - ens224
               data_disk_devices:
+              moloch_threads: 4
 
         remote-sensors:
 
