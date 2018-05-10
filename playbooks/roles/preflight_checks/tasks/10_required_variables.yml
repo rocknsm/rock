@@ -139,10 +139,25 @@
     msg: "moloch_maxPacketsInQueue is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: moloch_maxPacketsInQueue is not defined or moloch_maxPacketsInQueue is none
 
-- name: Checking that pcap_cluster is set
+- name: Checking that use_ceph_for_pcap is set
   fail:
-    msg: "pcap_cluster is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: pcap_cluster is not defined or pcap_cluster is none
+    msg: "use_ceph_for_pcap is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: use_ceph_for_pcap is not defined or use_ceph_for_pcap is none
+
+- name: Checking that pcap_folder is set
+  fail:
+    msg: "pcap_folder is not defined. Make sure it is defined in your inventory file. See sample inventory for help. You do not have to provide a value, but it must exist in the inventor file. Add pcap_folder: to inventory in all vars to resolve this error."
+  when: pcap_folder is not defined
+
+- name: Checking pcap_pv_size is not set if not using ceph for pcap
+  fail:
+    msg: "You have set use_ceph_for_pcap to false indicating you do not intend to use it for PCAP storage, but provided a non-zero definition to pcap_pv_size. Set pcap_pv_size to zero or change the value of use_ceph_for_pcap to true."
+  when: not use_ceph_for_pcap and (pcap_pv_size is not none and (pcap_pv_size | int) != 0)
+
+- name: Checking that pcap_disk is set
+  fail:
+    msg: "pcap_disk is not defined. Make sure it is defined in your inventory file. See sample inventory for help. You do not have to provide a value, but it must exist in the inventor file. Add pcap_disk: to any device in the ceph group."
+  when: inventory_hostname in groups['moloch'] and pcap_disk is not defined
 
 - name: Checking that moloch_threads is set
   fail:

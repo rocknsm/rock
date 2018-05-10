@@ -41,10 +41,10 @@ spec:
           mountPath: "{{ moloch_pcap_path }}"
       restartPolicy: Always
       volumes:
-{% if pcap_cluster == 'false' %}
+{% if use_ceph_for_pcap == 'false' %}
       - name: data
         hostPath:
-          path: /pcap
+          path: {{ pcap_folder }}"
           type: Directory
 {% endif %}
       - name: vars
@@ -78,7 +78,7 @@ spec:
                 values:
                 - sensor
             topologyKey: "kubernetes.io/hostname"
-{% if pcap_cluster == 'true' %}
+{% if use_ceph_for_pcap == 'true' %}
   volumeClaimTemplates:
   - metadata:
       name: data

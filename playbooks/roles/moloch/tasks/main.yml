@@ -20,7 +20,7 @@
 
 - name: 'Create unclustered pcap directories'
   file:
-    path: "/pcap"
+    path: "{{ pcap_folder }}"
     owner: "{{ moloch_user }}"
     group: "{{ moloch_group }}"
     mode: "{{ moloch_dir_mode }}"
@@ -28,6 +28,7 @@
   delegate_to: "{{ item }}"
   with_items:
     - "{{ groups['moloch'] }}"
+  when: use_ceph_for_pcap is false
 
 - name: 'Copy files'
   copy:

@@ -5,5 +5,6 @@
 - import_tasks: 15_elasticsearch.yml
 - import_tasks: 20_hard_drives.yml
 - import_tasks: 25_minimum_hardware_check.yml
+- import_tasks: 30_check_for_folder_existence.yml
 
 ...

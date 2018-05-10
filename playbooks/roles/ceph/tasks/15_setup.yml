@@ -1,6 +1,7 @@
 ---
 
-- set_fact:
+- name: Configure ceph_host_pool_list
+  set_fact:
     ceph_host_pool_list: "{{ groups['ceph'] | join(' ') }}"
 
 - name: Purge Ceph

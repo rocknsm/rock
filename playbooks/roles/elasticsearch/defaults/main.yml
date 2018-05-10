@@ -12,7 +12,6 @@ es_user: 1000
 es_group: 1000
 elastic_data_port: '9200'
 elastic_management_port: '9300'
-elastic_image: 'docker.elastic.co/elasticsearch/elasticsearch'
 elastic_dir: "{{ install_dir  }}/elasticsearch"
 elastic_pv_data_path: "/usr/share/elasticsearch/data"
 elastic_config_path: "/usr/share/elasticsearch/config"

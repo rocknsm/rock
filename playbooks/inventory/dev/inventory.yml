@@ -25,7 +25,7 @@ all:
     zookeeper_mem: 1
     kafka_mem: 1
     dns_ip:
-    pcap_cluster: false
+    use_ceph_for_pcap: true
 
     moloch_spiDataMaxIndices: 5
     moloch_pcapWriteMethod: "simple"
@@ -36,6 +36,7 @@ all:
     moloch_packetsPerPoll: 50000
     moloch_magicMode: "libmagic"
     moloch_maxPacketsInQueue: 200000
+    pcap_folder: '/pcap'
 
   children:
 
@@ -99,6 +100,8 @@ all:
               monitor_interfaces:
               - ens34
               data_disk_devices:
+              - /dev/sdb
+              pcap_disk: sdb
               moloch_threads: 4
             rocksensor2.lan:
               ansible_user: root
@@ -108,6 +111,8 @@ all:
               monitor_interfaces:
               - ens224
               data_disk_devices:
+              - /dev/sdb
+              pcap_disk: sdb
               moloch_threads: 4
 
         remote-sensors:

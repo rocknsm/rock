@@ -13,8 +13,8 @@
 
 # TODO: This should be in production, but takes too long for a dev
 # environment
-#- name: Update all system packages to latest
-  #yum: name=* state=latest
+- name: Update all system packages to latest
+  yum: name=* state=latest
 
 - import_tasks: 95_reboot.yml
 

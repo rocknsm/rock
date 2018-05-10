@@ -20,7 +20,7 @@ all:
     kafka_mem: 1 # Kafka JVM Memory
     kafka_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Kafka
     pcap_bpf_filter: "" # Packets that match this filter will NOT be saved to disk by Moloch
-    pcap_cluster: false # Set to true to utilize clustered storage for pcap files
+    use_ceph_for_pcap: false # Set to true to utilize clustered storage for pcap files
     pcap_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Moloch
     # services_cidr is the range of addresses kubernetes will use for external services like Moloch and Kibana
     # It must be at least a /28
@@ -39,6 +39,7 @@ all:
     moloch_packetsPerPoll: 50000
     moloch_magicMode: "libmagic"
     moloch_maxPacketsInQueue: 200000
+    pcap_folder: # This should only be defined if you are going to use Moloch in direct disk access mode. If this is defined it is assumed you are going to run Moloch in direct disk access mode instead of using ceph.
 
   children:
 
@@ -103,6 +104,7 @@ all:
               moloch_threads: 8
               monitor_interfaces: # This is the interface the sensor in question will listen on.
               - # Ex: ens4
+              pcap_disk: # Optionally, instead of using ceph you can use an entire drive for PCAP storage instead of ceph. These are only used if use_ceph_for_pcap is set to false. pcap_folder must be defined for this to work. pcap_folder will be the mount point.
               data_disk_devices: # These are the disks that ceph will use. It must be a full physical disk
               # - /dev/vdb (You must define this)
 
