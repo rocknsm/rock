@@ -4,11 +4,11 @@
   stat:
     path: "{{ pcap_folder }}"
   register: pcap_folder_test
-  when: not use_ceph_for_pcap
+  when: not use_ceph_for_pcap and pcap_disk is none
 
 - name: Verify PCAP directory exists
   fail:
     msg: "You set use_ceph_for_pcap to false indicating you plan to use direct attached storage for PCAP. The PCAP directory you defined {{ pcap_folder }} does not exist or is not a directory. Verify it both exists and is a directory."
-  when: not use_ceph_for_pcap and (not pcap_folder_test.stat.exists or not pcap_folder_test.stat.isdir)
+  when: not use_ceph_for_pcap and pcap_disk is none and (not pcap_folder_test.stat.exists or not pcap_folder_test.stat.isdir)
 
 ...

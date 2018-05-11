@@ -27,7 +27,7 @@
       - "127.0.0.1"
       - "8.8.8.8"
     state: present
-  with_items: "{{ management_interface }}"
+  with_items: "{{ nmcli_conn_name.results }}"
   when: item.stdout is defined
 
 - name: Bump the network service

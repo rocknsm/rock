@@ -31,16 +31,16 @@
   loop: "{{ data_disks }}"
   when: ( data_disks | length ) > 0
 
-  # The below code will verify, per host, that every drive listed in
-  #the inventory file for that host does not contain the root directory / the OS
-  - name: Verify the drives do not contain root
-    shell: "lsblk | grep '{{ item[item.rfind('/') + 1:] }}'"
-    with_items:
-      - "{{ data_disk_devices }}"
-    register: command_result
-    failed_when:
-     - "'/' in command_result.stdout"
-    changed_when: False
+# The below code will verify, per host, that every drive listed in
+#the inventory file for that host does not contain the root directory / the OS
+#- name: Verify the drives do not contain root
+#  shell: "lsblk | grep '{{ item[item.rfind('/') + 1:] }}'"
+#  with_items:
+#    - "{{ data_disk_devices }}"
+#  register: command_result
+#  failed_when:
+#   - "'/' in command_result.stdout"
+#  changed_when: False
 
 # This next portion of the code is pure magic. I challenge someone to find
 # a way to get Ansible to do this in a cleaner way.

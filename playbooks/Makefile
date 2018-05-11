@@ -72,7 +72,10 @@ docket:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t docket
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata -e reinstall=true
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata -e reinstall=true
+
+preflight-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata -e reinstall=true
 
 kubernetes-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata -e reinstall=true

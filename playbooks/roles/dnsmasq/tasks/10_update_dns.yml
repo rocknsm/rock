@@ -23,7 +23,7 @@
   when:
     - hostvars[inventory_hostname]['ansible_' + item] is defined
     - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
-    - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4  
+    - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
 
 - name: Update DNS records for the management interface
   nmcli:
@@ -33,7 +33,7 @@
     dns4:
       - "{{ dns_ip }}"
     state: present
-  with_items: "{{ management_interface }}"
+  with_items: "{{ nmcli_conn_name.results }}"
   when: item.stdout is defined
 
 - name: Bump the network service

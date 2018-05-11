@@ -32,12 +32,6 @@
     - dnsmasq
   tags: dnsmasq
 
-- name: Perform preflight checks
-  hosts: all
-  roles:
-    - preflight_checks
-  tags: preflight
-
 - name: Generate SSH keys
   hosts:
     - localhost
@@ -57,6 +51,12 @@
   tasks:
     - import_tasks: generate_ssh_keys.yml
   tags: genkeys
+  
+- name: Perform preflight checks
+  hosts: all
+  roles:
+    - preflight_checks
+  tags: preflight
 
 - name: Common Setup
   hosts:
@@ -179,7 +179,7 @@
   - bro
 
 - name: Deploy Moloch
-  hosts: master-server
+  hosts: all
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:

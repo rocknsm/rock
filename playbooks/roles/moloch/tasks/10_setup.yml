@@ -1,0 +1,131 @@
+---
+
+# This is here because Kubernetes repeatedly failed to download the image.
+# See: https://github.com/kubernetes/kubernetes/issues/59376
+# Pulling it through Docker resolves the issue
+- name: Perform image download workaround
+  docker_image:
+    name: "{{ moloch_image}}:{{ moloch_tag }}"
+
+- name: 'Create directories'
+  file:
+    path: "{{ moloch_dir }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: directory
+
+- name: 'Create unclustered pcap directories'
+  file:
+    path: "{{ pcap_folder }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: directory
+  delegate_to: "{{ item }}"
+  with_items:
+    - "{{ groups['moloch'] }}"
+  when: not use_ceph_for_pcap
+
+- name: 'Copy files'
+  copy:
+    src: files/{{ item }}
+    dest: "{{ moloch_dir }}/{{ item }}"
+    owner: root
+    group: root
+    mode: 0644
+  with_items:
+    - config.ini.tmpl
+    - config.ini.conf
+
+- name: 'Copy templates'
+  template:
+    src: "templates/{{ item }}"
+    dest: "{{ moloch_dir }}/{{ item }}"
+    mode: "{{ moloch_file_mode }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+  with_items:
+    - auto_init
+    - bootstrap.yml
+    - deploy.yml
+    - svc.yml
+
+- name: "Clean up kube configmap"
+  command: "kubectl delete configmap {{ item }} --ignore-not-found"
+  with_items:
+    - moloch
+    - moloch-bootstrap
+
+- name: "Clean up kube for deployment "
+  command: "kubectl delete -f {{ moloch_dir }}/{{ item }}.yml --ignore-not-found"
+  with_items:
+    - bootstrap
+    - deploy
+    - svc
+
+- name: "Wait for deployment to cleanup"
+  shell: |
+    while [ $(kubectl get pods | grep moloch | wc -l) -gt 0 ]; do
+      echo -n .;
+      sleep 1;
+    done;
+
+- name: "Create kube config"
+  shell: |
+    kubectl create configmap moloch --from-file {{ moloch_dir }}/config.ini.tmpl \
+      --from-file {{ moloch_dir }}/config.ini.conf
+
+- name: "Create kube bootstrap config"
+  shell: "kubectl create configmap moloch-bootstrap --from-file {{ moloch_dir }}/auto_init"
+
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Moloch Bootstrap"
+    file_name: "{{ moloch_dir }}/bootstrap.yml"
+
+- name: Get Bootstrap pod name
+  shell: |
+    while [ "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $2}')" != "1/1" ]; do
+      sleep 1;
+    done;
+    echo -n "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $1 }')"
+  register: moloch_bootstrap_pod
+
+- name: Stop moloch services
+  shell: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- /bin/bash -c 'systemctl stop molochcapture molochviewer'"
+  ignore_errors: yes
+
+- name: Configure Elasticsearch for moloch
+  shell: "kubectl exec {{ moloch_bootstrap_pod.stdout }} -- /usr/bin/expect /tmp/auto_init"
+  register: debug_output
+  failed_when: debug_output.rc != 0 and debug_output.rc != 1
+  #ignore_errors: yes
+
+- name: Debut Outout
+  debug: "msg={{ debug_output.stdout }}"
+
+- name: Add user
+  command: "kubectl exec -ti {{ moloch_bootstrap_pod.stdout }} -- {{ moloch_path }}/bin/moloch_add_user.sh -c {{ moloch_path }}/etc/config.ini {{ moloch_login }} {{ moloch_login }} {{ moloch_pass }} --admin --webauth"
+
+- name: Remove Bootstrap
+  command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml --ignore-not-found
+
+- name: Remove Bootstrap config
+  command: kubectl delete configmap moloch-bootstrap
+
+- name: Deploy Services
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Moloch"
+    file_name: "{{ moloch_dir }}/{{ item }}"
+  with_items:
+    - svc.yml
+    - deploy.yml
+
+...

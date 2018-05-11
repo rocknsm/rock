@@ -21,11 +21,11 @@ all:
     kafka_pv_size: 1
     zookeeper_pv_size: 1
     zookeeper_replicas: 3
-    pcap_pv_size: 6
+    pcap_pv_size: 0
     zookeeper_mem: 1
     kafka_mem: 1
     dns_ip:
-    use_ceph_for_pcap: true
+    use_ceph_for_pcap: false
 
     moloch_spiDataMaxIndices: 5
     moloch_pcapWriteMethod: "simple"
@@ -100,8 +100,7 @@ all:
               monitor_interfaces:
               - ens34
               data_disk_devices:
-              - /dev/sdb
-              pcap_disk: sdb
+              pcap_disk: /dev/sdb
               moloch_threads: 4
             rocksensor2.lan:
               ansible_user: root
@@ -111,8 +110,7 @@ all:
               monitor_interfaces:
               - ens224
               data_disk_devices:
-              - /dev/sdb
-              pcap_disk: sdb
+              pcap_disk: /dev/sdb
               moloch_threads: 4
 
         remote-sensors:
