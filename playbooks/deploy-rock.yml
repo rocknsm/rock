@@ -1159,6 +1159,14 @@
       owner: root
       group: root
 
+  - name: Install rock status script
+    copy:
+      src: rock_processes
+      dest: /usr/local/bin/rock_processes
+      mode: 0755
+      owner: root
+      group: root
+
   # Training mode / Service mode not needed for AF_PACKET
   ######################################################
   ############### ROCKNSM Customization ################

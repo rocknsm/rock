@@ -1,0 +1,57 @@
+#!/bin/bash
+
+action=$1
+psprocs=( zookeeper kafka bro suricata filebeat elasticsearch logstash kibana stenographer )
+
+function reverse()
+{
+  local arrayname=${1:?Array name required} array revarray e
+  eval "array=( \"\${$arrayname[@]}\" )"
+  for e in "${array[@]}"
+  do
+    revarray=( "$e" "${revarray[@]}" )
+  done
+  eval "$arrayname=( \"\${revarray[@]}\" )"
+}
+
+for i in $(ls -1 /etc/stenographer/config.* | awk -F. '{print $2}'); do
+  psprocs+=("stenographer@${i}")
+done
+
+case $action in
+  "stop")
+    reverse psprocs
+    for proc in "${psprocs[@]}"; do
+      echo "${proc^^}: stopping..."
+      systemctl stop ${proc}
+    done
+    ;;
+  "start")
+    for proc in "${psprocs[@]}"; do
+      echo "${proc^^}: starting..."
+      systemctl start ${proc}
+    done
+    ;;
+  "status")
+    for proc in "${psprocs[@]}"; do
+      echo "${proc^^}":
+      systemctl is-active --quiet ${proc}
+      if [[ $? -eq 0 ]]; then
+        prefix="[1;32m"
+      else
+        prefix="[1;31m"
+      fi
+      echo "${prefix}$(systemctl status ${proc} | grep Active)i[0m"
+    done
+    ;;
+  "reset-failed")
+    for proc in "${psprocs[@]}"; do
+      echo "${proc^^}: resetting status..."
+      systemctl reset-failed ${proc}
+    done
+    ;;
+  *)
+    echo "rock_processes: Usage: rock_processes {start|stop|status|reset-failed}"
+esac
+
+exit 0
