@@ -24,10 +24,7 @@ rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY)
 
 common:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t genkeys,common
-
-common-nokeys:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t common
 
 dnsmasq:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq

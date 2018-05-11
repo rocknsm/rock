@@ -6,6 +6,17 @@
 
 ---
 
+- name: Update all hosts to most recent packages
+  hosts: all
+  tasks:
+  - name: Update all system packages to latest
+    yum: name=* state=latest
+  # TODO: This should be removed after updates have been out for a bit
+  - name: 'Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301'
+    systemd:
+      name: NetworkManager
+      state: restarted
+
 - name: Install Controller Dependancies
   hosts: localhost
   tasks:
@@ -51,7 +62,7 @@
   tasks:
     - import_tasks: generate_ssh_keys.yml
   tags: genkeys
-  
+
 - name: Perform preflight checks
   hosts: all
   roles:
