@@ -115,10 +115,10 @@ bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 bro_rockscripts_branch: master
 bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
 rock_dashboards_repo: https://github.com/rocknsm/rock-dashboards.git
-rock_dashboards_branch: master
+rock_dashboards_branch: devel
 rock_dashboards_url: "https://github.com/rocknsm/rock-dashboards/archive/{{ rock_dashboards_branch }}.tar.gz"
 rock_dashboards_filename: "rock-dashboards_{{ rock_dashboards_branch | replace('/', '-') }}.tar.gz"
-rock_dashboards_version: 2.0
+rock_dashboards_version: 2.1
 stenographer_user: stenographer
 stenographer_group: stenographer
 stenographer_data_dir: "{{ rock_data_dir }}/stenographer"
@@ -142,10 +142,11 @@ es_data_dir: "{{ rock_data_dir }}/elasticsearch"
 es_cluster_name: rocknsm
 es_node_name: "{{ rock_hostname }}"
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
-es_url: "http://localhost:9200"
+es_url: "http://127.0.0.1:9200"
 es_log_dir: /var/log/elasticsearch
 es_memlock_override: |
   [Service]
   LimitMEMLOCK=infinity
 logstash_user: logstash
 logstash_group: logstash
+kibana_url: "http://127.0.0.1:5601"

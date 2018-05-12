@@ -378,6 +378,114 @@
     when: with_logstash
 
     ######################################################
+    ################### Setup Kibana #####################
+    ######################################################
+  - name: Enable and start Kibana
+    service:
+      name: kibana
+      state: "{{ 'started' if enable_kibana else 'stopped' }}"
+      enabled: "{{ enable_kibana }}"
+    when: with_kibana
+
+  - name: Download ROCK Dashboards
+    get_url:
+      url: "{{ rock_dashboards_url }}"
+      dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      mode: 0644
+    when: with_kibana and rock_online_install
+
+  - name: Extract ROCK Dashboards
+    unarchive:
+      src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      dest: /opt/rocknsm
+      owner: root
+      group: root
+      creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+      remote_src: yes
+    when: with_kibana
+
+  - name: Configure Kibana templates
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/kibana-config
+      body: >
+        { "order" : 0, "template" : ".kibana",
+          "settings" :
+            { "index.number_of_replicas" : "0",
+              "index.number_of_shards" : "1" },
+          "mappings" : { }, "aliases" : { } }
+      body_format: json
+      status_code: 200,201
+    when: with_kibana
+
+  - name: Add the kibanapw shell function
+    copy:
+      src: profile.d-kibanapw.sh
+      dest: /etc/profile.d/kibanapw.sh
+      mode: 0644
+      owner: root
+      group: root
+    when: with_kibana
+
+  - name: Set initial Kibana credentials
+    shell: >
+      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
+    args:
+      creates: /etc/nginx/htpasswd.users
+    when: with_kibana
+
+    ######################################################
+    ############## Setup RockNSM dataflow ################
+    ######################################################
+
+  - name: Download RockNSM Elastic configs
+    get_url:
+      url: "{{ rock_dashboards_url }}"
+      dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      mode: 0644
+    when: (with_kibana or with_elasticsearch or with_logstash) and rock_online_install
+
+  - name: Extract RockNSM Elastic configs
+    unarchive:
+      src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      dest: /opt/rocknsm
+      owner: root
+      group: root
+      creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+      remote_src: yes
+    when: (with_kibana or with_elasticsearch or with_logstash)
+
+# TODO Remove elasticsearch setup above
+# TODO customize mappings install per sensor features (i.e. bro, suricata, etc)...maybe
+  - name: Blanket install/update Elasticsearch mappings
+    command: ./configuration/elasticsearch/import-index-templates.sh "{{ es_url }}"
+    args:
+      chdir: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+    changed_when: false
+    # TODO: Fix this ^^
+    when: with_elasticsearch
+
+  #TODO Move logstash config here using the extracted files
+  - name: Setup logstash
+    debug: msg="TODO"
+
+  - name: Blanket install/update Kibana saved objects
+    command: ./configuration/kibana/import-saved-items.sh "{{ kibana_url }}"
+    args:
+      chdir: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+    changed_when: false
+    # TODO: Fix this ^^
+    when: with_kibana
+
+  - name: Blanket install/update Kibana saved objects
+    command: ./configuration/kibana/import-saved-items.sh "{{ kibana_uri }}"
+    args:
+      chdir: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+    changed_when: false
+    # TODO: Fix this ^^
+    when: with_kibana
+
+    ######################################################
     ################### Setup Filebeat ###################
     ######################################################
   - name: Add Filebeat configuration file
@@ -830,125 +938,6 @@
       state: "{{ 'started' if enable_fsf else 'stopped' }}"
       enabled: "{{ enable_fsf }}"
     when: with_fsf
-
-    ######################################################
-    ################### Setup Kibana #####################
-    ######################################################
-  - name: Enable and start Kibana
-    service:
-      name: kibana
-      state: "{{ 'started' if enable_kibana else 'stopped' }}"
-      enabled: "{{ enable_kibana }}"
-    when: with_kibana
-
-  - name: Download ROCK Dashboards
-    get_url:
-      url: "{{ rock_dashboards_url }}"
-      dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
-      mode: 0644
-    when: with_kibana and rock_online_install
-
-  - name: Extract ROCK Dashboards
-    unarchive:
-      src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
-      dest: /opt/rocknsm
-      owner: root
-      group: root
-      creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
-      remote_src: yes
-    when: with_kibana
-
-  - name: Configure Kibana templates
-    uri:
-      method: PUT
-      url: http://localhost:9200/_template/kibana-config
-      body: >
-        { "order" : 0, "template" : ".kibana",
-          "settings" :
-            { "index.number_of_replicas" : "0",
-              "index.number_of_shards" : "1" },
-          "mappings" : { }, "aliases" : { } }
-      body_format: json
-      status_code: 200,201
-    when: with_kibana
-
-  - name: Query Kibana package info
-    yum:
-      list: kibana
-    register: kibana_pkg
-    when: with_kibana
-
-  - name: Store installed kibana pkg info
-    set_fact:
-      kibana_info: "{{ kibana_pkg.results | selectattr('repo', 'match', 'installed') | first }}"
-    when: with_kibana
-
-  - name: Check current Kibana config
-    uri:
-      method: "GET"
-      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}/_source"
-      return_content: true
-    register: kibana_cfg
-    changed_when: false
-    failed_when: false
-    until: kibana_cfg.status == 200
-    retries: 10
-    delay: 3
-    when: with_kibana
-
-  - name: Store Kibana config dict
-    set_fact:
-      kibana_config: "{{ kibana_cfg.json }}"
-    when: with_kibana
-
-  - name: Push Kibana dashboard config
-    command: >
-      /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/load.sh
-        -url {{ es_url }}
-    args:
-      chdir: /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/
-    when: with_kibana and (kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version)
-
-  - name: Store default Kibana index to Bro
-    set_fact:
-      kibana_config: "{{ kibana_config | combine({'defaultIndex': 'bro-*' })}}"
-    when: with_kibana and with_bro
-
-  - name: Store default Kibana index to Suricata
-    set_fact:
-      kibana_config: "{{ kibana_config | combine({'defaultIndex': 'suricata-*' })}}"
-    when: with_kibana and with_suricata and not with_bro
-
-  - name: Update Kibana config dict w/ rock_config version
-    set_fact:
-      kibana_config: "{{ kibana_config | combine({'rock_config': rock_dashboards_version }) }}"
-    when: with_kibana
-
-  - name: Push Kibana settings for index and rock_version
-    uri:
-      method: PUT
-      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}"
-      body: "{{ kibana_config }}"
-      body_format: "json"
-      status_code: 200,201
-    when: with_kibana
-
-  - name: Add the kibanapw shell function
-    copy:
-      src: profile.d-kibanapw.sh
-      dest: /etc/profile.d/kibanapw.sh
-      mode: 0644
-      owner: root
-      group: root
-    when: with_kibana
-
-  - name: Set initial Kibana credentials
-    shell: >
-      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
-    args:
-      creates: /etc/nginx/htpasswd.users
-    when: with_kibana
-
 
     ######################################################
     ################### Setup nginx ######################
