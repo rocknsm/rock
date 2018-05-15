@@ -21,8 +21,8 @@ LOG_FILE=''
 VERBOSE=0
 CLI=''
 GLUSTER=0
-KUBE_TEMPLATES_DEFAULT="${SCRIPT_DIR}/kube-templates"
-OCP_TEMPLATES_DEFAULT="${SCRIPT_DIR}/ocp-templates"
+KUBE_TEMPLATELASTIC_DEFAULT="${SCRIPT_DIR}/kube-templates"
+OCP_TEMPLATELASTIC_DEFAULT="${SCRIPT_DIR}/ocp-templates"
 TEMPLATES=""
 NAMESPACE=""
 WAIT=300
@@ -95,11 +95,11 @@ Options:
               Specify the container platform CLI (e.g. kubectl, oc) to use.
               Default behavior is to auto-detect the installed CLI.
 
-  -t TEMPLATES, --templates_dir TEMPLATES
+  -t TEMPLATES, --templatelastic_dir TEMPLATES
               Location of directory containing the heketi templates for the
               various resources. Defaults are:
-                * For Kubernetes: '${KUBE_TEMPLATES_DEFAULT}'.
-                * For OpenShift: '${OCP_TEMPLATES_DEFAULT}'.
+                * For Kubernetes: '${KUBE_TEMPLATELASTIC_DEFAULT}'.
+                * For OpenShift: '${OCP_TEMPLATELASTIC_DEFAULT}'.
 
   -n NAMESPACE, --namespace NAMESPACE
               The namespace to use for creating resources. Default is to use
@@ -430,7 +430,7 @@ while [[ $# -ge 1 ]]; do
         if [[ $? -eq 2 ]]; then shift; fi
         keypos=$keylen
         ;;
-        t*|-templates_dir*)
+        t*|-templatelastic_dir*)
         TEMPLATES=$(assign "${key:${keypos}}" "${2}")
         if [[ $? -eq 2 ]]; then shift; fi
         keypos=$keylen
@@ -635,9 +635,9 @@ fi
 
 if [[ "x${TEMPLATES}" == "x" ]]; then
   if [[ "${CLI}" == *oc ]]; then
-    TEMPLATES="${OCP_TEMPLATES_DEFAULT}"
+    TEMPLATES="${OCP_TEMPLATELASTIC_DEFAULT}"
   else
-    TEMPLATES="${KUBE_TEMPLATES_DEFAULT}"
+    TEMPLATES="${KUBE_TEMPLATELASTIC_DEFAULT}"
   fi
 fi
 

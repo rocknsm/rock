@@ -28,15 +28,15 @@ Generally, most of the options you'll want to change are near the top. The file 
 | Half of available cores, not to exceed 8
 | This will allocate this many CPUs to bro as worker nodes
 
-| es_cluster_name
+| elastic_cluster_name
 | `rocknsm`
 | Elasticsearch will be configured to use this as the cluster name.
 
-| es_node_name
+| elastic_node_name
 | _rock_hostname_
 | This will appear in Elasticsearch runtime information as the node name.
 
-| es_mem
+| elastic_mem
 | Half of available memory, rounded down to the nearest gigabyte
 | This is used to configure the heap size for Elasticsearch.
 

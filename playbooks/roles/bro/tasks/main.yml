@@ -41,11 +41,11 @@
     - deploy.yml
 
 - name: Flush Config Map
-  command: kubectl --kubeconfig {{ kubernetes_conf_file }} delete configmap bro --ignore-not-found=true
+  command: kubectl --kubeconfig {{ kubernetelastic_conf_file }} delete configmap bro --ignore-not-found=true
 
 - name: Create Config Map
   shell: |
-    kubectl --kubeconfig {{ kubernetes_conf_file }} create configmap bro \
+    kubectl --kubeconfig {{ kubernetelastic_conf_file }} create configmap bro \
     --from-file {{ bro_dir }}/broctl.cfg.tmpl \
     --from-file {{ bro_dir }}/node.cfg.tmpl \
     --from-file {{ bro_dir }}/networks.cfg.tmpl \
@@ -58,7 +58,7 @@
     --from-file {{ bro_dir }}/local.bro.conf
 
 - name: Flush Deployments
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml --ignore-not-found=true'
+  command: 'kubectl --kubeconfig="{{ kubernetelastic_conf_file }}" delete -f {{ bro_dir }}/deploy.yml --ignore-not-found=true'
 
 - name: Deploy Services
   import_role:
@@ -69,7 +69,7 @@
     file_name: "{{ bro_dir }}/deploy.yml"
 
 #- name: Wait for deployment to finish
-#  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ bro_dir }}/deploy.yml'
+#  command: 'kubectl --kubeconfig="{{ kubernetelastic_conf_file }}" rollout status -f {{ bro_dir }}/deploy.yml'
 
 - name: Wait for Bro to be ready
   import_role:

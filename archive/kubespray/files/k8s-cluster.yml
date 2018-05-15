@@ -154,10 +154,10 @@ helm_enabled: false
 istio_enabled: false
 
 # Local volume provisioner deployment
-local_volumes_enabled: false
+local_volumelastic_enabled: false
 
 # Add Persistent Volumes Storage Class for corresponding cloud provider ( OpenStack is only supported now )
-persistent_volumes_enabled: false
+persistent_volumelastic_enabled: false
 
 # Make a copy of kubeconfig on the host that runs Ansible in GITDIR/artifacts
 # kubeconfig_localhost: false
@@ -178,4 +178,4 @@ persistent_volumes_enabled: false
 
 ## Supplementary addresses that can be added in kubernetes ssl keys.
 ## That can be useful for example to setup a keepalived virtual IP
-# supplementary_addresses_in_ssl_keys: [10.0.0.1, 10.0.0.2, 10.0.0.3]
+# supplementary_addresselastic_in_ssl_keys: [10.0.0.1, 10.0.0.2, 10.0.0.3]

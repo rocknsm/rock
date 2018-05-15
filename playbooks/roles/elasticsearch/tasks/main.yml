@@ -12,8 +12,8 @@
 
 - name: "Create directories"
   file:
-    group: "{{ es_group }}"
-    owner: "{{ es_user }}"
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
     mode: u+rw,g+rw
     path: "{{ elastic_dir }}"
     state: directory
@@ -22,8 +22,8 @@
   template:
     src: "templates/{{ item }}.j2"
     dest: "{{ elastic_dir }}/{{ item }}"
-    group: "{{ es_group }}"
-    owner: "{{ es_user }}"
+    group: "{{ elastic_group }}"
+    owner: "{{ elastic_user }}"
     mode: u+rw,g+rw
   with_items:
     - es-discovery-svc.yml

@@ -6,14 +6,12 @@
   command: kubeadm reset
   register: kube_reset_result
   ignore_errors: yes
-  when: inventory_hostname in groups['nodes_to_remove'] and (reinstall is defined and reinstall)
 
 - name: Stop Services
   systemd:
     name: "{{ item }}"
     state: stopped
   ignore_errors: yes
-  when: inventory_hostname in groups['nodes_to_remove']
   with_items:
     - docker
     - kubelet
@@ -27,7 +25,6 @@
     - kubelet
     - kubectl
   ignore_errors: yes
-  when: inventory_hostname in groups['nodes_to_remove']
 
 - name: Remove Artifacts
   file:
@@ -40,8 +37,6 @@
     - /etc/kubernetes
     - /var/lib/etcd
     - ~/.kube
-  #ignore_errors: yes
-  when: inventory_hostname in groups['nodes_to_remove']
   register: remove_artifacts_result
   failed_when: "'Device or resource busy' in remove_artifacts_result"
 
@@ -59,4 +54,3 @@
     - flannel.1
     - cni0
   ignore_errors: yes
-  when: inventory_hostname in groups['nodes_to_remove']

@@ -112,7 +112,7 @@
 
 - name: Verify there is sufficient space for the PVs requested
   fail:
-    msg: "The drives {{ data_disks }} do not have enough collective space to house the data you requested. You requested {{ total_space_required }} GB, which exceeds the {{ total_space_available }} GB you have on your drives."
+    msg: "The drives you listed under data_disks do not have enough collective space to house the data you requested. You requested {{ total_space_required }} GB, which exceeds the {{ total_space_available }} GB you have on your drives."
   when: (total_space_available | int) < (total_space_required | int)
 
 ...

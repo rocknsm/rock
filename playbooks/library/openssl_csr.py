@@ -389,7 +389,7 @@ class CertificateSigningRequest(crypto_utils.OpenSSLObject):
             self.changed = True
 
         file_args = module.load_file_common_arguments(module.params)
-        if module.set_fs_attributes_if_different(file_args, False):
+        if module.set_fs_attributelastic_if_different(file_args, False):
             self.changed = True
 
     def check(self, module, perms_required=True):
@@ -407,13 +407,13 @@ class CertificateSigningRequest(crypto_utils.OpenSSLObject):
             return True
 
         def _check_subjectAltName(extensions):
-            altnames_ext = next((ext for ext in extensions if ext.get_short_name() == b'subjectAltName'), '')
-            altnames = [altname.strip() for altname in str(altnames_ext).split(',')]
+            altnamelastic_ext = next((ext for ext in extensions if ext.get_short_name() == b'subjectAltName'), '')
+            altnames = [altname.strip() for altname in str(altnamelastic_ext).split(',')]
             # apperently openssl returns 'IP address' not 'IP' as specifier when converting the subjectAltName to string
             # although it won't accept this specifier when generating the CSR. (https://github.com/openssl/openssl/issues/4004)
             altnames = [name if not name.startswith('IP Address:') else "IP:" + name.split(':', 1)[1] for name in altnames]
             if self.subjectAltName:
-                if set(altnames) != set(self.subjectAltName) or altnames_ext.get_critical() != self.subjectAltName_critical:
+                if set(altnames) != set(self.subjectAltName) or altnamelastic_ext.get_critical() != self.subjectAltName_critical:
                     return False
             else:
                 if altnames:
@@ -422,15 +422,15 @@ class CertificateSigningRequest(crypto_utils.OpenSSLObject):
             return True
 
         def _check_keyUsage_(extensions, extName, expected, critical):
-            usages_ext = [ext for ext in extensions if ext.get_short_name() == extName]
-            if (not usages_ext and expected) or (usages_ext and not expected):
+            usagelastic_ext = [ext for ext in extensions if ext.get_short_name() == extName]
+            if (not usagelastic_ext and expected) or (usagelastic_ext and not expected):
                 return False
-            elif not usages_ext and not expected:
+            elif not usagelastic_ext and not expected:
                 return True
             else:
-                current = [OpenSSL._util.lib.OBJ_txt2nid(to_bytes(usage.strip())) for usage in str(usages_ext[0]).split(',')]
+                current = [OpenSSL._util.lib.OBJ_txt2nid(to_bytes(usage.strip())) for usage in str(usagelastic_ext[0]).split(',')]
                 expected = [OpenSSL._util.lib.OBJ_txt2nid(to_bytes(usage)) for usage in expected]
-                return set(current) == set(expected) and usages_ext[0].get_critical() == critical
+                return set(current) == set(expected) and usagelastic_ext[0].get_critical() == critical
 
         def _check_keyUsage(extensions):
             return _check_keyUsage_(extensions, b'keyUsage', self.keyUsage, self.keyUsage_critical)

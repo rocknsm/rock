@@ -176,7 +176,7 @@ worker-1-2 worker localhost running 20485 ??? 02 Dec 17:12:36
 === Functions Check:
 ```
 # After the initial build, the ES cluster will be yellow because the marvel index will think it's missing a replica. Run this to fix this issue. This job will run from cron just after midnight every day.
-/usr/local/bin/es_cleanup.sh 2>&1 > /dev/null
+/usr/local/bin/elastic_cleanup.sh 2>&1 > /dev/null
 
 # Check to see that the ES cluster says it's green:
 curl -s localhost:9200/_cluster/health | jq '.'

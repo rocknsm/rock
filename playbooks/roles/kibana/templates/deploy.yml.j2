@@ -19,7 +19,7 @@ spec:
         image: {{ kibana_image }}:{{ kibana_ver }}
         env:
         - name: CLUSTER_NAME
-          value: {{ es_cluster_name }}
+          value: {{ elastic_cluster_name }}
         - name: XPACK_SECURITY_ENABLED
           value: '{{ xpack_license }}'
         - name: XPACK_MONITORING_UI_CONTAINER_ELASTICSEARCH_ENABLED

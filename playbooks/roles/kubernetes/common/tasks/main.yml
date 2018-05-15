@@ -6,7 +6,6 @@
 - name: Reset Kube
   import_role:
     name: kubernetes/reset
-  when: reinstall is defined and reinstall
 
 - import_tasks: 00_preflight.yml
 

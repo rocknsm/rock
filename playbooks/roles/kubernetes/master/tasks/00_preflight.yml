@@ -18,8 +18,8 @@
 
 - name: Checking that required variables are set
   fail:
-    msg: "kubernetes_conf_file is not defined. It must be defined for Kubernetes to continue."
-  when: kubernetes_conf_file is not defined or kubernetes_conf_file is none
+    msg: "kubernetelastic_conf_file is not defined. It must be defined for Kubernetes to continue."
+  when: kubernetelastic_conf_file is not defined or kubernetelastic_conf_file is none
 
 - name: Checking that required variables are set
   fail:

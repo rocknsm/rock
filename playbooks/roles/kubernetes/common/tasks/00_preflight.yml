@@ -5,11 +5,11 @@
   find:
     paths: "{{ kube_dir }}"
     file_type: file
-  register: kubernetes_directory
+  register: kubernetelastic_directory
 
 - name: Check for existing directories. If it already exists, we will reinstall.
   import_role:
     name: kubernetes/reset
-  when: kubernetes_directory.matched | int != 0
+  when: kubernetelastic_directory.matched | int != 0
 
 ...

@@ -8,8 +8,8 @@ elastic_delete_interval: 60
 
 #### Main Role Configuration ####
 
-es_user: 1000
-es_group: 1000
+elastic_user: 1000
+elastic_group: 1000
 elastic_data_port: '9200'
 elastic_management_port: '9300'
 elastic_dir: "{{ install_dir  }}/elasticsearch"

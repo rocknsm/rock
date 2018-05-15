@@ -438,7 +438,7 @@ class SelfSignedCertificate(Certificate):
             self.changed = True
 
         file_args = module.load_file_common_arguments(module.params)
-        if module.set_fs_attributes_if_different(file_args, False):
+        if module.set_fs_attributelastic_if_different(file_args, False):
             self.changed = True
 
     def dump(self):
@@ -737,7 +737,7 @@ class AcmeCertificate(Certificate):
                 raise CertificateError(exc)
 
         file_args = module.load_file_common_arguments(module.params)
-        if module.set_fs_attributes_if_different(file_args, False):
+        if module.set_fs_attributelastic_if_different(file_args, False):
             self.changed = True
 
     def dump(self):

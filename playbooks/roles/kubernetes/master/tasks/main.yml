@@ -10,7 +10,6 @@
     - import_tasks: 05_files.yml
     - import_tasks: 10_init_cluster.yml
     - import_tasks: 15_setup_master_node.yml
-  when: (kube_reload is defined and kube_reload) or (kube_check_result is defined and kube_check_result.stdout == "")
 
 - import_tasks: 20_metallb.yml
 - import_tasks: 25_kube_dashboard.yml

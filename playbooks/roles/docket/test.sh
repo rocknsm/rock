@@ -42,7 +42,7 @@ timestamp=$(date +%s)
 playbook=${playbook:-"test.yml"}
 test_idempotence=${test_idempotence:-"true"}
 
-export ANSIBLE_ROLES_PATH=$(pwd)/../
+export ANSIBLE_ROLELASTIC_PATH=$(pwd)/../
 
 # Install requirements if `requirements.yml` is present.
 if [ -f "$PWD/tests/requirements.yml" ]; then

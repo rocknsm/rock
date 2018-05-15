@@ -8,23 +8,25 @@
 all:
   vars:
     bpf_filter: "" # Use this to screen traffic from the Moloch PCAP capture. Format is <IP_ADDRESS>/<CIDR>
+    pcap_bpf_filter: "" # Packets that match this filter will NOT be saved to disk by Moloch
     dns_ip: # <192.168.1.50> The IP address of the system DNS server. You may define this or it will default to using master server. We suggest you leave it to default unless you know what you are doing
-    es_datas: 0 # How many elasticsearch data nodes you would like to run
-    es_masters: 3 # How many elasticsearch masters you would like to run
-    es_mem: 2 # The amount of memory you want to assign to each elasticsearch instance
+    elastic_datas: 0 # How many elasticsearch data nodes you would like to run
+    elastic_masters: 3 # How many elasticsearch masters you would like to run
+    elastic_mem: 2 # The amount of memory you want to assign to each elasticsearch instance
     elastic_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Elasticsearch
+    elastic_cpu_maximum: 16 # This is the maximum number of CPUs elasticsearch may utilize
+    elastic_cpu_minimum: 12 # This is the minimum  number of cores which must be available for elasticsearch to start
     home_net: # This is used to define the homenet for bro/suricata
       - "192.168.0.0/16"
       - "10.0.0.0/8"
       - "172.16.0.0/12"
     kafka_mem: 1 # Kafka JVM Memory
     kafka_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Kafka
-    pcap_bpf_filter: "" # Packets that match this filter will NOT be saved to disk by Moloch
     use_ceph_for_pcap: false # Set to true to utilize clustered storage for pcap files
     pcap_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Moloch
-    # services_cidr is the range of addresses kubernetes will use for external services like Moloch and Kibana
+    # servicelastic_cidr is the range of addresses kubernetes will use for external services like Moloch and Kibana
     # It must be at least a /28
-    services_cidr: # Ex: "192.168.1.16/28"
+    servicelastic_cidr: # Ex: "192.168.1.16/28"
     zookeeper_mem: 1 # Zookeeper JVM Memory
     zookeeper_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Zookeeper
     zookeeper_replicas: 3 # Number of zookeeper replicas to be created

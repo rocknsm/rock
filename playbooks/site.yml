@@ -9,8 +9,11 @@
 - name: Update all hosts to most recent packages
   hosts: all
   tasks:
-  - name: Update all system packages to latest
-    yum: name=* state=latest
+  - name: Update all packages
+    yum:
+      name: '*'
+      state: latest
+      exclude: ceph-deploy,cockpit*
   # TODO: This should be removed after updates have been out for a bit
   - name: 'Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301'
     systemd:

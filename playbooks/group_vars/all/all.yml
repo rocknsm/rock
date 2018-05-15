@@ -14,7 +14,7 @@ redis_sentinel_port: 26379
 
 # Elasticsearch
 elastic_ver: '6.2.4'
-es_cluster_name: rock
+elastic_cluster_name: rock
 elastic_fqdn: "elasticsearch.{{ fqdn }}"
 elastic_port: 9200
 
@@ -25,7 +25,7 @@ kibana_fqdn: "kibana.{{ fqdn }}"
 xpack_license: 'true'
 
 # Kubernetes
-kubernetes_conf_file: /etc/kubernetes/admin.conf
+kubernetelastic_conf_file: /etc/kubernetes/admin.conf
 kube_dir: "{{ install_dir }}/kubernetes"
 kube_version: "1.9.7"
 
