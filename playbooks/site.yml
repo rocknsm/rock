@@ -23,9 +23,17 @@
 - name: Install Controller Dependancies
   hosts: localhost
   tasks:
-  - name: Install python-netaddr package
+  - name: Install python-netaddr
     yum:
       name: "python-netaddr"
+      state: installed
+
+- name: Install Controller Dependancies
+  hosts: all
+  tasks:
+  - name: Install NetworkManager packages
+    yum:
+      name: "NetworkManager-glib"
       state: installed
 
 - name: Verify Ansible meets version requirements

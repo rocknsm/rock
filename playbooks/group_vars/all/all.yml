@@ -54,7 +54,6 @@ package_list:
   #- cockpit-storaged - this is currently broken TODO: we need to look into this. See: https://github.com/tfplenum/rock/issues/323
   - cockpit-system
   - python-gobject
-  - NetworkManager-glib
   - nmap
   - mlocate
   - python-docker-py.noarch
