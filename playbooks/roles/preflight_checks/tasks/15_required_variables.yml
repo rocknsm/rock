@@ -19,10 +19,10 @@
     msg: "home_net is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: home_net is not defined or home_net is none
 
-- name: Checking that servicelastic_cidr is set
+- name: Checking that services_cidr is set
   fail:
-    msg: "servicelastic_cidr is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: servicelastic_cidr is not defined or servicelastic_cidr is none
+    msg: "services_cidr is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: services_cidr is not defined or services_cidr is none
 
 - name: Checking that bpf_filter is set
   fail:

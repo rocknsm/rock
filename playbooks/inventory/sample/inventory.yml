@@ -24,9 +24,9 @@ all:
     kafka_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Kafka
     use_ceph_for_pcap: false # Set to true to utilize clustered storage for pcap files
     pcap_pv_size: 6 # The amount of space allocated in GB to each persistent volume for Moloch
-    # servicelastic_cidr is the range of addresses kubernetes will use for external services like Moloch and Kibana
+    # services_cidr is the range of addresses kubernetes will use for external services like Moloch and Kibana
     # It must be at least a /28
-    servicelastic_cidr: # Ex: "192.168.1.16/28"
+    services_cidr: # Ex: "192.168.1.16/28"
     zookeeper_mem: 1 # Zookeeper JVM Memory
     zookeeper_pv_size: 3 # The amount of space allocated in GB to each persistent volume for Zookeeper
     zookeeper_replicas: 3 # Number of zookeeper replicas to be created
