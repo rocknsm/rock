@@ -24,8 +24,8 @@
 
 - name: Flush Deployments
   shell: |
-    kubectl --kubeconfig {{ kubernetelastic_conf_file }} delete -f {{ kibana_dir }}/{{ item }}.yml
-    while [ $(kubectl --kubeconfig {{ kubernetelastic_conf_file }} get -f {{ kibana_dir }}/{{ item }}.yml | tail -n +2 | wc -l) != '0' ]; do
+    kubectl --kubeconfig {{ kubernetes_conf_file }} delete -f {{ kibana_dir }}/{{ item }}.yml
+    while [ $(kubectl --kubeconfig {{ kubernetes_conf_file }} get -f {{ kibana_dir }}/{{ item }}.yml | tail -n +2 | wc -l) != '0' ]; do
       echo -n .;
       sleep 1;
     done;

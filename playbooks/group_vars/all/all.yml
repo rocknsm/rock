@@ -25,7 +25,7 @@ kibana_fqdn: "kibana.{{ fqdn }}"
 xpack_license: 'true'
 
 # Kubernetes
-kubernetelastic_conf_file: /etc/kubernetes/admin.conf
+kubernetes_conf_file: /etc/kubernetes/admin.conf
 kube_dir: "{{ install_dir }}/kubernetes"
 kube_version: "1.9.7"
 

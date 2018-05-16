@@ -10,7 +10,7 @@
     dest: files/
     flat: yes
   with_items:
-    - "{{ kubernetelastic_conf_file }}"
+    - "{{ kubernetes_conf_file }}"
     - "/etc/kubernetes/join-node.sh"
 
 - name: Retrieve generated credentials
