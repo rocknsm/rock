@@ -51,7 +51,7 @@ case $action in
     done
     ;;
   *)
-    echo "rock_processes: Usage: rock_processes {start|stop|status|reset-failed}"
+    echo "rockctl: Usage: rockctl {start|stop|status|reset-failed}"
 esac
 
 exit 0

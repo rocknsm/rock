@@ -1159,10 +1159,10 @@
       owner: root
       group: root
 
-  - name: Install rock status script
+  - name: Install rock control script
     copy:
-      src: rock_processes
-      dest: /usr/local/bin/rock_processes
+      src: rockctl
+      dest: /usr/local/bin/rockctl
       mode: 0755
       owner: root
       group: root
