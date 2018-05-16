@@ -18,6 +18,10 @@
     - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
     - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
 
+- fail:
+    msg: "For some reason we could not find the management interface on your computer. Check that the management_ipv4 address listed in your inventory file matches the computer it is assigned to."
+  when: management_interface is not defined
+
 - name: Update DNS records for the management interface
   nmcli:
     conn_name: "{{ item.stdout }}"

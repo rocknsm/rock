@@ -9,3 +9,5 @@
   fail:
     msg: "Ceph health check failed.  Stopping play. Error: {{ ceph_status_result }}"
   when: "(ceph_status_result is defined and 'HEALTH_ERR' in ceph_status_result.stdout) or (ceph_status_result is defined and 'HEALTH_WARN' in ceph_status_result.stdout)"
+
+...

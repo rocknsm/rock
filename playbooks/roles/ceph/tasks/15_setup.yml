@@ -17,21 +17,13 @@
   args:
     chdir: "{{ ceph_dir }}"
 
-- name: Install Ceph on CentOS
+- name: Run Ceph deploy
   shell: ceph-deploy install --stable luminous {{ ceph_host_pool_list }}
   args:
     chdir: "{{ ceph_dir }}"
-  when: ansible_distribution == 'CentOS'
-
-- name: Install Ceph on RHEL
-  yum:
-    name: ceph
-    state: installed
-  when: ansible_distribution == 'RedHat'
 
 - name: Configure and start mons
-  shell: |
-    ceph-deploy mon create-initial
+  shell: ceph-deploy mon create-initial
   args:
     chdir: "{{ ceph_dir }}"
 
@@ -66,8 +58,7 @@
     chdir: "{{ ceph_dir }}"
 
 - name: Format drives
-  shell: |
-    ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].data_disk_devices | join((" "+item+":")) }}
+  shell: ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].data_disk_devices | join((" "+item+":")) }}
   args:
     chdir: "{{ ceph_dir }}"
   with_items:
@@ -89,8 +80,7 @@
     osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
 
 - name: Create Pool
-  shell: |
-    ceph osd pool create rbd {{ osd_count | int * 32 }} {{ osd_count | int * 32 }} replicated
+  shell: ceph osd pool create rbd {{ osd_count | int * 32 }} {{ osd_count | int * 32 }} replicated
 
 - name: Reduce duplication
   shell: |
@@ -106,11 +96,12 @@
     ceph osd setcrushmap -i /tmp/crush.ceph
 
 - name: Get Ceph key
-  shell: |
-    cat /etc/ceph/ceph.client.admin.keyring | grep key | awk '{printf $3}'
+  shell: cat /etc/ceph/ceph.client.admin.keyring | grep key | awk '{printf $3}'
   register: ceph_key
 
 # See: https://ceph.com/community/new-luminous-pool-tags/
 # This was required to pull ceph out of health warn
 - name: Set RBD Application Pool
   shell: ceph osd pool application enable rbd rbd
+
+...

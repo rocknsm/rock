@@ -1,4 +1,5 @@
 ---
+
 - name: Check Provisioner
   import_role:
     name: kubernetes/common
@@ -13,3 +14,5 @@
   shell:  ceph health
   register: ceph_status_result
   failed_when: ceph_status_result.rc != 127 and ceph_status_result.rc != 0 and ceph_status_result.rc != 1
+
+...

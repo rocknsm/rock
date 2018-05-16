@@ -7,10 +7,21 @@
   yum:
     name: "{{ item }}"
     state: 'installed'
+    allow_downgrade: yes
   with_items:
     - "kubeadm-{{ kube_version }}"
     - "kubelet-{{ kube_version }}"
     - "kubectl-{{ kube_version }}"
+  register: installed_packages
+  notify:
+    - restart docker
+    - restart kubelet
+
+- name: 'Install Kubernetes support packages'
+  yum:
+    name: "{{ item }}"
+    state: 'installed'
+  with_items:
     - "docker"
     - "device-mapper-persistent-data"
     - "lvm2"

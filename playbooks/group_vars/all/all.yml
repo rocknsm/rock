@@ -41,11 +41,6 @@ kafka_retention: 168
 
 # Common
 package_list:
-  - tcpreplay
-  - tcpdump
-  - vim
-  - chrony
-  - postfix
   - cockpit
   - cockpit-dashboard
   - cockpit-machines
@@ -54,9 +49,8 @@ package_list:
   #- cockpit-storaged - this is currently broken TODO: we need to look into this. See: https://github.com/tfplenum/rock/issues/323
   - cockpit-system
   - python-gobject
-  - nmap
-  - mlocate
   - python-docker-py.noarch
+  - nload
 
 # RockNSM
 #rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch

@@ -27,13 +27,13 @@ common:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t common
 
 dnsmasq:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t dnsmasq
 
 genkeys:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) --ask-pass -t genkeys
 
 kubernetes:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node -e reinstall=true
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node
 
 ceph:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph
@@ -69,13 +69,16 @@ docket:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t docket
 
 dnsmasq-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata -e reinstall=true
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t dnsmasq,preflight,common,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 preflight-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata -e reinstall=true
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t preflight,common,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
+
+common-rerun:
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t common,kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 kubernetes-rerun:
-	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata -e reinstall=true
+	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t kube-master,kube-node,ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata
 
 ceph-rerun:
 	ansible-playbook $(PLAYBOOK) -i $(INVENTORY) -t ceph,elasticsearch,logstash,kibana,metricbeat,kafka,bro,moloch,suricata

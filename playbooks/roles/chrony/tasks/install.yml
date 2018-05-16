@@ -1,4 +1,5 @@
 ---
+
 - name: 'Install Chrony'
   become: yes
   package:
@@ -7,3 +8,5 @@
   tags:
     - 'chrony-install'
     - 'chrony'
+
+...

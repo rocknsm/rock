@@ -48,41 +48,6 @@
   - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
   when: "ansible_distribution == \"CentOS\""
 
-- name: Check if EPEL repo is already configured
-  stat: path={{ epel_repofile_path }}
-  register: epel_repofile_result
-
-- name: Install EPEL release
-  yum:
-    name: "{{ epel_repo_url }}"
-    state: present
-  register: result
-  when: not epel_repofile_result.stat.exists
-
-- name: Import EPEL GPG key
-  rpm_key:
-    key: "{{ epel_repo_gpg_key_url }}"
-    state: present
-  when: not epel_repofile_result.stat.exists
-
-- name: Install ceph trusted key for RHEL
-  shell: sudo rpm --import 'https://download.ceph.com/keys/release.asc'
-  when: ansible_distribution == 'RedHat'
-
-- name: Create ceph.repo file on RHEL
-  template:
-    src: templates/RHEL-ceph.repo
-    dest: /etc/yum.repos.d/ceph.repo
-    owner: root
-    group: root
-    mode: 0644
-  when: ansible_distribution == 'RedHat'
-
-- name: Enable RHSM repositories on RHEL nodes
-  shell: "subscription-manager repos --enable={{ item }}"
-  with_items: "{{ redhat_repos }}"
-  when: "ansible_distribution == 'RedHat'"    
-
 #- name: "Manually trust CentOS GPG key"
 #  shell: "rpm --import http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7\n"
 #  when: "rock_online_install and ansible_distribution == \"CentOS\""

@@ -6,19 +6,17 @@
 
 ---
 
-- name: Update all hosts to most recent packages
+- name: Enable RHSM repositories on RHEL nodes
   hosts: all
   tasks:
-  - name: Update all packages
-    yum:
-      name: '*'
-      state: latest
-      exclude: ceph-deploy,cockpit*
-  # TODO: This should be removed after updates have been out for a bit
-  - name: 'Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301'
-    systemd:
-      name: NetworkManager
-      state: restarted
+  - name: Enabling Red Hat repos...
+    rhsm_repository:
+      name: "{{ item }}"
+      state: enabled
+    with_items:
+      - rhel-7-server-extras-rpms
+      - rhel-7-server-optional-rpms
+    when: "ansible_distribution == 'RedHat'"
 
 - name: Install Controller Dependancies
   hosts: localhost
@@ -35,6 +33,12 @@
     yum:
       name: "NetworkManager-glib"
       state: installed
+  # TODO: This should be removed after updates have been out for a bit
+  - name: 'Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301'
+    systemd:
+      name: NetworkManager
+      state: restarted
+  tags: dnsmasq
 
 - name: Verify Ansible meets version requirements
   hosts: localhost
@@ -53,6 +57,51 @@
   roles:
     - dnsmasq
   tags: dnsmasq
+
+- name: Setup EPEL Repository
+  hosts: all
+  tasks:
+
+  - name: Check if EPEL repo is already configured
+    stat: path=/etc/yum.repos.d/epel.repo
+    register: epel_repofile_result
+
+  - name: Install EPEL release
+    yum:
+      name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm'
+      state: present
+    register: result
+    when: not epel_repofile_result.stat.exists
+
+  - name: Import EPEL GPG key
+    rpm_key:
+      key: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}'
+      state: present
+    when: not epel_repofile_result.stat.exists
+
+- name: Update all hosts to most recent packages
+  hosts: all
+  tasks:
+  - name: Update all packages
+    yum:
+      name: '*'
+      state: latest
+      exclude: ceph-deploy,cockpit*,kube*
+    register: system_updated
+  - name: Reboot system to finish installing updates
+    command: "/sbin/shutdown -r +1 --no-wall"
+    async: 0
+    poll: 0
+    ignore_errors: yes
+    when: system_updated is defined and system_updated.changed
+  - name: Wait for reboot to complete
+    wait_for:
+      host: "{{ inventory_hostname }}"
+      port: 22
+      delay: 120
+      timeout: 300
+    delegate_to: localhost
+    when: system_updated is defined and system_updated.changed
 
 - name: Generate SSH keys
   hosts:
@@ -123,7 +172,7 @@
     - kube-node
 
 - name: Setup Ceph
-  hosts: master-server
+  hosts: all
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -222,28 +271,28 @@
   tags:
     - suricata
 
-- name: Deploy Stenographer
-  hosts:
-    - sensors
-    - remote-sensors
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - stenographer
-  tags:
-    - stenographer
+#- name: Deploy Stenographer
+#  hosts:
+#    - sensors
+#    - remote-sensors
+#  gather_facts: no
+#  any_errors_fatal: true
+#  pre_tasks:
+#    - setup:
+#  roles:
+#    - stenographer
+#  tags:
+#    - stenographer
 
-- name: Deploy Docket
-  hosts: all
-  gather_facts: no
-  any_errors_fatal: true
-  pre_tasks:
-    - setup:
-  roles:
-    - docket
-  tags:
-    - docket
+#- name: Deploy Docket
+#  hosts: all
+#  gather_facts: no
+#  any_errors_fatal: true
+#  pre_tasks:
+#    - setup:
+#  roles:
+#    - docket
+#  tags:
+#    - docket
 
 ...
