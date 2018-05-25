@@ -544,7 +544,7 @@ logging:
 
 # Linux high speed capture support
 af-packet:
-{% for iface in monitor_interfaces[host] %}
+{% for iface in monitor_interface[host] %}
   - interface: {{ iface | default("eth0", true) }}
     # Number of receive threads. "auto" uses the number of cores
     #threads: auto
@@ -631,7 +631,7 @@ af-packet:
 
 # Cross platform libpcap capture support
 pcap:
-{% for iface in monitor_interfaces[host] %}
+{% for iface in monitor_interface[host] %}
   - interface: {{ iface | default("eth0", true) }}
     # On Linux, pcap will try to use mmaped capture and will use buffer-size
     # as total of memory used by the ring. So set this to something bigger

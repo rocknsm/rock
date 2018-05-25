@@ -8,4 +8,4 @@
 - name: WIPEING DATA
   shell: "dmsetup remove_all; wipefs -af {{ item }}"
   with_items:
-    - "{{ data_disk_devices }}"
+    - "{{ ceph_disks }}"

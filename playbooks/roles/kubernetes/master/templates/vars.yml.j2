@@ -1,13 +1,13 @@
-monitor_interfaces:
+monitor_interface:
 {% for host in groups['sensors'] %}
   {{ hostvars[host].inventory_hostname }}:
-{% for iface in hostvars[host].monitor_interfaces %}
+{% for iface in hostvars[host].monitor_interface %}
     - {{ iface }}
 {% endfor %}
 {% endfor %}
 {% for host in groups['remote-sensors'] %}
   {{ hostvars[host].inventory_hostname }}:
-{% for iface in hostvars[host].monitor_interfaces %}
+{% for iface in hostvars[host].monitor_interface %}
     - {{ iface }}
 {% endfor %}
 {% endfor %}
@@ -32,8 +32,8 @@ remote:
 {% for host in groups['remote-sensors'] %}
   {{ hostvars[host].inventory_hostname }}: true
 {% endfor %}
-bpf_filter: "{{ bpf_filter }}"
-pcap_bpf_filter: "{{ pcap_bpf_filter }}"
+moloch_bpf: "{{ moloch_bpf }}"
+moloch_dontSaveBPFs: "{{ moloch_dontSaveBPFs }}"
 home_net:
 {% for net in home_net %}
   - "{{ net }}"

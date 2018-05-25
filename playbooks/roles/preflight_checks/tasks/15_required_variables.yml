@@ -24,10 +24,10 @@
     msg: "services_cidr is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: services_cidr is not defined or services_cidr is none
 
-- name: Checking that bpf_filter is set
+- name: Checking that moloch_bpf is set
   fail:
-    msg: "bpf_filter is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: bpf_filter is not defined or bpf_filter is none
+    msg: "moloch_bpf is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_bpf is not defined or moloch_bpf is none
 
 - name: Checking that elastic_mem is set
   fail:
@@ -49,10 +49,10 @@
     msg: "elastic_cpu_minimum is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: elastic_cpu_minimum is not defined or elastic_cpu_minimum is none
 
-- name: Checking that pcap_bpf_filter is set
+- name: Checking that moloch_dontSaveBPFs is set
   fail:
-    msg: "pcap_bpf_filter is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: pcap_bpf_filter is not defined or pcap_bpf_filter is none
+    msg: "moloch_dontSaveBPFs is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_dontSaveBPFs is not defined or moloch_dontSaveBPFs is none
 
 - name: Checking that elastic_datas is set
   fail:
@@ -91,13 +91,13 @@
 
 - name: Checking that kakfa_mem is set
   fail:
-    msg: "kafka_mem is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: kafka_mem is not defined or kafka_mem is none
+    msg: "kafka_jvm_memory is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: kafka_jvm_memory is not defined or kafka_jvm_memory is none
 
-- name: Checking that monitor_interfaces is set
+- name: Checking that monitor_interface is set
   fail:
-    msg: "monitor_interfaces is not defined. Make sure it is defined in your inventory file. See sample inventory for help. All sensors must have monitor interface defined."
-  when: inventory_hostname in groups['sensors'] and (monitor_interfaces is not defined or monitor_interfaces is none)
+    msg: "monitor_interface is not defined. Make sure it is defined in your inventory file. See sample inventory for help. All sensors must have monitor interface defined."
+  when: inventory_hostname in groups['sensors'] and (monitor_interface is not defined or monitor_interface is none)
 
 - name: Checking that bro_wokers is set
   fail:

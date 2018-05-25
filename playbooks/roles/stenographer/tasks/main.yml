@@ -12,7 +12,7 @@
   template:
     src: templates/stenographer-config.j2
     dest: "/etc/stenographer/config.{{ item.1 }}"
-  with_indexed_items: "{{ stenographer_monitor_interfaces }}"
+  with_indexed_items: "{{ stenographer_monitor_interface }}"
 
 - name: Create Stenographer directories
   file:
@@ -22,7 +22,7 @@
     group: "{{ stenographer_group }}"
     state: directory
   with_nested:
-    - "{{ stenographer_monitor_interfaces }}"
+    - "{{ stenographer_monitor_interface }}"
     - [ 'index', 'packets' ]
 
 - name: Install stenographer service files
@@ -54,6 +54,6 @@
     name: "stenographer@{{ item }}"
     enabled: yes
     daemon_reload: yes
-  with_items: "{{ stenographer_monitor_interfaces }}"
+  with_items: "{{ stenographer_monitor_interface }}"
 
 ...

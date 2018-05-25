@@ -3,7 +3,7 @@
 stenographer_packagename: stenographer
 stenographer_user: stenographer
 stenographer_group: stenographer
-stenographer_monitor_interfaces: [eth0]
+stenographer_monitor_interface: [eth0]
 enable_stenographer: true
 action: deploy
 

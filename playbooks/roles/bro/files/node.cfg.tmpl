@@ -15,7 +15,7 @@ type=proxy
 host=localhost
 env_vars=fanout_id=0
 
-{% for iface in ( monitor_interfaces[host] | default(['eth0'],true) ) -%}
+{% for iface in ( monitor_interface[host] | default(['eth0'],true) ) -%}
 [{{ iface }}]
 type=worker
 host=localhost

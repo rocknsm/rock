@@ -58,12 +58,12 @@
     chdir: "{{ ceph_dir }}"
 
 - name: Format drives
-  shell: ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].data_disk_devices | join((" "+item+":")) }}
+  shell: ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].ceph_disks | join((" "+item+":")) }}
   args:
     chdir: "{{ ceph_dir }}"
   with_items:
     - "{{ groups['ceph'] }}"
-  when: hostvars[item].data_disk_devices and hostvars[item].data_disk_devices | length > 0
+  when: hostvars[item].ceph_disks and hostvars[item].ceph_disks | length > 0
 
 - name: Default osd_count to 0
   set_fact:
@@ -71,10 +71,10 @@
 
 - name: Declare osd amount
   set_fact:
-    osd_count: "{{ (osd_count | int) + ( hostvars[item].data_disk_devices | length | int ) }}"
+    osd_count: "{{ (osd_count | int) + ( hostvars[item].ceph_disks | length | int ) }}"
   register: osd_results
   loop: "{{ groups['ceph'] }}"
-  when: hostvars[item].data_disk_devices and hostvars[item].data_disk_devices | length > 0
+  when: hostvars[item].ceph_disks and hostvars[item].ceph_disks | length > 0
 
 - set_fact:
     osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"

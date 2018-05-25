@@ -7,10 +7,10 @@
 # This grabs the drive from each machine. For example /dev/sdb would give you sdb
 - name: Get the drive names
   shell: "echo {{ item.split('/')[2] }}"
-  with_items: "{{ hostvars[inventory_hostname].data_disk_devices }}"
+  with_items: "{{ hostvars[inventory_hostname].ceph_disks }}"
   register: disk_names
   changed_when: false
-  when: hostvars[inventory_hostname].data_disk_devices
+  when: hostvars[inventory_hostname].ceph_disks
 
 # This is just an array with all the disk names
 - name: Create array with correct disk name
@@ -36,7 +36,7 @@
 #- name: Verify the drives do not contain root
 #  shell: "lsblk | grep '{{ item[item.rfind('/') + 1:] }}'"
 #  with_items:
-#    - "{{ data_disk_devices }}"
+#    - "{{ ceph_disks }}"
 #  register: command_result
 #  failed_when:
 #   - "'/' in command_result.stdout"

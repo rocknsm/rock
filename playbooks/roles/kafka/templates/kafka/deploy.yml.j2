@@ -187,7 +187,7 @@ spec:
         - name: JMX_PORT
           value: "{{ kafka_jmx_port }}"
         - name: KAFKA_HEAP_OPTS
-          value: "-Xmx{{ kafka_mem }}g -Xms{{ kafka_mem }}g"
+          value: "-Xmx{{ kafka_jvm_memory }}g -Xms{{ kafka_jvm_memory }}g"
 # TODO
 # https://docs.hortonworks.com/HDPDocuments/HDP2/HDP-2.6.2/bk_kafka-component-guide/content/prepare-kafka-env.html
 # We need to set the following Java options
