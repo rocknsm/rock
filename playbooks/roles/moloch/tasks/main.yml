@@ -1,9 +1,0 @@
----
-
-- include_tasks: 05_format_drives.yml
-  when: inventory_hostname in groups['moloch'] and not use_ceph_for_pcap and pcap_disk is not none
-
-- import_tasks: 10_setup.yml
-  when: inventory_hostname in groups['master-server']
-
-...

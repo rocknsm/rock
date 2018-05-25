@@ -1,8 +1,0 @@
----
-
-- name: Run variables preflight
-  include_role:
-    name: preflight_checks
-    tasks_from: 15_required_variables
-
-...

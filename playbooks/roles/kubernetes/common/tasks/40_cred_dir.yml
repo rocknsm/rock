@@ -1,9 +1,0 @@
----
-
-- name: Create credential directory
-  file:
-    path: "~/.kube"
-    state: directory
-    mode: u+rw,g+r
-
-...

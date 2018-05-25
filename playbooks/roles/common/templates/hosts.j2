@@ -1,9 +1,0 @@
-# {{ ansible_managed }}
-127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
-
-# Network nodes as generated through Ansible.
-{% for host in play_hosts %}
-{% if 'management_ipv4' in hostvars[host] %}
-{{ hostvars[host]['management_ipv4'] }}  {{ host }} {{ hostvars[host]['inventory_hostname_short'] }}
-{% endif %}
-{% endfor %}

@@ -1,5 +1,0 @@
-#The syntax for the hosts file is:
-#IP_address hostname [optional additional hostnames with spaces separators]
-#Examples:
-#1.2.3.4 myhost.domain myhost
-#2.3.4.5 thishost

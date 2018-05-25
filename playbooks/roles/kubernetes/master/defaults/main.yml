@@ -1,9 +1,0 @@
-%YAML 1.1
----
-
-#### Docker configuration variables ####
-# All high level Docker configuration variables for Docker install itself.
-# All image or container variables are stored in their particular role variables file.
-# These control how the docker service is installed and how services are installed using Docker.
-# kubernetes version 1.9.4 has broken configMaps
-kube_pod_cidr: "10.244.0.0/16"

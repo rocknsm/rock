@@ -1,8 +1,0 @@
----
-- name: Install GlusterFS
-  yum:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - glusterfs-client
-    - heketi-client
