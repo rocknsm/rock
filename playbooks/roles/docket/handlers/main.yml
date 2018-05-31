@@ -4,15 +4,15 @@
   file:
     path: "{{docket_x509_key}}.csr"
     state: absent
-  when: inventory_hostname in groups['docket']
+  when: "{{ inventory_hostname in groups['docket'] | bool }}"
 
 - name: docket | cleanup csr on sensor hosts
   file:
     path: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname}}.csr"
     state: absent
-  with_items: groups['docket']
+  with_items: "{{ groups['docket'] }}"
   when:
-    - inventory_hostname in groups['stenographer']
+    - "{{ inventory_hostname in groups['stenographer'] | bool}}"
 
 - name: docket | restart redis
   service:

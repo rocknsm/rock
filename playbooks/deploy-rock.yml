@@ -61,6 +61,7 @@
     - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
     - { pkg: docket, test: "{{with_docket}}", state: installed }
     - { pkg: suricata, test: "{{with_suricata}}", state: installed }
+    - { pkg: suricata-update, test: "{{with_suricata}}", state: installed}
     - { pkg: snort, test: "{{with_snort}}", state: installed }
     - { pkg: daq, test: "{{with_snort}}", state: installed }
     - { pkg: zookeeper, test: "{{with_zookeeper}}", state: installed }
@@ -80,7 +81,7 @@
       url: "{{ pulledpork_url }}"
       dest: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
       mode: 0644
-    when: rock_online_install
+    when: with_pulledpork and rock_online_install
 
   - name: Install Pulled Pork
     unarchive:
@@ -90,8 +91,7 @@
       group: root
       creates: "/opt/pulledpork-{{ pulledpork_release }}"
       remote_src: yes
-    when: "{{ with_pulledpork }}"
-
+    when: with_pulledpork
 
     #######################################################
     ################ Configure firewall ###################
@@ -280,79 +280,9 @@
     wait_for: host=localhost port=9200
     when: with_elasticsearch
 
-  - name: Check for Bro mapping templates
-    uri:
-      method: "GET"
-      url: http://localhost:9200/_template/bro_index
-    failed_when: False
-    register: bro_mapping
-    when: (with_elasticsearch and with_bro)
-
-  - name: Load Bro Elasticsearch mapping templates
-    uri:
-      method: PUT
-      url: http://localhost:9200/_template/bro_index
-      body: "{{ lookup('file', 'es-bro-mappings.json')}}"
-      body_format: json
-    when: (with_elasticsearch and with_bro) and bro_mapping.status == 404
-
     ######################################################
     ################### Setup Logstash ###################
     ######################################################
-  - name: Install Bro-Kafka configuration for Logstash
-    copy:
-      src: "{{item}}"
-      dest: "/etc/logstash/conf.d/{{item}}"
-      mode: 0640
-      owner: "{{ logstash_user }}"
-      group: "{{ logstash_group }}"
-    when: with_logstash and with_bro and with_kafka
-    notify: Restart Logstash
-    with_items:
-      - logstash-100-input-kafka-bro.conf
-      - logstash-500-filter-bro.conf
-      - logstash-999-output-es-bro.conf
-
-  - name: Install Suricata-Kafka configuration for Logstash
-    copy:
-      src: "{{item}}"
-      dest: "/etc/logstash/conf.d/{{item}}"
-      mode: 0640
-      owner: "{{ logstash_user }}"
-      group: "{{ logstash_group }}"
-    when: with_logstash and with_suricata and with_kafka
-    notify: Restart Logstash
-    with_items:
-      - logstash-100-input-kafka-suricata.conf
-      - logstash-500-filter-suricata.conf
-      - logstash-999-output-es-suricata.conf
-
-  - name: Install FSF-Kafka configuration for Logstash
-    copy:
-      src: "{{item}}"
-      dest: "/etc/logstash/conf.d/{{item}}"
-      mode: 0640
-      owner: "{{ logstash_user }}"
-      group: "{{ logstash_group }}"
-    when: with_logstash and with_fsf and with_kafka
-    notify: Restart Logstash
-    with_items:
-      - logstash-100-input-kafka-fsf.conf
-      - logstash-500-filter-fsf.conf
-      - logstash-999-output-es-fsf.conf
-
-  - name: Install Parse Failure configuration for Logstash
-    copy:
-      src: "{{item}}"
-      dest: "/etc/logstash/conf.d/{{item}}"
-      mode: 0640
-      owner: "{{ logstash_user }}"
-      group: "{{ logstash_group }}"
-    when: with_logstash
-    notify: Restart Logstash
-    with_items:
-      - logstash-998-filter-parsefailures.conf
-      - logstash-999-output-es-parsefailures.conf
 
   - name: Check for Parse Failure mapping template
     uri:
@@ -387,23 +317,6 @@
       enabled: "{{ enable_kibana }}"
     when: with_kibana
 
-  - name: Download ROCK Dashboards
-    get_url:
-      url: "{{ rock_dashboards_url }}"
-      dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
-      mode: 0644
-    when: with_kibana and rock_online_install
-
-  - name: Extract ROCK Dashboards
-    unarchive:
-      src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
-      dest: /opt/rocknsm
-      owner: root
-      group: root
-      creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
-      remote_src: yes
-    when: with_kibana
-
   - name: Configure Kibana templates
     uri:
       method: PUT
@@ -429,7 +342,11 @@
 
   - name: Set initial Kibana credentials
     shell: >
-      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && export kibpw=$(xkcdpass -a rock) && echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
+      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && \
+      export kibpw=$(xkcdpass -a rock) && \
+      echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && \
+      printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | \
+      sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
     args:
       creates: /etc/nginx/htpasswd.users
     when: with_kibana
@@ -451,28 +368,85 @@
       dest: /opt/rocknsm
       owner: root
       group: root
-      creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+      creates: "{{ rock_module_dir }}"
       remote_src: yes
     when: (with_kibana or with_elasticsearch or with_logstash)
 
-# TODO Remove elasticsearch setup above
-# TODO customize mappings install per sensor features (i.e. bro, suricata, etc)...maybe
+    ############### Elasticsearch Mappings ####################
+    # TODO customize mappings install per sensor features (i.e. bro, suricata, etc)...maybe
+    # TODO: Fix `changed_when`
   - name: Blanket install/update Elasticsearch mappings
     command: ./configuration/elasticsearch/import-index-templates.sh "{{ es_url }}"
     args:
-      chdir: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+      chdir: "{{ rock_module_dir }}"
     changed_when: false
-    # TODO: Fix this ^^
     when: with_elasticsearch
 
-  #TODO Move logstash config here using the extracted files
-  - name: Setup logstash
-    debug: msg="TODO"
+    ############### Logstash Config ####################
+  - name: Install Bro-Kafka configuration for Logstash
+    copy:
+      src: "{{rock_module_dir}}/{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+      remote_src: "yes"
+    when: with_logstash and with_bro and with_kafka
+    notify: Restart Logstash
+    with_items:
+      - logstash-100-input-kafka-bro.conf
+      - logstash-500-filter-bro.conf
+      - logstash-999-output-es-bro.conf
 
+  - name: Install Suricata-Kafka configuration for Logstash
+    copy:
+      src: "{{rock_module_dir}}/{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+      remote_src: "yes"
+    when: with_logstash and with_suricata and with_kafka
+    notify: Restart Logstash
+    with_items:
+      - logstash-100-input-kafka-suricata.conf
+      - logstash-500-filter-suricata.conf
+      - logstash-999-output-es-suricata.conf
+
+  - name: Install FSF-Kafka configuration for Logstash
+    copy:
+      src: "{{rock_module_dir}}/{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+      remote_src: "yes"
+    when: with_logstash and with_fsf and with_kafka
+    notify: Restart Logstash
+    with_items:
+      - logstash-100-input-kafka-fsf.conf
+      - logstash-500-filter-fsf.conf
+      - logstash-999-output-es-fsf.conf
+
+  - name: Install Parse Failure configuration for Logstash
+    copy:
+      src: "{{rock_module_dir}}/{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+      remote_src: "yes"
+    when: with_logstash
+    notify: Restart Logstash
+    with_items:
+      - logstash-998-filter-parsefailures.conf
+      - logstash-999-output-es-parsefailures.conf
+
+    ############### Kibana Config ####################
   - name: Blanket install/update Kibana saved objects
     command: ./configuration/kibana/import-saved-items.sh "{{ kibana_url }}"
     args:
-      chdir: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+      chdir: "{{rock_module_dir}}"
     changed_when: false
     # TODO: Fix this ^^
     when: with_kibana
@@ -480,7 +454,7 @@
   - name: Blanket install/update Kibana saved objects
     command: ./configuration/kibana/import-saved-items.sh "{{ kibana_uri }}"
     args:
-      chdir: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
+      chdir: "{{rock_module_dir}}"
     changed_when: false
     # TODO: Fix this ^^
     when: with_kibana
@@ -781,9 +755,9 @@
     template:
       src: templates/suricata_overrides.yaml.j2
       dest: /etc/suricata/rocknsm-overrides.yaml
-      mode: 0644
-      owner: "{{ suricata_user }}"
-      group: root
+      mode: 0640
+      owner: "root"
+      group: "{{ suricata_group }}"
     when: with_suricata
 
   - name: Create IP reputation config dir
@@ -793,6 +767,16 @@
       owner: root
       group: root
       mode: 0755
+    when: with_suricata
+
+  - name: Create Suricata dirs for suricata-update
+    file:
+      path: "{{ suricata_var_dir }}/{{ item }}"
+      state: directory
+      owner: "{{ suricata_user }}"
+      group: "{{ suricata_group }}"
+      mode: 0755
+      recurse: "yes"
     when: with_suricata
 
   - name: Set suricata overrides include in main config
@@ -1142,20 +1126,21 @@
            --partitions 1
 
     - name: reload systemd
-      command: systemctl daemon-reload
+      systemd:
+        daemon_reload: yes
 
     - name: Restart Logstash
-      service:
+      systemd:
         name: logstash
         state: restarted
 
     - name: Restart Filebeat
-      service:
+      systemd:
         name: filebeat
         state: restarted
 
     - name: Enable and start nginx
-      service:
+      systemd:
         name: nginx
         state: "{{ 'started' if enable_nginx else 'stopped' }}"
         enabled: "{{ enable_nginx }}"
