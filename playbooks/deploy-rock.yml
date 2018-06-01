@@ -385,7 +385,7 @@
     ############### Logstash Config ####################
   - name: Install Bro-Kafka configuration for Logstash
     copy:
-      src: "{{rock_module_dir}}/{{item}}"
+      src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
       dest: "/etc/logstash/conf.d/{{item}}"
       mode: 0640
       owner: "{{ logstash_user }}"
@@ -400,7 +400,7 @@
 
   - name: Install Suricata-Kafka configuration for Logstash
     copy:
-      src: "{{rock_module_dir}}/{{item}}"
+      src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
       dest: "/etc/logstash/conf.d/{{item}}"
       mode: 0640
       owner: "{{ logstash_user }}"
@@ -415,7 +415,7 @@
 
   - name: Install FSF-Kafka configuration for Logstash
     copy:
-      src: "{{rock_module_dir}}/{{item}}"
+      src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
       dest: "/etc/logstash/conf.d/{{item}}"
       mode: 0640
       owner: "{{ logstash_user }}"
@@ -430,7 +430,7 @@
 
   - name: Install Parse Failure configuration for Logstash
     copy:
-      src: "{{rock_module_dir}}/{{item}}"
+      src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
       dest: "/etc/logstash/conf.d/{{item}}"
       mode: 0640
       owner: "{{ logstash_user }}"
@@ -445,14 +445,6 @@
     ############### Kibana Config ####################
   - name: Blanket install/update Kibana saved objects
     command: ./configuration/kibana/import-saved-items.sh "{{ kibana_url }}"
-    args:
-      chdir: "{{rock_module_dir}}"
-    changed_when: false
-    # TODO: Fix this ^^
-    when: with_kibana
-
-  - name: Blanket install/update Kibana saved objects
-    command: ./configuration/kibana/import-saved-items.sh "{{ kibana_uri }}"
     args:
       chdir: "{{rock_module_dir}}"
     changed_when: false
@@ -778,6 +770,9 @@
       mode: 0755
       recurse: "yes"
     when: with_suricata
+    with_items:
+      - rules
+      - update
 
   - name: Set suricata overrides include in main config
     lineinfile:
