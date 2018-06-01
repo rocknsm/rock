@@ -8,6 +8,4 @@
     - firewalld
     - chrony
     - libselinux-python
-    - python-markupsafe >= 0.23
-    - python-jinja2 >= 2.9.0
 ...

@@ -11,7 +11,11 @@ Source0:        https://github.com/rocknsm/%{name}/archive/v%{version}.tar.gz#/%
 
 BuildArch:      noarch
 
-Requires:       ansible
+Requires:       ansible >= 2.4.2
+Requires:       python-jinja2 >= 2.9.0
+Requires:       python-markupsafe >= 0.23
+Requires:       python-pyOpenSSL
+Requires:       libselinux-python
 Requires:       git
 
 %description
@@ -49,7 +53,7 @@ cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 %changelog
 * Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.5-1
-- 
+-
 Tito files added.
 rock.spec added.
 sign_rpm.sh added.
