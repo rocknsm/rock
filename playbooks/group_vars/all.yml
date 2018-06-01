@@ -2,6 +2,7 @@
 ---
 rock_version: 2.1.0
 rock_online_install: true
+rock_enable_testing: false
 rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
 rock_data_dir: /data
 rocknsm_dir: /opt/rocknsm
@@ -101,8 +102,10 @@ pulledpork_url: "https://github.com/shirkdog/pulledpork/archive/{{ pulledpork_re
 pulledpork_filename: "pulledpork-{{ pulledpork_release }}.tar.gz"
 pulledpork_engine_basepath: "/etc/{{ \"suricata\" if with_suricata else \"snort\" }}"
 
-rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
-rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
+rocknsm_baseurl: https://packagecloud.io/rocknsm/2_1/el/7/$basearch
+rocknsm_srpm_baseurl: https://packagecloud.io/rocknsm/2_1/el/7/SRPMS
+rocknsm_testing_baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/
+rocknsm_gpgurl: https://packagecloud.io/rocknsm/2_1/gpgkey
 rocknsm_local_baseurl: file:///srv/rocknsm
 bro_user: bro
 bro_group: bro
