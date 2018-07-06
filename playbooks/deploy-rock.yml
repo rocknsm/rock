@@ -267,10 +267,14 @@
       job: /usr/local/bin/es_cleanup.sh > /dev/null 2>&1
     when: with_elasticsearch
 
+  # TODO: This has to be started for now so that the configuration ca
+  # occur. In the future, we can do this in stages and expect a "running config"
+  # phase to execute. Which will allow an install phase, reboot, come up and
+  # configure the services live. We're not there yet.
   - name: Enable and start Elasticsearch
     service:
       name: elasticsearch
-      state: "{{ 'started' if enable_elasticsearch else 'stopped' }}"
+      state: "started"
       enabled: "{{ enable_elasticsearch }}"
     when: with_elasticsearch
     notify:
@@ -281,39 +285,13 @@
     when: with_elasticsearch
 
     ######################################################
-    ################### Setup Logstash ###################
-    ######################################################
-
-  - name: Check for Parse Failure mapping template
-    uri:
-      method: "GET"
-      url: http://localhost:9200/_template/failure_index
-    failed_when: False
-    register: failure_mapping
-    when: (with_elasticsearch and with_logstash)
-
-  - name: Load Parse Failure Elasticsearch mapping templates
-    uri:
-      method: PUT
-      url: http://localhost:9200/_template/failure_index
-      body: "{{ lookup('file', 'es-parse-failures-mappings.json')}}"
-      body_format: json
-    when: (with_elasticsearch and with_logstash) and failure_mapping.status == 404
-
-  - name: Enable and start Logstash
-    service:
-      name: logstash
-      state: "{{ 'started' if enable_logstash else 'stopped' }}"
-      enabled: "{{ enable_logstash }}"
-    when: with_logstash
-
-    ######################################################
     ################### Setup Kibana #####################
     ######################################################
+  # TODO: See note above on Elasticsearch
   - name: Enable and start Kibana
     service:
       name: kibana
-      state: "{{ 'started' if enable_kibana else 'stopped' }}"
+      state: "started"
       enabled: "{{ enable_kibana }}"
     when: with_kibana
 
@@ -376,9 +354,9 @@
     # TODO customize mappings install per sensor features (i.e. bro, suricata, etc)...maybe
     # TODO: Fix `changed_when`
   - name: Blanket install/update Elasticsearch mappings
-    command: ./configuration/elasticsearch/import-index-templates.sh "{{ es_url }}"
+    command: ./import-index-templates.sh "{{ es_url }}"
     args:
-      chdir: "{{ rock_module_dir }}"
+      chdir: "{{ rock_module_dir }}/configuration/elasticsearch"
     changed_when: false
     when: with_elasticsearch
 
@@ -444,12 +422,47 @@
 
     ############### Kibana Config ####################
   - name: Blanket install/update Kibana saved objects
-    command: ./configuration/kibana/import-saved-items.sh "{{ kibana_url }}"
+    command: ./import-saved-items.sh "{{ kibana_url }}"
     args:
-      chdir: "{{rock_module_dir}}"
+      chdir: "{{rock_module_dir}}/configuration/kibana"
     changed_when: false
     # TODO: Fix this ^^
     when: with_kibana
+
+  # - name: Get Kibana Bro index mapping
+  #   uri:
+  #     method: GET
+  #     url: "{{ kibana_url }}/api/saved_objects/index-pattern?per_page=1000"
+  #   when: with_kibana
+  #   register:
+
+    ######################################################
+    ################### Setup Logstash ###################
+    ######################################################
+
+  # - name: Check for Parse Failure mapping template
+  #   uri:
+  #     method: "GET"
+  #     url: http://localhost:9200/_template/failure_index
+  #   failed_when: False
+  #   register: failure_mapping
+  #   when: (with_elasticsearch and with_logstash)
+  #
+  # - name: Load Parse Failure Elasticsearch mapping templates
+  #   uri:
+  #     method: PUT
+  #     url: http://localhost:9200/_template/failure_index
+  #     body: "{{ lookup('file', 'es-parse-failures-mappings.json')}}"
+  #     body_format: json
+  #   when: (with_elasticsearch and with_logstash) and failure_mapping.status == 404
+
+  - name: Enable and start Logstash
+    service:
+      name: logstash
+      state: "{{ 'started' if enable_logstash else 'stopped' }}"
+      enabled: "{{ enable_logstash }}"
+    when: with_logstash
+
 
     ######################################################
     ################### Setup Filebeat ###################
