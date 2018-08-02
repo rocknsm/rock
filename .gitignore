@@ -6,6 +6,7 @@
 *~
 .#*
 .*.sw[a-z]
+*pycache*
 .DS_Store
 .bundle/*
 .kitchen
