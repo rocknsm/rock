@@ -77,10 +77,3 @@ def test_network_sockets(host, port):
 # @pytest.mark.parametrize("port", yml_vars.get('listening_ports')
 # def test_sockets(host, port):
 #     assert host.socket("tcp://127.0.0.1:{port}".format(port=port)).is_listening
-
-# [x for x in yml_vars.get('listening_ports') for y in yml_vars.get('topics')])
-@pytest.mark.parametrize("topic",  yml_vars.get('topics'))
-def test_kafka_topics(host, topic):
-    results = host.run('/opt/kafka/bin/kafka-topics.sh --list --zookeeper {host}:{p}'.format(
-        host='localhost', p='2181'))
-    assert topic in results.stdout
