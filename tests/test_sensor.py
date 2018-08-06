@@ -27,3 +27,10 @@ def test_logstash_connection_to_elasticsearch(host):
     result = host.run('curl {host}:{p}/_node/stats/pipelines/main'.format(host='localhost', p='9600'))
     result = json.loads(result.stdout)
     assert result['pipelines']['main']['events']['out'] != '0'
+
+
+@pytest.mark.parametrize("topic",  yml_vars.get('topics'))
+def test_kafka_topics(host, topic):
+    results = host.run('/opt/kafka/bin/kafka-topics.sh --list --zookeeper {host}:{p}'.format(
+        host='localhost', p='2181'))
+    assert topic in results.stdout
