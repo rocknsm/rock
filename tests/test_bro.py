@@ -63,3 +63,9 @@ def test_files(host, file_path):
             assert host.file(file_p).group == file_g
         if file_m:
             assert oct(host.file(file_p).mode) == file_m
+
+
+def test_bro_check(host):
+    with host.sudo():
+        result = host.run('broctl check')
+        assert 'error' not in result.stdout
