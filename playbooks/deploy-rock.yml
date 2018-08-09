@@ -295,6 +295,46 @@
       enabled: "{{ enable_kibana }}"
     when: with_kibana
 
+  - name: Check for default mapping template
+    uri:
+      method: "GET"
+      url: http://localhost:9200/_template/default
+    failed_when: False
+    register: default_index_template
+    when: with_elasticsearch
+
+  - name: Load default Elasticsearch mapping template
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/default
+      body: "{{ lookup('file', 'es-default-mapping.json')}}"
+      body_format: json
+    when: with_elasticsearch and default_index_template.status == 404
+
+  - name: Check for ECS mapping template
+    uri:
+      method: "GET"
+      url: http://localhost:9200/_template/ecs
+    failed_when: False
+    register: ecs_index_template
+    when: with_elasticsearch
+
+  - name: Load ECS Elasticsearch mapping template
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/ecs
+      body: "{{ lookup('file', 'es-ecs-mapping.json')}}"
+      body_format: json
+    when: with_elasticsearch and ecs_index_template.status == 404
+
+  - name: Check for Bro mapping templates
+    uri:
+      method: "GET"
+      url: http://localhost:9200/_template/bro_index
+    failed_when: False
+    register: bro_mapping
+    when: (with_elasticsearch and with_bro)
+
   - name: Configure Kibana templates
     uri:
       method: PUT
