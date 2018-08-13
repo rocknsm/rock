@@ -110,51 +110,35 @@
 
 - name: Setup Elastic repo
   yum_repository:
-    name: elastic-5.x
-    description: Elastic Stack repository for 5.x
+    name: elastic-6.x
+    description: Elastic Stack repository for 6.x
     baseurl: "{{ elastic_baseurl }}"
     gpgkey:  "{{ elastic_gpgurl }}"
     gpgcheck: no
   when: rock_online_install
 
-- name: Setup ROCK NSM repo
-  yum_repository:
-    name: rocknsm
-    description: ROCK NSM repository for devel
-    baseurl: "{{ rocknsm_baseurl }}"
-    gpgkey:  "{{ rocknsm_gpgurl }}"
-    gpgcheck: no
-    cost: 750
-  when: rock_online_install
-
-- name: Setup local offline repo
-  yum_repository:
-    name: rocknsm-local
-    description: ROCKNSM Local Repository
-    baseurl: "{{ rocknsm_local_baseurl }}"
-    gpgcheck: no
-    cost: 500
-  when: not rock_online_install
-
-- name: Configure default CentOS online repos
-  yum_repository:
-    name: "{{ item.name }}"
-    enabled: "{{ rock_online_install }}"
-    description: "CentOS-$releasever - {{ item.name | title }}"
-    mirrorlist: "{{ item.mirror }}"
-    file:  CentOS-Base
+- name: Install RockNSM GPG keys
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/pki/rpm-gpg/{{ item }}"
+    mode: 0644
+    owner: root
+    group: root
   with_items:
-  - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
-  - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
-  - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
+    - RPM-GPG-KEY-RockNSM-2
+    - RPM-GPG-KEY-RockNSM-2.1-Testing
+    - RPM-GPG-KEY-RockNSM-pkgcloud-2_1
 
 - name: Trust RockNSM GPG keys
   rpm_key:
     state: present
-    key: "{{ item }}"
+    key: "{{ item.path }}"
   with_items:
-    - /etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
-    - /etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1
+    - { repoid: "rocknsm_2_1", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
+    - { repoid: "rocknsm_2_1", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1" }
+    - { repoid: "rocknsm-testing", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2.1-Testing"}
+    - { repoid: "rocknsm-local", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
+  register: registered_keys
 
 - name: Configure RockNSM online repos
   yum_repository:
@@ -171,9 +155,59 @@
     sslverify: 1
     sslcacert: /etc/pki/tls/certs/ca-bundle.crt
     metadata_expire: 300
+    cost: 750
     state: present
   with_items:
-    - { name: "rocknsm_2_1", gpgcheck: yes, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/$basearch" }
-    - { name: "rocknsm_2_1-source", gpgcheck: no, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/SRPMS" }
+    - { name: "rocknsm_2_1", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
+    - { name: "rocknsm_2_1-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
+
+- name: Configure RockNSM online testing repos
+  yum_repository:
+    file: "rocknsm-testing"
+    name: "rocknsm-testing"
+    description: "RockNSM 2.1 - Testing - $basearch"
+    baseurl: "{{ rocknsm_testing_baseurl }}"
+    skip_if_unavailable: "True"
+    gpgcheck: 1
+    gpgkey:
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2.1-Testing
+    repo_gpgcheck: 0
+    enabled: "{{ (rock_online_install and rock_enable_testing) | bool }}"
+    cost: 750
+    state: present
+
+- name: Setup local offline repo
+  yum_repository:
+    name: rocknsm-local
+    description: ROCKNSM Local Repository
+    baseurl: "{{ rocknsm_local_baseurl }}"
+    gpgcheck: 1
+    gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
+    repo_gpgcheck: 1
+    cost: 500
+  when: "{{ not rock_online_install | bool }}"
+
+- name: Trust RockNSM GPG keys in yum
+  command: "yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.repoid }}'"
+  with_items:
+    - { repoid: "rocknsm_2_1", test: "{{ rock_online_install }}" }
+    - { repoid: "rocknsm_2_1-source", test: "{{ rock_online_install }}" }
+    - { repoid: "rocknsm-testing", test: "{{ rock_online_install }}" }
+    - { repoid: "rocknsm-local", test: "{{ not rock_online_install }}" }
+  when: item.test | bool
+  changed_when: False
+  # TODO: Fix this ^^
+
+- name: Configure default CentOS online repos
+  yum_repository:
+    name: "{{ item.name }}"
+    enabled: "{{ rock_online_install }}"
+    description: "CentOS-$releasever - {{ item.name | title }}"
+    mirrorlist: "{{ item.mirror }}"
+    file:  CentOS-Base
+  with_items:
+  - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
+  - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
+  - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
 ...

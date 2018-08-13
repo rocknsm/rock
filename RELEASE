@@ -1,0 +1,12 @@
+New Features
+- Docket, a REST API and web UI to query multiple stenographer instances
+- Suricata-Update, 
+
+Upgrading
+- Elastic stack is updated to 6.x
+- Suricata is updated to 4.x
+- Bro is updated to 2.5.3
+
+Deprecated
+- Snort
+- Pulled Pork

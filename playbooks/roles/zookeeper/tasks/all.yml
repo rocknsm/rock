@@ -1,0 +1,4 @@
+---
+- import_tasks: install.yml method=install
+- import_tasks: configure.yml method=configure
+...

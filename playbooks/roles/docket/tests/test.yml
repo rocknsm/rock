@@ -1,5 +1,5 @@
 ---
-- hosts: 
+- hosts:
     - docket
     - stenographer
   remote_user: root

@@ -18,12 +18,12 @@
   with_items:
     - { name: "rocknsm_2_1", gpgcheck: yes, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/$basearch" }
     - { name: "rocknsm_2_1-source", gpgcheck: no, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/SRPMS" }
-  when: inventory_hostname in groups['docket'] and docket_install == "yumrepo"
+  when: "{{ inventory_hostname in groups['docket'] and docket_install == 'yumrepo' }}"
 
 - name: docket | install packages
   yum:
     name:
       - docket
       - lighttpd
-    state: latest
+    state: present
   when: inventory_hostname in groups['docket']
