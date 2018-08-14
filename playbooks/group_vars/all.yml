@@ -155,4 +155,6 @@ es_memlock_override: |
   LimitMEMLOCK=infinity
 logstash_user: logstash
 logstash_group: logstash
-kibana_url: "http://127.0.0.1:5601"
+kibana_host: "127.0.0.1"
+kibana_port: "5601"
+kibana_url: "http://{{ kibana_host }}:{{ kibana_port }}"
