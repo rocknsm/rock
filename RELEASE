@@ -1,6 +1,7 @@
 New Features
 - Docket, a REST API and web UI to query multiple stenographer instances
-- Suricata-Update, 
+- Suricata-Update
+- Initial ECS groundwork
 
 Upgrading
 - Elastic stack is updated to 6.x
