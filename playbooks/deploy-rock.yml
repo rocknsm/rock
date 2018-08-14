@@ -421,6 +421,11 @@
       - logstash-999-output-es-parsefailures.conf
 
     ############### Kibana Config ####################
+  - name: Wait for Kibana to be available
+    wait_for:
+      port: "{{ kibana_port }}"
+    when: with_kibana
+    
   - name: Blanket install/update Kibana saved objects
     command: ./import-saved-items.sh "{{ kibana_url }}"
     args:
