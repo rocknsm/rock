@@ -6,7 +6,7 @@ New Features
 Upgrading
 - Elastic stack is updated to 6.x
 - Suricata is updated to 4.x
-- Bro is updated to 2.5.3
+- Bro is updated to 2.5.4
 
 Deprecated
 - Snort
