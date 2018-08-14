@@ -115,7 +115,7 @@ bro_sysconfig_dir: /etc/bro
 bro_site_dir: /usr/share/bro/site
 bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
 bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
-bro_rockscripts_branch: master
+bro_rockscripts_branch: devel
 bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
 rock_dashboards_repo: https://github.com/rocknsm/rock-dashboards.git
 rock_dashboards_branch: devel
