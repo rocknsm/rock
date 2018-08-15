@@ -181,9 +181,9 @@
     name: rocknsm-local
     description: ROCKNSM Local Repository
     baseurl: "{{ rocknsm_local_baseurl }}"
-    gpgcheck: 0
+    gpgcheck: "{{ rock_offline_gpgcheck }}"
     gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
-    repo_gpgcheck: 0
+    repo_gpgcheck: "{{ rock_offline_gpgcheck }}"
     cost: 500
   when: "{{ not rock_online_install | bool }}"
 
