@@ -107,6 +107,7 @@ rocknsm_srpm_baseurl: https://packagecloud.io/rocknsm/2_1/el/7/SRPMS
 rocknsm_testing_baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/
 rocknsm_gpgurl: https://packagecloud.io/rocknsm/2_1/gpgkey
 rocknsm_local_baseurl: file:///srv/rocknsm
+rock_offline_gpgcheck: 0
 bro_user: bro
 bro_group: bro
 bro_data_dir: "{{ rock_data_dir }}/bro"

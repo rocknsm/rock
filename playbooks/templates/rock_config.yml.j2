@@ -47,6 +47,8 @@ rocknsm_gpgurl: {{ rocknsm_gpgurl }}
 
 # (offline) the filesytem path for a local repo if doing an "offline" install
 rocknsm_local_baseurl: {{ rocknsm_local_baseurl }}
+# (offline) disable the gpgcheck features for local repos, contingent on a kickstart test checking for /srv/rocknsm/repodata/repomd.xml.asc
+rock_offline_gpgcheck: {{ rock_offline_gpgcheck }}
 
 # the git repo from which to checkout rocknsm customization scripts for bro
 bro_rockscripts_repo: {{ bro_rockscripts_repo }}
