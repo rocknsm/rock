@@ -204,6 +204,8 @@
     enabled: "{{ rock_online_install }}"
     description: "CentOS-$releasever - {{ item.name | title }}"
     mirrorlist: "{{ item.mirror }}"
+    gpgcheck: 1
+    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
     file:  CentOS-Base
   with_items:
   - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
