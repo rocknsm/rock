@@ -1,0 +1,15 @@
+---
+- name: force sync time
+  command: >
+    chronyc -a 'burst 3/4'; sleep 5; chronyc -a makestep
+
+- name: configure monitor interfaces
+  shell: >
+    for intf in {{ rock_monifs | join(' ') }}; do
+      /sbin/ifup ${intf};
+    done
+
+- name: sshd restart
+  service: name=sshd state=restarted
+
+...

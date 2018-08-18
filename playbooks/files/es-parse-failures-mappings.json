@@ -1,0 +1,39 @@
+{
+    "order": 99,
+    "template": "parse-failures-*",
+    "version": 1,
+    "settings": {
+        "index.mapping.ignore_malformed": true,
+        "index.mapping.total_fields.limit": 500,
+        "index.mapping.coerce": false,
+        "refresh_interval": "45s",
+        "number_of_replicas": "0"
+    },
+    "mappings": {
+        "_default_": {
+            "dynamic_templates": [
+                {
+                    "all_fields": {
+                        "match_mapping_type": "*",
+                        "mapping": {
+                            "type": "keyword",
+                            "include_in_all": false,
+                            "ignore_above": 256,
+                            "index": true,
+                            "norms": false,
+                            "analyzer": "keyword"
+                        }
+                    }
+                }
+            ],
+            "_all": {
+                "enabled": false
+            },
+            "properties": {
+                "@timestamp": {
+					"type": "date"
+                }
+            }
+        }
+    }
+}

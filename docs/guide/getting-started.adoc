@@ -1,4 +1,4 @@
-= Getting Started with ROCK 2.0
+= Getting Started with ROCK 2.1
 
 In an effort to get this into hands of people that will break it and or make it useful, I'm sharing this ISO and some notes about how to use it. Note this is a work in progress, and I will build upon these notes to make what will ultimately be the release notes.
 

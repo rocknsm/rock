@@ -1,0 +1,29 @@
+---
+- name: docket | install rocknsm repo
+  yum_repository:
+    file: rocknsm
+    name: "{{ item.name }}"
+    enabled: yes
+    description: "{{ item.name }}"
+    baseurl: "{{ item.baseurl }}"
+    repo_gpgcheck: 1
+    gpgcheck: "{{ item.gpgcheck }}"
+    gpgkey:
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
+    sslverify: 1
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: 300
+    state: present
+  with_items:
+    - { name: "rocknsm_2_1", gpgcheck: yes, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/$basearch" }
+    - { name: "rocknsm_2_1-source", gpgcheck: no, baseurl: "https://packagecloud.io/rocknsm/2_1/el/7/SRPMS" }
+  when: "{{ inventory_hostname in groups['docket'] and docket_install == 'yumrepo' }}"
+
+- name: docket | install packages
+  yum:
+    name:
+      - docket
+      - lighttpd
+    state: present
+  when: inventory_hostname in groups['docket']

@@ -1,0 +1,7 @@
+######################################################
+- name: Enable and start zookeeper
+  systemd:
+    name: zookeeper
+    state: "{{ 'started' if enable_zookeeper else 'stopped' }}"
+    enabled: "{{ enable_zookeeper }}"
+  when: with_zookeeper

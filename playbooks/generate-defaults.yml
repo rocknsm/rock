@@ -1,9 +1,6 @@
 ---
 - hosts: all
   tasks:
-  - name: Read in variables
-    include_vars: "rocknsm_config.dist.yml"
-
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true
