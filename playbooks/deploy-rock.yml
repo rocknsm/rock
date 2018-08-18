@@ -1049,6 +1049,14 @@
       owner: root
       group: root
 
+  - name: Install rock control script
+    copy:
+      src: rockctl
+      dest: /usr/local/bin/rockctl
+      mode: 0755
+      owner: root
+      group: root
+
   - name: Create rock script symlinks
     file:
       src: "/usr/local/bin/{{ item.src }}"
@@ -1059,6 +1067,8 @@
       - { src: 'rock_start', dest: 'rock_start' }
       - { src: 'rock_stop', dest: 'rock_stop' }
       - { src: 'rock_status', dest: 'rock_status' }
+      - { src: 'rockctl', dest: 'rockctl' }
+
 
   # Training mode / Service mode not needed for AF_PACKET
   ######################################################
