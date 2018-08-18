@@ -185,7 +185,7 @@
     gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
     repo_gpgcheck: "{{ rock_offline_gpgcheck }}"
     cost: 500
-  when: "{{ not rock_online_install | bool }}"
+  #when: "{{ not rock_online_install | bool }}"
 
 - name: Trust RockNSM GPG keys in yum
   command: "yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.repoid }}'"
