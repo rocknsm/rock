@@ -41,11 +41,16 @@ install -p -m 755 bin/deploy_rock.sh %{buildroot}/%{_rockdir}/bin/
 install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_rockdir}/bin/
 cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
+# make dir and install tests
+mkdir -p %{buildroot}/%{_rockdir}/tests
+cp -a tests/. %{buildroot}/%{_rockdir}/tests
+
 %files
 %defattr(0644, root, root, 0755)
 %{_rockdir}/playbooks/*
+%{_rockdir}/tests/*
 
-%doc README.md LICENSE
+%doc README.md LICENSE CONTRIBUTING.md
 %config %{_rockdir}/playbooks/ansible.cfg
 
 %attr(0755, root, root) %{_rockdir}/bin/deploy_rock.sh
