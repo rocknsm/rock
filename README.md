@@ -16,30 +16,8 @@ This build was created and tested using CentOS 7.3. I pretty much guarantee that
 
 See [Getting Started with ROCK 2.0](docs/guide/getting-started.adoc).
 
-### Vagrant
-**NOTE:**
-This Vagrantfile is configured to give the VM 8GB of RAM.  If your system can't do that you should buy a new system or adjust the `vm.memory` value.  Anything below 8 is going to run like poopoo. You will also need to have a host-only adapter configured named `vboxnet0`.
-```
-git clone https://github.com/rocknsm/rock.git
-cd rock
-vagrant up
-```
-
-### Physical/Virtual/Non-Vagrant
-**NOTE:**   
-The system you run this on should have at least 2 network interfaces and more than 8GB of RAM, with an OS (RHEL or CentOS 7) already installed.
-```
-sudo yum update -y && reboot
-sudo yum install -y epel-release
-sudo yum install -y git ansible
-git clone https://github.com/rocknsm/rock.git
-cd rock/bin
-sudo ./deploy_rock.sh
-```
 
 ## Minimum Hardware Recommendations
-#### (For anything other than a Vagrant build)
-
 **NOTE:** This is a shadow of a recommendation of a guideline.  Your mileage may vary.  No returns or refunds.
 
 *  CPU
