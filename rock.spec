@@ -1,7 +1,7 @@
 %global _rockdir /opt/rocknsm/rock
 
 Name:           rock
-Version:        2.0.5
+Version:        2.1.0
 Release:        1%{?dist}
 Summary:        Network Security Monitoring collections platform
 
@@ -57,6 +57,20 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_rockdir}/bin/generate_defaults.sh
 
 %changelog
+* Tue Aug 21 2018 Derek Ditch <derek@rocknsm.io> 2.1.0-1
+- Introducing Docket, a REST API and web UI to query multiple stenographer instances
+- Added Suricata-Update to manage Suricata signatures
+- Added GPG signing of packages and repo metadata
+- Added functional tests using [testinfra](https://testinfra.readthedocs.io/en/latest/)
+- Initial support of [Elastic Common Schema](https://github.com/elastic/ecs)
+- Includes full Elastic (with permission) stack including features formerly known as X-Pack
+- Elastic stack is updated to 6.x
+- Elastic dashboards, mappings, and Logstash config moved to module-like construct
+- Suricata is updated to 4.x
+- Bro is updated to 2.5.4
+- Deprecated Snort
+- Deprecated Pulled Pork
+
 * Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.5-1
 -
 Tito files added.
