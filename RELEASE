@@ -1,14 +1,19 @@
+High-level summary of changes:
+
 New Features
 - Docket, a REST API and web UI to query multiple stenographer instances
-- Suricata-Update
-- Initial ECS groundwork
-- Signing of things
+- Added Suricata-Update to manage Suricata signatures
+- GPG signing of packages and repo metadata
+- Added functional tests using [testinfra](https://testinfra.readthedocs.io/en/latest/)
+- Initial support of [Elastic Common Schema](https://github.com/elastic/ecs)
+- Includes full Elastic (with permission) stack including features formerly known as X-Pack
 
 Upgrading
 - Elastic stack is updated to 6.x
+- Elastic dashboards, mappings, and Logstash config moved to module-like construct
 - Suricata is updated to 4.x
 - Bro is updated to 2.5.4
 
-Deprecated
+Deprecated - will be removed in the next release
 - Snort
 - Pulled Pork
