@@ -61,7 +61,7 @@ enable_zookeeper: true
 enable_kafka: true
 enable_nginx: true
 enable_lighttpd: true
-enable_fsf: false
+enable_fsf: true
 
 rocknsm_package_list:
   - java-1.8.0-openjdk-headless
