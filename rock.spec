@@ -2,7 +2,7 @@
 
 Name:           rock
 Version:        2.1.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Network Security Monitoring collections platform
 
 License:        BSD
@@ -57,6 +57,9 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_rockdir}/bin/generate_defaults.sh
 
 %changelog
+* Tue Aug 21 2018 Derek Ditch <derek@rocknsm.io> 2.1.0-2
+- Move ECS to rock-dashboards repo
+
 * Tue Aug 21 2018 Derek Ditch <derek@rocknsm.io> 2.1.0-1
 - Introducing Docket, a REST API and web UI to query multiple stenographer instances
 - Added Suricata-Update to manage Suricata signatures
