@@ -1,14 +1,18 @@
 #!/usr/bin/bats
 
+# TODO: Get this information from ansible and/or facter
 export ZOOKEEPER_HOST=127.0.0.1
 export ZOOKEEPER_PORT=2181
-export MON_IFS=$(cat /opt/bro/etc/node.cfg | grep interface | \
+export MON_IFS=$(cat /etc/bro/node.cfg | grep interface | \
 	sed 's/interface=//; s/.*:://' | sort | uniq | paste -sd " " -)
 
-
 function feature_enabled() {
-  grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
-  return $?
+  if grep -qiE "^with_$1: (true|yes)" /etc/rocknsm/config.yml; then
+    grep -qiE "^enable_$1: (true|yes)" /etc/rocknsm/config.yml;
+    return $?
+  else
+    return 1
+  fi
 }
 
 #----------------------------------------------------------------------------
@@ -22,9 +26,9 @@ function feature_enabled() {
 
   # Timeout after 5 seconds or 5 packets
   for interface in $MON_IFS; do
-    packets_1=$(ethtool -S ${interface} | awk '/rx_packets/ {print $2}')
+    packets_1=$(cat /sys/class/net/${interface}/statistics/rx_packets) 
     sleep ${timeout_sec}
-    packets_2=$(ethtool -S ${interface} | awk '/rx_packets/ {print $2}')
+    packets_2=$(cat /sys/class/net/${interface}/statistics/rx_packets) 
     packets=$(echo `expr ${packets_2} - ${packets_1}`)
     echo "${interface} had ${packets} packets in ${timeout_sec} secs."
     [ $packets -gt 0 ]
@@ -33,7 +37,9 @@ function feature_enabled() {
 
 @test "Check for interface errors" {
   for interface in $MON_IFS; do
-    count=$(ethtool -S ${interface} | awk '/error/ && $2 > 0' | wc -l )
+    tx_errors=$(cat /sys/class/net/${interface}/statistics/tx_errors)
+    rx_errors=$(cat /sys/class/net/${interface}/statistics/rx_errors)
+    count=$(echo `expr ${tx_errors} + ${rx_errors}`)
     echo "${interface} had ${count} error types."
     echo ">> Check \`ethtool -S ${interface} | awk '/error/' \`  << "
     [ $count -eq 0 ]
@@ -42,7 +48,7 @@ function feature_enabled() {
 
 @test "Check monitor interface for tx packets" {
   for interface in $MON_IFS; do
-    pkts=$(ethtool -S ${interface} | awk '/tx_packets/ {print $2}')
+    pkts=$(cat /sys/class/net/${interface}/statistics/tx_packets)
     echo "WARNING: Monitor interface ${interface} has sent ${pkts} packets".
     [ $pkts -eq 0 ]
   done
@@ -55,7 +61,7 @@ if feature_enabled bro; then
 
 @test "Check that broctl is running" {
   # This will fail if a worker is crashed as well
-  sudo /opt/bro/bin/broctl status
+  systemctl status bro
 }
 
 @test "Check for bro-detected packet loss" {
@@ -90,14 +96,26 @@ if feature_enabled suricata; then
 
 fi
 #----------------------------------------------------------------------------
+#                                SNORT
+#----------------------------------------------------------------------------
+if feature_enabled snort; then
+
+@test "Check that snort is running" {
+  systemctl status snortd
+}
+
+fi
+#----------------------------------------------------------------------------
 ##                               FSF
 ##----------------------------------------------------------------------------
+if feature_enabled fsf; then
 
 @test "Check that FSF is running" {
-if feature_enabled fsf; then
   systemctl status fsf
-fi
+
 }
+
+fi
 
 #----------------------------------------------------------------------------
 #                               ZOOKEEPER

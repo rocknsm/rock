@@ -6,6 +6,9 @@
 *~
 .#*
 .*.sw[a-z]
+.idea*
+*_cache
+*pycache*
 .DS_Store
 .bundle/*
 .kitchen

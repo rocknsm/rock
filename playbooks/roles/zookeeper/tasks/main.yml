@@ -1,0 +1,3 @@
+---
+# tasks file for zookeeper
+- import_tasks: "{{ method }}.yml"

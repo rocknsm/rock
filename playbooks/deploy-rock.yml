@@ -1,198 +1,41 @@
 ---
+# Everything that needs to satisfy dependencies should be run in this play
 - hosts: all
   vars:
     rock_debug: "{{ lookup('env', 'DEBUG') }}"
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
+  roles:
+    - { role: sensor-common }
+
+- hosts: all
+  gather_facts: False
+  vars:
+    rock_debug: "{{ lookup('env', 'DEBUG') }}"
+    http_proxy: "{{ lookup('env','http_proxy') }}"
+    https_proxy: "{{ lookup('env', 'https_proxy') }}"
+  roles:
+    - role: stenographer
+      when: with_stenographer | bool
+      stenographer_monitor_interfaces: "{{rock_monifs}}"
+    - role: docket
+      when: with_docket | bool
+      docket_install: offline
+      docket_enable: "{{enable_docket | bool}}"
+
   tasks:
-  - name: Get default settings
-    include_vars: rocknsm_config.dist.yml
   - name: Apply override settings, if available
     include_vars: /etc/rocknsm/config.yml
     ignore_errors: true
     failed_when: false
+
   - name: Debug variables
-    include: debug.yml
+    import_tasks: debug.yml
     when: rock_debug is defined and rock_debug
-
-    ######################################################
-    ################# Data Directory #####################
-    ######################################################
-    ###############
-    ##### NOTE ####
-    ###############
-    # You will want to remount this to your "good" storage after the build.
-    # This is just to make sure all the paths in the configs are proper.
-    ###############  - file:
-  - name: Create ROCK data dir
-    file:
-      path: "{{ rock_data_dir }}"
-      mode: 0755
-      owner: "{{ rock_data_user }}"
-      group: "{{ rock_data_group }}"
-      state: directory
-
-  - name: Create ROCK NSM directory
-    file:
-      path: "{{ rocknsm_dir }}"
-      mode: 0755
-      owner: root
-      group: root
-      state: directory
-
-    ######################################################
-    ######### Configure the monitoring interface #########
-    ######################################################
-  - name: Set monitor interface config
-    template:
-      src: templates/ifcfg-monif.j2
-      dest: /etc/sysconfig/network-scripts/ifcfg-{{ item }}
-      mode: 0644
-      owner: root
-      group: root
-      force: yes
-    with_items: "{{ rock_monifs }}"
-
-  - name: Configure local ifup script
-    template:
-      src: templates/ifup-local.j2
-      dest: /sbin/ifup-local
-      mode: 0755
-      owner: root
-      group: root
-      force: yes
-    notify: configure monitor interfaces
-
-    #######################################################
-    #################### Disable IPv6 #####################
-    #######################################################
-  - name: Disable IPv6 for all interfaces
-    sysctl:
-      name: net.ipv6.conf.all.disable_ipv6
-      value: 1l
-      sysctl_file: "{{ rock_sysctl_file }}"
-
-  - name: Disable IPv6 for default interfaces
-    sysctl:
-      name: net.ipv6.conf.default.disable_ipv6
-      value: 1
-      sysctl_file: "{{ rock_sysctl_file }}"
-
-  - name: Disable IPv6 in SSHD
-    lineinfile:
-      dest: /etc/ssh/sshd_config
-      regexp: AddressFamily
-      line: AddressFamily inet
-    notify:
-    - sshd restart
-
-  - name: Remove localhost6 from hosts file
-    lineinfile:
-      dest: /etc/hosts
-      regexp: localhost6
-      state: absent
-
-    #######################################################
-    #################### DNS Changes ######################
-    #######################################################
-  - name: Set hostname in hosts file
-    lineinfile:
-      dest: /etc/hosts
-      insertafter: 127.0.0.1
-      line: 127.0.0.2  {{ rock_fqdn }}  {{ rock_hostname }}
-
-  - name: Set system hostname
-    hostname:
-      name: "{{ rock_fqdn }}"
-
-    #######################################################
-    ################## Setup Yum Repos ####################
-    #######################################################
-  - name: Setup EPEL repo
-    yum_repository:
-      name: epel
-      description: EPEL YUM repo
-      baseurl: "{{ epel_baseurl }}"
-      gpgkey:  "{{ epel_gpgurl }}"
-      gpgcheck: yes
-    when: rock_online_install
-
-  - name: Setup ELrepo Kernel repo
-    yum_repository:
-      name: elrepo-kernel
-      description: ELrepo Kernel YUM repo
-      baseurl: "{{ elrepo_baseurl }}"
-      gpgkey:  "{{ elrepo_gpgurl }}"
-      gpgcheck: yes
-    when: rock_online_install
-
-  - name: Setup Elastic repo
-    yum_repository:
-      name: elastic-5.x
-      description: Elastic Stack repository for 5.x
-      baseurl: "{{ elastic_baseurl }}"
-      gpgkey:  "{{ elastic_gpgurl }}"
-      gpgcheck: no
-    when: rock_online_install
-
-  - name: Setup ROCK NSM repo
-    yum_repository:
-      name: rocknsm
-      description: ROCK NSM repository for devel
-      baseurl: "{{ rocknsm_baseurl }}"
-      gpgkey:  "{{ rocknsm_gpgurl }}"
-      gpgcheck: no
-      cost: 750
-    when: rock_online_install
-
-  - name: Setup local offline repo
-    yum_repository:
-      name: rocknsm-local
-      description: ROCKNSM Local Repository
-      baseurl: "{{ rocknsm_local_baseurl }}"
-      gpgcheck: no
-      cost: 500
-    when: not rock_online_install
-
-  - name: Configure default CentOS online repos
-    yum_repository:
-      name: "{{ item.name }}"
-      enabled: "{{ rock_online_install }}"
-      description: "CentOS-$releasever - {{ item.name | title }}"
-      mirrorlist: "{{ item.mirror }}"
-      file:  CentOS-Base
-    with_items:
-      - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
-      - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
-      - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
     #######################################################
     ############# Install/Remove Packages #################
     #######################################################
-  - name: Configure packages
-    set_fact:
-      rocknsm_package_list: "{{ rocknsm_package_list }} + [ '{{ item.pkg }}']"
-    when: (item.test is undefined) or (item.test)
-    with_items:
-      - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
-      - { pkg: logstash, test: "{{with_logstash}}", state: installed }
-      - { pkg: kibana, test: "{{with_kibana}}", state: installed }
-      - { pkg: nginx, test: "{{with_nginx}}", state: installed }
-      - { pkg: bro, test: "{{with_bro}}", state: installed }
-      - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
-      - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
-      - { pkg: stenographer, test: "{{with_stenographer}}", state: installed }
-      - { pkg: suricata, test: "{{with_suricata}}", state: installed }
-      - { pkg: snort, test: "{{with_snort}}", state: installed }
-      - { pkg: daq, test: "{{with_snort}}", state: installed }
-      - { pkg: zookeeper, test: "{{with_zookeeper}}", state: installed }
-      - { pkg: kafka, test: "{{with_kafka}}", state: installed }
-      - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
-      - { pkg: fsf, test: "{{with_fsf}}", state: installed }
-      - { pkg: chrony, state: installed }
-      - { pkg: firewalld, state: installed }
-      - { pkg: postfix, state: installed }
-
   - name: Install packages
     yum:
       name: "{{ item.pkg }}"
@@ -200,6 +43,32 @@
     when: (item.test is undefined) or (item.test)
     with_items:
       - { pkg: "{{ rocknsm_package_list }}", state: installed }
+
+  - name: Install optional packages
+    yum:
+      name: "{{ item.pkg }}"
+      state: "{{ item.state }}"
+    when: (item.test is undefined) or (item.test)
+    with_items:
+    - { pkg: elasticsearch, test: "{{with_elasticsearch}}", state: installed }
+    - { pkg: logstash, test: "{{with_logstash}}", state: installed }
+    - { pkg: kibana, test: "{{with_kibana}}", state: installed }
+    - { pkg: filebeat, test: "{{with_suricata or with_fsf}}", state: installed }
+    - { pkg: nginx, test: "{{with_nginx}}", state: installed }
+    - { pkg: python2-xkcdpass, test: "{{with_nginx}}", state: installed }
+    - { pkg: bro, test: "{{with_bro}}", state: installed }
+    - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
+    - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
+    - { pkg: docket, test: "{{with_docket}}", state: installed }
+    - { pkg: suricata, test: "{{with_suricata}}", state: installed }
+    - { pkg: suricata-update, test: "{{with_suricata}}", state: installed}
+    - { pkg: snort, test: "{{with_snort}}", state: installed }
+    - { pkg: daq, test: "{{with_snort}}", state: installed }
+    - { pkg: zookeeper, test: "{{with_zookeeper}}", state: installed }
+    - { pkg: kafka, test: "{{with_kafka}}", state: installed }
+    - { pkg: kafkacat, test: "{{with_kafka}}", state: installed }
+    - { pkg: fsf, test: "{{with_fsf}}", state: installed }
+    - { pkg: postfix, state: installed }
 
   - name: Ensure cache directory exists
     file:
@@ -212,7 +81,7 @@
       url: "{{ pulledpork_url }}"
       dest: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
       mode: 0644
-    when: rock_online_install
+    when: with_pulledpork and rock_online_install
 
   - name: Install Pulled Pork
     unarchive:
@@ -222,29 +91,7 @@
       group: root
       creates: "/opt/pulledpork-{{ pulledpork_release }}"
       remote_src: yes
-    when: "{{ with_pulledpork }}"
-
-    ######################################################
-    ################### Configure Time ###################
-    ######################################################
-  - name: Enable and start chrony
-    service:
-      name: chronyd
-      enabled: yes
-      state: started
-
-  - name: Set system timezone
-    command: /usr/bin/timedatectl set-timezone UTC
-    when: ansible_date_time.tz != "UTC"
-
-  - name: Check if RTC set to UTC
-    shell: timedatectl | awk '/RTC in local/ { print $5 }'
-    changed_when: false
-    register: chrony_local_utc
-
-  - name: Set system hardware clock to UTC
-    command: /usr/bin/timedatectl set-local-rtc no
-    when: chrony_local_utc == 'yes'
+    when: with_pulledpork
 
     #######################################################
     ################ Configure firewall ###################
@@ -267,7 +114,8 @@
       - "{{ rock_mgmt_nets }}"
       -
         - { port: "22/tcp" }
-        - { port: "80/tcp",  test: "{{ with_kibana }}" }
+        - { port: "443/tcp",  test: "{{ with_kibana }}" }
+        - { port: "8443/tcp", test: "{{ with_docket }}" }
 
     ######################################################
     ############## Configure GeoIP Databases #############
@@ -311,15 +159,6 @@
     ######################################################
     ################### Setup Zookeeper ##################
     ######################################################
-  - name: Install zookeeper service file
-    copy:
-      src: zookeeper.service
-      dest: /etc/systemd/system/zookeeper.service
-      mode: 0644
-      owner: root
-      group: root
-    when: with_zookeeper
-
   - name: Enable and start zookeeper
     service:
       name: zookeeper
@@ -343,7 +182,7 @@
     lineinfile:
       dest: "{{ kafka_config_path }}"
       regexp: "log.retention.hours="
-      line:  "log.retention.hours=1"
+      line:  "log.retention.hours={{ kafka_retention }}"
       state: present
     when: with_kafka
 
@@ -400,13 +239,6 @@
       group: root
     when: with_elasticsearch
 
-  - name: Setup elasticsearch data dir in sysconfig
-    lineinfile:
-      dest: /etc/sysconfig/elasticsearch
-      regexp: "DATA_DIR="
-      line: "DATA_DIR={{ es_data_dir }}"
-    when: with_elasticsearch
-
   - name: Setup elasticsearch jvm options
     template:
       src: templates/es-jvm.options.j2
@@ -417,8 +249,8 @@
     when: with_elasticsearch
 
   - name: Install ROCK Elasticsearch cleanup script
-    copy:
-      src: es_cleanup.sh
+    template:
+      src: templates/es_cleanup.sh.j2
       dest: /usr/local/bin/es_cleanup.sh
       mode: 0755
       owner: root
@@ -435,10 +267,14 @@
       job: /usr/local/bin/es_cleanup.sh > /dev/null 2>&1
     when: with_elasticsearch
 
+  # TODO: This has to be started for now so that the configuration ca
+  # occur. In the future, we can do this in stages and expect a "running config"
+  # phase to execute. Which will allow an install phase, reboot, come up and
+  # configure the services live. We're not there yet.
   - name: Enable and start Elasticsearch
     service:
       name: elasticsearch
-      state: "{{ 'started' if enable_elasticsearch else 'stopped' }}"
+      state: "started"
       enabled: "{{ enable_elasticsearch }}"
     when: with_elasticsearch
     notify:
@@ -448,6 +284,49 @@
     wait_for: host=localhost port=9200
     when: with_elasticsearch
 
+    ######################################################
+    ################### Setup Kibana #####################
+    ######################################################
+  # TODO: See note above on Elasticsearch
+  - name: Enable and start Kibana
+    service:
+      name: kibana
+      state: "started"
+      enabled: "{{ enable_kibana }}"
+    when: with_kibana
+
+  - name: Check for default mapping template
+    uri:
+      method: "GET"
+      url: http://localhost:9200/_template/default
+    failed_when: False
+    register: default_index_template
+    when: with_elasticsearch
+
+  - name: Load default Elasticsearch mapping template
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/default
+      body: "{{ lookup('file', 'es-default-mapping.json')}}"
+      body_format: json
+    when: with_elasticsearch and default_index_template.status == 404
+
+  - name: Check for ECS mapping template
+    uri:
+      method: "GET"
+      url: http://localhost:9200/_template/ecs
+    failed_when: False
+    register: ecs_index_template
+    when: with_elasticsearch
+
+  - name: Load ECS Elasticsearch mapping template
+    uri:
+      method: PUT
+      url: http://localhost:9200/_template/ecs
+      body: "{{ lookup('file', 'es-ecs-mapping.json')}}"
+      body_format: json
+    when: with_elasticsearch and ecs_index_template.status == 404
+
   - name: Check for Bro mapping templates
     uri:
       method: "GET"
@@ -456,43 +335,171 @@
     register: bro_mapping
     when: (with_elasticsearch and with_bro)
 
-  - name: Load Bro Elasticsearch mapping templates
+  - name: Configure Kibana templates
     uri:
       method: PUT
-      url: http://localhost:9200/_template/bro_index
-      body: "{{ lookup('file', 'es-bro-mappings.json')}}"
+      url: http://localhost:9200/_template/kibana-config
+      body: >
+        { "order" : 0, "template" : ".kibana",
+          "settings" :
+            { "index.number_of_replicas" : "0",
+              "index.number_of_shards" : "1" },
+          "mappings" : { }, "aliases" : { } }
       body_format: json
-    when: (with_elasticsearch and with_bro) and bro_mapping.status == 404
+      status_code: 200,201
+    when: with_kibana
+
+  - name: Add the kibanapw shell function
+    copy:
+      src: profile.d-kibanapw.sh
+      dest: /etc/profile.d/kibanapw.sh
+      mode: 0644
+      owner: root
+      group: root
+    when: with_kibana
+
+  - name: Set initial Kibana credentials
+    shell: >
+      export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && \
+      export kibpw=$(xkcdpass -a rock) && \
+      echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && \
+      printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | \
+      sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
+    args:
+      creates: /etc/nginx/htpasswd.users
+    when: with_kibana
+
+    ######################################################
+    ############## Setup RockNSM dataflow ################
+    ######################################################
+
+  - name: Download RockNSM Elastic configs
+    get_url:
+      url: "{{ rock_dashboards_url }}"
+      dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      mode: 0644
+    when: (with_kibana or with_elasticsearch or with_logstash) and rock_online_install
+
+  - name: Extract RockNSM Elastic configs
+    unarchive:
+      src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+      dest: /opt/rocknsm
+      owner: root
+      group: root
+      creates: "{{ rock_module_dir }}"
+      remote_src: yes
+    when: (with_kibana or with_elasticsearch or with_logstash)
+
+    ############### Elasticsearch Mappings ####################
+    # TODO customize mappings install per sensor features (i.e. bro, suricata, etc)...maybe
+    # TODO: Fix `changed_when`
+  - name: Blanket install/update Elasticsearch mappings
+    command: ./import-index-templates.sh "{{ es_url }}"
+    args:
+      chdir: "{{ rock_module_dir }}/configuration/elasticsearch"
+    changed_when: false
+    when: with_elasticsearch
+
+    ############### Logstash Config ####################
+  - name: Install Bro-Kafka configuration for Logstash
+    copy:
+      src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+      remote_src: "yes"
+    when: with_logstash and with_bro and with_kafka
+    notify: Restart Logstash
+    with_items:
+      - logstash-100-input-kafka-bro.conf
+      - logstash-500-filter-bro.conf
+      - logstash-999-output-es-bro.conf
+
+  - name: Install Suricata-Kafka configuration for Logstash
+    copy:
+      src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+      remote_src: "yes"
+    when: with_logstash and with_suricata and with_kafka
+    notify: Restart Logstash
+    with_items:
+      - logstash-100-input-kafka-suricata.conf
+      - logstash-500-filter-suricata.conf
+      - logstash-999-output-es-suricata.conf
+
+  - name: Install FSF-Kafka configuration for Logstash
+    copy:
+      src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+      remote_src: "yes"
+    when: with_logstash and with_fsf and with_kafka
+    notify: Restart Logstash
+    with_items:
+      - logstash-100-input-kafka-fsf.conf
+      - logstash-500-filter-fsf.conf
+      - logstash-999-output-es-fsf.conf
+
+  - name: Install Parse Failure configuration for Logstash
+    copy:
+      src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
+      dest: "/etc/logstash/conf.d/{{item}}"
+      mode: 0640
+      owner: "{{ logstash_user }}"
+      group: "{{ logstash_group }}"
+      remote_src: "yes"
+    when: with_logstash
+    notify: Restart Logstash
+    with_items:
+      - logstash-998-filter-parsefailures.conf
+      - logstash-999-output-es-parsefailures.conf
+
+    ############### Kibana Config ####################
+  - name: Wait for Kibana to be available
+    wait_for:
+      port: "{{ kibana_port }}"
+    when: with_kibana
+    
+  - name: Blanket install/update Kibana saved objects
+    command: ./import-saved-items.sh "{{ kibana_url }}"
+    args:
+      chdir: "{{rock_module_dir}}/configuration/kibana"
+    changed_when: false
+    # TODO: Fix this ^^
+    when: with_kibana
+
+  # - name: Get Kibana Bro index mapping
+  #   uri:
+  #     method: GET
+  #     url: "{{ kibana_url }}/api/saved_objects/index-pattern?per_page=1000"
+  #   when: with_kibana
+  #   register:
 
     ######################################################
     ################### Setup Logstash ###################
     ######################################################
-  - name: Install Bro-Kafka configuration for Logstash
-    copy:
-      src: logstash-kafka-bro.conf
-      dest: /etc/logstash/conf.d/kafka-bro.conf
-      mode: 0640
-      owner: "{{ logstash_user }}"
-      group: "{{ logstash_group }}"
-    when: with_logstash and with_bro and with_kafka
 
-  - name: Configure Logstash to pickup suricata events
-    copy:
-      src: "logstash-suricata-es.conf"
-      dest: "/etc/logstash/conf.d/suricata-es.conf"
-      mode: 0644
-      owner: root
-      group: root
-    when: with_logstash and with_suricata
-
-  - name: Configure Logstash to pickup the FSF scan.log
-    copy:
-      src: "logstash-fsf-es.conf"
-      dest: "/etc/logstash/conf.d/fsf-es.conf"
-      mode: 0644
-      owner: root
-      group: root
-    when: with_logstash and with_fsf
+  # - name: Check for Parse Failure mapping template
+  #   uri:
+  #     method: "GET"
+  #     url: http://localhost:9200/_template/failure_index
+  #   failed_when: False
+  #   register: failure_mapping
+  #   when: (with_elasticsearch and with_logstash)
+  #
+  # - name: Load Parse Failure Elasticsearch mapping templates
+  #   uri:
+  #     method: PUT
+  #     url: http://localhost:9200/_template/failure_index
+  #     body: "{{ lookup('file', 'es-parse-failures-mappings.json')}}"
+  #     body_format: json
+  #   when: (with_elasticsearch and with_logstash) and failure_mapping.status == 404
 
   - name: Enable and start Logstash
     service:
@@ -500,6 +507,23 @@
       state: "{{ 'started' if enable_logstash else 'stopped' }}"
       enabled: "{{ enable_logstash }}"
     when: with_logstash
+
+
+    ######################################################
+    ################### Setup Filebeat ###################
+    ######################################################
+  - name: Add Filebeat configuration file
+    template:
+      src: filebeat.yml.j2
+      dest: /etc/filebeat/filebeat.yml
+    notify: Restart Filebeat
+
+  - name: Enable and start Filebeat
+    service:
+      name: filebeat
+      state: "{{ 'started' if enable_filebeat else 'stopped' }}"
+      enabled: "{{ enable_filebeat }}"
+    when: with_filebeat
 
     #######################################################
     ###################### Setup Bro  #####################
@@ -517,7 +541,7 @@
       comment: "bro service account"
       createhome: no
       group: "{{ bro_group }}"
-      home: /opt/bro
+      home: /var/spool/bro
       shell: /sbin/nologin
       system: yes
       state: present
@@ -536,60 +560,73 @@
       - "{{ bro_data_dir }}/spool"
     when: with_bro
 
-  - name: Create symlinks for wandering analysts
+  - name: Create /opt/bro dir for wandering users
     file:
-      dest: "/opt/bro/{{ item }}"
-      src:  "{{ bro_data_dir }}/{{ item }}"
-      state: link
-      force: yes
-    with_items:
-      - logs
+      dest: "/opt/bro"
+      state: directory
     when: with_bro
 
-  - name: Install broctl service file
-    template:
-      src: templates/broctl.service.j2
-      dest: /etc/systemd/system/broctl.service
-      owner: root
-      group: root
-      mode: 0644
+  - name: Create note to wandering users
+    copy:
+      dest: "/opt/bro/README.md"
+      content: |
+        Hey! Where's my Bro?
+        =========================
+
+        RockNSM has aligned the Bro package to be inline with Fedora packaging
+        guidelines in an effort to push the package upstream for maintenance.
+        Fedora and EPEL have a great community and we believe others can benefit
+        from our hard work.
+
+        Here's where you can find your stuff:
+
+        Bro configuration files
+        -----------------------
+        /opt/bro/etc -> /etc/bro
+
+        Bro site scripts
+        -----------------------
+        /opt/bro/share/bro/site -> /usr/share/bro/site
+
+        Bro logs and spool dirs (same as previous ROCK iterations)
+        -----------------------
+        /opt/bro/logs -> /data/bro/logs
+        /opt/bro/spool -> /data/bro/spool
     when: with_bro
-    notify: reload systemd
 
   - name: Create Bro node.cfg
     template:
       src: templates/bro-node.cfg.j2
-      dest: /opt/bro/etc/node.cfg
+      dest: "{{ bro_sysconfig_dir }}/node.cfg"
       mode: 0644
       owner: root
       group: root
     when: with_bro
-    notify: reload broctl
-
+    notify: reload bro
 
   - name: Create broctl.cfg
     template:
       src: templates/bro-broctl.cfg.j2
-      dest: /opt/bro/etc/broctl.cfg
+      dest: "{{ bro_sysconfig_dir }}/broctl.cfg"
       mode: 0644
       owner: root
       group: root
     when: with_bro
-    notify: reload broctl
+    notify: reload bro
 
   - name: Create bro networks.cfg
     copy:
       src: bro-networks.cfg
-      dest: /opt/bro/etc/networks.cfg
+      dest: "{{ bro_sysconfig_dir }}/networks.cfg"
       mode: 0644
       owner: root
       group: root
     when: with_bro
-    notify: reload broctl
+    notify: reload bro
 
   - name: Add bro custom scripts dir
     file:
-      path: /opt/bro/share/bro/site/scripts
+      path: "{{ bro_site_dir }}/scripts"
       owner: root
       group: root
       mode: 0755
@@ -598,7 +635,7 @@
 
   - name: Set permissions on broctl scripts dir
     file:
-      path: /opt/bro/share/broctl/scripts
+      path: "{{ bro_prefix }}/share/broctl/scripts"
       owner: "{{ bro_user }}"
       group: "{{ bro_user }}"
       mode: 0755
@@ -608,7 +645,7 @@
   - name: Add README to scripts dir
     copy:
       src: bro-scripts-readme.txt
-      dest: /opt/bro/share/bro/site/scripts/README.txt
+      dest: "{{ bro_site_dir }}/scripts/README.txt"
       mode: 0644
       owner: root
       group: root
@@ -617,31 +654,31 @@
   - name: Checkout ROCK Bro scripts
     git:
       repo: "{{ bro_rockscripts_repo }}"
-      dest: /opt/bro/share/bro/site/scripts/rock
+      dest: "{{ bro_site_dir }}/scripts/rock"
       version: "{{ bro_rockscripts_branch }}"
     when: with_bro and rock_online_install
 
   - name: Deploy offline ROCK Bro scripts
     unarchive:
       src: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
-      dest: /opt/bro/share/bro/site/scripts/
+      dest: "{{ bro_site_dir }}/scripts/"
       owner: root
       group: root
-      creates: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+      creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
       remote_src: yes
     when: with_bro and not rock_online_install
 
   - name: Symlink offline ROCK bro scripts
     file:
-      src: "/opt/bro/share/bro/site/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
-      dest: "/opt/bro/share/bro/site/scripts/rock"
+      src: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+      dest: "{{ bro_site_dir }}/scripts/rock"
       state: link
       force: yes
     when: with_bro and not rock_online_install
 
   - name: Update owner for ROCK NSM Bro scripts
     file:
-      path: /opt/bro/share/bro/site/scripts/rock
+      path: "{{ bro_site_dir }}/scripts/rock"
       owner: "{{ bro_user }}"
       group: "{{ bro_group }}"
       state: directory
@@ -653,33 +690,19 @@
 
   - name: Add ROCK scripts to local.bro
     lineinfile:
-      dest: /opt/bro/share/bro/site/local.bro
+      dest: "{{ bro_site_dir }}/local.bro"
       line: "@load scripts/rock # ROCK NSM customizations"
-      state: present
-    when: with_bro
-
-  - name: Add AF_PACKET workaround to local.bro
-    lineinfile:
-      dest: /opt/bro/share/bro/site/local.bro
-      line: "@load scripts/rock/plugins/afpacket"
       state: present
     when: with_bro
 
   - name: Enable Bro Kafka output to local.bro
     lineinfile:
-      dest: /opt/bro/share/bro/site/local.bro
+      dest: "{{ bro_site_dir }}/local.bro"
       line: "@load scripts/rock/plugins/kafka"
       state: present
     when: with_bro and with_kafka
 
-  - name: Enable the SMB Analyzer in local.bro
-    lineinfile:
-      dest: /opt/bro/share/bro/site/local.bro
-      line: "@load policy/protocols/smb # Enable Bro SMB Analyzer"
-      state: present
-    when: with_bro
-
-  - name: Add bro to path and aliases
+  - name: Add bro aliases
     copy:
       src: profile.d-bro.sh
       dest: /etc/profile.d/bro.sh
@@ -699,7 +722,7 @@
 
   - name: Set bro capabilities
     capabilities:
-      path: /opt/bro/bin/bro
+      path: /usr/bin/bro
       capability: "{{ item }}"
       state: present
     with_items:
@@ -709,7 +732,7 @@
 
   - name: Set capstats capabilities
     capabilities:
-      path: /opt/bro/bin/capstats
+      path: /usr/bin/capstats
       capability: "{{ item }}"
       state: present
     with_items:
@@ -723,11 +746,11 @@
       minute: "*/5"
       cron_file: rocknsm_broctl
       user: "{{ bro_user }}"
-      job: "/opt/bro/bin/broctl cron >/dev/null 2>&1"
+      job: "/usr/bin/broctl cron >/dev/null 2>&1"
     when: with_bro
 
   - name: Initialize bro scripts for workers
-    command: /opt/bro/bin/broctl install
+    command: /usr/bin/broctl install
     args:
       creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
     become: yes
@@ -736,66 +759,11 @@
 
   - name: Enable and start broctl
     service:
-      name: broctl
+      name: bro
       enabled: "{{ enable_bro }}"
-      state: "{{ 'started' if enable_bro else 'stopped' }}"
     when: with_bro
+    notify: reload bro
 
-    ######################################################
-    ################# Setup Stenographer #################
-    ######################################################
-  - name: Set stenographer config
-    template:
-      src: templates/stenographer-config.j2
-      dest: "/etc/stenographer/config.{{ item.1 }}"
-    with_indexed_items: "{{ rock_monifs }}"
-    when: with_stenographer
-
-  - name: Create Stenographer directories
-    file:
-      path: "{{ stenographer_data_dir }}/{{ item[0] }}/{{ item[1] }}"
-      mode: 0755
-      owner: "{{ stenographer_user }}"
-      group: "{{ stenographer_group }}"
-      state: directory
-    with_nested:
-      - "{{ rock_monifs }}"
-      - [ 'index', 'packets' ]
-    when: with_stenographer
-
-  - name: Install stenographer service files
-    copy:
-      src: "{{ item }}"
-      dest: "/etc/systemd/system/{{ item }}"
-      mode: 0644
-      owner: root
-      group: root
-    with_items:
-      - stenographer.service
-      - stenographer@.service
-    when: with_stenographer
-
-  - name: Generate stenographer keys
-    command: >
-      /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
-    args:
-      creates: /etc/stenographer/certs/client_key.pem
-    when: with_stenographer
-
-  - name: Configure Stenographer service
-    service:
-      name: stenographer
-      enabled: "{{ enable_stenographer }}"
-      state: "{{ 'started' if enable_stenographer else 'stopped' }}"
-    when: with_stenographer
-
-  - name: Configure Stenographer per-interface
-    service:
-      name: "stenographer@{{ item }}"
-      enabled: "{{ enable_stenographer }}"
-      state: "{{ 'started' if enable_stenographer else 'stopped' }}"
-    with_items: "{{ rock_monifs }}"
-    when: with_stenographer
 
     ######################################################
     ################## Setup Suricata ####################
@@ -807,17 +775,6 @@
       owner: "{{ suricata_user }}"
       group: "{{ suricata_group }}"
       state: directory
-    when: with_suricata
-
-  - name: Set suricata capabilities
-    capabilities:
-      path: /usr/sbin/suricata
-      capability: "{{ item }}"
-      state: present
-    with_items:
-      - "cap_net_raw+eip"
-      - "cap_net_admin+eip"
-      - "cap_ipc_lock+eip"
     when: with_suricata
 
   - name: Remove suricata sysconfig file
@@ -835,13 +792,22 @@
       group: root
     when: with_suricata
 
+  - name: Setup suricata tmpfiles
+    copy:
+      src: "suricata.tmpfiles"
+      dest: "/etc/tmpfiles.d/suricata.conf"
+      mode: 0644
+      owner: root
+      group: root
+    when: with_suricata
+
   - name: Install suricata overrides
     template:
       src: templates/suricata_overrides.yaml.j2
       dest: /etc/suricata/rocknsm-overrides.yaml
-      mode: 0644
-      owner: "{{ suricata_user }}"
-      group: root
+      mode: 0640
+      owner: "root"
+      group: "{{ suricata_group }}"
     when: with_suricata
 
   - name: Create IP reputation config dir
@@ -852,6 +818,19 @@
       group: root
       mode: 0755
     when: with_suricata
+
+  - name: Create Suricata dirs for suricata-update
+    file:
+      path: "{{ suricata_var_dir }}/{{ item }}"
+      state: directory
+      owner: "{{ suricata_user }}"
+      group: "{{ suricata_group }}"
+      mode: 0755
+      recurse: "yes"
+    when: with_suricata
+    with_items:
+      - rules
+      - update
 
   - name: Set suricata overrides include in main config
     lineinfile:
@@ -868,8 +847,8 @@
     when: with_suricata
 
   - name: Configure logrotate for suricata logs
-    copy:
-      src: logrotate-suricata.conf
+    template:
+      src: templates/logrotate-suricata.conf.j2
       dest: /etc/logrotate.d/suricata.conf
       mode: 0644
       owner: root
@@ -998,106 +977,6 @@
     when: with_fsf
 
     ######################################################
-    ################### Setup Kibana #####################
-    ######################################################
-  - name: Enable and start Kibana
-    service:
-      name: kibana
-      state: "{{ 'started' if enable_kibana else 'stopped' }}"
-      enabled: "{{ enable_kibana }}"
-    when: with_kibana
-
-  - name: Download ROCK Dashboards
-    get_url:
-      url: "{{ rock_dashboards_url }}"
-      dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
-      mode: 0644
-    when: with_kibana and rock_online_install
-
-  - name: Extract ROCK Dashboards
-    unarchive:
-      src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
-      dest: /opt/rocknsm
-      owner: root
-      group: root
-      creates: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
-      remote_src: yes
-    when: with_kibana
-
-  - name: Query Kibana package info
-    yum:
-      list: kibana
-    register: kibana_pkg
-    when: with_kibana
-
-  - name: Store installed kibana pkg info
-    set_fact:
-      kibana_info: "{{ kibana_pkg.results | selectattr('repo', 'match', 'installed') | first }}"
-    when: with_kibana
-
-  - name: Check current Kibana config
-    uri:
-      method: "GET"
-      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}/_source"
-      return_content: true
-    register: kibana_cfg
-    changed_when: false
-    until: kibana_cfg.status == 200
-    retries: 10
-    delay: 3
-    when: with_kibana
-
-  - name: Store Kibana config dict
-    set_fact:
-      kibana_config: "{{ kibana_cfg.json }}"
-    when: with_kibana
-
-  - name: Configure Kibana templates
-    uri:
-      method: PUT
-      url: http://localhost:9200/_template/kibana-config
-      body: >
-        { "order" : 0, "template" : ".kibana",
-          "settings" :
-            { "index.number_of_replicas" : "0",
-              "index.number_of_shards" : "1" },
-          "mappings" : { }, "aliases" : { } }
-      status_code: 200,201
-    when: with_kibana
-
-  - name: Push Kibana dashboard config
-    command: >
-      /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/load.sh
-        -url {{ es_url }}
-    args:
-      chdir: /opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}/
-    when: with_kibana and (kibana_config.rock_config is undefined or kibana_config.rock_config != rock_dashboards_version)
-
-  - name: Store default Kibana index to Bro
-    set_fact:
-      kibana_config: "{{ kibana_config | combine({'defaultIndex': 'bro-*' })}}"
-    when: with_kibana and with_bro
-
-  - name: Store default Kibana index to Suricata
-    set_fact:
-      kibana_config: "{{ kibana_config | combine({'defaultIndex': 'suricata-*' })}}"
-    when: with_kibana and with_suricata and not with_bro
-
-  - name: Update Kibana config dict w/ rock_config version
-    set_fact:
-      kibana_config: "{{ kibana_config | combine({'rock_config': rock_dashboards_version }) }}"
-    when: with_kibana
-
-  - name: Push Kibana settings for index and rock_version
-    uri:
-      method: PUT
-      url: "{{ es_url }}/.kibana/config/{{ kibana_info.version }}"
-      body: "{{ kibana_config }}"
-      body_format: "json"
-      status_code: 200,201
-    when: with_kibana
-
-    ######################################################
     ################### Setup nginx ######################
     ######################################################
   - name: Install ROCK nginx configuration
@@ -1119,18 +998,69 @@
     when: with_nginx
 
   - name: Enable nginx to perform proxy connect
-    seboolean: 
+    seboolean:
       name: httpd_can_network_connect
-      state: yes 
+      state: yes
       persistent: yes
     when: with_nginx and with_kibana
 
-  - name: Enable and start nginx
-    service:
-      name: nginx
-      state: "{{ 'started' if enable_nginx else 'stopped' }}"
-      enabled: "{{ enable_nginx }}"
-    when: with_nginx
+  - name: Generate sensor private key
+    openssl_privatekey:
+      path: "{{ http_tls_key }}"
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
+
+  - name: Generate sensor public key
+    openssl_publickey:
+      path: "{{ http_tls_pub }}"
+      privatekey_path: "{{ http_tls_key }}"
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
+
+  - name: Generate sensor CSR
+    openssl_csr:
+      path: "{{ http_tls_pub }}.csr"
+      privatekey_path: "{{ http_tls_key }}"
+      country_name: US
+      state_or_province_name: MO
+      locality_name: St. Louis
+      organization_name: RockNSM
+      organizational_unit_name: NSM Ninjas
+      email_address: info@rocknsm.io
+      common_name: "{{ rock_fqdn }}"
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
+
+  - name: Generate sensor certificate
+    openssl_certificate:
+      path: "{{ http_tls_crt }}"
+      privatekey_path: "{{ http_tls_key }}"
+      csr_path: "{{ http_tls_pub }}.csr"
+      provider: selfsigned
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
+
+  - name: Combine sensor cert and key
+    shell: >
+      cat {{http_tls_key}} {{http_tls_crt}} > {{http_tls_combined}}
+    args:
+      creates: "{{ http_tls_combined }}"
+    when: with_lighttpd
+    notify:
+      - Restart lighttpd
+
+  - name: Generate DH parameters
+    command: >
+      openssl dhparam -out {{http_tls_dhparams}} 2048
+    args:
+      creates: "{{http_tls_dhparams}}"
+    when: with_kibana and with_nginx
+    notify:
+      - Enable and start nginx
 
     ######################################################
     ############### Setup ROCKNSM Scripts ################
@@ -1159,10 +1089,39 @@
       owner: root
       group: root
 
+  - name: Install rock control script
+    copy:
+      src: rockctl
+      dest: /usr/local/bin/rockctl
+      mode: 0755
+      owner: root
+      group: root
+
+  - name: Create rock script symlinks
+    file:
+      src: "/usr/local/bin/{{ item.src }}"
+      dest: "/usr/sbin/{{ item.dest }}"
+      force: yes
+      state: link
+    with_items:
+      - { src: 'rock_start', dest: 'rock_start' }
+      - { src: 'rock_stop', dest: 'rock_stop' }
+      - { src: 'rock_status', dest: 'rock_status' }
+      - { src: 'rockctl', dest: 'rockctl' }
+
+
   # Training mode / Service mode not needed for AF_PACKET
   ######################################################
   ############### ROCKNSM Customization ################
   ######################################################
+  - name: Set ROCK NSM Version
+    copy:
+      content: "{{ rock_version }}"
+      dest: /etc/rocknsm/rock-version
+      mode: 0644
+      owner: root
+      group: root
+
   - name: Install ROCK NSM /etc/issue
     copy:
       src: etc-issue.in
@@ -1199,8 +1158,8 @@
     - name: es maintenance
       command: /usr/local/bin/es_cleanup.sh
 
-    - name: reload broctl
-      service: name=broctl state=restarted
+    - name: reload bro
+      service: name=bro state="{{ 'started' if enable_bro else 'stopped' }}"
 
     - name: create kafka bro topic
       command: >
@@ -1220,8 +1179,43 @@
            --topic suricata-raw
            --partitions 1
 
+    - name: create kafka fsf topic
+      command: >
+        /opt/kafka/bin/kafka-topics.sh
+           --zookeeper 127.0.0.1:2181
+           --create
+           --replication-factor 1
+           --topic fsf-raw
+           --partitions 1
+
     - name: reload systemd
-      command: systemctl daemon-reload
+      systemd:
+        daemon_reload: yes
+
+    - name: Restart Logstash
+      systemd:
+        name: logstash
+        state: restarted
+
+    - name: Restart Filebeat
+      systemd:
+        name: filebeat
+        state: restarted
+
+    - name: Enable and start nginx
+      systemd:
+        name: nginx
+        state: "{{ 'started' if enable_nginx else 'stopped' }}"
+        enabled: "{{ enable_nginx }}"
+      when: with_nginx
+
+    - name: Restart lighttpd
+      service:
+        name: lighttpd
+        state: "{{ 'started' if enable_lighttpd else 'stopped' }}"
+        enabled: "{{ enable_lighttpd }}"
+      when: with_lighttpd
+
 
   environment:
    http_proxy:  "{{ http_proxy }}"

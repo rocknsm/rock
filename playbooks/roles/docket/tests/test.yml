@@ -1,0 +1,7 @@
+---
+- hosts:
+    - docket
+    - stenographer
+  remote_user: root
+  roles:
+    - rocknsm.docket

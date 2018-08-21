@@ -30,6 +30,8 @@ pulled_pork_oinkcode: {{ pulled_pork_oinkcode }}
 # configure if this system may reach out to the internet
 # (configured repos below) during configuration
 rock_online_install: {{ rock_online_install }}
+# (online) enable RockNSM testing repos
+rock_enable_testing: {{ rock_enable_testing }}
 # (online) the URL for the EPEL repo mirror
 epel_baseurl: {{ epel_baseurl }}
 # (online) the URL for the EPEL GPG key
@@ -45,6 +47,8 @@ rocknsm_gpgurl: {{ rocknsm_gpgurl }}
 
 # (offline) the filesytem path for a local repo if doing an "offline" install
 rocknsm_local_baseurl: {{ rocknsm_local_baseurl }}
+# (offline) disable the gpgcheck features for local repos, contingent on a kickstart test checking for /srv/rocknsm/repodata/repomd.xml.asc
+rock_offline_gpgcheck: {{ rock_offline_gpgcheck }}
 
 # the git repo from which to checkout rocknsm customization scripts for bro
 bro_rockscripts_repo: {{ bro_rockscripts_repo }}
@@ -52,9 +56,18 @@ bro_rockscripts_repo: {{ bro_rockscripts_repo }}
 # the git repo from which pulled pork should be installed
 pulled_pork_repo: {{ pulled_pork_repo }}
 
+#### Retention Configuration ####
+elastic_close_interval: {{ elastic_close_interval }}
+elastic_delete_interval: {{ elastic_delete_interval }}
+kafka_retention: {{ kafka_retention }}
+suricata_retention: {{ suricata_retention }}
+bro_log_retention: {{ bro_log_retention }}
+bro_stats_retention: {{ bro_stats_retention }}
+
 ### Advanced Feature Selection ######
 # Don't flip these unless you know what you're doing
 with_stenographer: {{ with_stenographer }}
+with_docket: {{ with_docket }}
 with_bro: {{ with_bro }}
 with_suricata: {{ with_suricata }}
 with_snort: {{ with_snort }}
@@ -65,10 +78,12 @@ with_kibana: {{ with_kibana }}
 with_zookeeper: {{ with_zookeeper }}
 with_kafka: {{ with_kafka }}
 with_nginx: {{ with_nginx }}
+with_lighttpd: {{ with_lighttpd }}
 with_fsf: {{ with_fsf }}
 
 # Specify if a service is enabled on startup
 enable_stenographer: {{ enable_stenographer }}
+enable_docket: {{ enable_docket }}
 enable_bro: {{ enable_bro }}
 enable_suricata: {{ enable_suricata }}
 enable_snort: {{ enable_snort }}
@@ -79,4 +94,5 @@ enable_kibana: {{ enable_kibana }}
 enable_zookeeper: {{ enable_zookeeper }}
 enable_kafka: {{ enable_kafka }}
 enable_nginx: {{ enable_nginx }}
+enable_lighttpd: {{ enable_lighttpd }}
 enable_fsf: {{ enable_fsf }}

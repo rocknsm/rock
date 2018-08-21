@@ -6,8 +6,8 @@ if [ "x${DEBUG}" != "x" ]; then
   VERBOSE_FLAGS="-vvv"
 fi
 
-cd ${TOPLEVEL}
-ansible-playbook "${TOPLEVEL}/playbooks/deploy-rock.yml" ${VERBOSE_FLAGS}
+cd ${TOPLEVEL}/playbooks
+ansible-playbook "${TOPLEVEL}/playbooks/site.yml" ${VERBOSE_FLAGS}
 
 if [ $? -eq 0 ]; then
   cat << 'EOF'

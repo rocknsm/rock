@@ -1,13 +1,9 @@
 %YAML 1.1
 ---
+default-rule-path: "{{ suricata_var_dir }}/rules"
 rule-files:
-  - pulledpork.rules
-  - http-events.rules
-  - smtp-events.rules
-  - dns-events.rules
-  - tls-events.rules
-  - app-layer-events.rules
-  - files.rules
+  - suricata.rules
+
 af-packet:
 {% for iface in rock_monifs %}
   - interface: {{ iface }}
@@ -42,7 +38,7 @@ outputs:
               enabled: no
         - files:
             force-magic: no
-            force-md5: no
+            force-hash: [sha1, md5]
         - stats:
             totals: yes
             threads: no
