@@ -1,61 +1,37 @@
-<p align="center">
-<img src="images/rock_full.png">
-</p>
-</br>
+## Response Operation Collections Kit Reference Build
 
-<p align="center">
-  <strong><a href="https://rocknsm.gitbooks.io/rocknsm-guide/content/">Documentation</a> | <a href="https://download.rocknsm.io/">Download<a/></strong>
-</p>
+If you have questions after trying the code and the documentation, please see
+our community message boards at http://community.rocknsm.io. This is for discussion
+of troubleshooting or general information outside of bugs that you might find.
 
-ROCK is a collections platform, in the spirit of Network Security Monitoring by contributors from all over industry and the public sector. It's primary focus is to provide a robust, scalable sensor platform for both enduring security monitoring and incident response missions. The platform consists of 3 core capabilities:
+You can file bugs on the [Issue Tracker](http://github.com/rocknsm/rock/issues/).
 
-* Passive data acquisition via AF_PACKET, feeding systems for metadata (Bro), signature detection (Suricata), and full packet capture (Stenographer).
-* A messaging layer (Kafka and Logstash) that provides flexibility in scaling the platform to meet operational needs, as well as providing some degree of data reliability in transit.
-* Reliable data storage and indexing (Elasticsearch) to support rapid retrieval and analysis (Kibana) of the data.
+See the [ROCK User Guide](https://rocknsm.gitbooks.io/rocknsm-guide/content/) for detailed documentation.
 
-## Features
+## Minimum Hardware Recommendations
+*  CPU
+  *  4 or more physical cores.  
+*  Memory
+  *  16GB (You can get away with 8GB, but it won't collect for long.)
+*  Storage
+  *  256GB, with 200+ of that dedicated to `/data`. Honestly, throw everything you can at it.  The higher the IOPS the better.
+*  Network
+  *  The system needs at least 2 network interfaces, one for management and one for collection.
 
-* Full Packet Capture via Google Stenographer and Docket.
-* Protocol Analysis and Metadata via Bro.
-* Signature Based Alerting via Suricata.
-* Recursive File Scanning via FSF.
-* Message Queuing and Distribution via Apache Kafka.
-* Message Transport via Logstash.
-* Data Storage, Indexing, and Search via Elasticsearch.
-* Data UI and Visualization via Kibana.
-* Security - The system is developed and tested to run with SELinux enabled.
+**GOLDEN RULE:** If you throw hardware at it, ROCK will use it.  It will require some tuning to do so, but we'll be documenting that soon enough.
 
-## Approach
-
-The Ansible playbook that drives this build strives not to use any external roles or other dependencies. The reasoning behind this is to make the rock playbook a "one-stop" reference for a manual build. This allows users to use the build process as a guide when doing larger scale production roll outs without having to decipher a labyrinth of dependencies.
-
-Templated config files have comment sections added near key config items with useful info. They don't all have it, but they get added as remembered.
 
 ## Usage
 
-### Operating System Deployment
+#### Start / Stop / Status
+Accomplished with `rockctl stop`, `rockctl start`, and `rockctl status`.
 
-This system is distributed as an [ISO](https://download.rocknsm.io/) and is designed to be deployed as a secure operating system. This is the only supported method for deployment.
+**NOTE:** These may need to be prefaced with /usr/local/bin/ depending on your PATH.
 
-### Service Deployment
 
-Following operating system installation, you can customize the service deployment by editing `/etc/rocknsm/rock/config.yml`.
+## Basic Troubleshooting
 
-**NOTE:** If this file does not exist, you can create it with the following command:
-
-```
-sudo /opt/rocknsm/rock/bin/generate_defaults.sh
-```
-
-Once you are happy with the deployment parameters, run the service deployment as follows:
-
-```
-sudo /opt/rocknsm/rock/bin/deploy_rock.sh
-```
-
-[![asciicast](https://asciinema.org/a/jnwhnl7N02G1bXbkot9zseirl.png)](https://asciinema.org/a/jnwhnl7N02G1bXbkot9zseirl)
-
-### Functions Check:
+#### Functions Check:
 ```
 # Check to see that the ES cluster says it's green:
 curl -s localhost:9200/_cluster/health | jq '.'
@@ -80,5 +56,27 @@ kafkacat -C -b localhost -t bro_raw -e | wc -l
 sudo netstat -planet | grep node
 ```
 
-## Thanks
-This architecture is made possible by the efforts of an ever-growing list of amazing people. Look around our Github to see the whole list.
+
+## Key web interfaces:
+
+IPADDRESS = The management interface of the box.
+
+https://IPADDRESS - Kibana
+https://IPADDRESS:8443 - Docket
+
+
+## Full Packet Capture
+
+Google's Stenographer is installed and configured in this build.  However, it is disabled by default.  There are a few reasons for this: First, it can be too much for Vagrant builds on meager hardware.  Second, you really need to make sure you've mounted /data over sufficient storage before you start saving full packets.  Once you're ready to get nuts, enable and start the service with `systemctl enable stenographer.service` and then `systemctl start stenographer.service`.  
+
+
+## THANKS
+
+This architecture is made possible by the efforts of the Missouri National Guard Cyber Team for donating talent and resources to further development.
+
+
+## Approach
+
+The Ansible playbook that drives this build strives not to use any external roles or other dependencies. The reasoning behind this is to make the rock playbook a "one-stop" reference for a manual build. This allows users to use the build process as a guide when doing larger scale production roll outs without having to decipher a labyrinth of dependencies.
+
+Templated config files have comment sections added near key config items with useful info.  They don't all have it, but they get added as remembered.
