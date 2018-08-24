@@ -4,7 +4,7 @@
 </br>
 
 <p align="center">
-  <strong>Full Documentation: <a href="https://rocknsm.gitbooks.io/rocknsm-guide/content/">link</a></strong>
+  <strong><a href="https://rocknsm.gitbooks.io/rocknsm-guide/content/">Documentation</a> | <a href="https://download.rocknsm.io/">Download</strong>
 </p>
 
 ROCK is a collections platform, in the spirit of Network Security Monitoring by contributors from all over industry and the public sector. It's primary focus is to provide a robust, scalable sensor platform for both enduring security monitoring and incident response missions. The platform consists of 3 core capabilities:
@@ -35,7 +35,7 @@ Templated config files have comment sections added near key config items with us
 
 ### Operating System Deployment
 
-This system is distributed as an ISO and is designed to be deployed as a secure operating system. This is the only supported method for deployment.
+This system is distributed as an [ISO](https://download.rocknsm.io/) and is designed to be deployed as a secure operating system. This is the only supported method for deployment.
 
 ### Service Deployment
 
