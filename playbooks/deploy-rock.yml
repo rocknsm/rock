@@ -832,6 +832,39 @@
     when: with_suricata
 
     ######################################################
+    ############## Setup suricata-update  ################
+    ######################################################
+
+  - name: Create local rules source for offline install of Suricata
+    command: suricata-update add-source -v "Local Rules" "file:///srv/rocknsm/support/emerging.rules-suricata.tar.gz"
+    args:
+      creates: "/var/lib/suricata/update/sources/Local Rules.yaml"
+    when: with_suricata_update and not rock_online_install
+
+  - name: Offline install of Suricata rules
+    command: suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+    args:
+      creates: /var/lib/suricata/rules/suricata.rules
+    when: enable_suricata_update and not rock_online_install
+
+  - name: Suricata-update online rules pull
+    command: suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+    args:
+      creates: /var/lib/suricata/rules/suricata.rules
+    when: enable_suricata_update and rock_online_install
+
+  - name: Cron for suricata-update
+    cron:
+      name: "suricata-update"
+      cron_file: rocknsm_suricata-update
+      user: root
+      hour: "12"
+      minute: "0"
+      job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata" 
+           > /var/log/suricata-update.log 2>&1
+    when: enable_suricata_update and rock_online_install
+
+    ######################################################
     ################# Setup PulledPork  ##################
     ######################################################
   - name: Create pulledpork directory symlink
