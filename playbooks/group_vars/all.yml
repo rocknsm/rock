@@ -35,6 +35,7 @@ with_bro: true
 with_suricata: true
 with_snort: false
 with_pulledpork: false
+with_suricata_update: false
 with_logstash: true
 with_elasticsearch: true
 with_kibana: true
@@ -53,6 +54,7 @@ enable_bro: true
 enable_suricata: true
 enable_snort: false
 enable_pulledpork: false
+enable_suricata_update: false
 enable_logstash: true
 enable_elasticsearch: true
 enable_kibana: true
