@@ -40,10 +40,6 @@ Generally, most of the options you'll want to change are near the top. The file 
 | Half of available memory, rounded down to the nearest gigabyte
 | This is used to configure the heap size for Elasticsearch.
 
-| pulled_pork_oinkcode
-| an oinkcode that we registered
-| If you pulled snort rules from snort.org, you should replace this with your own code. This is used to uniquely identify a user for purposes of rate-limiting. If you use the same one that every install of ROCK uses, you will be rate limited or denied.
-
 | rock_online_install 
 | `True` (unless installed from ISO)
 | Configures yum and other downloads to pull packages from the Internet. If this is set to `False`, you should have already followed to procedures to make an <<working-offline,Offline Snapshot>>
@@ -79,10 +75,6 @@ Generally, most of the options you'll want to change are near the top. The file 
 | bro_rockscripts_repo
 | _our github repo for bro scripts_
 | You could change this to your own fork of our bro scripts or a local git repository.
-
-| pulled_pork_repo
-| https://github.com/shirkdog/pulledpork.git
-| You could change this to your own fork of pulled pork or to a local git repository.
 
 | with_stenographer 
 | `True`

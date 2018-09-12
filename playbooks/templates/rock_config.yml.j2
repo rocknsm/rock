@@ -22,8 +22,6 @@ es_cluster_name: {{ es_cluster_name }}
 es_node_name: {{ es_node_name }}
 # how much memory to use for elasticsearch
 es_mem: {{ es_mem }}
-# (optional) personal configured key for pulled pork to pull latest sigs from snort.org
-pulled_pork_oinkcode: {{ pulled_pork_oinkcode }}
 
 ########## Offline/Enterprise Network Options ##############
 
@@ -53,9 +51,6 @@ rock_offline_gpgcheck: {{ rock_offline_gpgcheck }}
 # the git repo from which to checkout rocknsm customization scripts for bro
 bro_rockscripts_repo: {{ bro_rockscripts_repo }}
 
-# the git repo from which pulled pork should be installed
-pulled_pork_repo: {{ pulled_pork_repo }}
-
 #### Retention Configuration ####
 elastic_close_interval: {{ elastic_close_interval }}
 elastic_delete_interval: {{ elastic_delete_interval }}
@@ -71,7 +66,6 @@ with_docket: {{ with_docket }}
 with_bro: {{ with_bro }}
 with_suricata: {{ with_suricata }}
 with_snort: {{ with_snort }}
-with_pulledpork: {{ with_pulledpork }}
 with_suricata_update: {{ with_suricata_update }}
 with_logstash: {{ with_logstash }}
 with_elasticsearch: {{ with_elasticsearch }}
@@ -88,7 +82,6 @@ enable_docket: {{ enable_docket }}
 enable_bro: {{ enable_bro }}
 enable_suricata: {{ enable_suricata }}
 enable_snort: {{ enable_snort }}
-enable_pulledpork: {{ enable_pulledpork }}
 enable_suricata_update: {{ enable_suricata_update }}
 enable_logstash: {{ enable_logstash }}
 enable_elasticsearch: {{ enable_elasticsearch }}
