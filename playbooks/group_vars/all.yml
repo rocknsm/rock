@@ -13,11 +13,6 @@ rock_hostname: "{{ inventory_hostname_short }}"
 rock_fqdn: "{{ inventory_hostname }}"
 rock_mgmt_nets: [ "0.0.0.0/0" ]
 rock_cache_dir: /srv/rocknsm/support
-pulledpork_rules:
-  - { url: "https://snort.org/downloads/community/", file: "community-rules.tar.gz", apikey: "Community", test: "{{not with_suricata and with_snort}}" }
-  - { url: "https://www.snort.org/reg-rules/", file: "snortrules-snapshot.tar.gz", apikey: "796f26a2188c4c953ced38ff3ec899d8ae543350", test: "{{not with_suricata and with_snort}}" }
-  - { url: "https://rules.emergingthreats.net/", file: "emerging.rules.tar.gz", apikey: "open-nogpl" }
-  - { url: "http://talosintel.com/feeds/ip-filter.blf", file: "IPBLACKLIST", apikey: "open" }
 
 #### Retention Configuration ####
 elastic_close_interval: 15
@@ -34,7 +29,6 @@ with_docket: true
 with_bro: true
 with_suricata: true
 with_snort: false
-with_pulledpork: false
 with_suricata_update: false
 with_logstash: true
 with_elasticsearch: true
@@ -53,7 +47,6 @@ enable_docket: false
 enable_bro: true
 enable_suricata: true
 enable_snort: false
-enable_pulledpork: false
 enable_suricata_update: false
 enable_logstash: true
 enable_elasticsearch: true
@@ -99,10 +92,6 @@ epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 elastic_baseurl: https://artifacts.elastic.co/packages/6.x/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-pulledpork_release: 0.7.2
-pulledpork_url: "https://github.com/shirkdog/pulledpork/archive/{{ pulledpork_release }}.tar.gz"
-pulledpork_filename: "pulledpork-{{ pulledpork_release }}.tar.gz"
-pulledpork_engine_basepath: "/etc/{{ \"suricata\" if with_suricata else \"snort\" }}"
 
 rocknsm_baseurl: https://packagecloud.io/rocknsm/2_1/el/7/$basearch
 rocknsm_srpm_baseurl: https://packagecloud.io/rocknsm/2_1/el/7/SRPMS
@@ -134,8 +123,6 @@ suricata_group: suricata
 suricata_data_dir: "{{ rock_data_dir }}/suricata"
 suricata_var_dir: /var/lib/suricata
 
-pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
-pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
 fsf_user: fsf
 fsf_group: fsf
 fsf_data_dir: "{{ rock_data_dir }}/fsf"

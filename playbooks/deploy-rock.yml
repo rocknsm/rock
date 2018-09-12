@@ -76,23 +76,6 @@
       state: directory
       mode: 0755
 
-  - name: Download Pulled Pork
-    get_url:
-      url: "{{ pulledpork_url }}"
-      dest: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
-      mode: 0644
-    when: with_pulledpork and rock_online_install
-
-  - name: Install Pulled Pork
-    unarchive:
-      src: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
-      dest: /opt
-      owner: root
-      group: root
-      creates: "/opt/pulledpork-{{ pulledpork_release }}"
-      remote_src: yes
-    when: with_pulledpork
-
     #######################################################
     ################ Configure firewall ###################
     #######################################################
@@ -863,72 +846,6 @@
       job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata" 
            > /var/log/suricata-update.log 2>&1
     when: enable_suricata_update and rock_online_install
-
-    ######################################################
-    ################# Setup PulledPork  ##################
-    ######################################################
-  - name: Create pulledpork directory symlink
-    file:
-      src: "/opt/pulledpork-{{ pulledpork_release }}"
-      dest: "/opt/pulledpork"
-      state: link
-      force: yes
-    when: with_pulledpork
-
-  - name: Set pulledpork executable
-    file:
-      path: /opt/pulledpork/pulledpork.pl
-      mode: 0755
-      owner: root
-      group: root
-    when: with_pulledpork
-
-  - name: Create pulledpork config dir
-    file:
-      path: /etc/pulledpork
-      mode: 0755
-      owner: root
-      group: root
-      state: directory
-    when: with_pulledpork
-
-  - name: Configure pulledpork
-    template:
-      src: templates/pulledpork.conf.j2
-      dest: /etc/pulledpork/pulledpork.conf
-      owner: root
-      group: root
-      mode: 0644
-    when: with_pulledpork
-
-  - name: Check stats of rules files
-    stat:
-      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules"
-    register: rules_file
-    when: with_pulledpork
-
-  - name: Create initial pulledpork rules-related files
-    file:
-      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules"
-      owner: root
-      group: root
-      mode: 0644
-      state: touch
-    when: with_pulledpork and not rules_file.stat.exists
-
-  - name: Schedule pulledpork to run daily
-    cron:
-      name: "pulledpork update"
-      cron_file: rocknsm_pulledpork
-      user: root
-      hour: "12"
-      minute: "0"
-      job: /opt/pulledpork/pulledpork.pl
-        -c /etc/pulledpork/pulledpork.conf
-        -l > /var/log/pulledpork.log 2>&1;
-        {{ "/usr/bin/systemctl kill -s USR2 suricata;" if with_suricata else None }}
-        {{ "/usr/bin/systemctl restart snortd;" if with_snort else None }}
-    when: with_pulledpork
 
     #######################################################
     ######################## FSF ##########################
