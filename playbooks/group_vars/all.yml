@@ -29,7 +29,7 @@ with_docket: true
 with_bro: true
 with_suricata: true
 with_snort: false
-with_suricata_update: false
+with_suricata_update: true
 with_logstash: true
 with_elasticsearch: true
 with_kibana: true
@@ -47,7 +47,7 @@ enable_docket: false
 enable_bro: true
 enable_suricata: true
 enable_snort: false
-enable_suricata_update: false
+enable_suricata_update: true
 enable_logstash: true
 enable_elasticsearch: true
 enable_kibana: true
