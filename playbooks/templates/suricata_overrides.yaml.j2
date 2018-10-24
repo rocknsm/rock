@@ -18,6 +18,9 @@ af-packet:
     use-emergency-flush: yes
 {% endfor %}
 default-log-dir: {{ suricata_data_dir }}
+
+#Magic file location for EL7
+magic-file: /usr/share/file/magic
 outputs:
   - fast:
       enabled: yes
@@ -37,13 +40,16 @@ outputs:
             xff:
               enabled: no
         - files:
-            force-magic: no
-            force-hash: [sha1, md5]
+            force-magic: yes
+            force-hash: [sha256, sha1, md5]
         - stats:
             totals: yes
             threads: no
             deltas: no
         - flow
+        - http
+        - dns
+        - tls
   - unified2-alert:
       enabled: yes
       filename: unified2.alert

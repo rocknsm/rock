@@ -8,7 +8,7 @@
 $SERVER["socket"] == "0.0.0.0:443" {
   # Global TLS Configuration
   ssl.engine  = "enable"
-  ssl.pemfile = "{{ http_tls_combined }}
+  ssl.pemfile = "{{ http_tls_combined }}"
 
   # Use DH key exchange for Ephemeral keys and forward secrecy
   ssl.dh-file = "{{ http_tls_dhparams }}"

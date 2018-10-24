@@ -1,11 +1,10 @@
 ---
 - name: Install packages
   yum:
-    name: "{{ item }}"
+    name:
+      - python-pyOpenSSL
+      - firewalld
+      - chrony
+      - libselinux-python
     state: present
-  with_items:
-    - python-pyOpenSSL
-    - firewalld
-    - chrony
-    - libselinux-python
 ...

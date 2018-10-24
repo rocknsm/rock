@@ -54,7 +54,7 @@
     - { pkg: logstash, test: "{{with_logstash}}", state: installed }
     - { pkg: kibana, test: "{{with_kibana}}", state: installed }
     - { pkg: filebeat, test: "{{with_suricata or with_fsf}}", state: installed }
-    - { pkg: lighttpd, test: "{{with_lighttpd}}"", state: installed }
+    - { pkg: lighttpd, test: "{{with_lighttpd}}", state: installed }
     - { pkg: python2-xkcdpass, test: "{{with_lighttpd}}", state: installed }
     - { pkg: bro, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
@@ -823,30 +823,46 @@
     args:
       creates: /var/lib/suricata/update/sources/emerging-threats-offline.yaml
     when: with_suricata_update and not rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
 
   - name: Offline install of Suricata rules
     command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
     args:
       creates: /var/lib/suricata/rules/suricata.rules
     when: enable_suricata_update and not rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
+
+  - name: Update suricata-update source index
+    command: /usr/bin/suricata-update update-sources
+    args:
+      creates: /var/lib/suricata/update/cache/index.yaml
+    when: enable_suricata_update and rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
 
   - name: Explicitly enable ET rules for suricata-update online
     command: /usr/bin/suricata-update enable-source et/open
     args:
       creates: /var/lib/suricata/update/sources/et-open.yaml
     when: enable_suricata_update and rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
 
   - name: Suricata-update online rules pull
     command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
     args:
       creates: /var/lib/suricata/rules/suricata.rules
     when: enable_suricata_update and rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
 
   - name: Cron for suricata-update
     cron:
       name: "suricata-update"
       cron_file: rocknsm_suricata-update
-      user: root
+      user: "{{ suricata_user }}"
       hour: "12"
       minute: "0"
       job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
@@ -909,21 +925,30 @@
     when: with_fsf
 
     ######################################################
-    ################### Setup nginx ######################
+    ################### Setup lighttpd ###################
     ######################################################
   - name: Install ROCK lighttpd configuration
     template:
       src: templates/lighttpd-{{ item }}.j2
-      dest: /etc/lighttpd/vhosts.d/
+      dest: /etc/lighttpd/vhosts.d/{{ item }}
       mode: 0644
       owner: root
       group: root
-    when: with_nginx and with_kibana
+    when: with_lighttpd and with_kibana
     with_items:
       - 10-rock-auth.conf
       - 10-tls.conf
       - 20-rock-vars.conf
-      - 30-rockproxy.conf
+      - 50-rockproxy.conf
+    notify: Enable and Restart lighttpd
+
+  - name: Enable lighttpd vhosts
+    lineinfile:
+      path: /etc/lighttpd/lighttpd.conf
+      regexp: '^#?\s*include.*vhosts\.d/.*$'
+      line: include "/etc/lighttpd/vhosts.d/*.conf"
+    notify: Enable and Restart lighttpd
+    when: with_lighttpd
 
   - name: Enable lighttpd to perform proxy connect
     seboolean:
