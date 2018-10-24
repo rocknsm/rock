@@ -1,0 +1,15 @@
+# file: /etc/docket/docket-uwsgi.ini
+[uwsgi]
+module = wsgi:application
+master = true
+processes = 5
+pcre-jit = true
+plugins = python
+pythonpath = /opt/rocknsm/docket/docket
+die-on-term = true
+
+# Static config
+static-map = {{ docket_url_apppath }}/={{ docket_frontend_dir }}
+static-map = {{ docket_url_resultspath }}={{ docket_spool_dir }}
+static-index = index.html
+file-serve-mode = x-sendfile

@@ -17,5 +17,5 @@
 - name: docket | validate pyopenssl >= 15.0 is installed
   assert:
     that:
-      - "{{pyopenssl_status.results|selectattr('yumstate', 'match', 'installed')|map(attribute='version')| version_compare('15.0.0', '>=' )}}"
+      - "{{pyopenssl_status.results|selectattr('yumstate', 'match', 'installed')|map(attribute='version') is version_compare('15.0.0', '>=' )}}"
     msg: "Docket hosts require PyOpenSSL greater than 15.0 prior to executing this play"

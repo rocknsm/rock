@@ -43,6 +43,8 @@ rocknsm_baseurl: {{ rocknsm_baseurl }}
 # (online) the URL for the rocknsm GPG key
 rocknsm_gpgurl: {{ rocknsm_gpgurl }}
 
+#
+rock_disable_offline_repo: {{ rock_disable_offline_repo }}
 # (offline) the filesytem path for a local repo if doing an "offline" install
 rocknsm_local_baseurl: {{ rocknsm_local_baseurl }}
 # (offline) disable the gpgcheck features for local repos, contingent on a kickstart test checking for /srv/rocknsm/repodata/repomd.xml.asc
@@ -72,7 +74,6 @@ with_elasticsearch: {{ with_elasticsearch }}
 with_kibana: {{ with_kibana }}
 with_zookeeper: {{ with_zookeeper }}
 with_kafka: {{ with_kafka }}
-with_nginx: {{ with_nginx }}
 with_lighttpd: {{ with_lighttpd }}
 with_fsf: {{ with_fsf }}
 
@@ -88,6 +89,5 @@ enable_elasticsearch: {{ enable_elasticsearch }}
 enable_kibana: {{ enable_kibana }}
 enable_zookeeper: {{ enable_zookeeper }}
 enable_kafka: {{ enable_kafka }}
-enable_nginx: {{ enable_nginx }}
 enable_lighttpd: {{ enable_lighttpd }}
 enable_fsf: {{ enable_fsf }}

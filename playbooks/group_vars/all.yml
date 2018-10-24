@@ -3,6 +3,7 @@
 rock_version: 2.1.0
 rock_online_install: true
 rock_enable_testing: false
+rock_disable_offline_repo: false
 rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
 rock_data_dir: /data
 rocknsm_dir: /opt/rocknsm
@@ -36,7 +37,6 @@ with_kibana: true
 with_filebeat: true
 with_zookeeper: true
 with_kafka: true
-with_nginx: true
 with_lighttpd: true
 with_fsf: true
 
@@ -54,7 +54,6 @@ enable_kibana: true
 enable_filebeat: true
 enable_zookeeper: true
 enable_kafka: true
-enable_nginx: true
 enable_lighttpd: true
 enable_fsf: true
 

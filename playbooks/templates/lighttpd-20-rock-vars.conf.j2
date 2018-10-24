@@ -1,0 +1,18 @@
+#######################################################################
+# Lighttpd variables for RockNSM
+# file: /etc/lighttpd/vhosts.d/20-rock-vars.conf#
+#
+# {{ ansible_managed }}
+#
+
+# global vars
+var.vhostdir = "/var/www/rock"
+server.breakagelog = "/var/log/lighttpd/error.log"
+
+#debug.log-condition-handling = "enable"
+#debug.log-request-header = "enable"
+#debug.log-request-handling = "enable"
+#debug.log-response-header = "enable"
+
+# See Item12581: Lighttpd lower cases PATH_INFO on case-insensitive file systems.
+server.force-lowercase-filenames = "disable"

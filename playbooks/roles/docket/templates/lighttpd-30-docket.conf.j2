@@ -1,0 +1,37 @@
+#######################################################################
+# Docket application config. Mounts docket at sub-path of root
+# file: /etc/lighttpd/vhosts.d/30-docket.conf
+#
+# {{ ansible_managed }}
+#
+
+server.modules += ( "mod_scgi" )
+server.modules += ("mod_rewrite")
+
+scgi.debug = 1
+
+$HTTP["url"] =~  "{{ docket_url_pattern }}" {
+
+  setenv.add-environment = ( "AUTH_TYPE" => "Basic" ) # "Basic" or "Digest"
+  scgi.protocol = "uwsgi"
+  scgi.server = (
+    "/" => ((
+      # Ensure lighttpd doesn't try to validate the URL
+      "check-local" => "disable",
+
+      # Needed to pass through leading "/" via uwsgi protocol
+      "fix-root-scriptname" => "enable",
+
+      # Use x-sendfile for faster file transfers from uwsgi
+      "x-sendfile" => "enable",
+      "x-sendfile-docroot" => (
+        # Set this to the path of the compiled frontend
+        "{{ docket_frontend_dir }}",
+        # Set this to SPOOL_DIR
+        "{{ docket_spool_dir }}",
+      ),
+      # Use the unix domain socket for local communication
+      "socket" => "{{ docket_uwsgi_socket }}",
+     )),
+  )
+}
