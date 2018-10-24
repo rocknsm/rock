@@ -41,6 +41,9 @@ docket_web_pemfile: "/etc/pki/tls/private/lighttpd_docket.pem"
 docket_web_dhparams: "/etc/pki/tls/misc/lighttpd_dh.pem"
 docket_web_server_name: "{{ansible_fqdn}}"
 docket_web_user: lighttpd
+docket_url_apppath: /app/docket
+docket_url_resultspath: /results
+docket_url_pattern: "(^/results/|^/app/docket/)"
 
 # Vars to generate keys/certs
 docket_x509_dir: /etc/pki/docket/

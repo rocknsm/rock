@@ -24,11 +24,11 @@ SPOOL_DIR: {{ docket_spool_dir }}
 #  examples:
 #     http://HOST:PORT/api/stats/
 #     http://HOST:PORT/api/uri/host/1.2.3.4/
-WEB_ROOT: /api
+WEB_ROOT: {{ docket_url_apppath }}/api
 # WEB_ROOT  the base url for PCAP requests: default is /results
 #  example:
 #     http://HOST:PORT/results/<JOB_ID>/merged.pcap
-PCAP_WEB_ROOT: /results
+PCAP_WEB_ROOT: {{ docket_url_resultspath }}
 
 # ==== Logging ====
 LOGGER_NAME: {{ docket_logger }}
