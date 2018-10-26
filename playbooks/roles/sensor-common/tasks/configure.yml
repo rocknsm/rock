@@ -126,17 +126,17 @@
     group: root
   with_items:
     - RPM-GPG-KEY-RockNSM-2
-    - RPM-GPG-KEY-RockNSM-2.1-Testing
-    - RPM-GPG-KEY-RockNSM-pkgcloud-2_1
+    - RPM-GPG-KEY-RockNSM-Testing
+    - RPM-GPG-KEY-RockNSM-pkgcloud-2_2
 
 - name: Trust RockNSM GPG keys
   rpm_key:
     state: present
     key: "{{ item.path }}"
   with_items:
-    - { repoid: "rocknsm_2_1", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
-    - { repoid: "rocknsm_2_1", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1" }
-    - { repoid: "rocknsm-testing", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2.1-Testing"}
+    - { repoid: "rocknsm_2_2", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
+    - { repoid: "rocknsm_2_2", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_2" }
+    - { repoid: "rocknsm-testing", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-Testing"}
     - { repoid: "rocknsm-local", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
   register: registered_keys
 
@@ -150,7 +150,7 @@
     repo_gpgcheck: 1
     gpgcheck: "{{ item.gpgcheck }}"
     gpgkey:
-      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_1
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_2
       - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
     sslverify: 1
     sslcacert: /etc/pki/tls/certs/ca-bundle.crt
@@ -158,19 +158,19 @@
     cost: 750
     state: present
   with_items:
-    - { name: "rocknsm_2_1", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
-    - { name: "rocknsm_2_1-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
+    - { name: "rocknsm_2_2", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
+    - { name: "rocknsm_2_2-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
 
 - name: Configure RockNSM online testing repos
   yum_repository:
     file: "rocknsm-testing"
     name: "rocknsm-testing"
-    description: "RockNSM 2.1 - Testing - $basearch"
+    description: "RockNSM - Testing - $basearch"
     baseurl: "{{ rocknsm_testing_baseurl }}"
     skip_if_unavailable: "True"
     gpgcheck: 1
     gpgkey:
-      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2.1-Testing
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-Testing
     repo_gpgcheck: 0
     enabled: "{{ (rock_online_install and rock_enable_testing) | bool }}"
     cost: 750
@@ -190,8 +190,8 @@
 - name: Trust RockNSM GPG keys in yum
   command: "yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.repoid }}'"
   with_items:
-    - { repoid: "rocknsm_2_1", test: "{{ rock_online_install }}" }
-    - { repoid: "rocknsm_2_1-source", test: "{{ rock_online_install }}" }
+    - { repoid: "rocknsm_2_2", test: "{{ rock_online_install }}" }
+    - { repoid: "rocknsm_2_2-source", test: "{{ rock_online_install }}" }
     - { repoid: "rocknsm-testing", test: "{{ rock_online_install }}" }
     - { repoid: "rocknsm-local", test: "{{ not rock_online_install }}" }
   when: item.test | bool

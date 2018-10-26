@@ -24,7 +24,7 @@ Vagrant.configure(2) do |config|
     echo "tsflags=nodocs" | tee -a /etc/yum.conf
     yum -y install epel-release
     #sed -i 's/^mirrorlist/#mirrorlist/; s/^#baseurl/baseurl/' /etc/yum.repos.d/{CentOS-Base.repo,epel.repo}
-    yum -y install https://packagecloud.io/rocknsm/2_1/packages/el/7/rock-release-2.1-2.noarch.rpm/download.rpm
+    yum -y install https://packagecloud.io/rocknsm/2_2/packages/el/7/rock-release-2.2.0-2.noarch.rpm/download.rpm
     yum -y update
     yum -y install ansible vim git tmux tito
     # Create virtual interface
