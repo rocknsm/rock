@@ -1,7 +1,7 @@
 %global _rockdir /opt/rocknsm/rock
 
 Name:           rock
-Version:        2.1.1
+Version:        2.1.0
 Release:        2
 Summary:        Network Security Monitoring collections platform
 
