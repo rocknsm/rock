@@ -33,7 +33,7 @@ LogRotationInterval = 3600
 # will be deleted by "broctl cron".  The interval is an integer followed by
 # one of these time units:  day, hr, min.  A value of 0 means that logs
 # never expire.
-LogExpireInterval = {{ bro_log_retention }}
+LogExpireInterval = {{ bro_log_retention }} day
 
 # Enable BroControl to write statistics to the stats.log file.  A value of 1
 # means write to stats.log, and a value of 0 means do not write to stats.log.

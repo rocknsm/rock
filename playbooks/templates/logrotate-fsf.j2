@@ -1,0 +1,10 @@
+{{ fsf_data_dir }}/*.log
+{
+    rotate {{ fsf_retention }}
+    missingok
+    compress
+    delaycompress
+    copytruncate
+    minsize 500k
+    create 0644 fsf fsf
+}

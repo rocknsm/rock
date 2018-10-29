@@ -513,6 +513,7 @@
       owner: "{{ bro_user }}"
       group: "{{ bro_group }}"
       state: directory
+      setype: var_log_t
     with_items:
       - "{{ bro_data_dir }}"
       - "{{ bro_data_dir }}/logs"
@@ -734,6 +735,7 @@
       owner: "{{ suricata_user }}"
       group: "{{ suricata_group }}"
       state: directory
+      setype: var_log_t
     when: with_suricata
 
   - name: Remove suricata sysconfig file
@@ -807,8 +809,8 @@
 
   - name: Configure logrotate for suricata logs
     template:
-      src: templates/logrotate-suricata.conf.j2
-      dest: /etc/logrotate.d/suricata.conf
+      src: templates/logrotate-suricata.j2
+      dest: /etc/logrotate.d/suricata
       mode: 0644
       owner: root
       group: root
@@ -879,6 +881,7 @@
       owner: "{{ fsf_user }}"
       group: "{{ fsf_group }}"
       state: directory
+      setype: var_log_t
     when: with_fsf
 
   - name: Create FSF archive dir
@@ -890,10 +893,10 @@
       state: directory
     when: with_fsf
 
-  - name: Configure logrotate for FSF logs
-    copy:
-      src: logrotate-fsf.conf
-      dest: /etc/logrotate.d/fsf.conf
+  - name: Configure logrotate for fsf logs
+    template:
+      src: templates/logrotate-fsf.j2
+      dest: /etc/logrotate.d/fsf
       mode: 0644
       owner: root
       group: root

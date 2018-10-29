@@ -56,10 +56,13 @@ bro_rockscripts_repo: {{ bro_rockscripts_repo }}
 #### Retention Configuration ####
 elastic_close_interval: {{ elastic_close_interval }}
 elastic_delete_interval: {{ elastic_delete_interval }}
+# Kafka retention is in Hour
 kafka_retention: {{ kafka_retention }}
-suricata_retention: {{ suricata_retention }}
+# Log Retemtion in Days
 bro_log_retention: {{ bro_log_retention }}
 bro_stats_retention: {{ bro_stats_retention }}
+suricata_retention: {{ suricata_retention }}
+fsf_retention: {{ fsf_retention }}
 
 ### Advanced Feature Selection ######
 # Don't flip these unless you know what you're doing

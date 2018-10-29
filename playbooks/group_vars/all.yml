@@ -122,6 +122,7 @@ fsf_group: fsf
 fsf_data_dir: "{{ rock_data_dir }}/fsf"
 fsf_archive_dir: "{{ fsf_data_dir }}/archive"
 fsf_client_logfile: "{{ fsf_data_dir }}/client.log"
+fsf_retention: 3
 kafka_user: kafka
 kafka_group: kafka
 kafka_data_dir: "{{ rock_data_dir }}/kafka"
