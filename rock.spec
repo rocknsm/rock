@@ -2,7 +2,7 @@
 
 Name:           rock
 Version:        2.2.0
-Release:        1
+Release:        2
 Summary:        Network Security Monitoring collections platform
 
 License:        BSD
@@ -57,6 +57,10 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_rockdir}/bin/generate_defaults.sh
 
 %changelog
+* Tue Oct 30 2018 Derek Ditch <derek@rocknsm.io> 2.2.0-2
+- Fixed issue with missing GPG keys (derek@rocknsm.io)
+- Update logrotate configuration (derek@rocknsm.io)
+
 * Fri Oct 26 2018 Derek Ditch <derek@rocknsm.io> 2.2.0-1
 - Added support for Elastic Stack 6.4 (derek@rocknsm.io>
 - Added initial support for Elastic Common Schema in Tech Preview (derek@rocknsm.io)
