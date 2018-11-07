@@ -3,6 +3,7 @@
 Name:           rock
 Version:        2.2.0
 Release:        2
+
 Summary:        Network Security Monitoring collections platform
 
 License:        BSD
@@ -80,7 +81,7 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 - Reorganize README (bradford.dabbs@elastic.co)
 - Move ECS to rock-dashboards repo (derek@rocknsm.io)
 
-* Tue Aug 21 2018 Derek Ditch <derek@rocknsm.io>
+* Tue Aug 21 2018 Derek Ditch <derek@rocknsm.io> 2.1.0-2
 - Move ECS to rock-dashboards repo
 
 * Tue Aug 21 2018 Derek Ditch <derek@rocknsm.io> 2.1.0-1
