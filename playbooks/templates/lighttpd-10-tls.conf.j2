@@ -1,0 +1,35 @@
+#######################################################################
+# Lighttpd shared authentication
+# file: /etc/lighttpd/vhosts.d/10-tls.conf
+#
+# {{ ansible_managed }}
+#
+
+# Upgrade to TLS (works on lighttpd >= 1.4.50)
+$HTTP["scheme"] == "http" { url.redirect = ("" => "https://${authority}${path}${qsa}") }
+
+# Listen on 443 for TLS connections
+$SERVER["socket"] == "0.0.0.0:443" {
+  # Global TLS Configuration
+  ssl.engine  = "enable"
+  ssl.pemfile = "{{ http_tls_combined }}"
+
+  # Use DH key exchange for Ephemeral keys and forward secrecy
+  ssl.dh-file = "{{ http_tls_dhparams }}"
+  ssl.ec-curve = "secp384r1"
+
+  # TLS recommendations used from https://cipherli.st/
+  ssl.honor-cipher-order = "enable"
+  ssl.cipher-list = "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH"
+  ssl.use-compression = "disable"
+  setenv.add-response-header = (
+    "Strict-Transport-Security" => "max-age=63072000; includeSubDomains; preload",
+    "X-Frame-Options" => "DENY",
+    "X-Content-Type-Options" => "nosniff"
+  )
+
+  ssl.use-sslv2 = "disable"
+  ssl.use-sslv3 = "disable"
+
+  ssl.disable-client-renegotiation = "enable"
+}

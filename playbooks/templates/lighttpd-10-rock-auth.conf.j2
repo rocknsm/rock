@@ -1,0 +1,20 @@
+#######################################################################
+# Lighttpd shared authentication
+# file: /etc/lighttpd/vhosts.d/05-rock-auth.conf
+#
+# {{ ansible_managed }}
+#
+server.modules += ( "mod_auth" )
+server.modules += ( "mod_authn_file" )
+
+auth.backend = "htpasswd"
+auth.backend.htpasswd.userfile = "/etc/lighttpd/rock-htpasswd.user"
+auth.debug = 0
+
+auth.require = (
+  "/" => (
+    "method"  => "basic",
+    "realm"   => "RockNSM",
+    "require" => "valid-user"
+  )
+)

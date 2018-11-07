@@ -19,6 +19,13 @@
     - docket | restart docket uwsgi
     - docket | restart docket celery services
 
+- name: docket | set uwsgi config
+  template:
+    src: docket-uwsgi.ini.j2
+    dest: /etc/docket/docket-uwsgi.ini
+  notify:
+    - docket | restart docket uwsgi
+
 - name: docket | enable redis
   service:
     name: redis

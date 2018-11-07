@@ -1,0 +1,14 @@
+{{ suricata_data_dir }}/*.log {{ suricata_data_dir }}/*.json
+{
+    rotate {{ suricata_retention }}
+    missingok
+    compress
+    delaycompress
+    copytruncate
+    minsize 500k
+    create 0644 suricata suricata
+    sharedscripts
+    postrotate
+        systemctl reload suricata.service
+    endscript
+}

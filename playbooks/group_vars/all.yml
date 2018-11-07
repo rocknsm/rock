@@ -1,8 +1,9 @@
 %YAML 1.1
 ---
-rock_version: 2.1.0
+rock_version: 2.2.0
 rock_online_install: true
 rock_enable_testing: false
+rock_disable_offline_repo: false
 rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
 rock_data_dir: /data
 rocknsm_dir: /opt/rocknsm
@@ -13,11 +14,6 @@ rock_hostname: "{{ inventory_hostname_short }}"
 rock_fqdn: "{{ inventory_hostname }}"
 rock_mgmt_nets: [ "0.0.0.0/0" ]
 rock_cache_dir: /srv/rocknsm/support
-pulledpork_rules:
-  - { url: "https://snort.org/downloads/community/", file: "community-rules.tar.gz", apikey: "Community", test: "{{not with_suricata and with_snort}}" }
-  - { url: "https://www.snort.org/reg-rules/", file: "snortrules-snapshot.tar.gz", apikey: "796f26a2188c4c953ced38ff3ec899d8ae543350", test: "{{not with_suricata and with_snort}}" }
-  - { url: "https://rules.emergingthreats.net/", file: "emerging.rules.tar.gz", apikey: "open-nogpl" }
-  - { url: "http://talosintel.com/feeds/ip-filter.blf", file: "IPBLACKLIST", apikey: "open" }
 
 #### Retention Configuration ####
 elastic_close_interval: 15
@@ -34,32 +30,30 @@ with_docket: true
 with_bro: true
 with_suricata: true
 with_snort: false
-with_pulledpork: false
+with_suricata_update: true
 with_logstash: true
 with_elasticsearch: true
 with_kibana: true
 with_filebeat: true
 with_zookeeper: true
 with_kafka: true
-with_nginx: true
 with_lighttpd: true
 with_fsf: true
 
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the systemd service is enabled
-enable_stenographer: false
-enable_docket: false
+enable_stenographer: true
+enable_docket: true
 enable_bro: true
 enable_suricata: true
 enable_snort: false
-enable_pulledpork: false
+enable_suricata_update: true
 enable_logstash: true
 enable_elasticsearch: true
 enable_kibana: true
 enable_filebeat: true
 enable_zookeeper: true
 enable_kafka: true
-enable_nginx: true
 enable_lighttpd: true
 enable_fsf: true
 
@@ -78,11 +72,6 @@ rocknsm_package_list:
   - tmux
   - nmap-ncat
   - logrotate
-  - perl-LWP-Protocol-https
-  - perl-Sys-Syslog
-  - perl-Crypt-SSLeay
-  - perl-Archive-Tar
-
 
 http_tls_crt: /etc/pki/tls/certs/http_tls_crt.pem
 http_tls_pub: /etc/pki/tls/certs/http_tls_pub.pem
@@ -97,15 +86,11 @@ epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 elastic_baseurl: https://artifacts.elastic.co/packages/6.x/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
-pulledpork_release: 0.7.2
-pulledpork_url: "https://github.com/shirkdog/pulledpork/archive/{{ pulledpork_release }}.tar.gz"
-pulledpork_filename: "pulledpork-{{ pulledpork_release }}.tar.gz"
-pulledpork_engine_basepath: "/etc/{{ \"suricata\" if with_suricata else \"snort\" }}"
 
-rocknsm_baseurl: https://packagecloud.io/rocknsm/2_1/el/7/$basearch
-rocknsm_srpm_baseurl: https://packagecloud.io/rocknsm/2_1/el/7/SRPMS
-rocknsm_testing_baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/
-rocknsm_gpgurl: https://packagecloud.io/rocknsm/2_1/gpgkey
+rocknsm_baseurl: https://packagecloud.io/rocknsm/2_2/el/7/$basearch
+rocknsm_srpm_baseurl: https://packagecloud.io/rocknsm/2_2/el/7/SRPMS
+rocknsm_testing_baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/testing/epel-7-$basearch/
+rocknsm_gpgurl: https://packagecloud.io/rocknsm/2_2/gpgkey
 rocknsm_local_baseurl: file:///srv/rocknsm
 rock_offline_gpgcheck: 0
 bro_user: bro
@@ -132,13 +117,12 @@ suricata_group: suricata
 suricata_data_dir: "{{ rock_data_dir }}/suricata"
 suricata_var_dir: /var/lib/suricata
 
-pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
-pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
 fsf_user: fsf
 fsf_group: fsf
 fsf_data_dir: "{{ rock_data_dir }}/fsf"
 fsf_archive_dir: "{{ fsf_data_dir }}/archive"
 fsf_client_logfile: "{{ fsf_data_dir }}/client.log"
+fsf_retention: 3
 kafka_user: kafka
 kafka_group: kafka
 kafka_data_dir: "{{ rock_data_dir }}/kafka"

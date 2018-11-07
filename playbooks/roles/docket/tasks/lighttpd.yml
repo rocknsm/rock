@@ -1,13 +1,19 @@
 ---
-- name: docket | configure lighttpd + uwsgi
-  template:
-    src: docket_lighttpd_scgi.conf.j2
-    dest: /etc/lighttpd/conf.d/docket_scgi.conf
+# - name: docket | configure lighttpd + uwsgi
+#   template:
+#     src: docket_lighttpd_scgi.conf.j2
+#     dest: /etc/lighttpd/conf.d/docket_scgi.conf
+#
+# - name: docket | configure lighttpd TLS listener
+#   template:
+#     src: docket_lighttpd_vhost.conf.j2
+#     dest: /etc/lighttpd/vhosts.d/docket.conf
+#   notify: docket | restart lighttpd
 
-- name: docket | configure lighttpd TLS listener
+- name: docket | create lighttpd + uwsgi config
   template:
-    src: docket_lighttpd_vhost.conf.j2
-    dest: /etc/lighttpd/vhosts.d/docket.conf
+    src: lighttpd-30-docket.conf.j2
+    dest: /etc/lighttpd/vhosts.d/30-docket.conf
   notify: docket | restart lighttpd
 
 - name: docket | create vhost logdir

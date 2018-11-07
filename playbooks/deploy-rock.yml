@@ -54,8 +54,8 @@
     - { pkg: logstash, test: "{{with_logstash}}", state: installed }
     - { pkg: kibana, test: "{{with_kibana}}", state: installed }
     - { pkg: filebeat, test: "{{with_suricata or with_fsf}}", state: installed }
-    - { pkg: nginx, test: "{{with_nginx}}", state: installed }
-    - { pkg: python2-xkcdpass, test: "{{with_nginx}}", state: installed }
+    - { pkg: lighttpd, test: "{{with_lighttpd}}", state: installed }
+    - { pkg: python2-xkcdpass, test: "{{with_lighttpd}}", state: installed }
     - { pkg: bro, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-af_packet, test: "{{with_bro}}", state: installed }
     - { pkg: bro-plugin-kafka, test: "{{(with_bro and with_kafka)}}", state: installed }
@@ -75,23 +75,6 @@
       dest: "{{ rock_cache_dir }}"
       state: directory
       mode: 0755
-
-  - name: Download Pulled Pork
-    get_url:
-      url: "{{ pulledpork_url }}"
-      dest: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
-      mode: 0644
-    when: with_pulledpork and rock_online_install
-
-  - name: Install Pulled Pork
-    unarchive:
-      src: "{{ rock_cache_dir }}/{{ pulledpork_filename }}"
-      dest: /opt
-      owner: root
-      group: root
-      creates: "/opt/pulledpork-{{ pulledpork_release }}"
-      remote_src: yes
-    when: with_pulledpork
 
     #######################################################
     ################ Configure firewall ###################
@@ -340,10 +323,10 @@
       export kibpw=$(xkcdpass -a rock) && \
       echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && \
       printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | \
-      sudo tee -a /etc/nginx/htpasswd.users > /dev/null 2>&1
+      sudo tee -a /etc/lighttpd/rock-htpasswd.user > /dev/null 2>&1
     args:
-      creates: /etc/nginx/htpasswd.users
-    when: with_kibana
+      creates: /etc/lighttpd/rock-htpasswd.user
+    when: with_kibana and with_lighttpd
 
     ######################################################
     ############## Setup RockNSM dataflow ################
@@ -530,6 +513,7 @@
       owner: "{{ bro_user }}"
       group: "{{ bro_group }}"
       state: directory
+      setype: var_log_t
     with_items:
       - "{{ bro_data_dir }}"
       - "{{ bro_data_dir }}/logs"
@@ -751,6 +735,7 @@
       owner: "{{ suricata_user }}"
       group: "{{ suricata_group }}"
       state: directory
+      setype: var_log_t
     when: with_suricata
 
   - name: Remove suricata sysconfig file
@@ -824,78 +809,67 @@
 
   - name: Configure logrotate for suricata logs
     template:
-      src: templates/logrotate-suricata.conf.j2
-      dest: /etc/logrotate.d/suricata.conf
+      src: templates/logrotate-suricata.j2
+      dest: /etc/logrotate.d/suricata
       mode: 0644
       owner: root
       group: root
     when: with_suricata
 
     ######################################################
-    ################# Setup PulledPork  ##################
+    ############## Setup suricata-update  ################
     ######################################################
-  - name: Create pulledpork directory symlink
-    file:
-      src: "/opt/pulledpork-{{ pulledpork_release }}"
-      dest: "/opt/pulledpork"
-      state: link
-      force: yes
-    when: with_pulledpork
 
-  - name: Set pulledpork executable
-    file:
-      path: /opt/pulledpork/pulledpork.pl
-      mode: 0755
-      owner: root
-      group: root
-    when: with_pulledpork
+  - name: Create local rules source for offline install of Suricata
+    command: /usr/bin/suricata-update add-source "emerging-threats-offline" "file:///srv/rocknsm/support/emerging.rules-suricata.tar.gz"
+    args:
+      creates: /var/lib/suricata/update/sources/emerging-threats-offline.yaml
+    when: with_suricata_update and not rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
 
-  - name: Create pulledpork config dir
-    file:
-      path: /etc/pulledpork
-      mode: 0755
-      owner: root
-      group: root
-      state: directory
-    when: with_pulledpork
+  - name: Offline install of Suricata rules
+    command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+    args:
+      creates: /var/lib/suricata/rules/suricata.rules
+    when: enable_suricata_update and not rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
 
-  - name: Configure pulledpork
-    template:
-      src: templates/pulledpork.conf.j2
-      dest: /etc/pulledpork/pulledpork.conf
-      owner: root
-      group: root
-      mode: 0644
-    when: with_pulledpork
+  - name: Update suricata-update source index
+    command: /usr/bin/suricata-update update-sources
+    args:
+      creates: /var/lib/suricata/update/cache/index.yaml
+    when: enable_suricata_update and rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
 
-  - name: Check stats of rules files
-    stat:
-      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules"
-    register: rules_file
-    when: with_pulledpork
+  - name: Explicitly enable ET rules for suricata-update online
+    command: /usr/bin/suricata-update enable-source et/open
+    args:
+      creates: /var/lib/suricata/update/sources/et-open.yaml
+    when: enable_suricata_update and rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
 
-  - name: Create initial pulledpork rules-related files
-    file:
-      path: "{{ pulledpork_engine_basepath }}/rules/pulledpork.rules"
-      owner: root
-      group: root
-      mode: 0644
-      state: touch
-    when: with_pulledpork and not rules_file.stat.exists
+  - name: Suricata-update online rules pull
+    command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+    args:
+      creates: /var/lib/suricata/rules/suricata.rules
+    when: enable_suricata_update and rock_online_install
+    become: yes
+    become_user: "{{ suricata_user }}"
 
-  - name: Schedule pulledpork to run daily
+  - name: Cron for suricata-update
     cron:
-      name: "pulledpork update"
-      cron_file: rocknsm_pulledpork
-      user: root
+      name: "suricata-update"
+      cron_file: rocknsm_suricata-update
+      user: "{{ suricata_user }}"
       hour: "12"
       minute: "0"
-      job: /opt/pulledpork/pulledpork.pl
-        -c /etc/pulledpork/pulledpork.conf
-        -l > /var/log/pulledpork.log 2>&1;
-        {{ "/usr/bin/systemctl kill -s USR2 suricata;" if with_suricata else None }}
-        {{ "/usr/bin/systemctl restart snortd;" if with_snort else None }}
-    when: with_pulledpork
+      job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+           > /var/log/suricata-update.log 2>&1
+    when: enable_suricata_update
 
     #######################################################
     ######################## FSF ##########################
@@ -907,6 +881,7 @@
       owner: "{{ fsf_user }}"
       group: "{{ fsf_group }}"
       state: directory
+      setype: var_log_t
     when: with_fsf
 
   - name: Create FSF archive dir
@@ -918,10 +893,10 @@
       state: directory
     when: with_fsf
 
-  - name: Configure logrotate for FSF logs
-    copy:
-      src: logrotate-fsf.conf
-      dest: /etc/logrotate.d/fsf.conf
+  - name: Configure logrotate for fsf logs
+    template:
+      src: templates/logrotate-fsf.j2
+      dest: /etc/logrotate.d/fsf
       mode: 0644
       owner: root
       group: root
@@ -953,47 +928,52 @@
     when: with_fsf
 
     ######################################################
-    ################### Setup nginx ######################
+    ################### Setup lighttpd ###################
     ######################################################
-  - name: Install ROCK nginx configuration
+  - name: Install ROCK lighttpd configuration
     template:
-      src: templates/nginx-rock.conf.j2
-      dest: /etc/nginx/conf.d/rock.conf
+      src: templates/lighttpd-{{ item }}.j2
+      dest: /etc/lighttpd/vhosts.d/{{ item }}
       mode: 0644
       owner: root
       group: root
-    when: with_nginx and with_kibana
+    when: with_lighttpd and with_kibana
+    with_items:
+      - 10-rock-auth.conf
+      - 10-tls.conf
+      - 20-rock-vars.conf
+      - 50-rockproxy.conf
+    notify: Enable and Restart lighttpd
 
-  - name: Install nginx base configuration
-    copy:
-      src: nginx.conf
-      dest: /etc/nginx/nginx.conf
-      mode: 0644
-      owner: root
-      group: root
-    when: with_nginx
+  - name: Enable lighttpd vhosts
+    lineinfile:
+      path: /etc/lighttpd/lighttpd.conf
+      regexp: '^#?\s*include.*vhosts\.d/.*$'
+      line: include "/etc/lighttpd/vhosts.d/*.conf"
+    notify: Enable and Restart lighttpd
+    when: with_lighttpd
 
-  - name: Enable nginx to perform proxy connect
+  - name: Enable lighttpd to perform proxy connect
     seboolean:
       name: httpd_can_network_connect
       state: yes
       persistent: yes
-    when: with_nginx and with_kibana
+    when: with_lighttpd and with_kibana
 
   - name: Generate sensor private key
     openssl_privatekey:
       path: "{{ http_tls_key }}"
-    when: with_kibana and with_nginx
+    when: with_kibana and with_lighttpd
     notify:
-      - Enable and start nginx
+      - Enable and Restart lighttpd
 
   - name: Generate sensor public key
     openssl_publickey:
       path: "{{ http_tls_pub }}"
       privatekey_path: "{{ http_tls_key }}"
-    when: with_kibana and with_nginx
+    when: with_kibana and with_lighttpd
     notify:
-      - Enable and start nginx
+      - Enable and Restart lighttpd
 
   - name: Generate sensor CSR
     openssl_csr:
@@ -1006,9 +986,9 @@
       organizational_unit_name: NSM Ninjas
       email_address: info@rocknsm.io
       common_name: "{{ rock_fqdn }}"
-    when: with_kibana and with_nginx
+    when: with_kibana and with_lighttpd
     notify:
-      - Enable and start nginx
+      - Enable and Restart lighttpd
 
   - name: Generate sensor certificate
     openssl_certificate:
@@ -1016,9 +996,9 @@
       privatekey_path: "{{ http_tls_key }}"
       csr_path: "{{ http_tls_pub }}.csr"
       provider: selfsigned
-    when: with_kibana and with_nginx
+    when: with_kibana and with_lighttpd
     notify:
-      - Enable and start nginx
+      - Enable and Restart lighttpd
 
   - name: Combine sensor cert and key
     shell: >
@@ -1027,16 +1007,16 @@
       creates: "{{ http_tls_combined }}"
     when: with_lighttpd
     notify:
-      - Restart lighttpd
+      - Enable and Restart lighttpd
 
   - name: Generate DH parameters
     command: >
       openssl dhparam -out {{http_tls_dhparams}} 2048
     args:
       creates: "{{http_tls_dhparams}}"
-    when: with_kibana and with_nginx
+    when: with_kibana and with_lighttpd
     notify:
-      - Enable and start nginx
+      - Enable and Restart lighttpd
 
     ######################################################
     ############### Setup ROCKNSM Scripts ################
@@ -1178,20 +1158,12 @@
         name: filebeat
         state: restarted
 
-    - name: Enable and start nginx
+    - name: Enable and Restart lighttpd
       systemd:
-        name: nginx
-        state: "{{ 'started' if enable_nginx else 'stopped' }}"
-        enabled: "{{ enable_nginx }}"
-      when: with_nginx
-
-    - name: Restart lighttpd
-      service:
         name: lighttpd
-        state: "{{ 'started' if enable_lighttpd else 'stopped' }}"
+        state: "{{ 'restarted' if enable_lighttpd else 'stopped' }}"
         enabled: "{{ enable_lighttpd }}"
       when: with_lighttpd
-
 
   environment:
    http_proxy:  "{{ http_proxy }}"
