@@ -476,13 +476,14 @@
       src: filebeat.yml.j2
       dest: /etc/filebeat/filebeat.yml
     notify: Restart Filebeat
+    when: with_fsf or with_suricata
 
   - name: Enable and start Filebeat
     service:
       name: filebeat
       state: "{{ 'started' if enable_filebeat else 'stopped' }}"
       enabled: "{{ enable_filebeat }}"
-    when: with_filebeat
+    when: with_fsf or with_suricata
 
     #######################################################
     ###################### Setup Bro  #####################
@@ -1157,6 +1158,7 @@
       systemd:
         name: filebeat
         state: restarted
+      when: with_fsf or with_suricata
 
     - name: Enable and Restart lighttpd
       systemd:
