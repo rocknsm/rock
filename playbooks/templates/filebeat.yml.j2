@@ -1,20 +1,9 @@
 #=========================== Filebeat prospectors =============================
 
-filebeat.prospectors:
-- input_type: log
-  paths:
-    - {{ rock_data_dir }}/suricata/eve.json
-  json.keys_under_root: true
-  fields:
-    kafka_topic: suricata-raw
-  fields_under_root: true
-- input_type: log
-  paths:
-    - {{ rock_data_dir }}/fsf/rockout.log
-  json.keys_under_root: true
-  fields:
-    kafka_topic: fsf-raw
-  fields_under_root: true
+filebeat.config.inputs:
+  enabled: true
+  path: configs/*.yml
+
 processors:
  - decode_json_fields:
      fields: ["message","Scan Time", "Filename", "objects", "Source", "meta", "Alert" ,"Summary"]

@@ -1,14 +1,21 @@
 ---
 # tasks file for kafka
 
-- name: Create Kafka data dir
+
+- name: Install packages
+  yum:
+    name:
+      - kafka
+      - kafkacat
+    state: present
+
+- name: Create kafka data directory
   file:
     path: "{{ kafka_data_dir }}"
     mode: 0755
     owner: "{{ kafka_user }}"
     group: "{{ kafka_group }}"
     state: directory
-  when: with_kafka
 
 - name: Set kafka retention
   lineinfile:
@@ -16,18 +23,26 @@
     regexp: "log.retention.hours="
     line:  "log.retention.hours={{ kafka_retention }}"
     state: present
-  when: with_kafka
 
-- name: Set kafka data dir
+- name: Set kafka data directory
   lineinfile:
     dest: "{{ kafka_config_path }}"
     regexp: "log.dirs="
     line: "log.dirs={{ kafka_data_dir }}"
-  when: with_kafka
 
 - name: Enable and start kafka
   service:
     name: kafka
     state: "{{ 'started' if enable_kafka else 'stopped' }}"
     enabled: "{{ enable_kafka }}"
-  when: with_kafka
+
+
+- name: Configure firewall ports
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop:
+    - 9092
+  when: groups['kafka'] | difference(groups['logstash']) | count > 0

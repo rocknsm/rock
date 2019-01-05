@@ -1,0 +1,5 @@
+es_config:
+  discovery.zen.ping.unicast.hosts: "elasticsearch02"
+  node.data: true
+  node.master: true
+  node.ingest: true

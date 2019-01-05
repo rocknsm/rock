@@ -1,12 +1,12 @@
 ---
 # handlers file for rocknsm.docket
-- name: docket | cleanup csr on docket host
+- name: Cleanup csr on docket host
   file:
     path: "{{docket_x509_key}}.csr"
     state: absent
   when: "{{ inventory_hostname in groups['docket'] | bool }}"
 
-- name: docket | cleanup csr on sensor hosts
+- name: Cleanup csr on sensor hosts
   file:
     path: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname}}.csr"
     state: absent
@@ -14,20 +14,20 @@
   when:
     - "{{ inventory_hostname in groups['stenographer'] | bool}}"
 
-- name: docket | restart redis
+- name: Restart redis
   service:
     name: redis
     state: restarted
   when: docket_enable | bool
 
-- name: docket | seed random key
+- name: Seed random key
   lineinfile:
     path: /etc/docket/prod.yml
     regexp: 'XX_NOT_A_SECRET_XX'
     line: "SECRET_KEY: {{ docket_secret }}"
     state: present
 
-- name: docket | restart docket celery services
+- name: Restart docket celery services
   service:
     name: "{{ item }}"
     state: restarted
@@ -36,13 +36,13 @@
     - docket-celery-query
   when: docket_enable | bool
 
-- name: docket | restart docket uwsgi
+- name: Restart docket uwsgi
   service:
     name: docket
     state: restarted
   when: docket_enable | bool
 
-- name: docket | restart lighttpd
+- name: Restart lighttpd
   service:
     name: lighttpd
     state: restarted

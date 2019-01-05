@@ -1,0 +1,6 @@
+---
+- name: Enable and restart lighttpd
+  systemd:
+    name: lighttpd
+    state: "{{ 'restarted' if enable_lighttpd else 'stopped' }}"
+    enabled: "{{ enable_lighttpd }}"

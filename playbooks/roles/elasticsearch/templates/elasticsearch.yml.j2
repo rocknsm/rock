@@ -1,0 +1,17 @@
+{% if es_config is defined %}
+{{ es_config | to_nice_yaml }}
+{% endif %}
+
+{% if es_path_repo is defined %}
+path.repo: {{ es_path_repo }}
+{% endif %}
+
+cluster.name: {{ es_cluster_name }}
+node.name: {{ es_node_name }}
+path.data: {{ es_data_dir }}
+path.logs: {{ es_log_dir }}
+bootstrap.memory_lock: true
+network.host: {{ es_network_host }}
+discovery.zen.minimum_master_nodes: {{ es_min_master_nodes }}
+action.auto_create_index: {{ es_action_auto_create_index }}
+action.destructive_requires_name: true

@@ -1,6 +1,6 @@
 ---
 # timedatectl.yml - configure ntp
-- name: Install Chrony
+- name: Install chrony
   yum:
     name: chrony
     state: installed
