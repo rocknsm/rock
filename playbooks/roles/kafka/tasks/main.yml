@@ -1,2 +1,33 @@
 ---
 # tasks file for kafka
+
+- name: Create Kafka data dir
+  file:
+    path: "{{ kafka_data_dir }}"
+    mode: 0755
+    owner: "{{ kafka_user }}"
+    group: "{{ kafka_group }}"
+    state: directory
+  when: with_kafka
+
+- name: Set kafka retention
+  lineinfile:
+    dest: "{{ kafka_config_path }}"
+    regexp: "log.retention.hours="
+    line:  "log.retention.hours={{ kafka_retention }}"
+    state: present
+  when: with_kafka
+
+- name: Set kafka data dir
+  lineinfile:
+    dest: "{{ kafka_config_path }}"
+    regexp: "log.dirs="
+    line: "log.dirs={{ kafka_data_dir }}"
+  when: with_kafka
+
+- name: Enable and start kafka
+  service:
+    name: kafka
+    state: "{{ 'started' if enable_kafka else 'stopped' }}"
+    enabled: "{{ enable_kafka }}"
+  when: with_kafka
