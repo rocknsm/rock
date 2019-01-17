@@ -5,6 +5,15 @@
     name: kibana
     state: present
 
+- name: Update kibana config
+  template:
+    src: kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+  notify: Restart kibana
+
+- name: Flush handlers
+  meta: flush_handlers
+
 - name: Enable and start kibana
   service:
     name: kibana
