@@ -1,7 +1,3 @@
-{% if es_config is defined %}
-{{ es_config | to_nice_yaml }}
-{% endif %}
-
 {% if es_path_repo is defined %}
 path.repo: {{ es_path_repo }}
 {% endif %}
@@ -13,5 +9,25 @@ path.logs: {{ es_log_dir }}
 bootstrap.memory_lock: true
 network.host: {{ es_network_host }}
 discovery.zen.minimum_master_nodes: {{ es_min_master_nodes }}
+
+{% if groups['elasticsearch'] > 1 %}
+discovery.zen.ping.unicast.hosts:
+{% for host in query('inventory_hostnames', 'es_masters') %}
+  - {{ host }}
+{% endfor %}
+
+{% if elastic.major_version > 6 %}
+cluster.initial_master_nodes:
+{% for host in query('inventory_hostnames', 'es_masters') %}
+  - {{ host }}
+{% endfor %}
+{% endif %}
+{% endif %}
+
 action.auto_create_index: {{ es_action_auto_create_index }}
 action.destructive_requires_name: true
+
+# Node Roles
+node.master: {{ node_master }}
+node.data: {{ node_data }}
+node.ingest: {{ node_ingest }}
