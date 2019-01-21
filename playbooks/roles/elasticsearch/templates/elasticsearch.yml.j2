@@ -22,6 +22,9 @@ cluster.initial_master_nodes:
   - {{ host }}
 {% endfor %}
 {% endif %}
+{% else %}
+discovery.type: single-node
+
 {% endif %}
 
 action.auto_create_index: {{ es_action_auto_create_index }}

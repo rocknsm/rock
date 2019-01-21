@@ -4,6 +4,10 @@ http_proxy: "{{ lookup('env','http_proxy') }}"
 https_proxy: "{{ lookup('env', 'https_proxy') }}"
 
 rock_version: 2.2.0
+elastic:
+  major_version: 6
+  suffix: "x"
+elastic_version: "{{ elastic.major_version }}.{{ elastic.suffix }}"
 rock_online_install: true
 rock_enable_testing: false
 rock_disable_offline_repo: false
@@ -92,7 +96,7 @@ ansible_cache: "~/ansible_cache/"
 
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
-elastic_baseurl: https://artifacts.elastic.co/packages/6.x/yum
+elastic_baseurl: https://artifacts.elastic.co/packages/{{ elastic_version }}/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
 rocknsm_baseurl: https://packagecloud.io/rocknsm/2_2/el/7/$basearch
