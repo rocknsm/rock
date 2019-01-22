@@ -43,7 +43,6 @@ with_suricata_update: true
 with_logstash: true
 with_elasticsearch: true
 with_kibana: true
-with_filebeat: true
 with_zookeeper: true
 with_kafka: true
 with_lighttpd: true
@@ -60,7 +59,6 @@ enable_suricata_update: true
 enable_logstash: true
 enable_elasticsearch: true
 enable_kibana: true
-enable_filebeat: true
 enable_zookeeper: true
 enable_kafka: true
 enable_lighttpd: true
