@@ -8,7 +8,7 @@
 # You will want to remount this to your "good" storage after the build.
 # This is just to make sure all the paths in the configs are proper.
 ###############
-- name: Create ROCK data dir
+- name: Create RockNSM data directory
   file:
     path: "{{ rock_data_dir }}"
     mode: 0755
@@ -16,7 +16,15 @@
     group: "{{ rock_data_group }}"
     state: directory
 
-- name: Create ROCK NSM directory
+- name: Create RockSNM conf directory
+  file:
+    path: "{{ rock_conf_dir }}"
+    mode: 0755
+    owner: root
+    group: root
+    state: directory
+
+- name: Create RockNSM directory
   file:
     path: "{{ rocknsm_dir }}"
     mode: 0755
@@ -24,32 +32,23 @@
     group: root
     state: directory
 
-######################################################
-######### Configure the monitoring interface #########
-######################################################
-- name: Set monitor interface config
-  template:
-    src: templates/ifcfg-monif.j2
-    dest: /etc/sysconfig/network-scripts/ifcfg-{{ item }}
+- name: Download RockNSM elastic configs
+  get_url:
+    url: "{{ rock_dashboards_url }}"
+    dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
+  when: (with_kibana or with_elasticsearch or with_logstash) and rock_online_install
+
+- name: Extract RockNSM elastic configs
+  unarchive:
+    src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+    dest: /opt/rocknsm
     owner: root
     group: root
-    force: yes
-  with_items: "{{ rock_monifs }}"
+    creates: "{{ rock_module_dir }}"
+    remote_src: yes
+  when: (with_kibana or with_elasticsearch or with_logstash)
 
-- name: Configure local ifup script
-  template:
-    src: templates/ifup-local.j2
-    dest: /sbin/ifup-local
-    mode: 0755
-    owner: root
-    group: root
-    force: yes
-  notify: configure monitor interfaces
-
-#######################################################
-#################### Disable IPv6 #####################
-#######################################################
 - name: Disable IPv6 for all interfaces
   sysctl:
     name: net.ipv6.conf.all.disable_ipv6
@@ -62,38 +61,24 @@
     value: 1
     sysctl_file: "{{ rock_sysctl_file }}"
 
-- name: Disable IPv6 in SSHD
+- name: Disable IPv6 in sshd
   lineinfile:
     dest: /etc/ssh/sshd_config
     regexp: AddressFamily
     line: AddressFamily inet
   notify:
-  - sshd restart
+  - Restart sshd
 
-- name: Remove localhost6 from hosts file
-  lineinfile:
+- name: Update hosts file with inventory
+  template:
+    src: hosts.j2
     dest: /etc/hosts
-    regexp: localhost6
-    state: absent
-
-#######################################################
-#################### DNS Changes ######################
-#######################################################
-- name: Set hostname in hosts file
-  lineinfile:
-    dest: /etc/hosts
-    insertafter: 127.0.0.1
-    line: 127.0.0.2  {{ rock_fqdn }}  {{ rock_hostname }}
 
 - name: Set system hostname
   hostname:
     name: "{{ rock_fqdn }}"
 
-#######################################################
-################## Setup Yum Repos ####################
-#######################################################
-
-- name: Setup EPEL repo
+- name: Setup EPEL repository
   yum_repository:
     name: epel
     description: EPEL YUM repo
@@ -108,7 +93,7 @@
     key: http://mirror.centos.org/centos/RPM-GPG-KEY-CentOS-7
   when: rock_online_install
 
-- name: Setup Elastic repo
+- name: Setup elastic repository
   yum_repository:
     name: elastic-6.x
     description: Elastic Stack repository for 6.x
@@ -185,7 +170,7 @@
     gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
     repo_gpgcheck: "{{ rock_offline_gpgcheck }}"
     cost: 500
-  when: "{{ not rock_disable_offline_repo | bool }}"
+  when: not rock_disable_offline_repo
 
 - name: Trust RockNSM GPG keys in yum
   command: "yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.repoid }}'"
@@ -212,4 +197,71 @@
   - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
   - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
+- name: Install core packages
+  yum:
+    name: "{{ rocknsm_package_list }}"
+    state: installed
+
+- name: Enable and start firewalld
+  service:
+    name: firewalld
+    enabled: yes
+    state: started
+
+- name: Configure firewall ports
+  firewalld:
+    port: "{{ item[1].port }}"
+    source: "{{ item[0] }}"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_nested:
+    - "{{ rock_mgmt_nets }}"
+    -
+      - { port: "22/tcp" }
+
+- name: Ensure cache directory exists
+  file:
+    dest: "{{ rock_cache_dir }}"
+    state: directory
+    mode: 0755
+
+- name: Install RockNSM control script
+  copy:
+    src: rockctl
+    dest: /usr/local/bin/rockctl
+    mode: 0755
+    owner: root
+    group: root
+
+- name: Create RockNSM control script symlink
+  file:
+    src: "/usr/local/bin/rockctl"
+    dest: "/usr/sbin/rockctl"
+    force: yes
+    state: link
+
+- name: Set RockNSM Version
+  copy:
+    content: "{{ rock_version }}"
+    dest: /etc/rocknsm/rock-version
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Install RockNSM /etc/issue
+  copy:
+    src: etc-issue.in
+    dest: /etc/issue.in
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Add NetworkManager RockNSM hook
+  copy:
+    src: nm-issue-update
+    dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+    mode: 0755
+    owner: root
+    group: root
 ...

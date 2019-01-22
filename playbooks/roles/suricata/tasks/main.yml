@@ -1,4 +1,182 @@
 ---
-# tasks file for suricata
-- import_tasks: "{{ method }}.yml"
-...
+# handlers file for suricata
+
+- name: Install packages
+  yum:
+    name:
+      - suricata
+      - suricata-update
+      - filebeat
+    state: present
+
+- name: Set monitor interface config
+  template:
+    src: templates/ifcfg-monif.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-{{ item }}
+    mode: 0644
+    owner: root
+    group: root
+    force: yes
+  with_items: "{{ rock_monifs }}"
+
+- name: Configure local ifup script
+  template:
+    src: templates/ifup-local.j2
+    dest: /sbin/ifup-local
+    mode: 0755
+    owner: root
+    group: root
+    force: yes
+  notify: Configure monitor interfaces
+
+- name: Create filebeat config directory
+  file:
+    path: /etc/filebeat/configs
+    mode: 0755
+    owner: root
+    group: root
+    state: directory
+
+- name: Add filebeat configuration file
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/filebeat/{{ item.dest }}"
+  notify: Restart filebeat
+  loop:
+    - { src: 'filebeat.yml.j2', dest: 'filebeat.yml' }
+    - { src: 'fb-suricata.yml.j2', dest: 'configs/suricata.yml' }
+
+- name: Enable and start filebeat
+  service:
+    name: filebeat
+    state: "{{ 'started' if enable_filebeat else 'stopped' }}"
+    enabled: "{{ enable_filebeat }}"
+
+- name: Create suricata data directory
+  file:
+    path: "{{ suricata_data_dir }}/"
+    mode: 0755
+    owner: "{{ suricata_user }}"
+    group: "{{ suricata_group }}"
+    state: directory
+    setype: var_log_t
+
+- name: Remove suricata sysconfig file
+  file:
+    path: /etc/sysconfig/suricata
+    state: absent
+
+- name: Install suricata service files
+  copy:
+    src: "suricata.service"
+    dest: "/etc/systemd/system/suricata.service"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Setup suricata tmpfiles
+  copy:
+    src: "suricata.tmpfiles"
+    dest: "/etc/tmpfiles.d/suricata.conf"
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Install suricata overrides
+  template:
+    src: templates/suricata_overrides.yaml.j2
+    dest: /etc/suricata/rocknsm-overrides.yaml
+    mode: 0640
+    owner: "root"
+    group: "{{ suricata_group }}"
+
+- name: Create IP reputation config directory
+  file:
+    path: /etc/suricata/rules/iplists
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create directories for suricata-update
+  file:
+    path: "{{ suricata_var_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ suricata_user }}"
+    group: "{{ suricata_group }}"
+    mode: 0755
+    recurse: "yes"
+  with_items:
+    - rules
+    - update
+
+- name: Set suricata overrides include
+  lineinfile:
+    dest: /etc/suricata/suricata.yaml
+    line: "include: rocknsm-overrides.yaml"
+    state: present
+
+- name: Enable and start suricata
+  service:
+    name: suricata
+    enabled: "{{ enable_suricata }}"
+    state: "{{ 'started' if enable_suricata else 'stopped' }}"
+
+- name: Configure logrotate for suricata logs
+  template:
+    src: templates/logrotate-suricata.j2
+    dest: /etc/logrotate.d/suricata
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Create local rules source for offline install of suricata
+  command: /usr/bin/suricata-update add-source "emerging-threats-offline" "file:///srv/rocknsm/support/emerging.rules-suricata.tar.gz"
+  args:
+    creates: /var/lib/suricata/update/sources/emerging-threats-offline.yaml
+  when: with_suricata_update and not rock_online_install
+  become: yes
+  become_user: "{{ suricata_user }}"
+
+- name: Offline install of suricata rules
+  command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+  args:
+    creates: /var/lib/suricata/rules/suricata.rules
+  when: enable_suricata_update and not rock_online_install
+  become: yes
+  become_user: "{{ suricata_user }}"
+
+- name: Update suricata-update source index
+  command: /usr/bin/suricata-update update-sources
+  args:
+    creates: /var/lib/suricata/update/cache/index.yaml
+  when: enable_suricata_update and rock_online_install
+  become: yes
+  become_user: "{{ suricata_user }}"
+
+- name: Explicitly enable ET rules for suricata-update online
+  command: /usr/bin/suricata-update enable-source et/open
+  args:
+    creates: /var/lib/suricata/update/sources/et-open.yaml
+  when: enable_suricata_update and rock_online_install
+  become: yes
+  become_user: "{{ suricata_user }}"
+
+- name: Suricata-update online rules pull
+  command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+  args:
+    creates: /var/lib/suricata/rules/suricata.rules
+  when: enable_suricata_update and rock_online_install
+  become: yes
+  become_user: "{{ suricata_user }}"
+
+- name: Cron for suricata-update
+  cron:
+    name: "suricata-update"
+    cron_file: rocknsm_suricata-update
+    user: "{{ suricata_user }}"
+    hour: "12"
+    minute: "0"
+    job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+         > /var/log/suricata-update.log 2>&1
+  when: enable_suricata_update

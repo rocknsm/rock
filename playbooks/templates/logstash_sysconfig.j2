@@ -1,0 +1,2 @@
+bootstrap_servers={% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
+elasticsearch_hosts={% for host in groups['es_data'] %}"{{ host }}:9200"{% if not loop.last %},{% endif %}{% endfor %}

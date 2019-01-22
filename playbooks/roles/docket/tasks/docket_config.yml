@@ -1,5 +1,5 @@
 ---
-- name: docker | check existing secret_key
+- name: Check existing secret_key
   shell: >
     cat /etc/docket/prod.yaml | awk '/^SECRET_KEY/ {print $2}'
   register: docket_prod
@@ -7,43 +7,43 @@
 
 - debug: msg="{{ docket_prod }}"
 
-- name: docket | keep existing secret_key
+- name: Keep existing secret_key
   set_fact: docket_secret="{{ docket_prod.stdout }}"
   when: '"CHANGE_THIS" not in docket_prod.stdout'
 
-- name: docket | set production docket config
+- name: Set production docket config
   template:
     src:  docket_prod.yaml.j2
     dest: /etc/docket/prod.yaml
   notify:
-    - docket | restart docket uwsgi
-    - docket | restart docket celery services
+    - Restart docket uwsgi
+    - Restart docket celery services
 
-- name: docket | set uwsgi config
+- name: Set uwsgi config
   template:
     src: docket-uwsgi.ini.j2
     dest: /etc/docket/docket-uwsgi.ini
   notify:
-    - docket | restart docket uwsgi
+    - Restart docket uwsgi
 
-- name: docket | enable redis
+- name: Enable redis
   service:
     name: redis
     enabled: yes
-  notify: docket | restart redis
+  notify: Restart redis
   when: docket_enable
 
-- name: docket | enable docket celery services
+- name: Enable docket celery services
   service:
     name: "{{ item }}"
     enabled: "{{ docket_enable | bool }}"
-  notify: docket | restart docket celery services
+  notify: Restart docket celery services
   with_items:
     - docket-celery-io
     - docket-celery-query
 
-- name: docket | enable docket uwsgi service
+- name: Enable docket uwsgi service
   service:
     name: docket
     enabled: "{{ docket_enable | bool }}"
-  notify: docket | restart docket uwsgi
+  notify: Restart docket uwsgi

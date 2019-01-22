@@ -3,13 +3,15 @@
   ######################################################
   ################# Config Stenographer #################
   ######################################################
+
 - name: Set stenographer config
   template:
-    src: templates/stenographer-config.j2
+    src: stenographer-config.j2
     dest: "/etc/stenographer/config.{{ item.1 }}"
   with_indexed_items: "{{ stenographer_monitor_interfaces }}"
+  notify: Restart stenographer per interface
 
-- name: Create Stenographer directories
+- name: Create stenographer directories
   file:
     path: "{{ stenographer_data_dir }}/{{ item[0] }}/{{ item[1] }}"
     mode: 0755
@@ -34,19 +36,32 @@
 - name: Generate stenographer keys
   command: >
     /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
+  environment:
+    STENOGRAPHER_CONFIG: "/etc/stenographer/config.{{ stenographer_monitor_interfaces[0] }}"
   args:
     creates: /etc/stenographer/certs/client_key.pem
 
-- name: Configure Stenographer service
+- name: Configure stenographer service
   service:
     name: stenographer
     enabled: "{{ enable_stenographer }}"
-  notify: start stenographer service
+  notify: Start stenographer service
 
-- name: configure stenographer per interface
+- name: Configure stenographer per interface
   service:
     name: "stenographer@{{ item }}"
     enabled: "{{ enable_stenographer }}"
   with_items: "{{ stenographer_monitor_interfaces }}"
-  notify: start stenographer per interface
+  notify: Start stenographer per interface
+
+- name: Configure firewall ports
+  firewalld:
+    port: "{{ 1234 + index }}/tcp"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop: "{{ stenographer_monitor_interfaces }}"
+  loop_control:
+    index_var: index
+  when: groups['stenographer'] | difference(groups['docket']) | count > 0
 ...

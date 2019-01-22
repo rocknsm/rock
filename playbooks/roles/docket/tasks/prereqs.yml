@@ -2,19 +2,19 @@
 # prepreqs checks for rocknsm.docket
 
 # Validate hosts exist in stenographer group
-- name: docket | check for docket and stenographer hosts
+- name: Check for docket and stenographer hosts
   assert:
     that:
       - "{{ ('docket' in groups) and (groups['docket'] | length) > 0 }}"
       - "{{ ('stenographer' in groups) and (groups['stenographer'] | length) > 0 }}"
     msg: "The [docket] and [stenographer] inventory groups must each have at least one host."
 
-- name: docket | check docket and stenographer hosts for pyopenssl
+- name: Check docket and stenographer hosts for pyopenssl
   yum:
     list=*pyOpenSSL
   register: pyopenssl_status
 
-- name: docket | validate pyopenssl >= 15.0 is installed
+- name: Validate pyopenssl >= 15.0 is installed
   assert:
     that:
       - "{{pyopenssl_status.results|selectattr('yumstate', 'match', 'installed')|map(attribute='version') is version_compare('15.0.0', '>=' )}}"

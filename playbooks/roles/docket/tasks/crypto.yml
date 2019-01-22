@@ -6,32 +6,32 @@
 # Ensure `stenographer` and `nginx` groups exists
 
 # Configure docket app settings
-- name: docket | ensure ansible_cache dir exists
+- name: Ensure ansible_cache dir exists
   local_action: file path={{ ansible_cache }} state=directory mode=0700
   changed_when: false
 
 # TODO: this should probably
-- name: docket | ensure rock nsm conf dir exists
+- name: Ensure rock nsm conf dir exists
   file:
     path: "{{ rocknsm_conf_dir }}"
     state: directory
     owner: "{{ rocknsm_conf_user }}"
     group: "{{ rocknsm_conf_group }}"
 
-- name: docket | ensure docket x509 user exists
+- name: Ensure docket x509 user exists
   user:
     name: "{{ docket_x509_user }}"
     state: present
   when: inventory_hostname in groups['docket']
 
-- name: docket | ensure docket x509 group exists
+- name: Ensure docket x509 group exists
   group:
     name: "{{ docket_x509_group }}"
     system: yes
     state: present
   when: inventory_hostname in groups['docket']
 
-- name: docket | ensure docket x509 dir exists
+- name: Ensure docket x509 dir exists
   file:
     path: "{{ docket_x509_dir }}"
     state: directory
@@ -43,13 +43,13 @@
 
 # Generate/copy x509 client cert/keys and CA certs
 # Use new openssl module in ansible 2.3
-- name: docket | create docket private key
+- name: Create docket private key
   openssl_privatekey:
     path: "{{docket_x509_key}}"
     size: 4096
   when: inventory_hostname in groups['docket']
 
-- name: docket | set perms on private key
+- name: Set perms on private key
   file:
     path: "{{docket_x509_key}}"
     owner: "{{ docket_x509_user }}"
@@ -57,9 +57,9 @@
     mode: "0644"
   when: inventory_hostname in groups['docket']
 
-- name: docket | check for certificate
+- name: Check for certificate
   stat:
-    path: "{{docket_x509_dir}}/docket-{{inventory_hostname}}_sensor-{{item}}_cert.pem"
+    path: "{{docket_x509_dir}}/docket-{{inventory_hostname_short}}_sensor-{{item}}_cert.pem"
   register: docket_cert
   changed_when: false
   with_items: "{{ groups['stenographer'] }}"
@@ -68,7 +68,7 @@
 - debug: var=docket_cert.results
   when: inventory_hostname in groups['docket']
 
-- name: docket | create docket csr
+- name: Create docket csr
   openssl_csr:
     path: "{{ docket_x509_key }}.csr"
     privatekey_path: "{{ docket_x509_key }}"
@@ -82,10 +82,10 @@
     - docket_cert|json_query('results[?stat.exists==`false`]')|length
   register: new_csr
 
-- name: docket | fetch csr
+- name: Fetch csr
   fetch:
     src: "{{docket_x509_key}}.csr"
-    dest: "{{ ansible_cache }}/{{inventory_hostname}}.csr"
+    dest: "{{ ansible_cache }}/{{inventory_hostname_short}}.csr"
     flat: yes
   when:
     - inventory_hostname in groups['docket']
@@ -99,28 +99,28 @@
     - "{{ groups['docket'] }}"
 
 - debug:
-    var: hostvars[item].docket_cert|json_query('results[?item==inventory_hostname]')
-    #selectattr("item", "equalto", inventory_hostname)|map(attribute="stat.exists")|select("equalto", false)|list|length
+    var: hostvars[item].docket_cert|json_query('results[?item==inventory_hostname_short]')
+    #selectattr("item", "equalto", inventory_hostname_short)|map(attribute="stat.exists")|select("equalto", false)|list|length
   with_items:
     - "{{ groups['docket'] }}"
   when:
     - inventory_hostname in groups['stenographer']
 
-- name: docket | push csr to stenographer hosts
+- name: Push csr to stenographer hosts
   copy:
-    src: "{{ansible_cache}}/{{hostvars[item].inventory_hostname}}.csr"
-    dest: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname}}.csr"
+    src: "{{ansible_cache}}/{{hostvars[item].inventory_hostname_short}}.csr"
+    dest: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname_short}}.csr"
   with_items:
     - "{{ groups['docket'] }}"
   when:
     - inventory_hostname in groups['stenographer']
-    - hostvars[item].docket_cert.results|selectattr("item", "equalto", inventory_hostname)|map(attribute="stat.exists")|select("equalto",false)|list|length
+    #- hostvars[item].docket_cert.results|selectattr("item", "equalto", inventory_hostname_short)|map(attribute="stat.exists")|select("equalto",false)|list|length
 
-- name: docket | sign certificate signing requests
+- name: Sign certificate signing requests
   openssl_certificate:
-    path: "{{steno_certs_dir}}/docket-{{hostvars[item].inventory_hostname}}_sensor-{{inventory_hostname}}_cert.pem"
+    path: "{{steno_certs_dir}}/docket-{{hostvars[item].inventory_hostname_short}}_sensor-{{inventory_hostname_short}}_cert.pem"
     privatekey_path: "{{steno_ca_key}}"
-    csr_path: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname}}.csr"
+    csr_path: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname_short}}.csr"
     provider: localsigned
     cacert_path: "{{steno_ca_cert}}"
   with_items: "{{ groups['docket'] }}"
@@ -128,29 +128,29 @@
     - inventory_hostname in groups['stenographer']
     - hostvars[item].docket_cert.results|map(attribute="stat.exists")|select("equalto",false)|list|length
 
-- name: docket | pull certificates back
+- name: Pull certificates back
   fetch:
-    src: "{{steno_certs_dir}}/docket-{{hostvars[item].inventory_hostname}}_sensor-{{inventory_hostname}}_cert.pem"
-    dest: "{{ansible_cache}}/docket-{{hostvars[item].inventory_hostname}}_sensor-{{inventory_hostname}}_cert.pem"
+    src: "{{steno_certs_dir}}/docket-{{hostvars[item].inventory_hostname_short}}_sensor-{{inventory_hostname_short}}_cert.pem"
+    dest: "{{ansible_cache}}/docket-{{hostvars[item].inventory_hostname_short}}_sensor-{{inventory_hostname_short}}_cert.pem"
     flat: yes
   with_items: "{{ groups['docket'] }}"
   when:
     - inventory_hostname in groups['stenographer']
     - hostvars[item].docket_cert.results|map(attribute="stat.exists")|select("equalto",false)|list|length
 
-- name: docket | pull back ca certificates
+- name: Pull back ca certificates
   fetch:
     src: "{{steno_ca_cert}}"
-    dest: "{{ansible_cache}}/{{inventory_hostname}}_ca_cert.pem"
+    dest: "{{ansible_cache}}/{{inventory_hostname_short}}_ca_cert.pem"
     flat: yes
   when:
     - inventory_hostname in groups['stenographer']
   changed_when: false
 
-- name: docket | push certificates to docket hosts
+- name: Push certificates to docket hosts
   copy:
-    src: "{{ansible_cache}}/docket-{{inventory_hostname}}_sensor-{{hostvars[item].inventory_hostname}}_cert.pem"
-    dest: "{{docket_x509_dir}}/docket-{{inventory_hostname}}_sensor-{{hostvars[item].inventory_hostname}}_cert.pem"
+    src: "{{ansible_cache}}/docket-{{inventory_hostname_short}}_sensor-{{hostvars[item].inventory_hostname_short}}_cert.pem"
+    dest: "{{docket_x509_dir}}/docket-{{inventory_hostname_short}}_sensor-{{hostvars[item].inventory_hostname_short}}_cert.pem"
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
     mode: "0644"
@@ -159,10 +159,10 @@
     - inventory_hostname in groups['docket']
     - docket_cert.results|map(attribute="stat.exists")|select("equalto",false)|list|length
 
-- name: docket | push stenographer ca certs
+- name: Push stenographer ca certs
   copy:
-    src: "{{ansible_cache}}/{{hostvars[item].inventory_hostname}}_ca_cert.pem"
-    dest: "{{docket_x509_dir}}/{{hostvars[item].inventory_hostname}}_ca_cert.pem"
+    src: "{{ansible_cache}}/{{hostvars[item].inventory_hostname_short}}_ca_cert.pem"
+    dest: "{{docket_x509_dir}}/{{hostvars[item].inventory_hostname_short}}_ca_cert.pem"
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
     mode: "0644"
@@ -170,7 +170,7 @@
   when:
     - inventory_hostname in groups['docket']
 
-- name: docket | cleanup {{ ansible_cache }} dir
+- name: Cleanup {{ ansible_cache }} dir
   file:
     name: "{{ ansible_cache }}/"
     state: absent
