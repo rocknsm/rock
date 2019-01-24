@@ -4,8 +4,7 @@
 #  vars:
 #    rock_disable_offline_repo: true
   roles:
-
-- sensor-common
+    - sensor-common
 
 - hosts: zookeeper
   roles:
