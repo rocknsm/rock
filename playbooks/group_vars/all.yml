@@ -63,6 +63,7 @@ enable_zookeeper: true
 enable_kafka: true
 enable_lighttpd: true
 enable_fsf: true
+enable_filebeat: true
 
 rocknsm_package_list:
   - jq
