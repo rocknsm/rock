@@ -1,13 +1,13 @@
 #!/bin/bash
 SCRIPT_PATH=$(dirname $(readlink -f $0))
-TOPLEVEL=$(dirname ${SCRIPT_PATH})
+ROCK_HOME=/usr/share/rock
 VERBOSE_FLAGS=
 if [ "x${DEBUG}" != "x" ]; then
   VERBOSE_FLAGS="-vvv"
 fi
 
-cd ${TOPLEVEL}/playbooks
-ansible-playbook "${TOPLEVEL}/playbooks/site.yml" ${VERBOSE_FLAGS}
+cd ${ROCK_HOME}/playbooks
+ansible-playbook "${ROCK_HOME}/playbooks/site.yml" ${VERBOSE_FLAGS}
 
 if [ $? -eq 0 ]; then
   cat << 'EOF'
