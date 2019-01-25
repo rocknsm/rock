@@ -3,7 +3,7 @@
 http_proxy: "{{ lookup('env','http_proxy') }}"
 https_proxy: "{{ lookup('env', 'https_proxy') }}"
 
-rock_version: 2.2.0
+rock_version: 2.3.0
 elastic:
   major_version: 6
   suffix: "x"

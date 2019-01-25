@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_PATH=$(dirname $(readlink -f $0))
-TOPLEVEL=$(dirname ${SCRIPT_PATH})
+ROCK_HOME=/usr/share/rock
 VERBOSE_FLAGS=
 if [ "x${DEBUG}" != "x" ]; then
   VERBOSE_FLAGS="-vvv"
@@ -15,9 +15,9 @@ then
 echo "Stopping Rock Services"
 
 
-cd ${TOPLEVEL}/playbooks
-ansible-playbook "${TOPLEVEL}/playbooks/delete-data.yml" ${VERBOSE_FLAGS}
-ansible-playbook "${TOPLEVEL}/playbooks/deploy-rock.yml" ${VERBOSE_FLAGS}
+cd ${ROCK_HOME}/playbooks
+ansible-playbook "${ROCK_HOME}/playbooks/delete-data.yml" ${VERBOSE_FLAGS}
+ansible-playbook "${ROCK_HOME}/playbooks/deploy-rock.yml" ${VERBOSE_FLAGS}
 
-/sbin/rock_start
+/usr/local/bin/rockctl start
 fi

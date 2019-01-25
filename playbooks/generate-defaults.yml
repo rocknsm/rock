@@ -1,11 +1,6 @@
 ---
 - hosts: all
   tasks:
-  - name: Apply override settings, if available
-    include_vars: /etc/rocknsm/config.yml
-    ignore_errors: true
-    failed_when: false
-
   - name: Create config directory
     file:
       state: directory
@@ -18,7 +13,7 @@
     template:
       backup: yes
       src: rock_config.yml.j2
-      dest: /etc/rocknsm/config.yml
+      dest: /etc/rocknsm/config-reference.yml
       owner: root
       group: root
       mode: 0644

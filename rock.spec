@@ -1,8 +1,10 @@
-%global _rockdir /opt/rocknsm/rock
+%global _rockdir /usr/share/rock
+%global _etcdir /etc/rocknsm
+%global _bindir /usr/local/bin
 
 Name:           rock
-Version:        2.2.0
-Release:        2
+Version:        2.3.0
+Release:        1
 
 Summary:        Network Security Monitoring collections platform
 
@@ -12,7 +14,7 @@ Source0:        https://github.com/rocknsm/%{name}/archive/v%{version}.tar.gz#/%
 
 BuildArch:      noarch
 
-Requires:       ansible >= 2.4.2
+Requires:       ansible >= 2.7.0
 Requires:       python-jinja2 >= 2.9.0
 Requires:       python-markupsafe >= 0.23
 Requires:       python-pyOpenSSL
@@ -33,13 +35,17 @@ rm -rf %{buildroot}
 DESTDIR=%{buildroot}
 
 #make directories
-mkdir -p %{buildroot}/%{_rockdir}
-mkdir -p %{buildroot}/%{_rockdir}/bin
+mkdir -p %{buildroot}/%{_rockdir}/roles
 mkdir -p %{buildroot}/%{_rockdir}/playbooks
+mkdir -p %{buildroot}/%{_bindir}
+mkdir -p %{buildroot}/%{_etcdir}
 
 # Install ansible files
-install -p -m 755 bin/deploy_rock.sh %{buildroot}/%{_rockdir}/bin/
-install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_rockdir}/bin/
+install -p -m 755 bin/deploy_rock.sh %{buildroot}/%{_bindir}/
+install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_bindir}/
+install -m 644 etc/hosts.ini %{buildroot}/%{_etcdir}/
+install -m 644 etc/config.yml %{buildroot}/%{_etcdir}/
+cp -a roles/. %{buildroot}/%{_rockdir}/roles
 cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
 # make dir and install tests
@@ -47,17 +53,26 @@ mkdir -p %{buildroot}/%{_rockdir}/tests
 cp -a tests/. %{buildroot}/%{_rockdir}/tests
 
 %files
+%doc README.md LICENSE CONTRIBUTING.md
+%config %{_rockdir}/playbooks/group_vars/all.yml
+%config %{_rockdir}/playbooks/ansible.cfg
+%config %{_etcdir}/hosts.ini
+%config %{_etcdir}/config.yml
 %defattr(0644, root, root, 0755)
-%{_rockdir}/playbooks/*
+%{_rockdir}/roles/*
+%{_rockdir}/playbooks/*.yml
+%{_rockdir}/playbooks/templates/*
 %{_rockdir}/tests/*
 
-%doc README.md LICENSE CONTRIBUTING.md
-%config %{_rockdir}/playbooks/ansible.cfg
 
-%attr(0755, root, root) %{_rockdir}/bin/deploy_rock.sh
-%attr(0755, root, root) %{_rockdir}/bin/generate_defaults.sh
+%attr(0755, root, root) %{_bindir}/deploy_rock.sh
+%attr(0755, root, root) %{_bindir}/generate_defaults.sh
 
 %changelog
+* Fri Jan 25 2019 Bradford Dabbs <brad@dabbs.io> 2.3.0-1
+- Update file paths to match new structure
+- Bump minimum Ansible version to 2.7
+
 * Tue Oct 30 2018 Derek Ditch <derek@rocknsm.io> 2.2.0-2
 - Fixed issue with missing GPG keys (derek@rocknsm.io)
 - Update logrotate configuration (derek@rocknsm.io)
