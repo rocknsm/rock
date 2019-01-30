@@ -13,6 +13,7 @@ ROCK is a collections platform, in the spirit of Network Security Monitoring by 
 * A messaging layer (Kafka and Logstash) that provides flexibility in scaling the platform to meet operational needs, as well as providing some degree of data reliability in transit.
 * Reliable data storage and indexing (Elasticsearch) to support rapid retrieval and analysis (Kibana) of the data.
 
+
 ## Features
 
 * Full Packet Capture via Google Stenographer and Docket.
@@ -25,19 +26,18 @@ ROCK is a collections platform, in the spirit of Network Security Monitoring by 
 * Data UI and Visualization via Kibana.
 * Security - The system is developed and tested to run with SELinux enabled.
 
-[![asciicast](https://asciinema.org/a/jnwhnl7N02G1bXbkot9zseirl.png)](https://asciinema.org/a/jnwhnl7N02G1bXbkot9zseirl)
 
 ### Installation and Usage
 
-Please reference our [documentation](https://rocknsm.gitbooks.io/rocknsm-guide/content/) for all ROCK details including:
+Please reference our [documentation](https://rocknsm.gitbooks.io/rocknsm-guide/content/) for all ROCK details to include:
 
 - installation
 - configuration
 - deployment
 - troubleshooting
 
-[![asciicast](https://asciinema.org/a/jnwhnl7N02G1bXbkot9zseirl.png)](https://asciinema.org/a/jnwhnl7N02G1bXbkot9zseirl)
-
 
 ## Thanks
 This architecture is made possible by the efforts of an ever-growing list of amazing people. Look around our Github to see the whole list.
+
+<!-- [![asciicast](https://asciinema.org/a/jnwhnl7N02G1bXbkot9zseirl.png)](https://asciinema.org/a/jnwhnl7N02G1bXbkot9zseirl) -->
