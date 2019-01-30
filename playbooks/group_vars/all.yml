@@ -20,7 +20,7 @@ elastic_close_interval: 15
 elastic_delete_interval: 60
 kafka_retention: 168
 suricata_retention: 3
-bro_log_retention: 168
+bro_log_retention: 7
 bro_stats_retention: 0
 
 # Feature options - Don't flip these unless you know what you're doing
