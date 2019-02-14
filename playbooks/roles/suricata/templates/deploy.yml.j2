@@ -1,7 +1,9 @@
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: suricata
+  name: {{ hostname | hash('md5') }}-suricata
   labels:
     component: suricata
 spec:
@@ -17,49 +19,58 @@ spec:
       hostNetwork: true
       containers:
       - name: suricata
-        image: {{ suricata_image }}:{{ suricata_ver }}
+        image: {{ suricata_image }}:{{ suricata_version }}
+        imagePullPolicy: IfNotPresent
         securityContext:
           capabilities:
             add:
               - NET_ADMIN
               - NET_RAW
               - SYS_NICE
+        env:
+        - name: PODTYPE
+          value: "SURICATA"
+        resources:
+          requests:
+            cpu: {{ suricata_cpu_request }}
         volumeMounts:
-        - name: vars
-          mountPath: /etc/icdm/
-        - name: templates
-          mountPath: /etc/icdm/templates/
-        - name: configs
-          mountPath: /etc/icdm/conf/
+        - name: filebeat
+          mountPath: /etc/filebeat/filebeat.yml
+        - name: suricata
+          mountPath: /etc/suricata/suricata.yaml
+        - name: custom
+          mountPath: /etc/suricata/rules/custom
       volumes:
-      - name: vars
-        configMap:
-          name: vars
-      - name: configs
-        configMap:
-          name: suricata
-          items:
-          - key: suricata.yaml.conf
-            path: suricata.yaml.conf
-          - key: filebeat.yml.conf
-            path: filebeat.yml.conf
-      - name: templates
-        configMap:
-          name: suricata
-          items:
-          - key: suricata.yaml.tmpl
-            path: suricata.yaml.tmpl
-          - key: filebeat.yml.tmpl
-            path: filebeat.yml.tmpl
+      - name: filebeat
+        hostPath:
+          path: {{ suricata_dir }}/{{ hostname }}-filebeat.yml
+          type: File
+      - name: suricata
+        hostPath:
+          path: {{ suricata_dir }}/{{ hostname }}-suricata.yaml
+          type: File
+      - name: custom
+        hostPath:
+          path: {{ suricata_dir }}/custom
+          type: DirectoryOrCreate
       nodeSelector:
         suricata: "true"
       affinity:
-        podAntiAffinity:
+        nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: component
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: suricata
                 operator: In
                 values:
-                - suricata
-            topologyKey: "kubernetes.io/hostname"
+                - "true"
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ hostname }}"
+              - key: role
+                operator: In
+                values:
+                - "sensor"
+                - "remote-sensor"
+...

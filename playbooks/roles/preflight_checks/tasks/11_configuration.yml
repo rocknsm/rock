@@ -1,0 +1,8 @@
+#############################################################
+# Checking that certain configuration requirements are met. #
+#############################################################
+
+- name: Verifying that only one Master Server is specified.
+  fail:
+    msg: "You have specified more than one Master Server where only one is allowed."
+  when: (groups['master-server'] | length) > 1

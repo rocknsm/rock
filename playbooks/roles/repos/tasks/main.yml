@@ -1,0 +1,54 @@
+---
+- name: create list
+  set_fact:
+    host_list: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
+
+- name: Copy over hosts template
+  template:
+    src: templates/hosts.j2
+    dest: "/etc/hosts"
+
+- name: remove epel rpm
+  yum:
+    name: epel-release
+    state: absent
+
+- name: cleanup temp repos
+  find:
+    paths: /etc/yum.repos.d
+    patterns: ".*repo$"
+    use_regex: true
+  register: wildcard_files_to_delete
+
+- name: remove matched repos
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ wildcard_files_to_delete.files }}"
+
+- name: Clean repo cache
+  shell: |
+    rm -rf /var/cache/yum
+  args:
+    warn: false
+
+- get_url:
+    url: "{{ offline_repo_base }}/offline.repo"
+    dest: /etc/yum.repos.d/offline.repo
+    mode: 0664
+
+- name: Clean repo cache
+  shell: |
+    rm -rf /var/cache/yum
+  args:
+    warn: false
+
+- name: create pip dir
+  file:
+    path: "~/.pip"
+    state: directory
+
+- name: Add pip config
+  template:
+    src: templates/pip.conf.j2
+    dest: "~/.pip/pip.conf"

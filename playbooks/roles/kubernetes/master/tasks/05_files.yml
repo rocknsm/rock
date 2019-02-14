@@ -20,5 +20,3 @@
     - metallb
     - kube-flannel
     - dashboard
-    - vars
-    - kube_dns_config_map

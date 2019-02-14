@@ -9,6 +9,11 @@
     msg: 'Verify you have the remote-sensors group in your inventory file. It must be defined. See sample inventory. If you have no remote sensors you can define an empty group with just remote-senors: under nodes.'
   when: "'remote-sensors' not in groups"
 
+- name: Check if servers is defined
+  fail:
+    msg: 'Verify you have the servers group in your inventory file. It must be defined. See sample inventory. If you have no servers you can define an empty group with just servers: under nodes.'
+  when: "'servers' not in groups"
+
 - name: Checking that management_ipv4 is set
   fail:
     msg: "management_ipv4 is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
@@ -19,35 +24,65 @@
     msg: "home_net is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: home_net is not defined or home_net is none
 
-- name: Checking that services_cidr is set
+- name: Checking that kubernetes_services_cidr is set
   fail:
-    msg: "services_cidr is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: services_cidr is not defined or services_cidr is none
+    msg: "kubernetes_services_cidr is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: kubernetes_services_cidr is not defined or kubernetes_services_cidr is none
+
+- name: Ensuring there is no ceph drive declared for a remote sensor
+  fail:
+     msg: "You have declared a ceph drive for a remote sensor. Remote sensors cannot be part of the ceph cluster; please remove this drive."
+  when: inventory_hostname in groups['remote-sensors'] and (ceph_drive_list is defined and ceph_drive_list is not none and ceph_drive_list | length > 0)
 
 - name: Checking that moloch_bpf is set
   fail:
     msg: "moloch_bpf is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: moloch_bpf is not defined or moloch_bpf is none
 
-- name: Checking that elastic_mem is set
+- name: Checking that bro_cpu_request is set
   fail:
-    msg: "elastic_mem is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_mem is not defined or elastic_mem is none
+    msg: "bro_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: bro_cpu_request is not defined or bro_cpu_request is none
+
+- name: Checking that moloch_cpu_request is set
+  fail:
+    msg: "moloch_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_cpu_request is not defined or moloch_cpu_request is none
+
+- name: Checking that suricata_cpu_request is set
+  fail:
+    msg: "suricata_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: suricata_cpu_request is not defined or suricata_cpu_request is none
+
+- name: Checking that kafka_cpu_request is set
+  fail:
+    msg: "kafka_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: kafka_cpu_request is not defined or kafka_cpu_request is none
+
+- name: Checking that zookeeper_cpu_request is set
+  fail:
+    msg: "zookeeper_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: zookeeper_cpu_request is not defined or zookeeper_cpu_request is none
+
+- name: Checking that logstash_cpu_request is set
+  fail:
+    msg: "logstash_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: logstash_cpu_request is not defined or logstash_cpu_request is none
+
+- name: Checking that elasticsearch_cpu_request is set
+  fail:
+    msg: "elasticsearch_cpu_request is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: elasticsearch_cpu_request is not defined or elasticsearch_cpu_request is none
+
+- name: Checking that elastic_memory is set
+  fail:
+    msg: "elastic_memory is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: elastic_memory is not defined or elastic_memory is none
 
 - name: Checking that elastic_masters is set
   fail:
     msg: "elastic_masters is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: elastic_masters is not defined or elastic_masters is none
-
-- name: Checking that elastic_cpu_maximum is set
-  fail:
-    msg: "elastic_cpu_maximum is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_cpu_maximum is not defined or elastic_cpu_maximum is none
-
-- name: Checking that elastic_cpu_minimum is set
-  fail:
-    msg: "elastic_cpu_minimum is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: elastic_cpu_minimum is not defined or elastic_cpu_minimum is none
 
 - name: Checking that moloch_dontSaveBPFs is set
   fail:
@@ -79,10 +114,10 @@
     msg: "zookeeper_replicas is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: zookeeper_replicas is not defined or zookeeper_replicas is none
 
-- name: Checking that pcap_pv_size is set
+- name: Checking that moloch_pcap_pv_size is set
   fail:
-    msg: "pcap_pv_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
-  when: pcap_pv_size is not defined or pcap_pv_size is none
+    msg: "moloch_pcap_pv_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_pcap_pv_size is not defined or moloch_pcap_pv_size is none
 
 - name: Checking that zookeeper_mem is set
   fail:
@@ -94,10 +129,10 @@
     msg: "kafka_jvm_memory is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: kafka_jvm_memory is not defined or kafka_jvm_memory is none
 
-- name: Checking that monitor_interface is set
+- name: Checking that sensor_monitor_interface is set
   fail:
-    msg: "monitor_interface is not defined. Make sure it is defined in your inventory file. See sample inventory for help. All sensors must have monitor interface defined."
-  when: inventory_hostname in groups['sensors'] and (monitor_interface is not defined or monitor_interface is none)
+    msg: "sensor_monitor_interface is not defined or sensor_monitor_interface is not a list. Make sure it is defined in your inventory file. See sample inventory for help. All sensors must have monitor interface defined."
+  when: inventory_hostname in groups['sensors'] and (sensor_monitor_interface is not defined or sensor_monitor_interface is none or sensor_monitor_interface is string or sensor_monitor_interface is not iterable)
 
 - name: Checking that bro_wokers is set
   fail:
@@ -113,6 +148,16 @@
   fail:
     msg: "moloch_pcapWriteMethod is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: moloch_pcapWriteMethod is not defined or moloch_pcapWriteMethod is none
+
+- name: Checking that moloch_packet_v3_block_size is set
+  fail:
+    msg: "moloch_packet_v3_block_size is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_packet_v3_block_size is not defined or moloch_packet_v3_block_size is none
+
+- name: Checking that moloch_packet_v3_num_threads is set
+  fail:
+    msg: "moloch_packet_v3_num_threads is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
+  when: moloch_packet_v3_num_threads is not defined or moloch_packet_v3_num_threads is none
 
 - name: Checking that moloch_pcapWriteSize is set
   fail:
@@ -154,15 +199,15 @@
     msg: "use_ceph_for_pcap is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: use_ceph_for_pcap is not defined or use_ceph_for_pcap is none
 
-- name: Checking that pcap_folder is set
+- name: Checking that moloch_pcap_folder is set
   fail:
-    msg: "pcap_folder is not defined. Make sure it is defined in your inventory file. See sample inventory for help. You do not have to provide a value, but it must exist in the inventor file. Add pcap_folder: to inventory in all vars to resolve this error."
-  when: pcap_folder is not defined
+    msg: "moloch_pcap_folder is not defined. Make sure it is defined in your inventory file. See sample inventory for help. You do not have to provide a value, but it must exist in the inventor file. Add moloch_pcap_folder: to inventory in all vars to resolve this error."
+  when: moloch_pcap_folder is not defined
 
-- name: Checking pcap_pv_size is not set if not using ceph for pcap
+- name: Checking moloch_pcap_pv_size is not set if not using ceph for pcap
   fail:
-    msg: "You have set use_ceph_for_pcap to false indicating you do not intend to use it for PCAP storage, but provided a non-zero definition to pcap_pv_size. Set pcap_pv_size to zero or change the value of use_ceph_for_pcap to true."
-  when: not use_ceph_for_pcap and (pcap_pv_size is not none and (pcap_pv_size | int) != 0)
+    msg: "You have set use_ceph_for_pcap to false indicating you do not intend to use it for PCAP storage, but provided a non-zero definition to moloch_pcap_pv_size. Set moloch_pcap_pv_size to zero or change the value of use_ceph_for_pcap to true."
+  when: not use_ceph_for_pcap and (moloch_pcap_pv_size is not none and (moloch_pcap_pv_size | int) != 0)
 
 - name: Checking that pcap_disk is set
   fail:
@@ -173,5 +218,21 @@
   fail:
     msg: "moloch_threads is not defined. Make sure it is defined in your inventory file. See sample inventory for help."
   when: inventory_hostname in groups['sensors'] and moloch_threads is not defined or moloch_threads is none
+
+- name: Ensure ceph_disks is defined when use_ceph_for_pcap
+  fail:
+    msg: "ceph_disks must be defined when use_ceph_for_pcap is true.  Please review inventory file."
+  when: use_ceph_for_pcap is defined
+    and use_ceph_for_pcap == true
+    and ceph_disks is not defined
+    and ceph_disks is none
+
+- name: Ensure ceph_disks is a list
+  fail:
+    msg: "ceph_disks must be a list of disks. Please review inventory file."
+  when: use_ceph_for_pcap is defined
+    and use_ceph_for_pcap == true
+    and ceph_disks is defined
+    and (ceph_disks is string or ceph_disks is not iterable)
 
 ...

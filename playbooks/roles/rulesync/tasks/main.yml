@@ -1,0 +1,19 @@
+#########################################
+############# Rulesync tasks ############
+#########################################
+---
+
+- name: Create rulesync directory
+  file:
+    mode: u+rx,g+rx
+    path: "{{ rulesync_dir }}"
+    state: directory
+
+- name: Install rulesync on master server
+  copy:
+    src: "files/"
+    dest: "{{ rulesync_dir }}/"
+    mode: "0744"
+
+- name: Run rulesync.py script on master server
+  shell: "python {{ rulesync_dir }}/rulesync.py"

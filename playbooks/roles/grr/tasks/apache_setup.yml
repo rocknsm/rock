@@ -1,0 +1,55 @@
+---
+
+- name: Generate private key and certificate for GRR deployment.
+  shell: |
+    openssl req -x509 -nodes -subj "/C=US/ST=Texas/L=Dallas/O=uknown/CN=grr" -days 36500 -newkey rsa:4096 \
+    -keyout {{ grr_dir }}/httpd/private/apache-selfsigned.key -out {{ grr_dir }}/httpd/certs/apache-selfsigned.crt
+
+- name: Chmod privkey and dir
+  shell: |
+    chmod 700 {{ grr_dir }}/httpd/private/ && chmod 600 {{ grr_dir }}/httpd/private/apache-selfsigned.key
+
+- name: Generate dhparam.pem file
+  shell: |
+    openssl dhparam -dsaparam -out {{ grr_dir }}/httpd/certs/dhparam.pem 4096
+
+- name: Tee cert to
+  shell: |
+    cat {{ grr_dir }}/httpd/certs/dhparam.pem | tee -a {{ grr_dir }}/httpd/certs/apache-selfsigned.crt
+
+- name: Flush Config Map
+  command: "kubectl delete configmap {{ item }} --ignore-not-found=true"
+  with_items:
+    - httpd-conf
+    - httpd-certs
+    - httpd-private
+
+- name: Copy main apache config file
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ grr_dir }}/httpd/conf/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items: 
+  - httpd.conf
+  - reverse-proxy-ssl.conf
+  - mime.types
+
+- name: Create httpd-conf config Map
+  shell: |
+    kubectl create configmap httpd-conf \
+    --from-file {{ grr_dir }}/httpd/conf/httpd.conf \
+    --from-file {{ grr_dir }}/httpd/conf/reverse-proxy-ssl.conf \
+    --from-file {{ grr_dir }}/httpd/conf/mime.types
+
+- name: Create httpd-certs config Map
+  shell: |
+    kubectl create configmap httpd-certs \
+    --from-file {{ grr_dir }}/httpd/certs/apache-selfsigned.crt \
+    --from-file {{ grr_dir }}/httpd/certs/dhparam.pem
+
+- name: Create httpd-private config Map
+  shell: |
+    kubectl create configmap httpd-private \
+    --from-file {{ grr_dir }}/httpd/private/apache-selfsigned.key

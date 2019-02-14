@@ -1,0 +1,36 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: moloch-viewer
+  labels:
+    component: moloch-viewer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:      
+      component: moloch-viewer
+  template:
+    metadata:
+      labels:
+        component: moloch-viewer
+    spec:
+      containers:
+      - name: moloch-viewer
+        image: "{{ moloch_image }}:{{ moloch_version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PODTYPE
+          value: "VIEWER"
+        ports:
+        - containerPort: {{ moloch_port }}
+          name: webgui
+        volumeMounts:
+        - name: configini
+          mountPath: {{ moloch_path }}/etc/config.ini
+      volumes:
+      - name: configini
+        hostPath:
+          path: {{ moloch_dir }}/{{ groups['moloch'][0] }}-config.ini
+      nodeSelector:
+        role: server

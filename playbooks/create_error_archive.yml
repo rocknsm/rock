@@ -1,0 +1,100 @@
+---
+
+################################################################################
+# Running enumeration commands on systen state for error logging and debugging #
+# and saving the results in error logging directory.                           #
+################################################################################
+
+- name: Run Error Logging commands
+  hosts: all
+  gather_facts: yes
+  tasks:
+
+# These tasks will run a series of debugging shell commands and output to a file
+# on the node. These files are cleaned up at the end of the script.
+
+  - name: Log all current Kubernetes items
+    shell: "kubectl get all --all-namespaces > {{ log_dir }}/{{ inventory_hostname_short }}_kubectl_get.log"
+    args:
+      executable: /bin/bash
+    when: inventory_hostname in groups['nodes']
+    changed_when: False
+    ignore_errors: yes
+
+  - name: Log Kubernetes items details
+    shell: "kubectl describe all --all-namespaces > {{ log_dir }}/{{ inventory_hostname_short }}_kubectl_describe.log"
+    args:
+      executable: /bin/bash
+    when: inventory_hostname in groups['nodes']
+    changed_when: False
+    ignore_errors: yes
+
+  - name: Log Ceph status on all nodes
+    shell: "ceph status > {{ log_dir }}/{{ inventory_hostname_short }}_ceph_status.log"
+    args:
+      executable: /bin/bash
+    when: inventory_hostname in groups['ceph']
+    changed_when: False
+    ignore_errors: yes
+
+  - name: Log Ceph health on all nodes
+    shell: "ceph health > {{ log_dir }}/{{ inventory_hostname_short }}_ceph_health.log"
+    args:
+      executable: /bin/bash
+    when: inventory_hostname in groups['ceph']
+    changed_when: False
+    ignore_errors: yes
+
+  - name: Generate full journalctl output from all nodes
+    shell: "journalctl -a --no-tail -o verbose > {{ log_dir }}/{{ inventory_hostname_short }}_journalctl.log"
+    args:
+      executable: /bin/bash
+    when: inventory_hostname in groups['nodes']
+    changed_when: False
+    ignore_errors: yes
+
+# These tasks copy all files created above to the controller to be aggregated and archived.
+# Ansible fetch module is not recursive, so the first task generates a variable containing
+# all files in the log_dir directory which is then iterated over by the fetch module.
+
+  - name: Create variable containing all file names to copy
+    shell: "find . -maxdepth 1 -type f | cut -d '/' -f 2"
+    args:
+      executable: /bin/bash
+      chdir: "{{ log_dir }}"
+    register: log_files
+
+  - name: Iterate through the files and copy them all to Controller
+    fetch:
+      src: "{{ log_dir }}/{{ item }}"
+      dest: "{{ log_dir }}"
+      flat: yes
+    with_items: "{{ log_files.stdout_lines }}"
+
+# Create tarball archive of all aggregated files, plus the log_plays output from
+# ansible itself. Places tarball in install_dir.
+
+  - name: Create archive of log files on Controller
+    local_action:
+      module: archive
+      path: "{{ log_dir }}"
+      dest: "{{ install_dir }}/{{ ansible_date_time.date }}_errorLog.tgz"
+
+# Clean up all created files on nodes and controller.
+
+  - name: Clean out log files on nodes
+    shell: "rm -f *.log"
+    args:
+      chdir: "{{ log_dir }}"
+      executable: /bin/bash
+      warn: false
+
+- name: Clean out log files on Controller
+  gather_facts: no
+  hosts: localhost
+  tasks:
+  - shell: "rm -f *.log"
+    args:
+      chdir: "{{ log_dir }}"
+      executable: /bin/bash
+      warn: false

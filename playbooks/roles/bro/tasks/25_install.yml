@@ -1,0 +1,31 @@
+---
+
+- name: Deploy Services
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    resource_name: "{{ item | hash('md5') }}-bro"
+    file_name: "{{ bro_dir }}/{{ item }}-deploy.yml"
+  with_items:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+
+- name: Wait for Bro to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "{{ item | hash('md5') }}-bro"
+    label: ""
+  with_items:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+
+#- name: Scale up Bro Deployment
+#  command: "kubectl scale deployment bro --replicas={{ groups['bro'] | length }}"
+#  when: node_to_add is defined
+#    and node_to_add in groups['bro']
+#    and inventory_hostname in groups['master-server']
+
+...

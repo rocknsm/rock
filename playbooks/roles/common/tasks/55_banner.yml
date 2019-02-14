@@ -1,5 +1,5 @@
 ---
-- name: Install ROCK NSM /etc/issue
+- name: Install TFPlenum /etc/issue
   copy:
     src: etc-issue.in
     dest: /etc/issue.in
@@ -7,10 +7,10 @@
     owner: root
     group: root
 
-- name: NetworkManager ROCK NSM hook
+- name: NetworkManager TFPlenum hook
   copy:
     src: nm-issue-update
-    dest: /etc/NetworkManager/dispatcher.d/50-rocknsm-issue-update
+    dest: /etc/NetworkManager/dispatcher.d/50-tfplenum-issue-update
     mode: 0755
     owner: root
     group: root

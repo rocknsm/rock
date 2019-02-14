@@ -47,13 +47,8 @@
   when: type == 'deployments'
 
 - import_tasks: build_kubectl.yml
-
-# - name: Wait for statefulset rollout
-#   shell: "kubectl rollout status sts/{{ resource_name }}"
-#   register: sts_result
-#   when: kubectl is defined and type == 'statefulset'
-
-- name: Kube | Wait for "{{ resource_name }} {{ label }} {{ type }}". Note- This can take a while, you may want to grab a coffee
+  
+- name: "Kube | Wait for {{ resource_name }} {{ label }} {{ type }}. Note- This can take a while, you may want to grab a coffee"
   shell: "{{ kubectl }}"
   register: kube_wait_result
   until: kube_wait_result.stdout == ""

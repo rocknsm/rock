@@ -26,5 +26,7 @@
 
 - import_tasks: 10_update_dns.yml
   when: inventory_hostname not in groups['master-server']
+  tags:
+    - update-dns
 
 ...

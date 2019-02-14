@@ -1,0 +1,26 @@
+input {
+  kafka {
+    topics => ["endgame-raw"]
+    # Set this to one per kafka partition to scale up
+    #consumer_threads => 4
+    group_id => "logstash_endgame"
+    client_id => "logstash_endgame"
+    bootstrap_servers => "{{ kafka_url }}.default.svc.cluster.local:{{ kafka_port }}"
+    codec => json
+    auto_offset_reset => "earliest"
+    type => "endgame"
+  }
+{% for host in groups['remote-sensors'] %}
+  kafka {
+    topics => ["endgame-raw"]
+    # Set this to one per kafka partition to scale up
+    #consumer_threads => 4
+    group_id => "logstash_endgame"
+    client_id => "logstash_endgame-{{ hostvars[host].inventory_hostname_short }}"
+    bootstrap_servers => "kafka-{{ hostvars[host].inventory_hostname_short }}.default.svc.cluster.local:{{ kafka_port }}"
+    codec => json
+    auto_offset_reset => "earliest"
+    type => "endgame"
+  }
+{% endfor %}
+}

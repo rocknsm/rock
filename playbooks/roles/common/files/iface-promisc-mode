@@ -1,0 +1,26 @@
+#!/bin/bash
+
+watchdir=/opt/tfplenum/interfaces
+
+function enable_iface_promisc () {
+  monitor_interfaces=`cat $watchdir/monitor_interfaces`
+  for iface in $monitor_interfaces; do
+    ip link set $iface promisc on
+  done;
+}
+
+function disable_iface_promisc () {
+  interfaces=`ip a | grep PROMISC | awk -F':' '{ gsub(/ /,"",$2);print $2 }'`
+  for iface in $interfaces; do
+    ip link set $iface promisc off
+  done;
+}
+
+disable_iface_promisc
+enable_iface_promisc
+
+while /bin/inotifywait -e modify,create,delete,close_write --exclude=".swp" $watchdir;
+do
+  disable_iface_promisc
+  enable_iface_promisc
+done;

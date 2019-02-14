@@ -1,15 +1,24 @@
 ---
 
-# main.yml - Common tasks for ROCK
-- import_tasks: 05_configure_yum_repos.yml
-#- import_tasks: 25_configure_rock_repo.yml
+# main.yml - Common tasks for TFplenum
+- import_tasks: 25_max_log_size.yml
 - import_tasks: 30_disable_selinux.yml
 - import_tasks: 35_install_common_packages.yml
 - import_tasks: 40_create_directories.yml
 - import_tasks: 45_disable_ipv6.yml
-- import_tasks: 50_disable_firewall.yml
+- import_tasks: 50_setup_firewall.yml
+  tags: setup-firewall
 - import_tasks: 55_banner.yml
-
+- import_tasks: 60_kube_external_dns.yml
+  when: inventory_hostname in groups['master-server']
+- import_tasks: 65_elasticdump.yml
+  when: inventory_hostname in groups['master-server']
+  tags: elasticdump
+- import_tasks: 70_sensor_monitor_ifaces.yml
+  when: inventory_hostname in groups['sensors'] or inventory_hostname in groups['remote-sensors']
+  tags:
+    - enable-sensor-monitor-interface
+    - change-interfaces
 - import_tasks: 95_reboot.yml
 
 ...

@@ -1,0 +1,162 @@
+{
+  "version": "6.3.2",
+  "objects": [
+    {
+      "id": "AWBLMr9vRuBloj96jxp1",
+      "type": "search",
+      "updated_at": "2018-09-15T14:01:45.348Z",
+      "version": 1,
+      "attributes": {
+        "title": "All Beats Logs",
+        "description": "",
+        "hits": 0,
+        "columns": [
+          "computer_name",
+          "process_id",
+          "user.name",
+          "event_id",
+          "event_data.Image"
+        ],
+        "sort": [
+          "@timestamp",
+          "desc"
+        ],
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"AWBLHZaBRuBloj96jvrD\",\"highlightAll\":true,\"version\":true,\"query\":{\"match_all\":{}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWBLNriuRuBloj96jxv3",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.348Z",
+      "version": 1,
+      "attributes": {
+        "title": "Beats - Computer Names",
+        "visState": "{\"title\":\"Beats - Computer Names\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showMeticsAtAllLevels\":false,\"showPartialRows\":false,\"showTotal\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"totalFunc\":\"sum\",\"type\":\"table\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"computer_name.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\"}}],\"listeners\":{}}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"AWBLHZaBRuBloj96jvrD\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWBLN7X2RuBloj96jxxY",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.348Z",
+      "version": 1,
+      "attributes": {
+        "title": "Beats - Process IDs",
+        "visState": "{\"title\":\"Beats - Process IDs\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showMeticsAtAllLevels\":false,\"showPartialRows\":false,\"showTotal\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"totalFunc\":\"sum\",\"type\":\"table\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"process_id\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\"}}],\"listeners\":{}}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"AWBLHZaBRuBloj96jvrD\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWBLOT8MRuBloj96jx0N",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.348Z",
+      "version": 1,
+      "attributes": {
+        "title": "Beats - Event IDs",
+        "visState": "{\"title\":\"Beats - Event IDs\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showMeticsAtAllLevels\":false,\"showPartialRows\":false,\"showTotal\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"totalFunc\":\"sum\",\"type\":\"table\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"event_id\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\"}}],\"listeners\":{}}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"AWBLHZaBRuBloj96jvrD\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWBLONJCRuBloj96jxzY",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.348Z",
+      "version": 1,
+      "attributes": {
+        "title": "Beats - Usernames",
+        "visState": "{\n  \"title\": \"Beats - Usernames\",\n  \"type\": \"table\",\n  \"params\": {\n    \"perPage\": 10,\n    \"showMeticsAtAllLevels\": false,\n    \"showPartialRows\": false,\n    \"showTotal\": false,\n    \"sort\": {\n      \"columnIndex\": null,\n      \"direction\": null\n    },\n    \"totalFunc\": \"sum\",\n    \"type\": \"table\"\n  },\n  \"aggs\": [\n    {\n      \"id\": \"1\",\n      \"enabled\": true,\n      \"type\": \"count\",\n      \"schema\": \"metric\",\n      \"params\": {}\n    },\n    {\n      \"id\": \"2\",\n      \"enabled\": true,\n      \"type\": \"terms\",\n      \"schema\": \"bucket\",\n      \"params\": {\n        \"field\": \"user.name\",\n        \"size\": 5,\n        \"order\": \"desc\",\n        \"orderBy\": \"1\"\n      }\n    }\n  ],\n  \"listeners\": {}\n}",
+        "uiStateJSON": "{\n  \"vis\": {\n    \"params\": {\n      \"sort\": {\n        \"columnIndex\": null,\n        \"direction\": null\n      }\n    }\n  }\n}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\n  \"index\": \"AWBLHZaBRuBloj96jvrD\",\n  \"query\": {\n    \"match_all\": {}\n  },\n  \"filter\": []\n}"
+        }
+      }
+    },
+    {
+      "id": "AWBLQ2__RuBloj96jyDn",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.348Z",
+      "version": 1,
+      "attributes": {
+        "title": "Beats - Log Count Over Time",
+        "visState": "{\"title\":\"Beats - Log Count Over Time\",\"type\":\"line\",\"params\":{\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{\"text\":\"@timestamp per 30 minutes\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Count\"}}],\"seriesParams\":[{\"show\":\"true\",\"type\":\"line\",\"mode\":\"normal\",\"data\":{\"label\":\"Count\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false,\"type\":\"line\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}}],\"listeners\":{}}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"AWBLHZaBRuBloj96jvrD\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "b3b449d0-3429-11e7-9d52-4f090484f59e",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.364Z",
+      "version": 53,
+      "attributes": {
+        "title": "Navigation",
+        "visState": "{\"title\":\"Navigation\",\"type\":\"markdown\",\"params\":{\"markdown\":\"[Home](/app/kibana#/dashboard/94b52620-342a-11e7-9d52-4f090484f59e)   \\n[Help](/app/kibana#/dashboard/AV6-POJSDwoBUzALqKAg)   \\n\\n**Alert Data**  \\n[Bro Notices](/app/kibana#/dashboard/01600fb0-34e4-11e7-9669-7f1d3242b798)      \\n\\n**Bro Hunting**   \\n[Connections](/app/kibana#/dashboard/e0a34b90-34e6-11e7-9118-45bd317f0ca4)   \\n[DCE/RPC](/app/kibana#/dashboard/46582d50-3af2-11e7-a83b-b1b4da7d15f4)   \\n[DHCP](/app/kibana#/dashboard/85348270-357b-11e7-ac34-8965f6420c51)  \\n[DNP3](/app/kibana#/dashboard/2fdf5bf0-3581-11e7-98ef-19df58fe538b)  \\n[DNS](/app/kibana#/dashboard/ebf5ec90-34bf-11e7-9b32-bb903919ead9)  \\n[Files](/app/kibana#/dashboard/2d315d80-3582-11e7-98ef-19df58fe538b)  \\n[FTP](/app/kibana#/dashboard/27f3b380-3583-11e7-a588-05992195c551)  \\n[HTTP](/app/kibana#/dashboard/230134a0-34c6-11e7-8360-0b86c90983fd)  \\n[Intel](/app/kibana#/dashboard/468022c0-3583-11e7-a588-05992195c551)  \\n[IRC](/app/kibana#/dashboard/56a34ce0-3583-11e7-a588-05992195c551)  \\n[Kerberos](/app/kibana#/dashboard/6b0d4870-3583-11e7-a588-05992195c551)  \\n[Modbus](/app/kibana#/dashboard/70c005f0-3583-11e7-a588-05992195c551)  \\n[MySQL](/app/kibana#/dashboard/7929f430-3583-11e7-a588-05992195c551)  \\n[NTLM](/app/kibana#/dashboard/022713e0-3ab0-11e7-a83b-b1b4da7d15f4)  \\n[PE](/app/kibana#/dashboard/8a10e380-3583-11e7-a588-05992195c551)  \\n[RADIUS](/app/kibana#/dashboard/90b246c0-3583-11e7-a588-05992195c551)  \\n[RDP](/app/kibana#/dashboard/97f8c3a0-3583-11e7-a588-05992195c551)  \\n[RFB](/app/kibana#/dashboard/9ef20ae0-3583-11e7-a588-05992195c551)  \\n[SIP](/app/kibana#/dashboard/ad3c0830-3583-11e7-a588-05992195c551)  \\n[SMB](/app/kibana#/dashboard/b3a53710-3aaa-11e7-8b17-0d8709b02c80)  \\n[SMTP](/app/kibana#/dashboard/b10a9c60-3583-11e7-a588-05992195c551)  \\n[SNMP](/app/kibana#/dashboard/b65c2710-3583-11e7-a588-05992195c551)  \\n[Software](/app/kibana#/dashboard/c2c99c30-3583-11e7-a588-05992195c551)  \\n[SSH](/app/kibana#/dashboard/c6ccfc00-3583-11e7-a588-05992195c551)  \\n[SSL](/app/kibana#/dashboard/cca67b60-3583-11e7-a588-05992195c551)  \\n[Syslog](/app/kibana#/dashboard/c4bbe040-76b3-11e7-ba96-cba76a1e264d)   \\n[Tunnels](/app/kibana#/dashboard/d7b54ae0-3583-11e7-a588-05992195c551)  \\n[Weird](/app/kibana#/dashboard/de2da250-3583-11e7-a588-05992195c551)  \\n[X.509](/app/kibana#/dashboard/e5aa7170-3583-11e7-a588-05992195c551)  \\n\\n**Other**   \\n[Domain Stats](/app/kibana#/dashboard/AWAi6wvxAvKNGEbUWO_j)   \\n[Frequency](/app/kibana#/dashboard/AWAi5k4jAvKNGEbUWFis)  \\n[Stats](/app/kibana#/dashboard/130017f0-46ce-11e7-946f-1bfb1be7c36b)\",\"type\":\"markdown\",\"fontSize\":10,\"openLinksInNewTab\":false},\"aggs\":[]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"query\":{\"query_string\":{\"query\":\"*\"}},\"language\":\"lucene\"},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWDHHHR8xQT5EBNmq4z7",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.348Z",
+      "version": 1,
+      "attributes": {
+        "title": "Beats - Log Count",
+        "visState": "{\"title\":\"Beats - Log Count\",\"type\":\"metric\",\"params\":{\"addTooltip\":true,\"addLegend\":false,\"type\":\"gauge\",\"gauge\":{\"verticalSplit\":false,\"autoExtend\":false,\"percentageMode\":false,\"gaugeType\":\"Metric\",\"gaugeStyle\":\"Full\",\"backStyle\":\"Full\",\"orientation\":\"vertical\",\"colorSchema\":\"Green to Red\",\"gaugeColorMode\":\"None\",\"useRange\":false,\"colorsRange\":[{\"from\":0,\"to\":100}],\"invertColors\":false,\"labels\":{\"show\":false,\"color\":\"black\"},\"scale\":{\"show\":false,\"labels\":false,\"color\":\"#333\",\"width\":2},\"type\":\"simple\",\"style\":{\"fontSize\":\"30\",\"bgColor\":false,\"labelColor\":false,\"subText\":\"\",\"bgFill\":\"#FB9E00\"}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}}],\"listeners\":{}}",
+        "uiStateJSON": "{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"AWBLHZaBRuBloj96jvrD\",\"query\":{\"match_all\":{}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWBLNS3CRuBloj96jxub",
+      "type": "dashboard",
+      "updated_at": "2018-09-15T14:01:45.348Z",
+      "version": 1,
+      "attributes": {
+        "title": "Beats",
+        "hits": 0,
+        "description": "",
+        "panelsJSON": "[{\"panelIndex\":\"1\",\"gridData\":{\"x\":0,\"y\":14,\"w\":12,\"h\":11,\"i\":\"1\"},\"columns\":[\"computer_name\",\"process_id\",\"user.name\",\"event_id\",\"event_data.Image\"],\"id\":\"AWBLMr9vRuBloj96jxp1\",\"sort\":[\"@timestamp\",\"desc\"],\"type\":\"search\",\"version\":\"6.1.1\"},{\"panelIndex\":\"2\",\"gridData\":{\"x\":2,\"y\":2,\"w\":5,\"h\":6,\"i\":\"2\"},\"id\":\"AWBLNriuRuBloj96jxv3\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"3\",\"gridData\":{\"x\":7,\"y\":8,\"w\":5,\"h\":6,\"i\":\"3\"},\"id\":\"AWBLN7X2RuBloj96jxxY\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"4\",\"gridData\":{\"x\":2,\"y\":8,\"w\":5,\"h\":6,\"i\":\"4\"},\"id\":\"AWBLOT8MRuBloj96jx0N\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"5\",\"gridData\":{\"x\":7,\"y\":2,\"w\":5,\"h\":6,\"i\":\"5\"},\"id\":\"AWBLONJCRuBloj96jxzY\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"7\",\"gridData\":{\"x\":5,\"y\":0,\"w\":7,\"h\":2,\"i\":\"7\"},\"id\":\"AWBLQ2__RuBloj96jyDn\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"8\",\"gridData\":{\"x\":0,\"y\":0,\"w\":2,\"h\":14,\"i\":\"8\"},\"id\":\"b3b449d0-3429-11e7-9d52-4f090484f59e\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"9\",\"gridData\":{\"x\":2,\"y\":0,\"w\":3,\"h\":2,\"i\":\"9\"},\"type\":\"visualization\",\"id\":\"AWDHHHR8xQT5EBNmq4z7\",\"version\":\"6.1.1\"}]",
+        "optionsJSON": "{\"darkTheme\":true,\"useMargins\":true}",
+        "uiStateJSON": "{\"P-2\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"P-3\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"P-4\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"P-5\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"P-7\":{\"vis\":{\"legendOpen\":false}},\"P-9\":{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}}}",
+        "version": 1,
+        "timeRestore": false,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"highlightAll\":true,\"version\":true,\"query\":{\"query\":{\"match_all\":{}},\"language\":\"lucene\"}}"
+        }
+      }
+    }
+  ]
+}

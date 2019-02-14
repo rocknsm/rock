@@ -1,0 +1,16 @@
+{% if use_ceph_for_pcap %}
+{% for n in range(groups['sensors'] | length) %}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: data-moloch-{{ n }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ moloch_pcap_pv_size }}Gi
+  storageClassName: rbd
+{% endfor %}
+{% endif %}

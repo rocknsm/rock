@@ -1,0 +1,354 @@
+{
+  "version": "6.3.2",
+  "objects": [
+    {
+      "id": "b3b449d0-3429-11e7-9d52-4f090484f59e",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.364Z",
+      "version": 53,
+      "attributes": {
+        "title": "Navigation",
+        "visState": "{\"title\":\"Navigation\",\"type\":\"markdown\",\"params\":{\"markdown\":\"[Home](/app/kibana#/dashboard/94b52620-342a-11e7-9d52-4f090484f59e)   \\n[Help](/app/kibana#/dashboard/AV6-POJSDwoBUzALqKAg)   \\n\\n**Alert Data**  \\n[Bro Notices](/app/kibana#/dashboard/01600fb0-34e4-11e7-9669-7f1d3242b798)      \\n\\n**Bro Hunting**   \\n[Connections](/app/kibana#/dashboard/e0a34b90-34e6-11e7-9118-45bd317f0ca4)   \\n[DCE/RPC](/app/kibana#/dashboard/46582d50-3af2-11e7-a83b-b1b4da7d15f4)   \\n[DHCP](/app/kibana#/dashboard/85348270-357b-11e7-ac34-8965f6420c51)  \\n[DNP3](/app/kibana#/dashboard/2fdf5bf0-3581-11e7-98ef-19df58fe538b)  \\n[DNS](/app/kibana#/dashboard/ebf5ec90-34bf-11e7-9b32-bb903919ead9)  \\n[Files](/app/kibana#/dashboard/2d315d80-3582-11e7-98ef-19df58fe538b)  \\n[FTP](/app/kibana#/dashboard/27f3b380-3583-11e7-a588-05992195c551)  \\n[HTTP](/app/kibana#/dashboard/230134a0-34c6-11e7-8360-0b86c90983fd)  \\n[Intel](/app/kibana#/dashboard/468022c0-3583-11e7-a588-05992195c551)  \\n[IRC](/app/kibana#/dashboard/56a34ce0-3583-11e7-a588-05992195c551)  \\n[Kerberos](/app/kibana#/dashboard/6b0d4870-3583-11e7-a588-05992195c551)  \\n[Modbus](/app/kibana#/dashboard/70c005f0-3583-11e7-a588-05992195c551)  \\n[MySQL](/app/kibana#/dashboard/7929f430-3583-11e7-a588-05992195c551)  \\n[NTLM](/app/kibana#/dashboard/022713e0-3ab0-11e7-a83b-b1b4da7d15f4)  \\n[PE](/app/kibana#/dashboard/8a10e380-3583-11e7-a588-05992195c551)  \\n[RADIUS](/app/kibana#/dashboard/90b246c0-3583-11e7-a588-05992195c551)  \\n[RDP](/app/kibana#/dashboard/97f8c3a0-3583-11e7-a588-05992195c551)  \\n[RFB](/app/kibana#/dashboard/9ef20ae0-3583-11e7-a588-05992195c551)  \\n[SIP](/app/kibana#/dashboard/ad3c0830-3583-11e7-a588-05992195c551)  \\n[SMB](/app/kibana#/dashboard/b3a53710-3aaa-11e7-8b17-0d8709b02c80)  \\n[SMTP](/app/kibana#/dashboard/b10a9c60-3583-11e7-a588-05992195c551)  \\n[SNMP](/app/kibana#/dashboard/b65c2710-3583-11e7-a588-05992195c551)  \\n[Software](/app/kibana#/dashboard/c2c99c30-3583-11e7-a588-05992195c551)  \\n[SSH](/app/kibana#/dashboard/c6ccfc00-3583-11e7-a588-05992195c551)  \\n[SSL](/app/kibana#/dashboard/cca67b60-3583-11e7-a588-05992195c551)  \\n[Syslog](/app/kibana#/dashboard/c4bbe040-76b3-11e7-ba96-cba76a1e264d)   \\n[Tunnels](/app/kibana#/dashboard/d7b54ae0-3583-11e7-a588-05992195c551)  \\n[Weird](/app/kibana#/dashboard/de2da250-3583-11e7-a588-05992195c551)  \\n[X.509](/app/kibana#/dashboard/e5aa7170-3583-11e7-a588-05992195c551)  \\n\\n**Other**   \\n[Domain Stats](/app/kibana#/dashboard/AWAi6wvxAvKNGEbUWO_j)   \\n[Frequency](/app/kibana#/dashboard/AWAi5k4jAvKNGEbUWFis)  \\n[Stats](/app/kibana#/dashboard/130017f0-46ce-11e7-946f-1bfb1be7c36b)\",\"type\":\"markdown\",\"fontSize\":10,\"openLinksInNewTab\":false},\"aggs\":[]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"query\":{\"query_string\":{\"query\":\"*\"}},\"language\":\"lucene\"},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "2da139c0-34e7-11e7-9118-45bd317f0ca4",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Log Count Over Time\",\"type\":\"line\",\"params\":{\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{\"text\":\"@timestamp per 12 hours\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Count\"}}],\"seriesParams\":[{\"show\":true,\"mode\":\"normal\",\"type\":\"line\",\"drawLinesBetweenPoints\":true,\"showCircles\":true,\"interpolate\":\"linear\",\"lineWidth\":2,\"data\":{\"id\":\"1\",\"label\":\"Count\"},\"valueAxis\":\"ValueAxis-1\"}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"showCircles\":true,\"interpolate\":\"linear\",\"scale\":\"linear\",\"drawLinesBetweenPoints\":true,\"radiusRatio\":9,\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Log Count Over Time",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "ee3ff020-345d-11e7-8867-29a39c0f86b2",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "title": "Connections - Service By Destination Country",
+        "visState": "{\"title\":\"Connections - Service By Destination Country\",\"type\":\"pie\",\"params\":{\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true,\"type\":\"pie\",\"labels\":{\"show\":false,\"values\":true,\"last_level\":true,\"truncate\":100}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"split\",\"params\":{\"field\":\"destination_geo.country_name.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Country\",\"row\":false}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"service.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Service\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "8261cf00-366e-11e7-8c78-e3086faf385c",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 2,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Source IP Address\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"source_ip\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"IP Address\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Source IP Address",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "9a54f150-366e-11e7-8c78-e3086faf385c",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Destination IP Address\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"destination_ip\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"IP Address\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Destination IP Address",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "296823d0-366f-11e7-8c78-e3086faf385c",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Source Country\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"original_country_code.keyword\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Country\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Source Country",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "b50912f0-366f-11e7-8c78-e3086faf385c",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Responder Bytes\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"respond_bytes\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"_term\",\"customLabel\":\"Responder Bytes\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Responder Bytes",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "05088150-3670-11e7-8c78-e3086faf385c",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Missed Bytes\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"missed_bytes\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"_term\",\"customLabel\":\"Missed Bytes\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Missed Bytes",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "c3152010-3673-11e7-8c78-e3086faf385c",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "title": "Connections - Protocol (Bar Chart)",
+        "visState": "{\"title\":\"Connections - Protocol (Bar Chart)\",\"type\":\"histogram\",\"params\":{\"addLegend\":true,\"addTimeMarker\":false,\"addTooltip\":true,\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"labels\":{\"show\":true,\"truncate\":100},\"position\":\"bottom\",\"scale\":{\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Protocol\"},\"type\":\"category\"}],\"defaultYExtents\":false,\"drawLinesBetweenPoints\":true,\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"interpolate\":\"linear\",\"legendPosition\":\"right\",\"radiusRatio\":9,\"scale\":\"linear\",\"seriesParams\":[{\"data\":{\"id\":\"1\",\"label\":\"Count\"},\"drawLinesBetweenPoints\":true,\"mode\":\"stacked\",\"show\":\"true\",\"showCircles\":true,\"type\":\"histogram\",\"valueAxis\":\"ValueAxis-1\"}],\"setYExtents\":false,\"showCircles\":true,\"times\":[],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"labels\":{\"filter\":false,\"rotate\":0,\"show\":true,\"truncate\":100},\"name\":\"LeftAxis-1\",\"position\":\"left\",\"scale\":{\"mode\":\"normal\",\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Count\"},\"type\":\"value\"}],\"type\":\"histogram\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"protocol.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":20,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Protocol\"}}]}",
+        "uiStateJSON": "{\"vis\":{\"legendOpen\":false}}",
+        "description": "",
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "13fe29c0-3b17-11e7-b871-5f76306b9694",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Connection State\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"connection_state_description.keyword\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Connection State Description\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Connection State",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "f1325230-3b0d-11e7-a0fe-29878c6f414a",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.270Z",
+      "version": 2,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Top 10 - Total Bytes By Connection\",\"type\":\"histogram\",\"params\":{\"addLegend\":true,\"addTimeMarker\":false,\"addTooltip\":true,\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"labels\":{\"show\":true,\"truncate\":100},\"position\":\"bottom\",\"scale\":{\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Connection ID\"},\"type\":\"category\"}],\"defaultYExtents\":false,\"drawLinesBetweenPoints\":true,\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"interpolate\":\"linear\",\"legendPosition\":\"left\",\"orderBucketsBySum\":false,\"radiusRatio\":9,\"scale\":\"linear\",\"seriesParams\":[{\"data\":{\"id\":\"1\",\"label\":\"Total Bytes\"},\"drawLinesBetweenPoints\":true,\"mode\":\"stacked\",\"show\":\"true\",\"showCircles\":true,\"type\":\"histogram\",\"valueAxis\":\"ValueAxis-1\"}],\"setYExtents\":false,\"showCircles\":true,\"times\":[],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"labels\":{\"filter\":false,\"rotate\":0,\"show\":true,\"truncate\":100},\"name\":\"LeftAxis-1\",\"position\":\"left\",\"scale\":{\"mode\":\"normal\",\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Total Bytes\"},\"type\":\"value\"}]},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"total_bytes\",\"customLabel\":\"Total Bytes\"}},{\"id\":\"4\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"uid.keyword\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Connection ID\"}},{\"id\":\"5\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"uid.keyword\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Connection ID\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Top 10 - Total Bytes By Connection",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "eeafbb70-3b0c-11e7-a6f9-5d3fe735ec2b",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.270Z",
+      "version": 2,
+      "attributes": {
+        "visState": "{\"aggs\":[{\"enabled\":true,\"id\":\"1\",\"params\":{\"customLabel\":\"Total Bytes\",\"field\":\"total_bytes\"},\"schema\":\"metric\",\"type\":\"max\"},{\"enabled\":true,\"id\":\"4\",\"params\":{\"customLabel\":\"Destination IP Address\",\"field\":\"destination_ip\",\"order\":\"desc\",\"orderBy\":\"1\",\"size\":10},\"schema\":\"segment\",\"type\":\"terms\"},{\"enabled\":true,\"id\":\"5\",\"params\":{\"customLabel\":\"Destination IP Address\",\"field\":\"destination_ip\",\"order\":\"desc\",\"orderBy\":\"1\",\"size\":5},\"schema\":\"group\",\"type\":\"terms\"}],\"listeners\":{},\"params\":{\"addLegend\":true,\"addTimeMarker\":false,\"addTooltip\":true,\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"labels\":{\"show\":true,\"truncate\":100},\"position\":\"bottom\",\"scale\":{\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Destination IP Address\"},\"type\":\"category\"}],\"defaultYExtents\":false,\"drawLinesBetweenPoints\":true,\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"interpolate\":\"linear\",\"legendPosition\":\"right\",\"orderBucketsBySum\":false,\"radiusRatio\":9,\"scale\":\"linear\",\"seriesParams\":[{\"data\":{\"id\":\"1\",\"label\":\"Total Bytes\"},\"drawLinesBetweenPoints\":true,\"mode\":\"stacked\",\"show\":\"true\",\"showCircles\":true,\"type\":\"histogram\",\"valueAxis\":\"ValueAxis-1\"}],\"setYExtents\":false,\"showCircles\":true,\"times\":[],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"labels\":{\"filter\":false,\"rotate\":0,\"show\":true,\"truncate\":100},\"name\":\"LeftAxis-1\",\"position\":\"left\",\"scale\":{\"mode\":\"normal\",\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Total Bytes\"},\"type\":\"value\"}]},\"title\":\"Connections - Top 10 - Total Bytes By Destination IP\",\"type\":\"histogram\"}",
+        "description": "",
+        "title": "Connections - Top 10 - Total Bytes By Destination IP",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "acd65230-3b0d-11e7-a0fe-29878c6f414a",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.270Z",
+      "version": 2,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Top 10 - Total Bytes By Destination Port\",\"type\":\"histogram\",\"params\":{\"addLegend\":true,\"addTimeMarker\":false,\"addTooltip\":true,\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"labels\":{\"show\":true,\"truncate\":100},\"position\":\"bottom\",\"scale\":{\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Destination Port\"},\"type\":\"category\"}],\"defaultYExtents\":false,\"drawLinesBetweenPoints\":true,\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"interpolate\":\"linear\",\"legendPosition\":\"right\",\"orderBucketsBySum\":false,\"radiusRatio\":9,\"scale\":\"linear\",\"seriesParams\":[{\"data\":{\"id\":\"1\",\"label\":\"Max total_bytes\"},\"drawLinesBetweenPoints\":true,\"mode\":\"stacked\",\"show\":\"true\",\"showCircles\":true,\"type\":\"histogram\",\"valueAxis\":\"ValueAxis-1\"}],\"setYExtents\":false,\"showCircles\":true,\"times\":[],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"labels\":{\"filter\":false,\"rotate\":0,\"show\":true,\"truncate\":100},\"name\":\"LeftAxis-1\",\"position\":\"left\",\"scale\":{\"mode\":\"normal\",\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Total Bytes\"},\"type\":\"value\"}]},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"total_bytes\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"destination_port\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Destination Port\"}},{\"id\":\"4\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"destination_port\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Destination Port\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Top 10 - Total Bytes By Destination Port",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "41a33c80-3b0d-11e7-a6f9-5d3fe735ec2b",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.270Z",
+      "version": 2,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Top 10 - Total Bytes By Source IP\",\"type\":\"histogram\",\"params\":{\"addLegend\":true,\"addTimeMarker\":false,\"addTooltip\":true,\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"labels\":{\"show\":true,\"truncate\":100},\"position\":\"bottom\",\"scale\":{\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Source IP Address\"},\"type\":\"category\"}],\"defaultYExtents\":false,\"drawLinesBetweenPoints\":true,\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"interpolate\":\"linear\",\"legendPosition\":\"left\",\"orderBucketsBySum\":false,\"radiusRatio\":9,\"scale\":\"linear\",\"seriesParams\":[{\"data\":{\"id\":\"1\",\"label\":\"Total Bytes\"},\"drawLinesBetweenPoints\":true,\"mode\":\"stacked\",\"show\":\"true\",\"showCircles\":true,\"type\":\"histogram\",\"valueAxis\":\"ValueAxis-1\"}],\"setYExtents\":false,\"showCircles\":true,\"times\":[],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"labels\":{\"filter\":false,\"rotate\":0,\"show\":true,\"truncate\":100},\"name\":\"LeftAxis-1\",\"position\":\"left\",\"scale\":{\"mode\":\"normal\",\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Total Bytes\"},\"type\":\"value\"}]},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"max\",\"schema\":\"metric\",\"params\":{\"field\":\"total_bytes\",\"customLabel\":\"Total Bytes\"}},{\"id\":\"5\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"source_ip\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Source IP Address\"}},{\"id\":\"6\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"source_ip\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Source IP Address\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Top 10 - Total Bytes By Source IP",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+      "type": "search",
+      "updated_at": "2018-09-15T14:01:45.382Z",
+      "version": 10,
+      "attributes": {
+        "sort": [
+          "@timestamp",
+          "desc"
+        ],
+        "hits": 0,
+        "description": "",
+        "title": "Connections - Logs",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\n  \"index\": \"logstash-*\",\n  \"highlightAll\": true,\n  \"version\": true,\n  \"filter\": [],\n  \"size\":10,\n  \"query\": {\n    \"query_string\": {\n      \"query\": \"event_type:bro_conn\",\n      \"analyze_wildcard\": true\n    }\n  }\n}"
+        },
+        "columns": [
+          "source_ip",
+          "source_port",
+          "destination_ip",
+          "destination_port",
+          "uid",
+          "_id"
+        ]
+      }
+    },
+    {
+      "id": "25ce6eb0-463b-11e7-a82e-d97152153689",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"Connections - Map\",\"type\":\"markdown\",\"params\":{\"markdown\":\"[Source - Originator Bytes](/app/kibana#/dashboard/68f738e0-46ca-11e7-946f-1bfb1be7c36b) | [Destination - Responder Bytes](/app/kibana#/dashboard/b65775e0-46cb-11e7-946f-1bfb1be7c36b)   \\n[Source - Sum of Total Bytes](/app/kibana#/dashboard/f042ad60-46c6-11e7-946f-1bfb1be7c36b) | [Destination - Sum of Total Bytes](/app/kibana#/dashboard/ccfcc540-4638-11e7-a82e-d97152153689)   \\n[Source - Top Connection Duration](/app/kibana#/dashboard/4e108070-46c7-11e7-946f-1bfb1be7c36b) | [Destination - Top Connection Duration](/app/kibana#/dashboard/ea211360-46c4-11e7-a82e-d97152153689)\"},\"aggs\":[],\"listeners\":{}}",
+        "description": "",
+        "title": "Connections - Map",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"query_string\":{\"query\":\"*\"}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWDG71xFxQT5EBNmq336",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "title": "Connections - Log Count",
+        "visState": "{\"title\":\"Connections - Log Count\",\"type\":\"metric\",\"params\":{\"addTooltip\":true,\"addLegend\":false,\"type\":\"gauge\",\"gauge\":{\"verticalSplit\":false,\"autoExtend\":false,\"percentageMode\":false,\"gaugeType\":\"Metric\",\"gaugeStyle\":\"Full\",\"backStyle\":\"Full\",\"orientation\":\"vertical\",\"colorSchema\":\"Green to Red\",\"gaugeColorMode\":\"None\",\"useRange\":false,\"colorsRange\":[{\"from\":0,\"to\":100}],\"invertColors\":false,\"labels\":{\"show\":false,\"color\":\"black\"},\"scale\":{\"show\":false,\"labels\":false,\"color\":\"#333\",\"width\":2},\"type\":\"simple\",\"style\":{\"fontSize\":\"30\",\"bgColor\":false,\"labelColor\":false,\"subText\":\"\",\"bgFill\":\"#FB9E00\"}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}}],\"listeners\":{}}",
+        "uiStateJSON": "{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}}",
+        "description": "",
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "726cc040-48cf-11e8-9576-313be7c6b44b",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "title": "Connections - Total Bytes Per Source/Destination IP Pair",
+        "visState": "{\"aggs\":[{\"enabled\":true,\"id\":\"1\",\"params\":{},\"schema\":\"metric\",\"type\":\"count\"},{\"enabled\":true,\"id\":\"4\",\"params\":{\"customLabel\":\"Total Bytes\",\"field\":\"total_bytes\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"order\":\"desc\",\"orderBy\":\"_term\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"size\":100},\"schema\":\"bucket\",\"type\":\"terms\"},{\"enabled\":true,\"id\":\"2\",\"params\":{\"customLabel\":\"Source IP\",\"field\":\"source_ip\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"order\":\"desc\",\"orderAgg\":{\"enabled\":true,\"id\":\"2-orderAgg\",\"params\":{\"field\":\"total_bytes\"},\"schema\":{\"aggFilter\":[\"!top_hits\",\"!percentiles\",\"!median\",\"!std_dev\",\"!derivative\",\"!moving_avg\",\"!serial_diff\",\"!cumulative_sum\",\"!avg_bucket\",\"!max_bucket\",\"!min_bucket\",\"!sum_bucket\"],\"deprecate\":false,\"editor\":false,\"group\":\"none\",\"hideCustomLabel\":true,\"max\":null,\"min\":0,\"name\":\"orderAgg\",\"params\":[],\"title\":\"Order Agg\"},\"type\":\"cardinality\"},\"orderBy\":\"custom\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"size\":100},\"schema\":\"bucket\",\"type\":\"terms\"},{\"enabled\":true,\"id\":\"3\",\"params\":{\"customLabel\":\"Destination IP\",\"field\":\"destination_ip\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"order\":\"desc\",\"orderAgg\":{\"enabled\":true,\"id\":\"3-orderAgg\",\"params\":{\"field\":\"total_bytes\"},\"schema\":{\"aggFilter\":[\"!top_hits\",\"!percentiles\",\"!median\",\"!std_dev\",\"!derivative\",\"!moving_avg\",\"!serial_diff\",\"!cumulative_sum\",\"!avg_bucket\",\"!max_bucket\",\"!min_bucket\",\"!sum_bucket\"],\"deprecate\":false,\"editor\":false,\"group\":\"none\",\"hideCustomLabel\":true,\"max\":null,\"min\":0,\"name\":\"orderAgg\",\"params\":[],\"title\":\"Order Agg\"},\"type\":\"cardinality\"},\"orderBy\":\"custom\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"size\":100},\"schema\":\"bucket\",\"type\":\"terms\"}],\"params\":{\"perPage\":10,\"showMeticsAtAllLevels\":false,\"showPartialRows\":false,\"showTotal\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"totalFunc\":\"sum\"},\"title\":\"Connections - Total Bytes Per Source/Destination IP Pair\",\"type\":\"table\"}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "bc7fbe00-4a44-11e8-9b0a-f1d33346f773",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "title": "Connections - Destination Port",
+        "visState": "{\"title\":\"Connections - Destination Port\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"destination_port\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":20,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Destination Port\"}}]}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "9bf42190-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "e0a34b90-34e6-11e7-9118-45bd317f0ca4",
+      "type": "dashboard",
+      "updated_at": "2018-09-15T14:01:45.498Z",
+      "version": 1,
+      "attributes": {
+        "title": "Bro - Connections",
+        "hits": 0,
+        "description": "",
+        "panelsJSON": "[{\"panelIndex\":\"2\",\"gridData\":{\"x\":0,\"y\":0,\"w\":2,\"h\":12,\"i\":\"2\"},\"id\":\"b3b449d0-3429-11e7-9d52-4f090484f59e\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"3\",\"gridData\":{\"x\":4,\"y\":0,\"w\":8,\"h\":2,\"i\":\"3\"},\"embeddableConfig\":{\"vis\":{\"legendOpen\":false}},\"id\":\"2da139c0-34e7-11e7-9118-45bd317f0ca4\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"5\",\"gridData\":{\"x\":0,\"y\":18,\"w\":12,\"h\":4,\"i\":\"5\"},\"id\":\"ee3ff020-345d-11e7-8867-29a39c0f86b2\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"8\",\"gridData\":{\"x\":0,\"y\":29,\"w\":4,\"h\":7,\"i\":\"8\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"8261cf00-366e-11e7-8c78-e3086faf385c\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"9\",\"gridData\":{\"x\":4,\"y\":29,\"w\":4,\"h\":7,\"i\":\"9\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"9a54f150-366e-11e7-8c78-e3086faf385c\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"11\",\"gridData\":{\"x\":0,\"y\":36,\"w\":4,\"h\":6,\"i\":\"11\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"296823d0-366f-11e7-8c78-e3086faf385c\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"12\",\"gridData\":{\"x\":4,\"y\":36,\"w\":4,\"h\":6,\"i\":\"12\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"b50912f0-366f-11e7-8c78-e3086faf385c\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"13\",\"gridData\":{\"x\":8,\"y\":36,\"w\":4,\"h\":6,\"i\":\"13\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"05088150-3670-11e7-8c78-e3086faf385c\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"14\",\"gridData\":{\"x\":0,\"y\":12,\"w\":4,\"h\":4,\"i\":\"14\"},\"id\":\"c3152010-3673-11e7-8c78-e3086faf385c\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"19\",\"gridData\":{\"x\":0,\"y\":22,\"w\":12,\"h\":7,\"i\":\"19\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"13fe29c0-3b17-11e7-b871-5f76306b9694\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"21\",\"gridData\":{\"x\":2,\"y\":2,\"w\":5,\"h\":5,\"i\":\"21\"},\"id\":\"f1325230-3b0d-11e7-a0fe-29878c6f414a\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"22\",\"gridData\":{\"x\":7,\"y\":7,\"w\":5,\"h\":5,\"i\":\"22\"},\"id\":\"eeafbb70-3b0c-11e7-a6f9-5d3fe735ec2b\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"23\",\"gridData\":{\"x\":7,\"y\":2,\"w\":5,\"h\":5,\"i\":\"23\"},\"id\":\"acd65230-3b0d-11e7-a0fe-29878c6f414a\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"24\",\"gridData\":{\"x\":2,\"y\":7,\"w\":5,\"h\":5,\"i\":\"24\"},\"id\":\"41a33c80-3b0d-11e7-a6f9-5d3fe735ec2b\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"25\",\"gridData\":{\"x\":0,\"y\":42,\"w\":12,\"h\":6,\"i\":\"25\"},\"columns\":[\"source_ip\",\"source_port\",\"destination_ip\",\"destination_port\",\"uid\",\"_id\"],\"id\":\"9bf42190-342d-11e7-9e93-53b62e1857b2\",\"sort\":[\"@timestamp\",\"desc\"],\"type\":\"search\",\"version\":\"6.1.1\"},{\"panelIndex\":\"26\",\"gridData\":{\"x\":0,\"y\":16,\"w\":4,\"h\":2,\"i\":\"26\"},\"id\":\"25ce6eb0-463b-11e7-a82e-d97152153689\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"29\",\"gridData\":{\"x\":2,\"y\":0,\"w\":2,\"h\":2,\"i\":\"29\"},\"embeddableConfig\":{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}},\"id\":\"AWDG71xFxQT5EBNmq336\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"30\",\"gridData\":{\"x\":4,\"y\":12,\"w\":8,\"h\":6,\"i\":\"30\"},\"id\":\"726cc040-48cf-11e8-9576-313be7c6b44b\",\"type\":\"visualization\",\"version\":\"6.2.4\"},{\"panelIndex\":\"31\",\"gridData\":{\"x\":8,\"y\":29,\"w\":4,\"h\":7,\"i\":\"31\"},\"version\":\"6.2.4\",\"type\":\"visualization\",\"id\":\"bc7fbe00-4a44-11e8-9b0a-f1d33346f773\"}]",
+        "optionsJSON": "{\"darkTheme\":true,\"useMargins\":true}",
+        "version": 1,
+        "timeRestore": false,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":{\"query_string\":{\"analyze_wildcard\":true,\"default_field\":\"*\",\"query\":\"*\"}}}}"
+        }
+      }
+    }
+  ]
+}

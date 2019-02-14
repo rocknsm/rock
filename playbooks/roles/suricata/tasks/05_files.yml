@@ -1,0 +1,41 @@
+---
+
+- name: Delete existing config directory
+  file:
+    path: "{{ suricata_dir }}"
+    state: absent
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: Create config directory
+  file:
+    path: "{{ suricata_dir }}/custom"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: "Create dummy rule file"
+  file:
+    path: "{{ suricata_dir }}/custom/custom.rules"
+    state: touch
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: 'Copy Suricata bootstrap template'
+  template:
+    src: "templates/bootstrap.yml.j2"
+    dest: "{{ suricata_dir }}/bootstrap.yml"
+    group: root
+    owner: root
+    mode: 0644
+
+- name: Copy Suricata configuration files
+  include: 10_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
+  with_nested:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+    - ['suricata.yaml', 'filebeat.yml', 'deploy.yml']
+
+...

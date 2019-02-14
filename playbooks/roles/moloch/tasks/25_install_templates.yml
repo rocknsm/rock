@@ -1,0 +1,11 @@
+---
+
+- name: 'Copy Moloch configuration files'
+  template:
+    src: "templates/{{ filename }}.j2"
+    dest: "{{ moloch_dir }}/{{ hostname }}-{{ filename }}"
+    mode: 0644
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+
+...

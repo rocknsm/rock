@@ -5,10 +5,8 @@
 
 kafka_image: "tfplenum/kafka"
 kafka_port: 9092
-kafka_ver: alpine
 kafka_dir: "{{ install_dir }}/kafka"
 kafka_data_path: "/data/kafka"
-kafka_pv_size: 1
 kafka_home: /opt/kafka
 kafka_jmx_port: "9999"
 
@@ -16,7 +14,6 @@ zookeeper_port: 2181
 zookeeper_dir: "{{ install_dir }}/zookeeper"
 zookeeper_data_path: "/data"
 zookeeper_datalog_path: "/datalog"
-zookeeper_pv_size: 1
 zookeeper_image: tfplenum/zookeeper
 zookeeper_ver: alpine
 zookeeper_home: /opt/zookeeper

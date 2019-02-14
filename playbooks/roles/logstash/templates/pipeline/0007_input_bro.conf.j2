@@ -1,0 +1,52 @@
+input {
+  kafka {
+    topics => ["bro-raw"]
+    # Set this to one per kafka partition to scale up
+    #consumer_threads => 4
+    group_id => "logstash_bro"
+    client_id => "logstash_bro"
+    bootstrap_servers => "{{ kafka_url }}.default.svc.cluster.local:{{ kafka_port }}"
+    codec => json
+    auto_offset_reset => "earliest"
+    tags => ["bro"]
+  }
+{% for host in groups['remote-sensors'] %}
+  kafka {
+    topics => ["bro-raw"]
+    # Set this to one per kafka partition to scale up
+    #consumer_threads => 4
+    group_id => "logstash_bro"
+    client_id => "logstash_bro-{{ hostvars[host].inventory_hostname_short }}"
+    bootstrap_servers => "kafka-{{ hostvars[host].inventory_hostname_short }}.default.svc.cluster.local:{{ kafka_port }}"
+    codec => json
+    auto_offset_reset => "earliest"
+    tags => ["bro"]
+  }
+{% endfor %}
+}
+
+filter {
+  if "bro" in [tags] {
+    ruby {
+      code => "
+        require 'logstash/event'
+        logtype = ''
+        hash = event.to_hash
+        hash.each do |k,v| # For each object in the top-level JSON
+          if k[0,1] != '@' && k[0,1] != '_' && k != 'tags' # Find something other than the default values
+            logtype = k # Our actual logtype (conn, dhcp, etc. is the key of this object)
+            v.each do |ik,iv| # For each sub-object
+              if ik == 'tags' # Do not overwrite our tags
+                event.set('[tags-bro]',iv) # Push it to the top-level
+              else
+                event.set('['+ik+']',iv) # Push it to the top-level
+              end
+            end
+          end
+        end
+        event.remove('['+logtype+']') # Remove this now-empty object
+        event.set('[type]','bro_'+logtype) # Store the type
+      "
+    }
+  }
+}

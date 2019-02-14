@@ -3,7 +3,8 @@
 #Examples:
 #1.2.3.4 myhost.domain myhost
 #2.3.4.5 thishost
-
-{% for host in groups['all'] %}
+{{ ansible_env['SSH_CLIENT'].split() | first }} {{ ansible_controller_hostname }}
+{% for host in host_list %}
 {{ hostvars[host].management_ipv4 }}  {{ hostvars[host].inventory_hostname }} {{ hostvars[host].inventory_hostname_short }}
 {% endfor %}
+

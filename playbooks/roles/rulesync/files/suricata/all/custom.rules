@@ -1,0 +1,3 @@
+# Put your custom Suricata rules here
+
+# alert udp any any -> any 53 (msg: "DNS Packet found"; sid:321;)

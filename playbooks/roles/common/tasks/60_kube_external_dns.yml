@@ -1,0 +1,14 @@
+---
+- name: Add update-dns script
+  copy:
+    src: update-dns.sh
+    dest: /usr/bin/update-dns.sh
+    mode: 0755
+    owner: root
+    group: root
+
+- cron:
+    name: update-dns
+    user: root
+    job: "/usr/bin/update-dns.sh"
+    state: present

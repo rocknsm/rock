@@ -1,0 +1,24 @@
+{
+  "version": "6.3.2",
+  "objects": [
+    {
+      "id": "4f6f3440-6d62-11e7-8ddb-e71eb260f4a3",
+      "type": "dashboard",
+      "updated_at": "2018-09-15T14:01:45.051Z",
+      "version": 1,
+      "attributes": {
+        "hits": 0,
+        "timeRestore": false,
+        "description": "",
+        "title": "OSSEC",
+        "uiStateJSON": "{}",
+        "panelsJSON": "[]",
+        "optionsJSON": "{\"darkTheme\":false}",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[{\"query\":{\"query_string\":{\"query\":\"*\"}}}],\"highlightAll\":true,\"version\":true}"
+        }
+      }
+    }
+  ]
+}

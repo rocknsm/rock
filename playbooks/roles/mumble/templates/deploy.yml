@@ -1,0 +1,27 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mumble-server
+  labels:
+    component: mumble-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: mumble-server
+  template:
+    metadata:
+      labels:
+        component: mumble-server
+    spec:
+      containers:
+      - name: mumble-server
+        image: {{ mumble_image }}:{{ mumble_tag }}
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ mumble_port }}
+          name: voip
+      nodeSelector:
+        role: server
+      restartPolicy: Always

@@ -25,20 +25,85 @@
     - hostvars[inventory_hostname]['ansible_' + item].ipv4 is defined
     - hostvars[inventory_hostname]['ansible_' + item].ipv4.address == hostvars[inventory_hostname].management_ipv4
 
+- name: interface list
+  set_fact:
+    interface_list: []
+
+- name: interface list
+  set_fact:
+    interface_list: "{{ interface_list }} + [ '{{ item.stdout }}' ]"
+  with_items: "{{ nmcli_conn_name.results }}"
+  when: item.changed and item.stdout is defined
+
+- name: Check Interface DNS
+  shell: |
+    nmcli device show {{ item }} | grep IP4.DNS | awk '{ print $2 }'
+  register: interface_dns_result
+  with_items: "{{ interface_list }}"
+  when: interface_list is defined
+
+- name: set update interface var
+  set_fact:
+    update_interface: true
+
+- name: set update interface var
+  set_fact:
+    update_interface: false
+  with_items: "{{ interface_dns_result.results }}"
+  when: item.stdout is defined and item.stdout == dns_ip
+
 - name: Update DNS records for the management interface
   nmcli:
-    conn_name: "{{ item.stdout }}"
+    conn_name: "{{ item }}"
     type: ethernet
     autoconnect: yes
     dns4:
       - "{{ dns_ip }}"
     state: present
-  with_items: "{{ nmcli_conn_name.results }}"
-  when: item.stdout is defined
+  with_items: "{{ interface_list }}"
+  when: update_interface
+  register: dns_updated_result
 
 - name: Bump the network service
   systemd:
     name: network
     state: restarted
+  when: dns_updated_result.changed
+  register: network_service_result
+
+- name: check if docker installed
+  stat:
+    path: "/usr/bin/docker"
+  register: docker_stat_result
+
+- name: Stop docker if it is installed
+  service:
+    name: docker
+    state: stopped
+  when: docker_stat_result.stat.exists
+
+- name: check if kubelet installed
+  stat:
+    path: "/usr/bin/kubelet"
+  register: kubelet_stat_result
+
+- name: Delete var/run/docker.sock if network changed
+  file:
+    path: "/var/run/docker.sock"
+    state: absent
+  when: network_service_result.changed and docker_stat_result.stat.exists
+
+- name: Bump docker if network changed
+  service:
+    name: docker
+    state: restarted
+  when: network_service_result.changed and docker_stat_result.stat.exists
+
+- name: Bump kubelet if network changed
+  service:
+    name: kubelet
+    state: restarted
+  when: network_service_result.changed and kubelet_stat_result.stat.exists
+
 
 ...

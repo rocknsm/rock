@@ -2,35 +2,6 @@
 
 ---
 
-- name: Fail if ask-pass is missing
-  fail:
-    msg: "Error: Missing ask-pass. You need to add '--ask-pass' to the end of your command"
-  when: ansible_ssh_pass is undefined or (ansible_ssh_pass is defined and ansible_ssh_pass == '') 
-
-- name: Install sshpass
-  yum:
-    name: "sshpass"
-    state: installed
-
-- name: Install bind-utils
-  yum:
-    name: "bind-utils"
-    state: installed
-
-- name: Generate root SSH key
-  user:
-    name: root
-    generate_ssh_key: yes
-    ssh_key_bits: 2048
-    state: present
-
-# This isn't really needed
-# Delete the known hosts key file from all the other hosts
-#- name: Delete existing known hosts
-#  file:
-#    path: /root/.ssh/known_hosts
-#    state: absent
-
 - name: For each host, scan for its ssh public key
   shell: "ssh-keyscan {{ item }},`dig +short {{ item }}`"
   with_items: "{{ ssh_known_hosts }} + {{ ssh_short_known_hosts }}"
@@ -40,7 +11,7 @@
 - name: Remove the public key in the '{{ ssh_known_hosts_file }}'
   known_hosts:
     name: "{{ item.item }}"
-    state: "absent"
+    state: absent
     path: "{{ ssh_known_hosts_file }}"
   with_items: "{{ ssh_known_host_results.results }}"
 
@@ -48,12 +19,12 @@
   known_hosts:
     name: "{{ item.item }}"
     key: "{{ item.stdout }}"
-    state: "present"
+    state: present
     path: "{{ ssh_known_hosts_file }}"
   with_items: "{{ ssh_known_host_results.results }}"
 
 - name: For each host, ssh-copy-id my ssh public keys to the host
-  shell: "sshpass -p {{ ansible_ssh_pass }} ssh-copy-id {{ item }}"
+  shell: "sshpass -p '{{ ansible_ssh_pass }}' ssh-copy-id {{ item }}"
   with_items: "{{ ssh_known_hosts }} + {{ ssh_short_known_hosts }}"
   when: not (( ansible_ssh_pass is undefined ) or ( ansible_ssh_pass is none ) or ( ansible_ssh_pass | trim == ''))
 

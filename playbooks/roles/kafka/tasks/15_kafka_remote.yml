@@ -1,0 +1,151 @@
+######################################################
+############# Setup Remote Kafka #####################
+######################################################
+
+# NOTES: Remote Kafka is self contained and does not join the kafka cluster or zookeeper cluster.
+
+---
+
+- name: remote list
+  set_fact:
+    remote_list: []
+  tags:
+    - kafka-scale
+
+- name: add node to list
+  set_fact:
+    remote_list: "{{ remote_list }} + [ '{{ node_to_add }}' ]"
+  when: node_to_add is defined
+  tags:
+    - kafka-scale
+
+- name: add node to list
+  set_fact:
+    remote_list: "{{ remote_list }} + [ '{{ item }}' ]"
+  with_items: "{{ groups['remote-sensors'] }}"
+  when: node_to_add is not defined or node_to_add is none
+
+- name: Install Templates
+  template:
+    src: "templates/kafka/{{ item }}.j2"
+    dest: "{{ kafka_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - "remote-deploy.yml"
+    - "remote-svc.yml"
+    - "server.properties"
+  tags:
+    - kafka-scale
+  vars:
+    remote: true
+
+- name: Install Templates
+  template:
+    src: "templates/zookeeper/{{ item }}.j2"
+    dest: "{{ kafka_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items: 
+    - "zoo.cfg"
+    - "java.env"
+  tags:
+    - kafka-scale
+  vars:
+    remote: true
+
+- name: Copy files
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ kafka_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - configuration.xsl
+    - log4j.properties
+  tags:
+    - kafka-scale
+
+# Flush remote kafka
+- name: Flush Services
+  shell: |
+    kubectl delete -f {{ kafka_dir }}/remote-svc.yml --ignore-not-found=true
+    while [ $(kubectl get -f {{ kafka_dir }}/remote-svc.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
+
+- name: Flush Deploy
+  shell: |
+    kubectl delete -f {{ kafka_dir }}/remote-deploy.yml --ignore-not-found=true
+    while [ $(kubectl get -f {{ kafka_dir }}/remote-deploy.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
+
+- name: Flush Remote Kafka Config Maps
+  command: 'kubectl delete configmap remote-kafka --ignore-not-found=true'
+
+- name: Flush Remote Zookeeper Config Maps
+  command: 'kubectl delete configmap remote-zookeeper --ignore-not-found=true'
+
+- name: Check if remote configmaps exist
+  shell: |
+    kubectl get configmap --no-headers=true | grep -e remote-zookeeper -e remote-kafka | awk '{ print $1 }'
+  register: configmap_result
+  tags:
+    - kafka-scale
+      
+# This does the same, but with Zookeeper
+- name: Create Zookeeper Config
+  shell: |
+    kubectl create configmap remote-zookeeper --from-file={{ kafka_dir }}/zoo.cfg \
+       --from-file={{ kafka_dir }}/configuration.xsl \
+       --from-file={{ kafka_dir }}/log4j.properties \
+       --from-file={{ kafka_dir }}/java.env  
+  when: "'remote-zookeeper' not in configmap_result.stdout"
+  tags:
+    - kafka-scale
+
+- name: Create ConfigMaps
+  command: 'kubectl create configmap remote-kafka --from-file {{ kafka_dir }}/server.properties'
+  when: "'remote-kafka' not in configmap_result.stdout"
+  tags:
+    - kafka-scale
+
+- name: Replace remote zookeeper configmap when adding node
+  shell: |
+    kubectl create configmap remote-zookeeper \
+    --from-file={{ kafka_dir }}/zoo.cfg \
+    --from-file={{ kafka_dir }}/configuration.xsl \
+    --from-file={{ kafka_dir }}/log4j.properties \
+    --from-file={{ kafka_dir }}/java.env  -o yaml --dry-run | kubectl replace -f -
+  when: "'remote-zookeeper' in configmap_result.stdout"
+  tags:
+    - kafka-scale
+
+- name: Replace remote kafka configmap when adding node
+  shell: |
+    kubectl create configmap remote-kafka --from-file {{ kafka_dir }}/server.properties -o yaml --dry-run | kubectl replace -f -
+  when: "'remote-kafka' in configmap_result.stdout"
+  tags:
+    - kafka-scale
+
+- name: Create Kafka Remote Svc
+  shell: "kubectl apply -f {{ kafka_dir }}/remote-svc.yml"  
+  tags:
+    - kafka-scale
+
+- name: Wait for Services
+  pause:
+    seconds: 10
+
+- name: Run the kafka deploy file
+  shell: "kubectl apply -f {{ kafka_dir }}/remote-deploy.yml" 
+  tags:
+  - kafka-scale

@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ hostname | hash('md5') }}-moloch
+  labels:
+    component: moloch
+spec:
+  serviceName: moloch
+  replicas: 1
+  podManagementPolicy: "Parallel"
+  selector:
+    matchLabels:
+      component: moloch
+  template:
+    metadata:
+      labels:
+        component: moloch
+    spec:
+      hostNetwork: true
+      containers:
+      - name: "moloch"
+        image: "{{ moloch_image }}:{{ moloch_version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PODTYPE
+          value: "CAPTURE"
+        securityContext:
+          capabilities:
+            add:
+              - IPC_LOCK
+              - NET_ADMIN
+              - NET_RAW
+              - SYS_NICE
+              - SYS_RESOURCE
+        ports:
+          - containerPort: {{ moloch_port }}
+            name: webgui
+        resources:
+          requests:
+            cpu: {{ moloch_cpu_request }}
+        volumeMounts:
+        - name: configini
+          mountPath: {{ moloch_path }}/etc/config.ini
+        - name: data
+          mountPath: {{ moloch_pcap_path }}
+      restartPolicy: Always
+      volumes:
+      - name: configini
+        hostPath:
+          path: {{ moloch_dir }}/{{ hostname }}-config.ini
+          type: File
+      - name: data
+        hostPath:
+          path: /pcap
+          type: Directory
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: moloch
+                operator: In
+                values:
+                - "true"
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ hostname }}"
+              - key: role
+                operator: In
+                values:
+                - "sensor"
+                - "remote-sensor"

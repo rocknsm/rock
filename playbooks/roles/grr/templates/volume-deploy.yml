@@ -1,0 +1,26 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: grr-etc
+spec:
+  accessModes:
+   - ReadWriteOnce
+   - ReadOnlyMany
+  resources:
+    requests:
+       storage: 10Mi
+  storageClassName: rbd
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: grr-installers
+spec:
+  accessModes:
+   - ReadWriteOnce
+   - ReadOnlyMany
+  resources:
+    requests:
+       storage: 500Mi
+  storageClassName: rbd

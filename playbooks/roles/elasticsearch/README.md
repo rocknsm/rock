@@ -1,7 +1,7 @@
 Elasticsearch
 =========
 
-Central database for managing all Rock data.
+Central database for managing all TFplenum data.
 
 Reading Cluster Health
 ----------------------

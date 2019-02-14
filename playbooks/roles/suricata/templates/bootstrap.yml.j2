@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: suricata-bootstrap
+  labels:
+    component: suricata
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: suricata
+  template:
+    metadata:
+      labels:
+        component: suricata
+    spec:
+      containers:
+      - name: suricata
+        image: "{{ suricata_image }}:{{ suricata_version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PODTYPE
+          value: "BOOTSTRAP"
+        volumeMounts:
+        - name: filebeat
+          mountPath: /etc/filebeat/filebeat.yml
+        - name: suricata
+          mountPath: /etc/suricata/suricata.yaml
+        - name: custom
+          mountPath: /etc/suricata/rules/custom
+      volumes:
+      - name: filebeat
+        hostPath:
+          path: {{ suricata_dir }}/{{ groups['suricata'][0] }}-filebeat.yml
+          type: File
+      - name: suricata
+        hostPath:
+          path: {{ suricata_dir }}/{{ groups['suricata'][0] }}-suricata.yaml
+          type: File
+      - name: custom
+        hostPath:
+          path: {{ suricata_dir }}/custom
+          type: DirectoryOrCreate
+      nodeSelector:
+        suricata: "true"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ groups['suricata'][0] }}"

@@ -1,5 +1,19 @@
 ---
 
+- name: Wait for Ceph to normalize
+  shell: |
+    TIMEOUT=200
+    COUNT=0
+    while [ "$(ceph health)" != "HEALTH_OK" ]; do \
+      echo -n .;
+      sleep 1;
+      COUNT=$((COUNT + 1))
+      if [ $COUNT -ge $TIMEOUT ];
+      then
+        break;
+      fi;
+    done;
+
 - name: Get Ceph Health
   shell:  ceph health
   register: ceph_status_result
@@ -8,6 +22,6 @@
 - name: Fail if ceph unhealthy
   fail:
     msg: "Ceph health check failed.  Stopping play. Error: {{ ceph_status_result }}"
-  when: "(ceph_status_result is defined and 'HEALTH_ERR' in ceph_status_result.stdout) or (ceph_status_result is defined and 'HEALTH_WARN' in ceph_status_result.stdout)"
+  when: "(ceph_status_result is defined and 'HEALTH_ERR' in ceph_status_result.stdout) or (ceph_status_result is defined and 'HEALTH_WARN' in ceph_status_result.stdout and node_to_add is not defined)"
 
 ...

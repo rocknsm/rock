@@ -1,0 +1,46 @@
+---
+
+- name: Stop Kubelet (if it is running)
+  service:
+    name: kubelet
+    state: stopped
+  ignore_errors: yes
+
+- name: Stop Docker
+  service:
+    name: docker
+    state: stopped
+
+- name: Clear docker dir
+  file:
+    path: "/var/lib/docker"
+    state: absent
+
+- name: Clear var/run/docker.sock
+  file:
+    path: "/var/run/docker.sock"
+    state: absent
+
+- name: Add docker config
+  template:
+    src: templates/daemon.json.j2
+    dest: "/etc/docker/daemon.json"
+  register: docker_config
+
+- name: Start Docker
+  service:
+    name: docker
+    state: started
+
+- name: 'Download images from docker registry'
+  docker_image:
+    name: "{{ docker_registry_repo }}/{{ item }}"
+    push: no
+    pull: yes
+  with_items:
+    - "{{ kube_images }}"
+
+- name: 'Retag local images back to original name'
+  shell: "docker tag {{ docker_registry_repo }}/{{ item }} {{ item }}"
+  with_items:
+    - "{{ kube_images }}"

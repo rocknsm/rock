@@ -1,0 +1,65 @@
+---
+
+- name: Purge Ceph
+  shell: |
+    ceph-deploy purge {{ node_to_add }}
+    ceph-deploy purgedata {{ node_to_add }}
+    #rm -rf {{ ceph_dir }}/*
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Run Ceph deploy
+  shell: ceph-deploy install --no-adjust-repos --stable luminous {{ node_to_add }}
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Configure and start mons
+  shell: ceph-deploy mon create {{ node_to_add }}
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Propagate keys
+  shell: ceph-deploy --overwrite-conf admin {{ node_to_add }}
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Install Managers
+  shell: |
+    ceph-deploy mgr create \
+    {{ node_to_add }}
+  args:
+    chdir: "{{ ceph_dir }}"
+
+- name: Format drives
+  shell: ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].ceph_drive_list | join((" "+item+":")) }}
+  args:
+    chdir: "{{ ceph_dir }}"
+  with_items:
+    - "{{ node_to_add }}"
+  when: hostvars[item].ceph_drive_list and hostvars[item].ceph_drive_list | length > 0
+
+- name: Default osd_count to 0
+  set_fact:
+    osd_count: 0
+
+- name: Declare osd amount
+  set_fact:
+    osd_count: "{{ (osd_count | int) + ( hostvars[item].ceph_drive_list | length | int ) }}"
+  register: osd_results
+  loop: "{{ groups['ceph'] }}"
+  when: hostvars[item].ceph_drive_list and hostvars[item].ceph_drive_list | length > 0
+
+#- set_fact:
+#    osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
+
+- name: Increase Placement Groups
+  shell: |
+    ceph osd pool set rbd pg_num {{ osd_count | int * 32 }}
+    ceph osd pool set rbd pgp_num {{ osd_count | int * 32 }}
+
+# See: https://ceph.com/community/new-luminous-pool-tags/
+# This was required to pull ceph out of health warn
+- name: Set RBD Application Pool
+  shell: ceph osd pool application enable rbd rbd
+
+...

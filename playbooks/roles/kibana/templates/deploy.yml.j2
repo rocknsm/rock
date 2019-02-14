@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
       - name: kibana
-        image: {{ kibana_image }}:{{ kibana_ver }}
+        image: {{ kibana_image }}:{{ elastic_version }}
+        imagePullPolicy: IfNotPresent
         env:
         - name: CLUSTER_NAME
           value: {{ elastic_cluster_name }}
@@ -30,11 +31,6 @@ spec:
           value: '{{ xpack_license }}'
         - name: XPACK_REPORTING_ENABLED
           value: '{{ xpack_license }}'
-        resources:
-          limits:
-            cpu: 1000m
-          requests:
-            cpu: 100m
         ports:
         - containerPort: {{ kibana_port }}
           name: http

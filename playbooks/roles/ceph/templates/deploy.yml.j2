@@ -80,7 +80,8 @@ spec:
     spec:
       containers:
       - name: rbd-provisioner
-        image: "quay.io/external_storage/rbd-provisioner:latest"
+        image: "{{ ceph_rbd_provisioner_image }}:{{ rbd_provisioner_version }}"
+        imagePullPolicy: IfNotPresent
         env:
         - name: PROVISIONER_NAME
           value: ceph.com/rbd

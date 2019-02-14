@@ -21,18 +21,15 @@
 
 - name: Install packages
   yum:
-    name: "{{ item }}"
+    name: "{{ package_list }}"
     state: installed
-  when: (item.test is undefined) or (item.test)
-  with_items:
-    - "{{ package_list }}"
 
-- name: Enable Cockpit
-  systemd:
-    name: "{{ item }}"
-    state: started
-    enabled: yes
-    daemon_reload: yes
-  with_items:
+#- name: Enable Cockpit
+#  systemd:
+#    name: "{{ item }}"
+#    state: started
+#    enabled: yes
+#    daemon_reload: yes
+#  with_items:
     # - cockpit cockpit uses a socket to listen
-    - cockpit.socket
+#    - cockpit.socket

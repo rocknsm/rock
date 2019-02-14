@@ -34,13 +34,6 @@
     - svc
   ignore_errors: true
 
-# This is here because Kubernetes repeatedly failed to download the Kibana image.
-# See: https://github.com/kubernetes/kubernetes/issues/59376
-# Pulling it through Docker resolves the issue
-- name: Perform Kibana download workaround
-  docker_image:
-    name: "{{ kibana_image }}:{{ kibana_ver }}"
-
 - name: Deploy Services
   import_role:
     name: kubernetes/common
@@ -66,3 +59,51 @@
     namespace: "default"
     resource_name: "kibana"
     label: ""
+
+- name: Get Elasticsearch Service IP
+  shell: "kubectl get svc -n default | grep 'elasticsearch ' | awk '{print $4}'"
+  register: es_svc_ip
+
+- name: Get Kibana Service IP
+  shell: "kubectl get svc -n default | grep 'kibana' | awk '{print $4}'"
+  register: kibana_svc_ip
+
+- name: Wait for Kibana Service to become Available
+  wait_for:
+    host: "{{ kibana_svc_ip.stdout }}"
+    port: 80
+    delay: 30
+    timeout: 300
+  delegate_to: localhost
+
+- name: Wait for Kibana to become healthy
+  uri:
+    url: "http://{{ kibana_svc_ip.stdout }}/api/status"
+    return_content: yes
+  register: results_kibana
+  until: (results_kibana.status == 200) and (results_kibana.json.status.overall.state == 'green')
+  retries: 20
+  delay: 5
+
+- name: Load Dashboards
+  uri:
+    url: "http://{{ kibana_svc_ip.stdout }}:80/api/kibana/dashboards/import?force=true"
+    method: POST
+    body_format: json
+    headers:
+      kbn-xsrf: y
+    body: "{{ lookup('file', '{{ item }}')}}"
+    status_code: 200, 201
+  with_fileglob:
+    - "files/dashboards/*.json"
+
+- name: Set Default Kibana Pattern
+  uri:
+    url: "http://{{ kibana_svc_ip.stdout }}:80/api/kibana/settings/defaultIndex"
+    method: POST
+    body_format: json
+    headers:
+      kbn-xsrf: y
+    body:
+      value: "logstash-*"
+    status_code: 200, 201

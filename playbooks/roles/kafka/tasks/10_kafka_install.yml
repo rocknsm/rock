@@ -1,0 +1,111 @@
+######################################################
+############### Setup Kafka Cluster ##################
+######################################################
+---
+
+- name: "Create Directories"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+  with_items:
+    - "{{ kafka_dir }}"
+    - "{{ kafka_dir }}/manager"
+
+- name: Install Kafka Templates
+  template:
+    src: "templates/kafka/{{ item }}.j2"
+    dest: "{{ kafka_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - deploy.yml
+    - svc.yml
+    - server.properties
+  tags:
+    - kafka-scale
+  vars:
+    remote: false
+
+- name: Install Kafka Manager Templates
+  template:
+    src: "templates/manager/{{ item }}.j2"
+    dest: "{{ kafka_dir }}/manager/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - deploy.yml
+    - svc.yml
+  tags:
+  - kafka-scale
+
+- name: Flush Services
+  shell: |
+    kubectl delete -f {{ item }}/svc.yml --ignore-not-found=true
+    while [ $(kubectl get -f {{ item }}/svc.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
+  with_items:
+    - "{{ kafka_dir }}"
+    - "{{ kafka_dir }}/manager"
+
+- name: Flush Deploy
+  shell: |
+    kubectl delete -f {{ item }}/deploy.yml --ignore-not-found=true
+    while [ $(kubectl get -f {{ item }}/deploy.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
+  with_items:
+    - "{{ kafka_dir }}"
+    - "{{ kafka_dir }}/manager"
+
+- name: Flush Config Maps
+  command: 'kubectl delete configmap kafka --ignore-not-found=true'
+
+- name: Create ConfigMaps
+  command: 'kubectl create configmap kafka --from-file {{ kafka_dir }}/server.properties'
+
+- name: Replace configmap when adding node
+  shell: |
+    kubectl create configmap kafka --from-file {{ kafka_dir }}/server.properties -o yaml --dry-run | kubectl replace -f -
+  tags:
+    - kafka-scale
+  when: node_to_add is defined
+
+- name: Create Kafka Svc
+  shell: "kubectl apply -f {{ kafka_dir }}/svc.yml"
+  tags:
+    - kafka-scale
+
+- name: Create Kafka Manager Svc
+  shell: "kubectl apply -f {{ kafka_dir }}/manager/svc.yml"
+
+- name: Wait for Services
+  pause:
+    seconds: 10
+
+- name: Run the kafka deploy file
+  shell: "kubectl apply -f {{ kafka_dir }}/deploy.yml"
+  tags:
+  - kafka-scale
+
+- name: Run the kafka manager deploy file
+  shell: "kubectl apply -f {{ kafka_dir }}/manager/deploy.yml"
+
+- name: Wait for kafka to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "kafka"
+    label: ""

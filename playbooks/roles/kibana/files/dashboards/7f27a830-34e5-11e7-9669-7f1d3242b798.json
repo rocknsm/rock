@@ -1,0 +1,252 @@
+{
+  "version": "6.3.2",
+  "objects": [
+    {
+      "id": "d58ec1a0-34e4-11e7-9669-7f1d3242b798",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"NIDS - Alerts Over Time\",\"type\":\"line\",\"params\":{\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{\"text\":\"@timestamp per 30 minutes\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Count\"}}],\"seriesParams\":[{\"show\":true,\"mode\":\"normal\",\"type\":\"line\",\"drawLinesBetweenPoints\":true,\"showCircles\":true,\"interpolate\":\"linear\",\"lineWidth\":2,\"data\":{\"id\":\"1\",\"label\":\"Count\"},\"valueAxis\":\"ValueAxis-1\"}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"showCircles\":true,\"interpolate\":\"linear\",\"scale\":\"linear\",\"drawLinesBetweenPoints\":true,\"radiusRatio\":9,\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}}],\"listeners\":{}}",
+        "description": "",
+        "title": "NIDS - Alerts Over Time",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "b3b449d0-3429-11e7-9d52-4f090484f59e",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.364Z",
+      "version": 53,
+      "attributes": {
+        "title": "Navigation",
+        "visState": "{\"title\":\"Navigation\",\"type\":\"markdown\",\"params\":{\"markdown\":\"[Home](/app/kibana#/dashboard/94b52620-342a-11e7-9d52-4f090484f59e)   \\n[Help](/app/kibana#/dashboard/AV6-POJSDwoBUzALqKAg)   \\n\\n**Alert Data**  \\n[Bro Notices](/app/kibana#/dashboard/01600fb0-34e4-11e7-9669-7f1d3242b798)      \\n\\n**Bro Hunting**   \\n[Connections](/app/kibana#/dashboard/e0a34b90-34e6-11e7-9118-45bd317f0ca4)   \\n[DCE/RPC](/app/kibana#/dashboard/46582d50-3af2-11e7-a83b-b1b4da7d15f4)   \\n[DHCP](/app/kibana#/dashboard/85348270-357b-11e7-ac34-8965f6420c51)  \\n[DNP3](/app/kibana#/dashboard/2fdf5bf0-3581-11e7-98ef-19df58fe538b)  \\n[DNS](/app/kibana#/dashboard/ebf5ec90-34bf-11e7-9b32-bb903919ead9)  \\n[Files](/app/kibana#/dashboard/2d315d80-3582-11e7-98ef-19df58fe538b)  \\n[FTP](/app/kibana#/dashboard/27f3b380-3583-11e7-a588-05992195c551)  \\n[HTTP](/app/kibana#/dashboard/230134a0-34c6-11e7-8360-0b86c90983fd)  \\n[Intel](/app/kibana#/dashboard/468022c0-3583-11e7-a588-05992195c551)  \\n[IRC](/app/kibana#/dashboard/56a34ce0-3583-11e7-a588-05992195c551)  \\n[Kerberos](/app/kibana#/dashboard/6b0d4870-3583-11e7-a588-05992195c551)  \\n[Modbus](/app/kibana#/dashboard/70c005f0-3583-11e7-a588-05992195c551)  \\n[MySQL](/app/kibana#/dashboard/7929f430-3583-11e7-a588-05992195c551)  \\n[NTLM](/app/kibana#/dashboard/022713e0-3ab0-11e7-a83b-b1b4da7d15f4)  \\n[PE](/app/kibana#/dashboard/8a10e380-3583-11e7-a588-05992195c551)  \\n[RADIUS](/app/kibana#/dashboard/90b246c0-3583-11e7-a588-05992195c551)  \\n[RDP](/app/kibana#/dashboard/97f8c3a0-3583-11e7-a588-05992195c551)  \\n[RFB](/app/kibana#/dashboard/9ef20ae0-3583-11e7-a588-05992195c551)  \\n[SIP](/app/kibana#/dashboard/ad3c0830-3583-11e7-a588-05992195c551)  \\n[SMB](/app/kibana#/dashboard/b3a53710-3aaa-11e7-8b17-0d8709b02c80)  \\n[SMTP](/app/kibana#/dashboard/b10a9c60-3583-11e7-a588-05992195c551)  \\n[SNMP](/app/kibana#/dashboard/b65c2710-3583-11e7-a588-05992195c551)  \\n[Software](/app/kibana#/dashboard/c2c99c30-3583-11e7-a588-05992195c551)  \\n[SSH](/app/kibana#/dashboard/c6ccfc00-3583-11e7-a588-05992195c551)  \\n[SSL](/app/kibana#/dashboard/cca67b60-3583-11e7-a588-05992195c551)  \\n[Syslog](/app/kibana#/dashboard/c4bbe040-76b3-11e7-ba96-cba76a1e264d)   \\n[Tunnels](/app/kibana#/dashboard/d7b54ae0-3583-11e7-a588-05992195c551)  \\n[Weird](/app/kibana#/dashboard/de2da250-3583-11e7-a588-05992195c551)  \\n[X.509](/app/kibana#/dashboard/e5aa7170-3583-11e7-a588-05992195c551)  \\n\\n**Other**   \\n[Domain Stats](/app/kibana#/dashboard/AWAi6wvxAvKNGEbUWO_j)   \\n[Frequency](/app/kibana#/dashboard/AWAi5k4jAvKNGEbUWFis)  \\n[Stats](/app/kibana#/dashboard/130017f0-46ce-11e7-946f-1bfb1be7c36b)\",\"type\":\"markdown\",\"fontSize\":10,\"openLinksInNewTab\":false},\"aggs\":[]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"query\":{\"query_string\":{\"query\":\"*\"}},\"language\":\"lucene\"},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+      "type": "search",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 3,
+      "attributes": {
+        "sort": [
+          "@timestamp",
+          "desc"
+        ],
+        "hits": 0,
+        "description": "",
+        "title": "NIDS - Alerts",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"logstash-*\",\"highlightAll\":true,\"version\":true,\"filter\":[],\"query\":{\"query_string\":{\"query\":\"event_type:suricata\",\"analyze_wildcard\":true}}}"
+        },
+        "columns": [
+          "source_ip",
+          "source_port",
+          "destination_ip",
+          "destination_port",
+          "_id"
+        ]
+      }
+    },
+    {
+      "id": "a6df8820-399f-11e7-8472-0151e5b2b475",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"NIDS Alerts - Source IP Address\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"source_ip\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"IP Address\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "NIDS Alerts - Source IP Address",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "db04aef0-399f-11e7-8472-0151e5b2b475",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"NIDS Alerts - Destination IP Address\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"destination_ip\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"IP Address\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "NIDS Alerts - Destination IP Address",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "620283e0-3af5-11e7-a83b-b1b4da7d15f4",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"NIDS Alerts - Source Port\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"source_port\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Port\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "NIDS Alerts - Source Port",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "ba60bcf0-3af5-11e7-a83b-b1b4da7d15f4",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"NIDS Alerts - Severity (Pie Chart)\",\"type\":\"pie\",\"params\":{\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"priority.keyword\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"_term\",\"customLabel\":\"Priority\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "NIDS Alerts - Severity (Pie Chart)",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "45464b50-3af6-11e7-a83b-b1b4da7d15f4",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "title": "NIDS Alerts - Category",
+        "visState": "{\"title\":\"NIDS Alerts - Category\",\"type\":\"histogram\",\"params\":{\"addLegend\":true,\"addTimeMarker\":false,\"addTooltip\":true,\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"labels\":{\"filter\":false,\"rotate\":0,\"show\":true,\"truncate\":200},\"position\":\"left\",\"scale\":{\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Category\"},\"type\":\"category\"}],\"defaultYExtents\":false,\"drawLinesBetweenPoints\":true,\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"interpolate\":\"linear\",\"legendPosition\":\"right\",\"radiusRatio\":9,\"scale\":\"linear\",\"seriesParams\":[{\"data\":{\"id\":\"1\",\"label\":\"Count\"},\"drawLinesBetweenPoints\":true,\"mode\":\"normal\",\"show\":true,\"showCircles\":true,\"type\":\"histogram\",\"valueAxis\":\"ValueAxis-1\"}],\"setYExtents\":false,\"showCircles\":true,\"times\":[],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"labels\":{\"filter\":true,\"rotate\":75,\"show\":true,\"truncate\":100},\"name\":\"LeftAxis-1\",\"position\":\"bottom\",\"scale\":{\"mode\":\"normal\",\"type\":\"linear\"},\"show\":true,\"style\":{},\"title\":{\"text\":\"Count\"},\"type\":\"value\"}],\"type\":\"histogram\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"category.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Category\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "81de16f0-6e0f-11e7-8624-1fb07dd76c6a",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"NIDS - Alerts By Country (Vertical Bar Chart)\",\"type\":\"histogram\",\"params\":{\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100,\"rotate\":75},\"title\":{\"text\":\"Country\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Count\"}}],\"seriesParams\":[{\"show\":\"true\",\"type\":\"histogram\",\"mode\":\"stacked\",\"data\":{\"label\":\"Count\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"destination_geo.country_name.keyword\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Country\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "NIDS - Alerts By Country (Vertical Bar Chart)",
+        "uiStateJSON": "{\"vis\":{\"legendOpen\":false}}",
+        "version": 1,
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWDG3ym0xQT5EBNmq3mG",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 2,
+      "attributes": {
+        "title": "NIDS - Alert Count",
+        "visState": "{\"title\":\"NIDS - Alert Count\",\"type\":\"metric\",\"params\":{\"addTooltip\":true,\"addLegend\":false,\"type\":\"gauge\",\"gauge\":{\"verticalSplit\":false,\"autoExtend\":false,\"percentageMode\":false,\"gaugeType\":\"Metric\",\"gaugeStyle\":\"Full\",\"backStyle\":\"Full\",\"orientation\":\"vertical\",\"colorSchema\":\"Green to Red\",\"gaugeColorMode\":\"None\",\"useRange\":false,\"colorsRange\":[{\"from\":0,\"to\":100}],\"invertColors\":false,\"labels\":{\"show\":false,\"color\":\"black\"},\"scale\":{\"show\":false,\"labels\":false,\"color\":\"#333\",\"width\":2},\"type\":\"simple\",\"style\":{\"fontSize\":\"30\",\"bgColor\":false,\"labelColor\":false,\"subText\":\"\",\"bgFill\":\"#FB9E00\"}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}}],\"listeners\":{}}",
+        "uiStateJSON": "{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}}",
+        "description": "",
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "96c2cf10-4a3d-11e8-9b0a-f1d33346f773",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 2,
+      "attributes": {
+        "title": "NIDS - Alert Summary",
+        "visState": "{\"title\":\"NIDS - Alert Summary\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"alert.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":20,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Alert\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"source_ip\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":20,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Source IP Address\"}},{\"id\":\"4\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"destination_ip\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":20,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Destination IP Address\"}}]}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "3f040620-4a44-11e8-9b0a-f1d33346f773",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "title": "NIDS - Destination Port",
+        "visState": "{\"title\":\"NIDS - Destination Port\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"destination_port\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Destination Port\"}}]}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "d66d54c0-4c89-11e8-9b0a-f1d33346f773",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "title": "NIDS - Classification",
+        "visState": "{\"title\":\"NIDS - Classification\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"classification.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Classification\"}}]}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "9a5a35c0-342f-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "7f27a830-34e5-11e7-9669-7f1d3242b798",
+      "type": "dashboard",
+      "updated_at": "2018-09-15T14:01:45.086Z",
+      "version": 1,
+      "attributes": {
+        "title": "NIDS",
+        "hits": 0,
+        "description": "",
+        "panelsJSON": "[{\"panelIndex\":\"3\",\"gridData\":{\"x\":4,\"y\":0,\"w\":8,\"h\":2,\"i\":\"3\"},\"embeddableConfig\":{\"vis\":{\"legendOpen\":false}},\"id\":\"d58ec1a0-34e4-11e7-9669-7f1d3242b798\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"4\",\"gridData\":{\"x\":0,\"y\":0,\"w\":2,\"h\":11,\"i\":\"4\"},\"id\":\"b3b449d0-3429-11e7-9d52-4f090484f59e\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"6\",\"gridData\":{\"x\":0,\"y\":30,\"w\":12,\"h\":17,\"i\":\"6\"},\"columns\":[\"source_ip\",\"source_port\",\"destination_ip\",\"destination_port\",\"_id\"],\"id\":\"9a5a35c0-342f-11e7-9e93-53b62e1857b2\",\"sort\":[\"@timestamp\",\"desc\"],\"type\":\"search\",\"version\":\"6.1.1\"},{\"panelIndex\":\"8\",\"gridData\":{\"x\":0,\"y\":24,\"w\":6,\"h\":6,\"i\":\"8\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"a6df8820-399f-11e7-8472-0151e5b2b475\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"9\",\"gridData\":{\"x\":6,\"y\":24,\"w\":6,\"h\":6,\"i\":\"9\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"db04aef0-399f-11e7-8472-0151e5b2b475\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"12\",\"gridData\":{\"x\":4,\"y\":18,\"w\":4,\"h\":6,\"i\":\"12\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"620283e0-3af5-11e7-a83b-b1b4da7d15f4\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"13\",\"gridData\":{\"x\":0,\"y\":18,\"w\":4,\"h\":6,\"i\":\"13\"},\"id\":\"ba60bcf0-3af5-11e7-a83b-b1b4da7d15f4\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"14\",\"gridData\":{\"x\":2,\"y\":2,\"w\":6,\"h\":6,\"i\":\"14\"},\"id\":\"45464b50-3af6-11e7-a83b-b1b4da7d15f4\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"15\",\"gridData\":{\"x\":2,\"y\":8,\"w\":10,\"h\":3,\"i\":\"15\"},\"id\":\"81de16f0-6e0f-11e7-8624-1fb07dd76c6a\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"16\",\"gridData\":{\"x\":2,\"y\":0,\"w\":2,\"h\":2,\"i\":\"16\"},\"embeddableConfig\":{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}},\"id\":\"AWDG3ym0xQT5EBNmq3mG\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"17\",\"gridData\":{\"x\":0,\"y\":11,\"w\":12,\"h\":7,\"i\":\"17\"},\"id\":\"96c2cf10-4a3d-11e8-9b0a-f1d33346f773\",\"type\":\"visualization\",\"version\":\"6.2.4\"},{\"panelIndex\":\"18\",\"gridData\":{\"x\":8,\"y\":18,\"w\":4,\"h\":6,\"i\":\"18\"},\"id\":\"3f040620-4a44-11e8-9b0a-f1d33346f773\",\"type\":\"visualization\",\"version\":\"6.2.4\"},{\"panelIndex\":\"19\",\"gridData\":{\"x\":8,\"y\":2,\"w\":4,\"h\":6,\"i\":\"19\"},\"id\":\"d66d54c0-4c89-11e8-9b0a-f1d33346f773\",\"type\":\"visualization\",\"version\":\"6.2.4\"}]",
+        "optionsJSON": "{\"darkTheme\":true,\"useMargins\":true}",
+        "version": 1,
+        "timeRestore": false,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":{\"query_string\":{\"analyze_wildcard\":true,\"default_field\":\"*\",\"query\":\"*\"}}}}"
+        }
+      }
+    }
+  ]
+}

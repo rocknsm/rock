@@ -3,6 +3,7 @@
     sysctl_list:
       - net.bridge.bridge-nf-call-ip6tables
       - net.bridge.bridge-nf-call-iptables
+      - net.ipv4.ip_forward
 
 # kube-proxy needs net.bridge.bridge-nf-call-iptables enabled when found if br_netfilter is not a module
 - name: Check if key exists

@@ -1,0 +1,8 @@
+#!/bin/bash
+sleep 10
+tapIP=$(ip -4 address show tap0)
+if [ -z "$tapIP" ]; then
+  exit 1
+fi
+ip route add default via {{ hostvars[groups['master-server'][0]].management_ipv4 }} dev tap0 proto static metric 101
+ip route delete default via {{ hostvars[groups['master-server'][0]].management_ipv4 }} dev tap0 onlink metric 100

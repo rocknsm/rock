@@ -1,0 +1,27 @@
+---
+
+- name: Install nodejs
+  yum:
+    name: nodejs
+    state: present
+
+- name: "Download elasticdump from ansible controller"
+  get_url:
+    url: "{{ offline_repo_base }}/elasticdump.tar.gz"
+    dest: "{{ install_dir }}"
+
+- name: Extract elasticdump tar
+  unarchive:
+    remote_src: yes
+    src: "{{ install_dir }}/elasticdump.tar.gz"
+    dest: "{{ install_dir }}"
+
+- name: Symlink elasticdump bin to usr bin
+  file: 
+    path: "/usr/bin/{{ item }}" 
+    src: "{{ install_dir }}/node_modules/elasticdump/bin/{{ item }}"
+    state: link 
+    force: yes
+  with_items:
+    - "elasticdump"
+    - "multielasticdump"

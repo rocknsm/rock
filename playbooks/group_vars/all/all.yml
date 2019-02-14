@@ -1,22 +1,22 @@
 ---
 # TFPlenum
 version: 3.0
-online_install: true
 debug_enabled: true
 install_user: root
 install_group: root
-install_dir: /opt/rock
-sysctl_file: /etc/sysctl.d/rock.conf
+install_dir: /opt/tfplenum
+log_dir: /var/log/ansible/hosts/
 fqdn: default.svc.cluster.local
 
 # Redis
 redis_sentinel_port: 26379
 
 # Elasticsearch
-elastic_ver: '6.2.4'
-elastic_cluster_name: rock
+elastic_cluster_name: tfplenum
 elastic_fqdn: "elasticsearch.{{ fqdn }}"
+elastic_shortname: elasticsearch
 elastic_port: 9200
+kibana_port: 5601
 
 # Kibana
 kibana_fqdn: "kibana.{{ fqdn }}"
@@ -27,34 +27,44 @@ xpack_license: 'true'
 # Kubernetes
 kubernetes_conf_file: /etc/kubernetes/admin.conf
 kube_dir: "{{ install_dir }}/kubernetes"
-kube_version: "1.9.7"
-
-# Bro
-pulled_pork_oinkcode: 796f26a2188c4c953ced38ff3ec899d8ae543350
-bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
-pulled_pork_repo: https://github.com/shirkdog/pulledpork.git
 
 # Kafka
 kafka_fqdn: "kafka.{{ fqdn }}"
 kafka_port: 9092
 kafka_retention: 168
 
+# Username and password for Web login
+moloch_login: 'assessor'
+moloch_pass: 'password'
+
+# Directories in which to store IDS scripts/rules on sensors
+bro_script_dir: /bro-scripts
+suri_rule_dir: /suri-rules
+
 # Common
 package_list:
-  - cockpit
-  - cockpit-dashboard
-  - cockpit-machines
-  - cockpit-networkmanager
-  - cockpit-packagekit
-  #- cockpit-storaged - this is currently broken TODO: we need to look into this. See: https://github.com/tfplenum/rock/issues/323
-  - cockpit-system
   - python-gobject
   - python-docker-py.noarch
   - nload
+  - iperf
+  - python-netaddr
+  - openvpn
+  - easy-rsa
+  - bridge-utils
+  - net-tools
 
-# RockNSM
-#rocknsm_baseurl: https://packagecloud.io/rocknsm/2/el/7/$basearch
-#rocknsm_gpgurl: https://packagecloud.io/rocknsm/2/gpgkey
-rocknsm_baseurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/epel-7-$basearch/'
-rocknsm_gpgurl: 'https://copr-be.cloud.fedoraproject.org/results/@rocknsm/rocknsm-2.1/pubkey.gpg'
+ansible_controller_hostname: "controller.lan"
+ansible_controller_ip: "{{ ansible_env[\"SSH_CLIENT\"].split()[0] }}"
+
+offline_repo_base: "http://{{ ansible_controller_hostname }}/offlinerepo"
+docker_registry_port: 5000
+docker_registry_repo: "{{ ansible_controller_hostname }}:{{ docker_registry_port }}"
+CentOS_Repos:
+  - "CentOS-Base"
+  - "CentOS-CR"
+  - "CentOS-Debuginfo"
+  - "CentOS-fasttrack"
+  - "CentOS-Media"
+  - "CentOS-Sources"
+  - "CentOS-Vault"
 ...

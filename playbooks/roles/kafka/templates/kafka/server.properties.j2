@@ -1,3 +1,8 @@
+{% if remote %}{% set num_of_partitions_per_topic = 1 %}{% else %}{% set num_of_partitions_per_topic = (groups['sensors'] | length) * 2 %}{% endif %}
+{% set num_of_total_partitions = num_of_partitions_per_topic * 2 %}
+{% set kafka_pvc_bytes = kafka_pv_size*1073741824 %}
+{% set retention_bytes = ((kafka_pvc_bytes-1073741824)/num_of_total_partitions)|int %}
+{% set segment_bytes = (((kafka_pvc_bytes)/3)/num_of_total_partitions) | int %}
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.
@@ -46,10 +51,15 @@ advertised.listeners=PLAINTEXT://:{{ kafka_port }}
 ############################# Log Basics #############################
 
 # A comma seperated list of directories under which to store log files
-log.dirs={{ kafka_data_path }}/logs
-log.retention.bytes={{ ((kafka_pv_size*1073741824)/3) | int }}
+log.dir={{ kafka_data_path }}/logs
+log.retention.bytes={{ retention_bytes }}
 log.retention.hours=0
 log.retention.minutes=5
+log.segment.bytes={{ segment_bytes }}
+log.retention.check.interval.ms=60000
+
+offsets.retention.minutes=10
+offsets.retention.check.interval.ms=120000
 
 ############################# Zookeeper #############################
 
@@ -65,15 +75,12 @@ zookeeper.connect={% for i in range(zookeeper_replicas) %}zookeeper-{{ i }}.zook
 {% endif %}
 
 ############################## Others ##############################
+offsets.retention.minutes=5
 offsets.topic.replication.factor=1
 # KAFKA_USER: "kafka"
 # KAFKA_DATADIR: "/var/lib/kafka/"
 # KAFKA_LOG4J_LOGDIR: "/var/log/kafka/"
 # KAFKA_LOG4J_LEVEL: "INFO"
-{% if remote %}
-num.partitions=1
-{% else %}
-num.partitions={{ (groups['sensors'] | length) * 2 }}
-{% endif %}
+num.partitions={{ num_of_partitions_per_topic }}
 # default.replication.factor=2
-zookeeper.connection.timeout.ms=36000
+zookeeper.connection.timeout.ms=45000

@@ -1,0 +1,42 @@
+#########################################
+############# Endgame tasks #############
+#########################################
+---
+
+- name: Install Python Dependencies
+  pip:
+    name:
+      - elasticsearch
+      - restresponse
+      - kafka
+
+- name: Create endgame directory
+  file:
+    mode: u+rx,g+rx
+    path: "{{ endgame_dir }}"
+    state: directory
+
+- name: Install endgame2elastic.py script on master server
+  copy:
+    src: "files/endgame2elastic.py"
+    dest: "{{ endgame_dir }}/endgame2elastic.py"
+    mode: "0744"
+
+- name: Get Elasticsearch Service IP
+  shell: "kubectl get svc -n default | grep 'elasticsearch ' | awk '{print $4}'"
+  register: es_svc_ip
+
+- name: Push Elasticsearch template
+  uri:
+    url: "http://{{ es_svc_ip.stdout }}:9200/_template/endgame"
+    method: PUT
+    body_format: json
+    body: "{{ lookup('file', 'files/template.json') }}"
+    status_code: 200, 201
+
+- name: Start cron job on the master server to run eg2es script every 15 minutes
+  cron:
+    name: "ES-Endgame"
+    minute: "*/15"
+    job: "/usr/bin/flock -n /tmp/eg2es.lock /usr/bin/python2 {{ endgame_dir }}/endgame2elastic.py elasticsearch {{ endgame_host }} {{ endgame_username }} '{{ endgame_password }}' > /var/log/endgame2elastic.log 2>&1"
+  when: endgame_host is defined

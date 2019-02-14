@@ -1,0 +1,302 @@
+{
+  "version": "6.3.2",
+  "objects": [
+    {
+      "id": "b3b449d0-3429-11e7-9d52-4f090484f59e",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.364Z",
+      "version": 53,
+      "attributes": {
+        "title": "Navigation",
+        "visState": "{\"title\":\"Navigation\",\"type\":\"markdown\",\"params\":{\"markdown\":\"[Home](/app/kibana#/dashboard/94b52620-342a-11e7-9d52-4f090484f59e)   \\n[Help](/app/kibana#/dashboard/AV6-POJSDwoBUzALqKAg)   \\n\\n**Alert Data**  \\n[Bro Notices](/app/kibana#/dashboard/01600fb0-34e4-11e7-9669-7f1d3242b798)      \\n\\n**Bro Hunting**   \\n[Connections](/app/kibana#/dashboard/e0a34b90-34e6-11e7-9118-45bd317f0ca4)   \\n[DCE/RPC](/app/kibana#/dashboard/46582d50-3af2-11e7-a83b-b1b4da7d15f4)   \\n[DHCP](/app/kibana#/dashboard/85348270-357b-11e7-ac34-8965f6420c51)  \\n[DNP3](/app/kibana#/dashboard/2fdf5bf0-3581-11e7-98ef-19df58fe538b)  \\n[DNS](/app/kibana#/dashboard/ebf5ec90-34bf-11e7-9b32-bb903919ead9)  \\n[Files](/app/kibana#/dashboard/2d315d80-3582-11e7-98ef-19df58fe538b)  \\n[FTP](/app/kibana#/dashboard/27f3b380-3583-11e7-a588-05992195c551)  \\n[HTTP](/app/kibana#/dashboard/230134a0-34c6-11e7-8360-0b86c90983fd)  \\n[Intel](/app/kibana#/dashboard/468022c0-3583-11e7-a588-05992195c551)  \\n[IRC](/app/kibana#/dashboard/56a34ce0-3583-11e7-a588-05992195c551)  \\n[Kerberos](/app/kibana#/dashboard/6b0d4870-3583-11e7-a588-05992195c551)  \\n[Modbus](/app/kibana#/dashboard/70c005f0-3583-11e7-a588-05992195c551)  \\n[MySQL](/app/kibana#/dashboard/7929f430-3583-11e7-a588-05992195c551)  \\n[NTLM](/app/kibana#/dashboard/022713e0-3ab0-11e7-a83b-b1b4da7d15f4)  \\n[PE](/app/kibana#/dashboard/8a10e380-3583-11e7-a588-05992195c551)  \\n[RADIUS](/app/kibana#/dashboard/90b246c0-3583-11e7-a588-05992195c551)  \\n[RDP](/app/kibana#/dashboard/97f8c3a0-3583-11e7-a588-05992195c551)  \\n[RFB](/app/kibana#/dashboard/9ef20ae0-3583-11e7-a588-05992195c551)  \\n[SIP](/app/kibana#/dashboard/ad3c0830-3583-11e7-a588-05992195c551)  \\n[SMB](/app/kibana#/dashboard/b3a53710-3aaa-11e7-8b17-0d8709b02c80)  \\n[SMTP](/app/kibana#/dashboard/b10a9c60-3583-11e7-a588-05992195c551)  \\n[SNMP](/app/kibana#/dashboard/b65c2710-3583-11e7-a588-05992195c551)  \\n[Software](/app/kibana#/dashboard/c2c99c30-3583-11e7-a588-05992195c551)  \\n[SSH](/app/kibana#/dashboard/c6ccfc00-3583-11e7-a588-05992195c551)  \\n[SSL](/app/kibana#/dashboard/cca67b60-3583-11e7-a588-05992195c551)  \\n[Syslog](/app/kibana#/dashboard/c4bbe040-76b3-11e7-ba96-cba76a1e264d)   \\n[Tunnels](/app/kibana#/dashboard/d7b54ae0-3583-11e7-a588-05992195c551)  \\n[Weird](/app/kibana#/dashboard/de2da250-3583-11e7-a588-05992195c551)  \\n[X.509](/app/kibana#/dashboard/e5aa7170-3583-11e7-a588-05992195c551)  \\n\\n**Other**   \\n[Domain Stats](/app/kibana#/dashboard/AWAi6wvxAvKNGEbUWO_j)   \\n[Frequency](/app/kibana#/dashboard/AWAi5k4jAvKNGEbUWFis)  \\n[Stats](/app/kibana#/dashboard/130017f0-46ce-11e7-946f-1bfb1be7c36b)\",\"type\":\"markdown\",\"fontSize\":10,\"openLinksInNewTab\":false},\"aggs\":[]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"query\":{\"query_string\":{\"query\":\"*\"}},\"language\":\"lucene\"},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "6ef90c30-34c0-11e7-9b32-bb903919ead9",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 2,
+      "attributes": {
+        "title": "DNS - Server",
+        "visState": "{\"title\":\"DNS - Server\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\",\"type\":\"table\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"destination_ip\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Server\"}}],\"listeners\":{}}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "57a9a3f0-34c0-11e7-9b32-bb903919ead9",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"DNS - Client\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"source_ip\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Client\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "DNS - Client",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "45a652b0-34c1-11e7-917c-af7a9d11771a",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 2,
+      "attributes": {
+        "title": "DNS - Query Class (Pie Chart)",
+        "visState": "{\"title\":\"DNS - Query Class (Pie Chart)\",\"type\":\"pie\",\"params\":{\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true,\"type\":\"pie\",\"labels\":{\"show\":false,\"values\":true,\"last_level\":true,\"truncate\":100}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"query_class_name.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":10,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Query Class\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "e8e3b8a0-34c1-11e7-917c-af7a9d11771a",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 2,
+      "attributes": {
+        "visState": "{\"title\":\"DNS - Query/Answer\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"query.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Query\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"answers.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Answer\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "DNS - Query/Answer",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "1ecdd2e0-34c0-11e7-9b32-bb903919ead9",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"DNS - Log Count Over Time\",\"type\":\"line\",\"params\":{\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{\"text\":\"@timestamp per 30 minutes\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Count\"}}],\"seriesParams\":[{\"show\":true,\"mode\":\"normal\",\"type\":\"line\",\"drawLinesBetweenPoints\":true,\"showCircles\":true,\"interpolate\":\"linear\",\"lineWidth\":2,\"data\":{\"id\":\"1\",\"label\":\"Count\"},\"valueAxis\":\"ValueAxis-1\"}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"showCircles\":true,\"interpolate\":\"linear\",\"scale\":\"linear\",\"drawLinesBetweenPoints\":true,\"radiusRatio\":9,\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}}],\"listeners\":{}}",
+        "description": "",
+        "title": "DNS - Log Count Over Time",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+      "type": "search",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 2,
+      "attributes": {
+        "sort": [
+          "@timestamp",
+          "desc"
+        ],
+        "hits": 0,
+        "description": "",
+        "title": "DNS - Logs",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"logstash-*\",\"highlightAll\":true,\"version\":true,\"filter\":[],\"query\":{\"query_string\":{\"query\":\"event_type:bro_dns\",\"analyze_wildcard\":true}}}"
+        },
+        "columns": [
+          "source_ip",
+          "source_port",
+          "destination_ip",
+          "destination_port",
+          "uid",
+          "_id"
+        ]
+      }
+    },
+    {
+      "id": "e3717d80-6e0f-11e7-8624-1fb07dd76c6a",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"DNS - Destination Port (Horizontal Bar Chart)\",\"type\":\"histogram\",\"params\":{\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"left\",\"show\":false,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":200},\"title\":{}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":75,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Count\"}}],\"seriesParams\":[{\"show\":true,\"type\":\"histogram\",\"mode\":\"normal\",\"data\":{\"label\":\"Count\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{\"customLabel\":\"\"}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"destination_port\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "DNS - Destination Port (Horizontal Bar Chart)",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "4d89e140-6f09-11e7-9d31-23c0596994a7",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"aggs\":[{\"enabled\":true,\"id\":\"1\",\"params\":{\"customLabel\":\"Phishing attempts against your domain(s)\"},\"schema\":\"metric\",\"type\":\"count\"}],\"listeners\":{},\"params\":{\"addLegend\":true,\"addTooltip\":true,\"gauge\":{\"backStyle\":\"Full\",\"colorSchema\":\"Green to Red\",\"colorsRange\":[{\"from\":0,\"to\":0},{\"from\":1,\"to\":999999}],\"extendRange\":true,\"gaugeColorMode\":\"Labels\",\"gaugeStyle\":\"Full\",\"gaugeType\":\"Arc\",\"invertColors\":false,\"labels\":{\"color\":\"black\",\"show\":true},\"orientation\":\"vertical\",\"percentageMode\":false,\"scale\":{\"color\":\"#333\",\"labels\":false,\"show\":true},\"style\":{\"bgColor\":false,\"bgFill\":\"#eee\",\"bgMask\":false,\"bgWidth\":0.9,\"fontSize\":60,\"labelColor\":true,\"mask\":false,\"maskBars\":50,\"subText\":\"Edit this to reflect your domain(s)\",\"width\":0.9},\"type\":\"meter\",\"verticalSplit\":false}},\"title\":\"DNS - Phishing Attempts Against Alexa Top Sites\",\"type\":\"gauge\"}",
+        "description": "",
+        "title": "DNS - Phishing Attempts Against Alexa Top Sites",
+        "uiStateJSON": "{\"vis\":{\"defaultColors\":{\"0 - 0\":\"rgb(0,104,55)\",\"1 - 999999\":\"rgb(165,0,38)\"}}}",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"logstash-*\",\"query\":{\"query_string\":{\"query\":\"event_type:bro_dns AND highest_registered_domain:google.com~ -highest_registered_domain:google.com AND highest_registered_domain:youtube.com~ -highest_registered_domain:youtube.com AND highest_registered_domain:facebook.com~ -highest_registered_domain:facebook.com AND highest_registered_domain:wikipedia.org~ -highest_registered_domain:wikipedia.org AND highest_registered_domain:google.co.in~ -highest_registered_domain:google.co.in AND highest_registered_domain:reddit.com~ -highest_registered_domain:reddit.com AND highest_registered_domain:amazon.com~ -highest_registered_domain:amazon.com AND highest_registered_domain:taobao.com~ -highest_registered_domain:taobao.com AND highest_registered_domain:twitter.com~ -highest_registered_domain:twitter.com AND highest_registered_domain:google.co.jp~ -highest_registered_domain:google.co.jp AND highest_registered_domain:instagram.com~ -highest_registered_domain:instagram.com AND highest_registered_domain:sina.com.cn~ -highest_registered_domain:sina.com.cn AND highest_registered_domain:google.co.uk~ -highest_registered_domain:google.co.uk AND highest_registered_domain:linkedin.com~ -highest_registered_domain:linkedin.com AND highest_registered_domain:list.tmall.com~ -highest_registered_domain:list.tmall.com AND highest_registered_domain:google.com.br~ -highest_registered_domain:google.com.br AND highest_registered_domain:google.com.hk~ -highest_registered_domain:google.com.hk AND highest_registered_domain:netflix.com~ -highest_registered_domain:netflix.com AND highest_registered_domain:yahoo.co.jp~ -highest_registered_domain:yahoo.co.jp AND highest_registered_domain:pornhub.com~ -highest_registered_domain:pornhub.com AND highest_registered_domain:xvideos.com~ -highest_registered_domain:xvideos.com AND highest_registered_domain:microsoft.com~ -highest_registered_domain:microsoft.com AND highest_registered_domain:livejasmin.com~ -highest_registered_domain:livejasmin.com AND highest_registered_domain:aliexpress.com~ -highest_registered_domain:aliexpress.com AND highest_registered_domain:stackoverflow.com~ -highest_registered_domain:stackoverflow.com AND highest_registered_domain:wordpress.com~ -highest_registered_domain:wordpress.com AND highest_registered_domain:hao123.com~ -highest_registered_domain:hao123.com AND highest_registered_domain:github.com~ -highest_registered_domain:github.com AND highest_registered_domain:amazon.co.jp~ -highest_registered_domain:amazon.co.jp AND highest_registered_domain:blogspot.com~ -highest_registered_domain:blogspot.com AND highest_registered_domain:pinterest.com~ -highest_registered_domain:pinterest.com AND highest_registered_domain:bongacams.com~ -highest_registered_domain:bongacams.com AND highest_registered_domain:google.com.tr~ -highest_registered_domain:google.com.tr AND highest_registered_domain:popads.net~ -highest_registered_domain:popads.net AND highest_registered_domain:paypal.com~ -highest_registered_domain:paypal.com AND highest_registered_domain:office.com~ -highest_registered_domain:office.com AND highest_registered_domain:google.com.tw~ -highest_registered_domain:google.com.tw AND highest_registered_domain:google.com.au~ -highest_registered_domain:google.com.au AND highest_registered_domain:whatsapp.com~ -highest_registered_domain:whatsapp.com AND highest_registered_domain:microsoftonline.com~ -highest_registered_domain:microsoftonline.com\",\"analyze_wildcard\":true}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "74861280-6f06-11e7-b253-211f64f37eda",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"DNS - Phishing Attempts Against Organizational Domain(s)\",\"type\":\"gauge\",\"params\":{\"addTooltip\":true,\"addLegend\":true,\"gauge\":{\"verticalSplit\":false,\"extendRange\":true,\"percentageMode\":false,\"gaugeType\":\"Arc\",\"gaugeStyle\":\"Full\",\"backStyle\":\"Full\",\"orientation\":\"vertical\",\"colorSchema\":\"Green to Red\",\"gaugeColorMode\":\"Labels\",\"colorsRange\":[{\"from\":0,\"to\":0},{\"from\":1,\"to\":999999}],\"invertColors\":false,\"labels\":{\"show\":true,\"color\":\"black\"},\"scale\":{\"show\":true,\"labels\":false,\"color\":\"#333\"},\"type\":\"meter\",\"style\":{\"bgWidth\":0.9,\"width\":0.9,\"mask\":false,\"bgMask\":false,\"maskBars\":50,\"bgFill\":\"#eee\",\"bgColor\":false,\"subText\":\"Edit this to reflect your domain(s)\",\"fontSize\":60,\"labelColor\":true}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{\"customLabel\":\"Phishing attempts against your domain(s)\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "DNS - Phishing Attempts Against Organizational Domain(s)",
+        "uiStateJSON": "{\"vis\":{\"defaultColors\":{\"0 - 0\":\"rgb(0,104,55)\",\"1 - 999999\":\"rgb(165,0,38)\"}}}",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"logstash-*\",\"query\":{\"query_string\":{\"query\":\"event_type:bro_dns AND highest_registered_domain:securityonion.net~ -securityonion.net\",\"analyze_wildcard\":true}},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWDG9Qx0xQT5EBNmq3_2",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "title": "DNS - Log Count",
+        "visState": "{\"title\":\"DNS - Log Count\",\"type\":\"metric\",\"params\":{\"addTooltip\":true,\"addLegend\":false,\"type\":\"gauge\",\"gauge\":{\"verticalSplit\":false,\"autoExtend\":false,\"percentageMode\":false,\"gaugeType\":\"Metric\",\"gaugeStyle\":\"Full\",\"backStyle\":\"Full\",\"orientation\":\"vertical\",\"colorSchema\":\"Green to Red\",\"gaugeColorMode\":\"None\",\"useRange\":false,\"colorsRange\":[{\"from\":0,\"to\":100}],\"invertColors\":false,\"labels\":{\"show\":false,\"color\":\"black\"},\"scale\":{\"show\":false,\"labels\":false,\"color\":\"#333\",\"width\":2},\"type\":\"simple\",\"style\":{\"fontSize\":\"30\",\"bgColor\":false,\"labelColor\":false,\"subText\":\"\",\"bgFill\":\"#FB9E00\"}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}}],\"listeners\":{}}",
+        "uiStateJSON": "{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}}",
+        "description": "",
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "dcda5680-2927-11e8-b2a2-09f3986ae284",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "title": "DNS - Queries",
+        "visState": "{\"title\":\"DNS - Queries\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"query.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Query\"}}]}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "ff2af9b0-2927-11e8-b2a2-09f3986ae284",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "title": "DNS - Answers",
+        "visState": "{\"title\":\"DNS - Answers\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"answers.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Answer\"}}]}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "22f7de30-4949-11e8-9576-313be7c6b44b",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "title": "DNS - Response Code (Name)",
+        "visState": "{\"title\":\"DNS - Response Code (Name)\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"rcode_name.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":20,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Response Code (Name)\"}}]}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "0c338e50-4a4e-11e8-9b0a-f1d33346f773",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "title": "DNS - Query Type",
+        "visState": "{\"title\":\"DNS - Query Type\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"query_type_name.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Query Type\"}}]}",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "description": "",
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "49e04860-4a4e-11e8-9b0a-f1d33346f773",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "title": "DNS - Protocol (Donut Chart)",
+        "visState": "{\"title\":\"DNS - Protocol (Donut Chart)\",\"type\":\"pie\",\"params\":{\"type\":\"pie\",\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true,\"labels\":{\"show\":false,\"values\":true,\"last_level\":true,\"truncate\":100}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"protocol.keyword\",\"otherBucket\":false,\"otherBucketLabel\":\"Other\",\"missingBucket\":false,\"missingBucketLabel\":\"Missing\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Protocol\"}}]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "savedSearchId": "d46522e0-342d-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"query\":{\"query\":\"\",\"language\":\"lucene\"}}"
+        }
+      }
+    },
+    {
+      "id": "ebf5ec90-34bf-11e7-9b32-bb903919ead9",
+      "type": "dashboard",
+      "updated_at": "2018-09-15T14:01:45.443Z",
+      "version": 1,
+      "attributes": {
+        "title": "Bro - DNS",
+        "hits": 0,
+        "description": "",
+        "panelsJSON": "[{\"panelIndex\":\"1\",\"gridData\":{\"x\":0,\"y\":0,\"w\":2,\"h\":17,\"i\":\"1\"},\"id\":\"b3b449d0-3429-11e7-9d52-4f090484f59e\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"5\",\"gridData\":{\"x\":5,\"y\":11,\"w\":3,\"h\":6,\"i\":\"5\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"6ef90c30-34c0-11e7-9b32-bb903919ead9\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"6\",\"gridData\":{\"x\":2,\"y\":11,\"w\":3,\"h\":6,\"i\":\"6\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"57a9a3f0-34c0-11e7-9b32-bb903919ead9\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"7\",\"gridData\":{\"x\":2,\"y\":2,\"w\":5,\"h\":3,\"i\":\"7\"},\"id\":\"45a652b0-34c1-11e7-917c-af7a9d11771a\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"10\",\"gridData\":{\"x\":0,\"y\":23,\"w\":12,\"h\":6,\"i\":\"10\"},\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}},\"id\":\"e8e3b8a0-34c1-11e7-917c-af7a9d11771a\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"13\",\"gridData\":{\"x\":4,\"y\":0,\"w\":8,\"h\":2,\"i\":\"13\"},\"embeddableConfig\":{\"vis\":{\"legendOpen\":false}},\"id\":\"1ecdd2e0-34c0-11e7-9b32-bb903919ead9\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"16\",\"gridData\":{\"x\":0,\"y\":29,\"w\":12,\"h\":16,\"i\":\"16\"},\"columns\":[\"source_ip\",\"source_port\",\"destination_ip\",\"destination_port\",\"uid\",\"_id\"],\"id\":\"d46522e0-342d-11e7-9e93-53b62e1857b2\",\"sort\":[\"@timestamp\",\"desc\"],\"type\":\"search\",\"version\":\"6.1.1\"},{\"panelIndex\":\"17\",\"gridData\":{\"x\":7,\"y\":2,\"w\":5,\"h\":3,\"i\":\"17\"},\"id\":\"e3717d80-6e0f-11e7-8624-1fb07dd76c6a\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"21\",\"gridData\":{\"x\":8,\"y\":11,\"w\":4,\"h\":3,\"i\":\"21\"},\"embeddableConfig\":{\"vis\":{\"defaultColors\":{\"0 - 0\":\"rgb(0,104,55)\",\"1 - 999999\":\"rgb(165,0,38)\"}}},\"id\":\"4d89e140-6f09-11e7-9d31-23c0596994a7\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"22\",\"gridData\":{\"x\":8,\"y\":14,\"w\":4,\"h\":3,\"i\":\"22\"},\"embeddableConfig\":{\"vis\":{\"defaultColors\":{\"0 - 0\":\"rgb(0,104,55)\",\"1 - 999999\":\"rgb(165,0,38)\"}}},\"id\":\"74861280-6f06-11e7-b253-211f64f37eda\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"23\",\"gridData\":{\"x\":2,\"y\":0,\"w\":2,\"h\":2,\"i\":\"23\"},\"embeddableConfig\":{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}},\"id\":\"AWDG9Qx0xQT5EBNmq3_2\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"24\",\"gridData\":{\"x\":0,\"y\":17,\"w\":6,\"h\":6,\"i\":\"24\"},\"id\":\"dcda5680-2927-11e8-b2a2-09f3986ae284\",\"type\":\"visualization\",\"version\":\"6.2.2\"},{\"panelIndex\":\"25\",\"gridData\":{\"x\":6,\"y\":17,\"w\":6,\"h\":6,\"i\":\"25\"},\"id\":\"ff2af9b0-2927-11e8-b2a2-09f3986ae284\",\"type\":\"visualization\",\"version\":\"6.2.2\"},{\"panelIndex\":\"26\",\"gridData\":{\"x\":5,\"y\":5,\"w\":3,\"h\":6,\"i\":\"26\"},\"id\":\"22f7de30-4949-11e8-9576-313be7c6b44b\",\"type\":\"visualization\",\"version\":\"6.2.4\"},{\"panelIndex\":\"27\",\"gridData\":{\"x\":2,\"y\":5,\"w\":3,\"h\":6,\"i\":\"27\"},\"id\":\"0c338e50-4a4e-11e8-9b0a-f1d33346f773\",\"type\":\"visualization\",\"version\":\"6.2.4\"},{\"panelIndex\":\"28\",\"gridData\":{\"x\":8,\"y\":5,\"w\":4,\"h\":6,\"i\":\"28\"},\"id\":\"49e04860-4a4e-11e8-9b0a-f1d33346f773\",\"type\":\"visualization\",\"version\":\"6.2.4\"}]",
+        "optionsJSON": "{\"darkTheme\":true,\"useMargins\":true}",
+        "version": 1,
+        "timeRestore": false,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"highlightAll\":true,\"version\":true,\"query\":{\"language\":\"lucene\",\"query\":{\"query_string\":{\"analyze_wildcard\":true,\"default_field\":\"*\",\"query\":\"*\"}}}}"
+        }
+      }
+    }
+  ]
+}

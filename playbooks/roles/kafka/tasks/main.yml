@@ -2,5 +2,7 @@
 ################# Setup Kafka ########################
 ######################################################
 ---
-- import_tasks: 05_install.yml
-  when: ((groups['remote-sensors'] | length) > 0 and remote) or ((groups['sensors'] | length) > 0 and not remote)
+- import_tasks: 05_zk_install.yml
+- import_tasks: 10_kafka_install.yml
+- import_tasks: 15_kafka_remote.yml
+  when: (groups['remote-sensors'] | length > 0 and node_to_add is not defined) or (node_to_add is defined and node_to_add in groups['remote-sensors'])

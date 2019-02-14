@@ -4,7 +4,8 @@
 - import_tasks: 10_network.yml
 - import_tasks: 15_required_variables.yml
 - import_tasks: 20_elasticsearch.yml
-- import_tasks: 25_hard_drives.yml
+# TODO: hard drive space calculations incorrect
+#- import_tasks: 25_hard_drives.yml
 - import_tasks: 30_minimum_hardware_check.yml
 - import_tasks: 35_check_for_folder_existence.yml
 

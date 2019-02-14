@@ -5,21 +5,102 @@
 # Example: ansible-playbook -i inventory/misc/inventory.yml remove-node.yml -u root
 
 ---
-- hosts: all
-  gather_facts: true
+- name: Preflight before removing node from k8s cluster
+  hosts: master-server
+  tasks:
+    - name: Check nodes to remove
+      fail:
+        msg: "Missing group nodes_to_remove from inventory."
+      when: "'nodes_to_remove' not in groups"
 
+    - name: Check if nodes to remove group is empty
+      fail:
+        msg: "Error: No hosts in nodes_to_remove group.  nodes_to_remove must contain at least one host."
+      when: groups['nodes_to_remove'] | length == 0
 
-- hosts: master-server
+    - name: Check if nodes to remove group is empty
+      fail:
+        msg: "nodes_to_remove group cannot contain a master-server node"
+      when: item in  groups['master-server']
+      with_items: "{{ groups['nodes_to_remove'] }}"
+    
+    - name: Get current node list
+      shell: kubectl get nodes --no-headers=true | awk '{ print $1 }'
+      register: node_list
+    
+    - name: Check if nodes in nodes to remove is in node_list
+      fail:
+        msg: "{{ item }} node is not joined to k8s cluster. Remove {{ item }} from nodes_to_remove group in inventory file."
+      when: item not in node_list.stdout
+      with_items: "{{ groups['nodes_to_remove'] }}"
+
+- name: Remove node from cluster
+  hosts: master-server
+  tasks:
+    - name: remove-node | Drain node except daemonsets resource
+      shell: |
+        kubectl drain --force --ignore-daemonsets --grace-period 300 --timeout 360s --delete-local-data {{ item }}
+      failed_when: false      
+      ignore_errors: yes
+      with_items: "{{ groups['nodes_to_remove'] }}"
+
+- name: Clean up node
+  hosts: nodes_to_remove
   roles:
-    - { role: kubernetes/remove-node/pre-remove, tags: pre-remove }
+    - { role: kubernetes/reset }
 
-- hosts: nodes_to_remove
-  gather_facts: no
-  roles:
-    - { role: kubernetes/reset, tags: reset, kubeadm_reset: false}
+- name: Delete node from k8s
+  hosts: master-server
+  tasks:
+    - name: Delete nodes from k8s cluster
+      shell: |
+        kubectl delete node {{ item }}
+      with_items: "{{ groups['nodes_to_remove'] }}"
 
-- hosts: master-server
-  roles:
-    - { role: kubernetes/remove-node/post-remove, tags: post-remove }
+- name: Remove node from Ceph
+  hosts: nodes_to_remove
+  tasks:
+    - name: Remove OSDs
+      shell: |
+        ceph osd status 2>&1 | grep {{ inventory_hostname }} | awk '{print $2}' | xargs -n 1 ceph osd out
+        sleep 30
 
+    - name: Wait for Ceph health
+      shell: "ceph health"
+      register: task_result
+      until: task_result.stdout.find("HEALTH_OK") != -1
+      retries: 15
+      delay: 5      
+      ignore_errors: yes
+
+    - name: Purge OSDs
+      shell: |
+        OSDS=$(ceph osd status 2>&1 | grep {{ inventory_hostname }} | awk '{print $2}')
+        echo $OSDS | xargs -I X systemctl stop ceph-osd@X
+        echo $OSDS | xargs -I X ceph osd purge X --yes-i-really-mean-it
+  tags: ceph
+
+- name: Purge Ceph from nodes
+  hosts: master-server
+  tasks:
+    - name: Purge with ceph-deploy
+      shell: |
+        ceph-deploy purge {{ groups['nodes_to_remove'] | join(' ') }}
+        ceph-deploy purgedata {{ groups['nodes_to_remove'] | join(' ') }}
+      args:
+        chdir: "{{ install_dir }}/ceph"
+    - name: Remove mons
+      shell: ceph mon rm {{ hostvars[item].inventory_hostname_short }}
+      with_items:
+        - "{{ groups['nodes_to_remove'] }}"
+  tags: ceph
+
+- name: Reboot node
+  hosts: nodes_to_remove
+  tasks:
+    - name: Reboot system
+      command: "/sbin/shutdown -r +1 --no-wall"
+      async: 0
+      poll: 0
+      ignore_errors: yes
 ...

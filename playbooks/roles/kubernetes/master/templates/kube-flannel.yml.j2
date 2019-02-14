@@ -108,6 +108,7 @@ spec:
       initContainers:
       - name: install-cni
         image: quay.io/coreos/flannel:v0.10.0-amd64
+        imagePullPolicy: IfNotPresent
         command:
         - cp
         args:
@@ -122,6 +123,7 @@ spec:
       containers:
       - name: kube-flannel
         image: quay.io/coreos/flannel:v0.10.0-amd64
+        imagePullPolicy: IfNotPresent
         command:
         - /opt/bin/flanneld
         args:

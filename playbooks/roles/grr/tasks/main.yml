@@ -1,0 +1,26 @@
+######################################################
+########### Setup Google Rapid response ##############
+######################################################
+---
+
+- name: "Create config directories for google rapid response."
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+  with_items:
+  - "{{ grr_dir }}"
+  - "{{ grr_dir }}/etc"
+  - "{{ grr_dir }}/mysql"
+  - "{{ grr_dir }}/installers"
+  - "{{ grr_dir }}/httpd/"
+  - "{{ grr_dir }}/httpd/conf"  
+  - "{{ grr_dir }}/httpd/private/"
+  - "{{ grr_dir }}/httpd/certs/"
+
+- import_tasks: apache_setup.yml
+- import_tasks: deploy_volumes.yml
+- import_tasks: deploy_mysql.yml
+- import_tasks: deploy_grr.yml

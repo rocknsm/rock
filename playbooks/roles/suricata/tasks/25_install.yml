@@ -1,0 +1,57 @@
+---
+
+- name: Run bootstrap pod
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Suricata Bootstrap"
+    file_name: "{{ suricata_dir }}/bootstrap.yml"
+
+- name: Get Bootstrap pod name
+  shell: |
+    while [ "$(kubectl get pods | grep suricata-bootstrap | head -n 1 | awk '{ print $2}')" != "1/1" ]; do
+      sleep 1;
+    done;
+    echo -n "$(kubectl get pods | grep suricata-bootstrap | head -n 1 | awk '{ print $1 }')"
+  register: moloch_bootstrap_pod
+
+- name: Wait for Bootstrap pod to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "suricata-bootstrap"
+    label: ""
+
+- name: Deploy Suricata
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "{{ item | hash('md5') }}-suricata"
+    file_name: "{{ suricata_dir }}/{{ item }}-deploy.yml"
+  with_items:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+
+- name: Wait for Suricata to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "{{ item | hash('md5') }}-suricata"
+    label: ""
+  with_items:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+
+- name: Give bootstrap time to complete
+  shell: sleep 10;
+
+- name: Remove Bootstrap
+  command: kubectl delete -f {{ suricata_dir }}/bootstrap.yml
+
+...

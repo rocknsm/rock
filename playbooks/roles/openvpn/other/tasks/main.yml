@@ -1,0 +1,21 @@
+---
+- name: Set reverse path filtering off everywhere so ARP still works
+  shell: |
+    for i in /proc/sys/net/ipv4/conf/*/rp_filter ; do
+    echo 0 > $i
+    done
+
+- name: Delete old config file to regenerate it
+  file:
+    state: absent
+    path: /etc/sysctl.d/90-disable-rp_filter.conf
+
+- name: Create config file to make reverse path filtering change permanent
+  shell: |
+    for i in * ; do
+    echo "net.ipv4.conf."$i".rp_filter=0" >> /etc/sysctl.d/90-disable-rp_filter.conf
+    done
+  args:
+    chdir: /proc/sys/net/ipv4/conf/
+
+...

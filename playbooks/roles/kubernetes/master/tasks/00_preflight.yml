@@ -13,8 +13,8 @@
 
 - name: Checking that required variables are set
   fail:
-    msg: "kube_version is not defined. It must be defined for Kubernetes to continue."
-  when: kube_version is not defined or kube_version is none
+    msg: "kube_rpm_version is not defined. It must be defined for Kubernetes to continue."
+  when: kube_rpm_version is not defined or kube_rpm_version is none
 
 - name: Checking that required variables are set
   fail:

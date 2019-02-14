@@ -1,0 +1,62 @@
+---
+# Master Dependency Versions file between all tfplenum projects.
+# Use include_vars function to utilize this file.
+
+# VERSIONS
+kube_state_version: "v1.3.0"
+kube_rpm_version: "1.9.7"
+kube_image_version: "v1.9.7"
+metallb_version: "v0.3.1"
+busybox_version: "1.27.2"
+k8s_version: "1.14.7"
+elastic_version: "6.5.3"
+coreos_version: "1688.5.3"
+rbd_provisioner_version: "v0.1.1"
+mumble_version: "v1.0.0"
+moloch_version: "1.7.0v2"
+kafka_version: "2.1.0"
+kafka_manager_version: "1.3.3.22"
+grr_version: "v3.2.4.6"
+mysql_version: "8"
+httpd_version: "2.4"
+bro_version: "2.6.1"
+suricata_version: "4.0.6"
+
+# Docker Image List
+kube_images:
+  - docker.io/busybox:{{busybox_version}}
+  - docker.io/metallb/controller:{{metallb_version}}
+  - docker.io/metallb/speaker:{{metallb_version}}
+  - docker.io/tfplenum/moloch:{{moloch_version}}
+  - docker.io/tfplenum/suricata:{{ suricata_version }}
+  - docker.io/tfplenum/zookeeper:alpine
+  - docker.io/tfplenum/kafka:{{ kafka_version }}
+  - docker.io/tfplenum/kafka-manager:{{kafka_manager_version}}
+  - docker.io/tfplenum/elasticsearch:{{ elastic_version }}
+  - docker.io/tfplenum/mumble-server:{{ mumble_version }}
+  - docker.io/tfplenum/bro:{{ bro_version }}
+  - docker.elastic.co/elasticsearch/elasticsearch:{{ elastic_version }}
+  - docker.elastic.co/beats/filebeat:{{elastic_version}}
+  - docker.elastic.co/kibana/kibana:{{ elastic_version }}
+  - docker.elastic.co/logstash/logstash:{{ elastic_version }}
+  - docker.elastic.co/beats/metricbeat:{{ elastic_version }}
+  - gcr.io/google_containers/kube-apiserver-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/kube-scheduler-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/kube-proxy-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/kube-controller-manager-amd64:{{kube_image_version}}
+  - gcr.io/google_containers/etcd-amd64:3.1.11
+  - gcr.io/google_containers/k8s-dns-sidecar-amd64:{{k8s_version}}
+  - gcr.io/google_containers/k8s-dns-kube-dns-amd64:{{k8s_version}}
+  - gcr.io/google_containers/k8s-dns-dnsmasq-nanny-amd64:{{k8s_version}}
+  - gcr.io/google_containers/pause-amd64:3.0
+  - k8s.gcr.io/addon-resizer:1.7
+  - k8s.gcr.io/heapster-amd64:v1.4.2
+  - k8s.gcr.io/heapster-grafana-amd64:v4.4.3
+  - k8s.gcr.io/heapster-influxdb-amd64:v1.3.3
+  - k8s.gcr.io/kubernetes-dashboard-amd64:v1.8.3
+  - quay.io/external_storage/rbd-provisioner:{{ rbd_provisioner_version }}
+  - quay.io/coreos/flannel:v0.10.0-amd64
+  - quay.io/coreos/kube-state-metrics:{{kube_state_version}}
+  - docker.io/grrdocker/grr:{{grr_version}}
+  - docker.io/mysql:{{mysql_version}}
+  - docker.io/httpd:{{httpd_version}}

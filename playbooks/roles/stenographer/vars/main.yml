@@ -1,4 +1,0 @@
----
-# vars file for stenographer
-
-stenographer_monitor_interface: "{{ hostvars[inventory_hostname].monitor_interface }}"

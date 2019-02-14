@@ -1,0 +1,19 @@
+---
+
+- name: Delete Suricata Deployments
+  include: 20_cleanup_suricata.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
+  with_nested:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+    - ['deploy.yml']
+
+- name: "Clean up kube for deployment "
+  command: "kubectl delete -f {{ suricata_dir }}/bootstrap.yml --ignore-not-found"
+
+- name: "Wait for deployment to cleanup"
+  shell: |
+    while [ $(kubectl get pods | grep suricata | wc -l) -gt 0 ]; do
+      echo -n .;
+      sleep 1;
+    done;
+
+...

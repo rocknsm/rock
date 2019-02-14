@@ -1,0 +1,11 @@
+#### grr configuration variables ####
+---
+grr_image: 'grrdocker/grr'
+grr_dir: "{{ install_dir }}/grr"
+grr_tag: 'v3.2.4.6'
+mysql_image: mysql
+mysql_tag: 8
+mysql_pwd: mysqlR00Tpw
+grr_config_files:
+  - grr-server.yaml
+  - approvers.yaml

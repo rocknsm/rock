@@ -1,0 +1,60 @@
+import urllib2
+
+topThreshold = {{ maximum_disk_threshold }}
+safeThreshold = {{ safe_disk_threshold }}
+
+exemptList = ["kibana","sequence","files","stats","dstats","fields","users","queries"]
+
+request1 = urllib2.urlopen("http://elasticsearch.lan:9200/_cat/allocation?h=node,disk.percent&s=disk.percent:desc")
+diskUseRaw = request1.read().splitlines()
+diskUse = [(x,y) for x,y in (line.split() for line in diskUseRaw)]
+print("('Node name', 'Disk usage percentage')")
+print(diskUse)
+
+request2 = urllib2.urlopen("http://elasticsearch.lan:9200/_cat/indices?h=index&s=creation.date")
+indicesRaw = request2.read()
+indices = indicesRaw.splitlines()
+print("List of indices present in the database [Not all are considered for deletion, especially not .kibana!]")
+print(indices)
+
+request3 = urllib2.urlopen("http://elasticsearch.lan:9200/_cat/shards?h=index,node&s=store:desc")
+shardsRaw = request3.read().splitlines()
+shards = [(x,y) for x,y in (line.split() for line in shardsRaw)]
+#print(shards)
+
+for node in diskUse:
+        print ("Working on "+node[0])
+        hitlist = []
+        if int(node[1]) >= topThreshold:
+                for index in indices:
+                        for shard in shards:
+                                if node[0] == shard[1] and index == shard[0]:
+                                        hitlist += [shard[0]]
+        else:
+                print ("No need to delete, usage is under "+str(topThreshold))
+        for index in hitlist:
+                #delete index
+                #check disk usage
+                for item in exemptList:
+                        if item in index:
+                                deleteIndex = False
+                                break
+                        else:
+                                deleteIndex = True
+                if deleteIndex:
+                        deleteOpener = urllib2.build_opener(urllib2.HTTPHandler)
+                        request4 = urllib2.Request("http://elasticsearch.lan:9200/"+index)
+                        request4.get_method = lambda: 'DELETE'
+                        try:
+                                deleteResult = deleteOpener.open(request4)
+                        except urllib2.HTTPError as err:
+                                if err.code == 404:
+                                        continue
+                                else:
+                                        raise
+                        print("Deleted: "+index)
+                        currentDiskUseRaw = urllib2.urlopen("http://elasticsearch.lan:9200/_cat/allocation?h=node,disk.percent&s=disk.percent:desc&nodes="+node[0])
+                        currentDiskUse = int(currentDiskUseRaw.read().splitlines()[0].split()[1])
+                        if currentDiskUse <= safeThreshold:
+                                print("All done deleting, usage is below ",safeThreshold)
+                                break

@@ -1,0 +1,175 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: grr-frontend
+  namespace: default
+spec:
+  replicas: 1
+  serviceName: grr-frontend
+  selector:
+    matchLabels:
+      name: grr-frontend
+  template:
+    metadata:
+      labels:
+        name: grr-frontend
+    spec:
+      nodeSelector:
+        role: server
+      restartPolicy: Always
+      initContainers:
+      - image: "{{ grr_image }}:{{ grr_tag }}"
+        imagePullPolicy: IfNotPresent
+        name: init
+        env:
+        - name: COMPONENT
+          value: frontend
+        - name: EXTERNAL_HOSTNAME
+          value: "{{ grragentip.stdout }}"
+        - name: ADMIN_PASSWORD
+          value: password
+        - name: GRR_MYSQL_HOSTNAME
+          value: mysql
+        - name: GRR_MYSQL_PORT
+          value: "3306"
+        - name: GRR_MYSQL_USERNAME
+          value: root
+        - name: GRR_MYSQL_PASSWORD
+          value: mysqlR00Tpw
+        - name: DISABLE_INTERNAL_MYSQL
+          value: "true"
+        - name: GRR_MYSQL_DB
+          value: grrdb
+        - name: GRR_SERVER_FILE
+          value: /usr/share/grr-server/install_data/etc/grr-server.yaml
+        - name: GRR_APPROVERS_FILE
+          value: /usr/share/grr-server/install_data/etc/approvers.yaml
+        command:
+        - "/bin/bash"
+        - "-c"
+        - |
+          while [ ! -f "${GRR_SERVER_FILE}" ]; do
+             echo "${GRR_SERVER_FILE} does not exist sleeping 5 seconds"
+             sleep 5
+          done
+
+          while [ ! -f "${GRR_APPROVERS_FILE}" ]; do
+             echo "${GRR_APPROVERS_FILE} does not exist sleeping 5 seconds"
+             sleep 5
+          done
+
+          set -e
+          VIRTUALENV="/usr/share/grr-server"
+          source "${VIRTUALENV}/bin/activate"
+          if [[ ! -e "${VIRTUALENV}/install_data/etc/server.local.yaml" ]]; then
+            grr_config_updater initialize \
+              --noprompt \
+              --external_hostname="${EXTERNAL_HOSTNAME}" \
+              --admin_password="${ADMIN_PASSWORD}" \
+              --mysql_hostname="${GRR_MYSQL_HOSTNAME}" \
+              --mysql_port="${GRR_MYSQL_PORT:-0}" \
+              --mysql_db="${GRR_MYSQL_DB}" \
+              --mysql_username="${GRR_MYSQL_USERNAME}" \
+              --mysql_password="${GRR_MYSQL_PASSWORD}"
+          fi
+          exit 0
+        volumeMounts:
+        - mountPath: /usr/share/grr-server/install_data/etc
+          name: etc
+        - mountPath: /usr/share/grr-server/executables/installers
+          name: installers
+      containers:
+      - name: httpd
+        image: "httpd:2.4"
+        ports:
+        - name: agents
+          containerPort: 443
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /usr/local/apache2/conf
+          name: http-conf
+        - mountPath: /etc/ssl/certs/
+          name: httpd-certs
+        - mountPath: /etc/ssl/private/
+          name: httpd-private
+      - name: frontend
+        image: "{{ grr_image }}:{{ grr_tag }}"
+        command:
+        - "/bin/bash"
+        - "-c"
+        - |          
+          set -e
+          VIRTUALENV="/usr/share/grr-server"
+          source "${VIRTUALENV}/bin/activate"
+          run_component() {
+            COMPONENT=$1; shift
+            grr_server --component "${COMPONENT}" --disallow_missing_config_definitions "$@"
+          }
+          run_component frontend &
+          run_component admin_ui &
+          run_component worker &
+          run_component worker &
+          run_component worker &
+          run_component worker
+        # resources:
+        #   requests:
+        #     memory: "1Gi"
+        #     cpu: "1000m"
+        #   limits:
+        #     memory: "4Gi"
+        #     cpu: "4000m"
+        env:
+        - name: COMPONENT
+          value: frontend
+        - name: DISABLE_INTERNAL_MYSQL
+          value: "true"
+        volumeMounts:
+        - mountPath: /usr/share/grr-server/install_data/etc
+          name: etc
+        - mountPath: /usr/share/grr-server/executables/installers
+          name: installers
+        ports:
+        - name: agents
+          containerPort: 8080
+          protocol: TCP
+        - name: http
+          containerPort: 8000
+          protocol: TCP
+      volumes:
+      - name: etc
+        persistentVolumeClaim:
+          claimName: grr-etc
+      - name: installers
+        persistentVolumeClaim:
+          claimName: grr-installers
+      - name: http-conf
+        configMap:
+          name: httpd-conf
+          items:
+          - key: httpd.conf
+            path: httpd.conf
+            mode: 0644
+          - key: reverse-proxy-ssl.conf
+            path: reverse-proxy-ssl.conf
+            mode: 0644
+          - key: mime.types
+            path: mime.types
+            mode: 0644
+      - name: httpd-certs
+        configMap:
+          name: httpd-certs
+          items:
+          - key: dhparam.pem
+            path: dhparam.pem
+            mode: 0644
+          - key: apache-selfsigned.crt
+            path: apache-selfsigned.crt
+            mode: 0644
+      - name: httpd-private
+        configMap:
+          name: httpd-private
+          items:
+          - key: apache-selfsigned.key
+            path: apache-selfsigned.key
+            mode: 0600

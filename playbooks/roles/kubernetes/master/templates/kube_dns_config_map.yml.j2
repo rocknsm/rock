@@ -9,5 +9,7 @@ metadata:
 data:
   # If this line looks incredibly confusing, see escaping documentation in jinja2
   # http://jinja.pocoo.org/docs/2.10/templates/#escaping. It wasn't my idea.
-  stubDomains: {{'{'}}"lan": [{{'"'}}{{ dns_ip }}{{'"'}}]{{'}'}}
-  upstreamNameservers: ["8.8.8.8", "8.8.4.4"]
+  stubDomains: |
+    {{'{'}}"lan": [{{'"'}}{{ dns_ip }}{{'"'}}]{{'}'}}
+  upstreamNameservers: |
+    ["{{ hostvars[groups['master-server'][0]].management_ipv4 }}"]

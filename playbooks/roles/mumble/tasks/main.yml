@@ -1,0 +1,55 @@
+######################################################
+################# Setup Mumble #######################
+######################################################
+---
+
+- name: "Create config directory"
+  file:
+    path: "{{ mumble_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: Install templates
+  template:
+    src: "templates/{{ item }}.yml"
+    dest: "{{ mumble_dir }}/{{ item }}.yml"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+  - deploy
+  - svc
+
+- name: "Deleting kube mumble pod "
+  command: "kubectl delete -f {{ mumble_dir }}/{{ item }}.yml --ignore-not-found"
+  with_items:
+  - svc
+  - deploy
+
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Mumble Server"
+    file_name: "{{ mumble_dir }}/svc.yml"
+
+- name: Deploy Services
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Mumble Server"
+    file_name: "{{ mumble_dir }}/deploy.yml"
+
+- name: Wait for Mumble Server to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "mumble-server"
+    label: ""

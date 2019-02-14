@@ -1,0 +1,270 @@
+{
+  "version": "6.3.2",
+  "objects": [
+    {
+      "id": "b3b449d0-3429-11e7-9d52-4f090484f59e",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.364Z",
+      "version": 53,
+      "attributes": {
+        "title": "Navigation",
+        "visState": "{\"title\":\"Navigation\",\"type\":\"markdown\",\"params\":{\"markdown\":\"[Home](/app/kibana#/dashboard/94b52620-342a-11e7-9d52-4f090484f59e)   \\n[Help](/app/kibana#/dashboard/AV6-POJSDwoBUzALqKAg)   \\n\\n**Alert Data**  \\n[Bro Notices](/app/kibana#/dashboard/01600fb0-34e4-11e7-9669-7f1d3242b798)      \\n\\n**Bro Hunting**   \\n[Connections](/app/kibana#/dashboard/e0a34b90-34e6-11e7-9118-45bd317f0ca4)   \\n[DCE/RPC](/app/kibana#/dashboard/46582d50-3af2-11e7-a83b-b1b4da7d15f4)   \\n[DHCP](/app/kibana#/dashboard/85348270-357b-11e7-ac34-8965f6420c51)  \\n[DNP3](/app/kibana#/dashboard/2fdf5bf0-3581-11e7-98ef-19df58fe538b)  \\n[DNS](/app/kibana#/dashboard/ebf5ec90-34bf-11e7-9b32-bb903919ead9)  \\n[Files](/app/kibana#/dashboard/2d315d80-3582-11e7-98ef-19df58fe538b)  \\n[FTP](/app/kibana#/dashboard/27f3b380-3583-11e7-a588-05992195c551)  \\n[HTTP](/app/kibana#/dashboard/230134a0-34c6-11e7-8360-0b86c90983fd)  \\n[Intel](/app/kibana#/dashboard/468022c0-3583-11e7-a588-05992195c551)  \\n[IRC](/app/kibana#/dashboard/56a34ce0-3583-11e7-a588-05992195c551)  \\n[Kerberos](/app/kibana#/dashboard/6b0d4870-3583-11e7-a588-05992195c551)  \\n[Modbus](/app/kibana#/dashboard/70c005f0-3583-11e7-a588-05992195c551)  \\n[MySQL](/app/kibana#/dashboard/7929f430-3583-11e7-a588-05992195c551)  \\n[NTLM](/app/kibana#/dashboard/022713e0-3ab0-11e7-a83b-b1b4da7d15f4)  \\n[PE](/app/kibana#/dashboard/8a10e380-3583-11e7-a588-05992195c551)  \\n[RADIUS](/app/kibana#/dashboard/90b246c0-3583-11e7-a588-05992195c551)  \\n[RDP](/app/kibana#/dashboard/97f8c3a0-3583-11e7-a588-05992195c551)  \\n[RFB](/app/kibana#/dashboard/9ef20ae0-3583-11e7-a588-05992195c551)  \\n[SIP](/app/kibana#/dashboard/ad3c0830-3583-11e7-a588-05992195c551)  \\n[SMB](/app/kibana#/dashboard/b3a53710-3aaa-11e7-8b17-0d8709b02c80)  \\n[SMTP](/app/kibana#/dashboard/b10a9c60-3583-11e7-a588-05992195c551)  \\n[SNMP](/app/kibana#/dashboard/b65c2710-3583-11e7-a588-05992195c551)  \\n[Software](/app/kibana#/dashboard/c2c99c30-3583-11e7-a588-05992195c551)  \\n[SSH](/app/kibana#/dashboard/c6ccfc00-3583-11e7-a588-05992195c551)  \\n[SSL](/app/kibana#/dashboard/cca67b60-3583-11e7-a588-05992195c551)  \\n[Syslog](/app/kibana#/dashboard/c4bbe040-76b3-11e7-ba96-cba76a1e264d)   \\n[Tunnels](/app/kibana#/dashboard/d7b54ae0-3583-11e7-a588-05992195c551)  \\n[Weird](/app/kibana#/dashboard/de2da250-3583-11e7-a588-05992195c551)  \\n[X.509](/app/kibana#/dashboard/e5aa7170-3583-11e7-a588-05992195c551)  \\n\\n**Other**   \\n[Domain Stats](/app/kibana#/dashboard/AWAi6wvxAvKNGEbUWO_j)   \\n[Frequency](/app/kibana#/dashboard/AWAi5k4jAvKNGEbUWFis)  \\n[Stats](/app/kibana#/dashboard/130017f0-46ce-11e7-946f-1bfb1be7c36b)\",\"type\":\"markdown\",\"fontSize\":10,\"openLinksInNewTab\":false},\"aggs\":[]}",
+        "uiStateJSON": "{}",
+        "description": "",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"query\":{\"query\":{\"query_string\":{\"query\":\"*\"}},\"language\":\"lucene\"},\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "265a04d0-3640-11e7-a6f7-4f44d7bf1c33",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Log Count Over TIme\",\"type\":\"line\",\"params\":{\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"truncate\":100},\"title\":{\"text\":\"@timestamp per 12 hours\"}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":100},\"title\":{\"text\":\"Count\"}}],\"seriesParams\":[{\"show\":true,\"mode\":\"normal\",\"type\":\"line\",\"drawLinesBetweenPoints\":true,\"showCircles\":true,\"interpolate\":\"linear\",\"lineWidth\":2,\"data\":{\"id\":\"1\",\"label\":\"Count\"},\"valueAxis\":\"ValueAxis-1\"}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"showCircles\":true,\"interpolate\":\"linear\",\"scale\":\"linear\",\"drawLinesBetweenPoints\":true,\"radiusRatio\":9,\"times\":[],\"addTimeMarker\":false,\"defaultYExtents\":false,\"setYExtents\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"date_histogram\",\"schema\":\"segment\",\"params\":{\"field\":\"@timestamp\",\"interval\":\"auto\",\"customInterval\":\"2h\",\"min_doc_count\":1,\"extended_bounds\":{}}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Log Count Over TIme",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "869e3030-371e-11e7-90f8-87842d5eedc9",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Authentication Status (Donut Chart)\",\"type\":\"pie\",\"params\":{\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"auth.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Authentication Status\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Authentication Status (Donut Chart)",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "bf47f4c0-371e-11e7-90f8-87842d5eedc9",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Authentication Method\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"authentication_method.keyword\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Authentication Method\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Authentication Method",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "14274040-371f-11e7-90f8-87842d5eedc9",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Exclusive Session (Donut Chart)\",\"type\":\"pie\",\"params\":{\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"isDonut\":true},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"segment\",\"params\":{\"field\":\"share_flag.keyword\",\"size\":5,\"order\":\"desc\",\"orderBy\":\"1\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Exclusive Session (Donut Chart)",
+        "uiStateJSON": "{\"vis\":{\"legendOpen\":true}}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "63c072c0-371f-11e7-90f8-87842d5eedc9",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Desktop Name\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"desktop_name.keyword\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Desktop Name\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Desktop Name",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+      "type": "search",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "sort": [
+          "@timestamp",
+          "desc"
+        ],
+        "hits": 0,
+        "description": "",
+        "title": "RFB - Logs",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"index\":\"logstash-*\",\"highlightAll\":true,\"version\":true,\"filter\":[],\"query\":{\"query_string\":{\"query\":\"event_type:bro_rfb\",\"analyze_wildcard\":true}}}"
+        },
+        "columns": [
+          "source_ip",
+          "source_port",
+          "destination_ip",
+          "destination_port",
+          "uid",
+          "_id"
+        ]
+      }
+    },
+    {
+      "id": "bbbe5a80-6e21-11e7-b553-7f80727663c1",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Source IP Address\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"source_ip\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"IP Address\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Source IP Address",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "d6ec3570-6e21-11e7-b553-7f80727663c1",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Destination IP Address\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"destination_ip\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"IP Address\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Destination IP Address",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "e8982270-6e21-11e7-b553-7f80727663c1",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Destination Port\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"destination_port\",\"size\":100,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Port\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Destination Port",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "4fade7b0-6e22-11e7-b553-7f80727663c1",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Server Version\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"server_major_version.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Major Version\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"server_minor_version.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Minor Version\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Server Version",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "7c1e3f70-6e22-11e7-b553-7f80727663c1",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Client Version\",\"type\":\"table\",\"params\":{\"perPage\":10,\"showPartialRows\":false,\"showMeticsAtAllLevels\":false,\"sort\":{\"columnIndex\":null,\"direction\":null},\"showTotal\":false,\"totalFunc\":\"sum\"},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"client_major_version.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Major Version\"}},{\"id\":\"3\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"bucket\",\"params\":{\"field\":\"client_minor_version.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Minor Version\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Client Version",
+        "uiStateJSON": "{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "c24191f0-6e22-11e7-b553-7f80727663c1",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "visState": "{\"title\":\"RFB - Authentication Method (Horizontal Bar Chart)\",\"type\":\"histogram\",\"params\":{\"grid\":{\"categoryLines\":false,\"style\":{\"color\":\"#eee\"}},\"categoryAxes\":[{\"id\":\"CategoryAxis-1\",\"type\":\"category\",\"position\":\"left\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\"},\"labels\":{\"show\":true,\"rotate\":0,\"filter\":false,\"truncate\":200},\"title\":{}}],\"valueAxes\":[{\"id\":\"ValueAxis-1\",\"name\":\"LeftAxis-1\",\"type\":\"value\",\"position\":\"bottom\",\"show\":true,\"style\":{},\"scale\":{\"type\":\"linear\",\"mode\":\"normal\"},\"labels\":{\"show\":true,\"rotate\":75,\"filter\":true,\"truncate\":100},\"title\":{\"text\":\"Count\"}}],\"seriesParams\":[{\"show\":true,\"type\":\"histogram\",\"mode\":\"normal\",\"data\":{\"label\":\"Count\",\"id\":\"1\"},\"valueAxis\":\"ValueAxis-1\",\"drawLinesBetweenPoints\":true,\"showCircles\":true}],\"addTooltip\":true,\"addLegend\":true,\"legendPosition\":\"right\",\"times\":[],\"addTimeMarker\":false},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}},{\"id\":\"2\",\"enabled\":true,\"type\":\"terms\",\"schema\":\"group\",\"params\":{\"field\":\"authentication_method.keyword\",\"size\":50,\"order\":\"desc\",\"orderBy\":\"1\",\"customLabel\":\"Method\"}}],\"listeners\":{}}",
+        "description": "",
+        "title": "RFB - Authentication Method (Horizontal Bar Chart)",
+        "uiStateJSON": "{}",
+        "version": 1,
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "AWDHC8iGxQT5EBNmq4bs",
+      "type": "visualization",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "title": "RFB - Log Count",
+        "visState": "{\"title\":\"RFB - Log Count\",\"type\":\"metric\",\"params\":{\"addTooltip\":true,\"addLegend\":false,\"type\":\"gauge\",\"gauge\":{\"verticalSplit\":false,\"autoExtend\":false,\"percentageMode\":false,\"gaugeType\":\"Metric\",\"gaugeStyle\":\"Full\",\"backStyle\":\"Full\",\"orientation\":\"vertical\",\"colorSchema\":\"Green to Red\",\"gaugeColorMode\":\"None\",\"useRange\":false,\"colorsRange\":[{\"from\":0,\"to\":100}],\"invertColors\":false,\"labels\":{\"show\":false,\"color\":\"black\"},\"scale\":{\"show\":false,\"labels\":false,\"color\":\"#333\",\"width\":2},\"type\":\"simple\",\"style\":{\"fontSize\":\"30\",\"bgColor\":false,\"labelColor\":false,\"subText\":\"\",\"bgFill\":\"#FB9E00\"}}},\"aggs\":[{\"id\":\"1\",\"enabled\":true,\"type\":\"count\",\"schema\":\"metric\",\"params\":{}}],\"listeners\":{}}",
+        "uiStateJSON": "{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}}",
+        "description": "",
+        "savedSearchId": "8ba53710-342e-11e7-9e93-53b62e1857b2",
+        "version": 1,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[]}"
+        }
+      }
+    },
+    {
+      "id": "9ef20ae0-3583-11e7-a588-05992195c551",
+      "type": "dashboard",
+      "updated_at": "2018-09-15T14:01:45.253Z",
+      "version": 1,
+      "attributes": {
+        "title": "Bro - RFB",
+        "hits": 0,
+        "description": "",
+        "panelsJSON": "[{\"panelIndex\":\"1\",\"gridData\":{\"x\":0,\"y\":0,\"w\":2,\"h\":14,\"i\":\"1\"},\"id\":\"b3b449d0-3429-11e7-9d52-4f090484f59e\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"3\",\"gridData\":{\"x\":4,\"y\":0,\"w\":8,\"h\":2,\"i\":\"3\"},\"id\":\"265a04d0-3640-11e7-a6f7-4f44d7bf1c33\",\"type\":\"visualization\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"legendOpen\":false}}},{\"panelIndex\":\"5\",\"gridData\":{\"x\":2,\"y\":2,\"w\":5,\"h\":3,\"i\":\"5\"},\"id\":\"869e3030-371e-11e7-90f8-87842d5eedc9\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"6\",\"gridData\":{\"x\":8,\"y\":14,\"w\":4,\"h\":6,\"i\":\"6\"},\"id\":\"bf47f4c0-371e-11e7-90f8-87842d5eedc9\",\"type\":\"visualization\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}},{\"panelIndex\":\"7\",\"gridData\":{\"x\":7,\"y\":2,\"w\":5,\"h\":3,\"i\":\"7\"},\"id\":\"14274040-371f-11e7-90f8-87842d5eedc9\",\"type\":\"visualization\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"colors\":{\"-\":\"#967302\",\"T\":\"#0A50A1\"},\"legendOpen\":true}}},{\"panelIndex\":\"8\",\"gridData\":{\"x\":2,\"y\":8,\"w\":10,\"h\":6,\"i\":\"8\"},\"id\":\"63c072c0-371f-11e7-90f8-87842d5eedc9\",\"type\":\"visualization\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}},{\"panelIndex\":\"10\",\"gridData\":{\"x\":0,\"y\":26,\"w\":12,\"h\":7,\"i\":\"10\"},\"columns\":[\"source_ip\",\"source_port\",\"destination_ip\",\"destination_port\",\"uid\",\"_id\"],\"id\":\"8ba53710-342e-11e7-9e93-53b62e1857b2\",\"sort\":[\"@timestamp\",\"desc\"],\"type\":\"search\",\"version\":\"6.1.1\"},{\"panelIndex\":\"11\",\"gridData\":{\"x\":0,\"y\":14,\"w\":4,\"h\":6,\"i\":\"11\"},\"id\":\"bbbe5a80-6e21-11e7-b553-7f80727663c1\",\"type\":\"visualization\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}},{\"panelIndex\":\"12\",\"gridData\":{\"x\":4,\"y\":14,\"w\":4,\"h\":6,\"i\":\"12\"},\"id\":\"d6ec3570-6e21-11e7-b553-7f80727663c1\",\"type\":\"visualization\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}},{\"panelIndex\":\"13\",\"gridData\":{\"x\":0,\"y\":20,\"w\":4,\"h\":6,\"i\":\"13\"},\"id\":\"e8982270-6e21-11e7-b553-7f80727663c1\",\"type\":\"visualization\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}},{\"panelIndex\":\"14\",\"gridData\":{\"x\":8,\"y\":20,\"w\":4,\"h\":6,\"i\":\"14\"},\"id\":\"4fade7b0-6e22-11e7-b553-7f80727663c1\",\"type\":\"visualization\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}},{\"panelIndex\":\"15\",\"gridData\":{\"x\":4,\"y\":20,\"w\":4,\"h\":6,\"i\":\"15\"},\"id\":\"7c1e3f70-6e22-11e7-b553-7f80727663c1\",\"type\":\"visualization\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"params\":{\"sort\":{\"columnIndex\":null,\"direction\":null}}}}},{\"panelIndex\":\"16\",\"gridData\":{\"x\":2,\"y\":5,\"w\":10,\"h\":3,\"i\":\"16\"},\"id\":\"c24191f0-6e22-11e7-b553-7f80727663c1\",\"type\":\"visualization\",\"version\":\"6.1.1\"},{\"panelIndex\":\"17\",\"gridData\":{\"x\":2,\"y\":0,\"w\":2,\"h\":2,\"i\":\"17\"},\"type\":\"visualization\",\"id\":\"AWDHC8iGxQT5EBNmq4bs\",\"version\":\"6.1.1\",\"embeddableConfig\":{\"vis\":{\"defaultColors\":{\"0 - 100\":\"rgb(0,104,55)\"}}}}]",
+        "optionsJSON": "{\"darkTheme\":true,\"useMargins\":true}",
+        "version": 1,
+        "timeRestore": false,
+        "kibanaSavedObjectMeta": {
+          "searchSourceJSON": "{\"filter\":[],\"highlightAll\":true,\"version\":true,\"query\":{\"query\":{\"query_string\":{\"analyze_wildcard\":true,\"query\":\"*\",\"default_field\":\"*\"}},\"language\":\"lucene\"}}"
+        }
+      }
+    }
+  ]
+}

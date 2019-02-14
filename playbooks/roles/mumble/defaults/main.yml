@@ -1,0 +1,10 @@
+%YAML 1.1
+---
+
+#### mumble configuration variables ####
+
+mumble_port: '64738'
+mumble_image: 'tfplenum/mumble-server'
+mumble_dir: "{{ install_dir }}/mumble-server"
+mumble_tag: 'v1.0.0'
+...

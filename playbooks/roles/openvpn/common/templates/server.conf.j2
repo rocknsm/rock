@@ -1,0 +1,36 @@
+port 1194
+
+# TCP or UDP server?
+proto tcp
+;proto udp
+
+dev tap0
+;dev tun
+
+ca /etc/openvpn/pki/ca.crt
+cert /etc/openvpn/pki/ca.crt
+key /etc/openvpn/pki/private/ca.key  # This file should be kept secret
+dh /etc/openvpn/pki/dh.pem
+
+topology subnet
+
+server-bridge
+client-config-dir /etc/openvpn/server/ccd
+push "redirect-gateway"
+
+client-to-client
+
+keepalive 10 120
+
+;tls-auth ta.key 0 # This file is secret
+
+cipher AES-256-CBC
+
+persist-key
+persist-tun
+
+status openvpn-status.log
+
+verb 3
+
+;explicit-exit-notify 1

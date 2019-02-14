@@ -1,0 +1,23 @@
+---
+
+- name: Delete Moloch Deployments
+  include: 30_cleanup_moloch.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
+  with_nested:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+    - ['sts.yml']
+
+- name: "Clean up kube for deployment "
+  command: "kubectl delete -f {{ moloch_dir }}/{{ item }}.yml --ignore-not-found"
+  with_items:
+    - bootstrap
+    - svc-viewer
+    - deploy-viewer
+
+- name: "Wait for deployment to cleanup"
+  shell: |
+    while [ $(kubectl get pods | grep moloch | wc -l) -gt 0 ]; do
+      echo -n .;
+      sleep 1;
+    done;
+
+...

@@ -1,11 +1,13 @@
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bro
+  name: {{ hostname | hash('md5') }}-bro
   labels:
     component: bro
 spec:
-  replicas: {{ groups['bro'] | length }}
+  replicas: 1
   selector:
     matchLabels:
       component: bro
@@ -17,7 +19,8 @@ spec:
       hostNetwork: true
       containers:
       - name: bro
-        image: {{ bro_image }}:{{ bro_ver }}
+        image: {{ bro_image }}:{{ bro_version }}
+        imagePullPolicy: IfNotPresent
         securityContext:
           capabilities:
             add:
@@ -25,49 +28,60 @@ spec:
               - NET_RAW
               - SYS_NICE
         resources:
-          limits:
-            cpu: 1000m
           requests:
-            cpu: 100m
+            cpu: {{ bro_cpu_request }}
+        livenessProbe:
+          exec:
+            command:
+            - bash
+            - -c
+            - systemctl status bro | grep running
+          initialDelaySeconds: 20
+          periodSeconds: 10
         volumeMounts:
-        - name: vars
-          mountPath: /etc/icdm/
-        - name: templates
-          mountPath: /etc/icdm/templates/
-        - name: configs
-          mountPath: /etc/icdm/conf/
+        - name: broctl
+          mountPath: {{ bro_container_path }}/etc/broctl.cfg
+        - name: kafka
+          mountPath: {{ bro_container_path }}/share/bro/site/kafka.bro
+        - name: local
+          mountPath: {{ bro_container_path }}/share/bro/site/local.bro
+        - name: custom
+          mountPath: {{ bro_container_path }}/share/bro/site/custom
+        - name: networks
+          mountPath: {{ bro_container_path }}/etc/networks.cfg
+        - name: node
+          mountPath: {{ bro_container_path }}/etc/node.cfg
+        - name: scripts
+          mountPath: {{ bro_container_path }}/share/bro/policy/custom-scripts
       volumes:
-      - name: vars
-        configMap:
-          name: vars
-      - name: templates
-        configMap:
-          name: bro
-          items:
-          - key: broctl.cfg.tmpl
-            path: broctl.cfg.tmpl
-          - key: node.cfg.tmpl
-            path: node.cfg.tmpl
-          - key: networks.cfg.tmpl
-            path: networks.cfg.tmpl
-          - key: kafka.bro.tmpl
-            path: kafka.bro.tmpl
-          - key: local.bro.tmpl
-            path: local.bro.tmpl
-      - name: configs
-        configMap:
-          name: bro
-          items:
-          - key: kafka.bro.conf
-            path: kafka.bro.conf
-          - key: networks.cfg.conf
-            path: networks.cfg.conf
-          - key: node.cfg.conf
-            path: node.cfg.conf
-          - key: broctl.cfg.conf
-            path: broctl.cfg.conf
-          - key: local.bro.conf
-            path: local.bro.conf
+      - name: broctl
+        hostPath:
+          path: {{ bro_dir }}/{{ hostname }}-broctl.cfg
+          type: File
+      - name: kafka
+        hostPath:
+          path: {{ bro_dir }}/{{ hostname }}-kafka.bro
+          type: File
+      - name: local
+        hostPath:
+          path: {{ bro_dir }}/local.bro
+          type: File
+      - name: custom
+        hostPath:
+          path: {{ bro_dir }}/custom
+          type: DirectoryOrCreate
+      - name: networks
+        hostPath:
+          path: {{ bro_dir }}/{{ hostname }}-networks.cfg
+          type: File
+      - name: node
+        hostPath:
+          path: {{ bro_dir }}/{{ hostname }}-node.cfg
+          type: File
+      - name: scripts
+        hostPath:
+          path: {{ bro_scripts }}
+          type: DirectoryOrCreate
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -86,3 +100,5 @@ spec:
                 values:
                 - bro
             topologyKey: "kubernetes.io/hostname"
+
+...

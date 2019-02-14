@@ -1,0 +1,66 @@
+---
+- block:
+  - name: install inotify-tools
+    yum:
+      name: inotify-tools
+      state: present
+
+  - name: Create interfaces directory
+    file:
+      mode: u+rx,g+rx
+      path: "{{ install_dir }}/interfaces"
+      state: directory
+
+  - block:
+      - name: Set on boot to yes
+        replace:
+          path: "/etc/sysconfig/network-scripts/ifcfg-{{ item }}"
+          regexp: "ONBOOT=no"
+          replace: "ONBOOT=yes"
+        with_items: "{{ sensor_monitor_interface }}"
+    rescue:
+      - fail:
+          msg: |
+            Could not find a required interface network script. This frequently 
+            happens when you add an interface to the host after Kickstarting. Try
+            running the command nmtui and verify that you have a profile for each
+            interface on your host. Monitor interfaces should be set to link local.
+            The profile name should be the same as the interface name.
+
+  - name: Add promisc service
+    copy:
+      src: enable-promisc-mode.service
+      dest: /etc/systemd/system/enable-promisc-mode.service    
+      owner: root
+      group: root
+      mode: 0755
+
+  - name: Create promisc script for service
+    copy:
+      src: "iface-promisc-mode"
+      dest: "/usr/bin/iface-promisc-mode"
+      group: root
+      owner: root
+      mode: 0755
+
+  - name: Add promisc service
+    template:
+      src: templates/monitor_interfaces
+      dest: "{{ install_dir }}/interfaces/monitor_interfaces"
+      owner: root
+      group: root
+      mode: 0600
+    register: interface_results
+
+  - name: Enable promisc service
+    systemd:
+      name: enable-promisc-mode
+      daemon-reload: yes
+      state: started
+      enabled: yes
+
+  - name: Restart promisc service
+    systemd:
+      name: enable-promisc-mode    
+      state: restarted
+  when: inventory_hostname in groups['sensors'] or inventory_hostname in groups['remote-sensors']

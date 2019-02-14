@@ -1,0 +1,3 @@
+{% for iface in sensor_monitor_interface %}
+{{ iface }}
+{% endfor %}

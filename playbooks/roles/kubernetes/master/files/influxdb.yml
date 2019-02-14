@@ -14,6 +14,7 @@ spec:
       containers:
       - name: influxdb
         image: k8s.gcr.io/heapster-influxdb-amd64:v1.3.3
+        imagePullPolicy: IfNotPresent
         volumeMounts:
         - mountPath: /data
           name: influxdb-storage

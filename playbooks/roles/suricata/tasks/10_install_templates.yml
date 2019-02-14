@@ -1,0 +1,11 @@
+---
+
+- name: Install template for {{ filename }}
+  template:
+    src: "templates/{{ filename }}.j2"
+    dest: "{{ suricata_dir }}/{{ hostname }}-{{ filename }}"
+    group: root
+    owner: root
+    mode: 0644
+
+...

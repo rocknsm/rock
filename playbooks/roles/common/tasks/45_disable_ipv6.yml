@@ -21,6 +21,7 @@
     sysctl_list:
       - net.ipv6.conf.all.disable_ipv6
       - net.ipv6.conf.default.disable_ipv6
+      - net.ipv4.ip_forward
 
 - name: Check if key exists
   command: "sysctl {{ item }}"

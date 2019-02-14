@@ -1,0 +1,11 @@
+{% if inventory_hostname in groups['remote-sensors'] %}{% set hostname_var = inventory_hostname %}{% set shortname = hostname_var.split('.') %}{% endif %}
+## Setup Kafka output
+@load Apache/Kafka/logs-to-kafka
+redef Kafka::logs_to_send = set(Conn::LOG, HTTP::LOG, DNS::LOG, DCE_RPC::LOG, DHCP::LOG, DNP3::LOG, DPD::LOG, Files::LOG, FTP::LOG, Intel::LOG, IRC::LOG, KRB::LOG, Modbus::LOG, mysql::LOG, Notice::LOG, NTLM::LOG, PE::LOG, RADIUS::LOG, RDP::LOG, RFB::LOG, Signatures::LOG, SIP::LOG, SMB::FILES_LOG, SMB::MAPPING_LOG, SMTP::LOG, SNMP::LOG, SOCKS::LOG, Software::LOG, SSH::LOG, SSL::LOG, Syslog::LOG, Tunnel::LOG, Weird::LOG, X509::LOG);
+redef Kafka::topic_name = "bro-raw";
+## redef Kafka::json_timestamps = JSON::TS_ISO8601;
+redef Kafka::tag_json = T;
+
+redef Kafka::kafka_conf = table(
+  ["metadata.broker.list"] = "{% if inventory_hostname in groups['remote-sensors'] %}kafka-{{ shortname[0] }}.default.svc.cluster.local{% else %}{{ kafka_fqdn }}{% endif %}:{{ kafka_port }}"
+);

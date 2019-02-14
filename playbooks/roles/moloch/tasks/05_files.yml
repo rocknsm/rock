@@ -1,0 +1,37 @@
+---
+
+- name: 'Delete existing config directory'
+  file:
+    path: "{{ moloch_dir }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: absent
+
+- name: 'Create directories'
+  file:
+    path: "{{ moloch_dir }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: directory
+
+- name: 'Copy Moloch templates'
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ moloch_dir }}/{{ item }}"
+    mode: "{{ moloch_dir_mode }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+  with_items:
+    - bootstrap.yml
+    - svc-viewer.yml
+    - deploy-viewer.yml
+
+- name: Copy Moloch configuration files
+  include: 25_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
+  with_nested:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+    - ['config.ini', 'sts.yml']
+
+...

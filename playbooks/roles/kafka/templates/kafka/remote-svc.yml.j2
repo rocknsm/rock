@@ -1,0 +1,31 @@
+{% for host in remote_list %}
+{% set kafka_app_name = 'kafka-' + hostvars[host].inventory_hostname_short %}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ kafka_app_name }}
+  labels:
+    component: {{ kafka_app_name }}
+spec:
+  ports:
+  - port: 9092
+  selector:
+    component: {{ kafka_app_name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ kafka_app_name }}-broker
+  labels:
+    component: {{ kafka_app_name }}
+spec:
+  selector:
+    component: {{ kafka_app_name }}
+  ports:
+  - name: transport
+    protocol: TCP
+    port: {{ kafka_port }}
+    targetPort: {{ kafka_port }}
+  clusterIP: None
+{% endfor %}

@@ -1,25 +1,25 @@
 ---
 apiVersion: apps/v1
 kind: StatefulSet
-metadata: 
-  name: {{ zk_app_name }}
+metadata:
+  name: zookeeper
 spec:
   selector:
     matchLabels:
-      component: {{ zk_app_name }}
+      component: zookeeper
   podManagementPolicy: "Parallel"
-  replicas: {{ zk_replica_count }}
-  serviceName: {{ zk_app_name }}
+  replicas: {{ zookeeper_replicas }}
+  serviceName: zookeeper
   template:
-    metadata: 
-      labels: 
-        component: {{ zk_app_name }}
+    metadata:
+      labels:
+        component: zookeeper
     spec:
       containers:
-      - name: {{ zk_app_name }}
+      - name: zookeeper
         image: {{ zookeeper_image }}:{{ zookeeper_ver }}
-        imagePullPolicy: Always
-        ports: 
+        imagePullPolicy: IfNotPresent
+        ports:
         - containerPort: {{ zookeeper_port }}
           name: client
         - containerPort: 2888
@@ -36,40 +36,33 @@ spec:
           timeoutSeconds: 1
           periodSeconds: 15
           failureThreshold: 5
-        volumeMounts: 
+        resources:
+          requests:
+            cpu: {{ zookeeper_cpu_request }}
+        volumeMounts:
         - mountPath: {{ zookeeper_data_path }}
           name: zookeeper-data
         - mountPath: {{ zookeeper_datalog_path }}
-          name: zookeeper-datalog                       
-        - name: {{ zk_app_name }}
+          name: zookeeper-datalog
+        - name: zookeeper
           mountPath: "{{ zookeeper_home }}/conf/zoo.cfg"
           subPath: zoo.cfg
-        - name: {{ zk_app_name }}
+        - name: zookeeper
           mountPath: "{{ zookeeper_home }}/conf/log4j.properties"
           subPath: log4j.properties
-        - name: {{ zk_app_name }}
+        - name: zookeeper
           mountPath: "{{ zookeeper_home }}/conf/configuration.xsl"
           subPath: configuration.xsl
-        - name: {{ zk_app_name }}
+        - name: zookeeper
           mountPath: "{{ zookeeper_home }}/conf/java.env"
           subPath: java.env
-        env:        
+        env:
         - name: ZOOKEEPER_PORT
           value: "{{ zookeeper_port }}"
       volumes:
-      - name: {{ zk_app_name }}
+      - name: zookeeper
         configMap:
-          name: {{ zk_app_name }}
-{% if remote %}
-      - name: zookeeper-data
-        hostPath:      
-          path: /data/zookeeper/data      
-          type: Directory
-      - name: zookeeper-datalog
-        hostPath:      
-          path: /data/zookeeper/datalog      
-          type: Directory
-{% endif %}
+          name: zookeeper
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -78,12 +71,8 @@ spec:
               - key: role
                 operator: In
                 values:
-{% if remote %}
-                - {{ node_label }}
-{% else %}
                 - sensor
                 - server
-{% endif %}
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
@@ -91,9 +80,8 @@ spec:
               - key: component
                 operator: In
                 values:
-                - {{ zk_app_name }}
+                - zookeeper
             topologyKey: "kubernetes.io/hostname"
-{% if remote == false %}
   volumeClaimTemplates:
   - metadata:
       name: zookeeper-data
@@ -111,4 +99,3 @@ spec:
       resources:
         requests:
           storage: {{ zookeeper_pv_size }}Gi
-{% endif %}

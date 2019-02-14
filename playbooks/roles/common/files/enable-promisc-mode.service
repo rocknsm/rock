@@ -1,0 +1,12 @@
+[Unit]
+Description=Simple service for enabling promiscuous mode on monitoring interfaces
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/iface-promisc-mode
+RestartSec=5
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

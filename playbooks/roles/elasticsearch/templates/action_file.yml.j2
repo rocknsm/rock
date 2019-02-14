@@ -1,0 +1,29 @@
+# Remember, leave a key empty if there is no value.  None will be a string,
+# not a Python "NoneType"
+#
+# Also remember that all examples have 'disable_action' set to True.  If you
+# want to use this action as a template, be sure to set this to False after
+# copying it.
+actions:
+  1:
+    action: delete_indices
+    description: Delete oldest indices if elastic disk consumption exceeds 90% of maximum
+    options:
+      ignore_empty_list: True
+      continue_if_exception: False
+      disable_action: False
+    filters:
+    - filtertype: pattern
+      kind: timestring
+      value: '%Y.%m.%d'
+    - filtertype: space
+      disk_space: 5.4
+      reverse: True
+      use_age: True
+      source: creation_date
+      timestring:
+      field:
+      stats_result:
+# A concern I have here is that this is ONLY filtering based on age. We could end up deleting stuff
+# that we don't want to delete, like our kibana index. I am currently filtering on the timestamps
+# to prevent this, but we might need additional filters in the future.

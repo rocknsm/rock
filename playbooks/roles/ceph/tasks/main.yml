@@ -6,16 +6,22 @@
 - import_tasks: 00_preflight.yml
   when: inventory_hostname in groups['master-server']
 
+#- import_tasks: 01_wipe_drives.yml
+#  when: inventory_hostname in groups['ceph'] and hostvars[inventory_hostname].ceph_drive_list is not none and hostvars[inventory_hostname].ceph_drive_list | length > 0
+
 - import_tasks: 05_files.yml
   when: inventory_hostname in groups['master-server']
 
 - import_tasks: 10_install.yml
 
 - import_tasks: 15_setup.yml
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master-server'] and node_to_add is not defined
+
+- import_tasks: 17_add_node.yml
+  when: inventory_hostname in groups['master-server'] and node_to_add is defined and node_to_add not in groups['remote-sensors']
 
 - import_tasks: 20_deploy.yml
-  when: inventory_hostname in groups['master-server']
+  when: inventory_hostname in groups['master-server'] and node_to_add is not defined
 
 - import_tasks: 25_validate.yml
   when: inventory_hostname in groups['master-server']

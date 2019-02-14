@@ -1,6 +1,6 @@
 ---
 - name: Kube | Init Kubernetes cluster
-  shell: "kubeadm init --pod-network-cidr={{ kube_pod_cidr }} --kubernetes-version={{ kube_version }} | grep 'kubeadm join' | tee /etc/kubernetes/join-node.sh"
+  shell: "kubeadm init --pod-network-cidr={{ kube_pod_cidr }} --kubernetes-version={{ kube_rpm_version }} --token-ttl=0 | grep 'kubeadm join' | tee /etc/kubernetes/join-node.sh"
   register: init_kube_cluster_result
   failed_when: "'ERROR' in init_kube_cluster_result.stderr"
 
@@ -12,6 +12,7 @@
   with_items:
     - "{{ kubernetes_conf_file }}"
     - "/etc/kubernetes/join-node.sh"
+  tags: pull_join_script
 
 - name: Retrieve generated credentials
   import_role:

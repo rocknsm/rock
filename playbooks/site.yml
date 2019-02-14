@@ -6,42 +6,85 @@
 
 ---
 
-- name: Enable RHSM repositories on RHEL nodes
-  hosts: all
+- name: Preflight for adding new node
+  hosts: master-server
+  any_errors_fatal: true
+  gather_facts: no
   tasks:
-  - name: Enabling Red Hat repos...
-    rhsm_repository:
-      name: "{{ item }}"
-      state: enabled
-    with_items:
-      - rhel-7-server-extras-rpms
-      - rhel-7-server-optional-rpms
-    when: "ansible_distribution == 'RedHat'"
+    - name: Check if node_to_add is defined
+      fail:
+        msg: "Missing node_to_add variable or NODE option.  To run add-node using make use the following: make add-node NODE=<node fqdn>"
+      when: node_to_add is defined and node_to_add == 'NONE'
 
-- name: Install Controller Dependancies
-  hosts: localhost
-  tasks:
-  - name: Install python-netaddr
-    yum:
-      name: "python-netaddr"
-      state: installed
+    - name: Check nodes to add
+      fail:
+        msg: "{{ node_to_add }} is not defined in inventory.  Add {{ node_to_add }} to inventory."
+      when: node_to_add is defined and node_to_add not in groups['nodes']
 
-- name: Install Controller Dependancies
-  hosts: all
+    - name: check if kubelet installed
+      stat:
+        path: "/usr/bin/kubelet"
+      register: kubelet_stat_result
+      when: node_to_add is defined
+
+    - name: Fail if kubelet doesnt exists
+      fail:
+        msg: "Cannot find a k8s cluster.  Run make to deploy system."
+      when: node_to_add is defined
+        and kubelet_stat_result.stat.exists == false
+
+    - name: Get current node list
+      shell: kubectl get nodes --no-headers=true | awk '{ print $1 }'
+      when: node_to_add is defined
+        and kubelet_stat_result.stat.exists
+      register: node_list
+
+    - name: Check if nodes in nodes to remove is in node_list
+      fail:
+        msg: "{{ node_to_add }} node is already joined to k8s cluster.  To re-add {{ node_to_add }} you will need to remove the node first by adding to nodes_to_remove group."
+      when: node_to_add is defined
+        and node_list is defined
+        and node_to_add in node_list.stdout
+  tags: preflight-add-node
+
+- name: Setup Repos
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - repos
+  tags: repos
+
+- name: Install Controller Dependencies
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   tasks:
   - name: Install NetworkManager packages
     yum:
       name: "NetworkManager-glib"
       state: installed
-  # TODO: This should be removed after updates have been out for a bit
+    register: network_manager_result
   - name: 'Bump the NetworkManager service in case of https://access.redhat.com/solutions/3416301'
     systemd:
       name: NetworkManager
       state: restarted
-  tags: dnsmasq
+    when: network_manager_result.changed
+  tags:
+    - dnsmasq
+    - update-networkmanager
 
 - name: Verify Ansible meets version requirements
   hosts: localhost
+  any_errors_fatal: true
   tasks:
   - fail:
       msg: "You must update Ansible to at least 2.5.0 to use this code. Verify you have the EPEL repository enabled and then update Ansible."
@@ -49,82 +92,70 @@
   tags: preflight
 
 - name: dnsmasq
-  hosts: all
-  gather_facts: no
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
+  gather_facts: yes
   any_errors_fatal: true
   pre_tasks:
     - setup:
+    - name: Disable possible existing OpenVPN
+      systemd:
+        name: openvpn-client.service
+        enabled: no
+        state: stopped
+      when: inventory_hostname in groups['remote-sensors']
+      ignore_errors: yes
   roles:
     - dnsmasq
   tags: dnsmasq
 
-- name: Setup EPEL Repository
-  hosts: all
+- name: Remove existing SSH keys
+  hosts:
+    - localhost
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
+  connection: ssh
+  any_errors_fatal: true
   tasks:
-
-  - name: Check if EPEL repo is already configured
-    stat: path=/etc/yum.repos.d/epel.repo
-    register: epel_repofile_result
-
-  - name: Install EPEL release
-    yum:
-      name: 'https://dl.fedoraproject.org/pub/epel/epel-release-latest-{{ ansible_distribution_major_version }}.noarch.rpm'
-      state: present
-    register: result
-    when: not epel_repofile_result.stat.exists
-
-  - name: Import EPEL GPG key
-    rpm_key:
-      key: 'https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-{{ ansible_distribution_major_version }}'
-      state: present
-    when: not epel_repofile_result.stat.exists
-
-- name: Update all hosts to most recent packages
-  hosts: all
-  tasks:
-  - name: Update all packages
-    yum:
-      name: '*'
-      state: latest
-      exclude: ceph-deploy,cockpit*,kube*
-    register: system_updated
-  - name: Reboot system to finish installing updates
-    command: "/sbin/shutdown -r +1 --no-wall"
-    async: 0
-    poll: 0
-    ignore_errors: yes
-    when: system_updated is defined and system_updated.changed
-  - name: Wait for reboot to complete
-    wait_for:
-      host: "{{ inventory_hostname }}"
-      port: 22
-      delay: 120
-      timeout: 300
-    delegate_to: localhost
-    when: system_updated is defined and system_updated.changed
+    - import_tasks: remove_ssh_info.yml
+  tags: genkeys
 
 - name: Generate SSH keys
   hosts:
     - localhost
-    - all
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   connection: ssh
   any_errors_fatal: true
   vars:
     ssh_known_hosts_command: "ssh-keyscan -T 10"
     ssh_known_hosts_file: "{{ lookup('env','HOME') + '/.ssh/known_hosts' }}"
-    ssh_known_hosts: "{{ groups['all'] }}"
+    ssh_known_hosts: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
 
-    # This takes the groups['all'] list, which is every host, feeds it into map, which then
+    # This takes each group list, which is every host (do not use groups['all'] this will pick up nodes in nodes_to_remove group which will break stuff),
+    # feeds it into map, which then
     # performs a regex_replace on each element. The regex_replace replaces .lan in each
     # element to nothing or ''. Finally, we feed that back into list because Ansible
     # expects the final product to be a list.
-    ssh_short_known_hosts: "{{ groups['all'] | map('regex_replace','(.lan)','' ) | list }}"
+    ssh_short_known_hosts: "{{ ssh_known_hosts | map('regex_replace','(.lan)','' ) | list }}"
   tasks:
     - import_tasks: generate_ssh_keys.yml
   tags: genkeys
 
 - name: Perform preflight checks
-  hosts: all
+  any_errors_fatal: true
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   roles:
     - preflight_checks
   tags: preflight
@@ -132,7 +163,9 @@
 - name: Common Setup
   hosts:
     - master-server
-    - nodes
+    - servers
+    - sensors
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -142,6 +175,49 @@
     - chrony
   tags:
     - common
+
+- name: Fix ARP for OpenVPN
+  hosts:
+    - master-server
+    - remote-sensors
+    - sensors
+    - servers
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - openvpn/other
+  tags:
+    - openvpn
+
+- name: OpenVPN
+  hosts:
+    - master-server
+    - remote-sensors
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - openvpn/common
+  tags:
+    - openvpn
+
+- name: Docker Images
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - docker
+  tags:
+    - docker
 
 - name: Configure kube master
   hosts: master-server
@@ -168,11 +244,14 @@
     - kubernetes/common
     - kubernetes/node
   tags:
-    - add-node
     - kube-node
 
 - name: Setup Ceph
-  hosts: all
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -181,6 +260,17 @@
     - ceph
   tags:
     - ceph
+
+- name: Setup Storage
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - storage
+  tags:
+    - storage
 
 - name: Deploy Elasticsearch
   hosts: master-server
@@ -233,13 +323,15 @@
   pre_tasks:
     - setup:
   roles:
-    - { role: kafka, remote: true }
-    - { role: kafka, remote: false }
+    - { role: kafka }
   tags:
     - kafka
 
 - name: Deploy Bro
-  hosts: master-server
+  hosts:
+    - master-server
+    - sensors
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -250,7 +342,11 @@
   - bro
 
 - name: Deploy Moloch
-  hosts: all
+  hosts:
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -261,7 +357,10 @@
     - moloch
 
 - name: Deploy Suricata
-  hosts: master-server
+  hosts:
+    - master-server
+    - sensors
+    - remote-sensors
   gather_facts: no
   any_errors_fatal: true
   pre_tasks:
@@ -271,28 +370,46 @@
   tags:
     - suricata
 
-#- name: Deploy Stenographer
-#  hosts:
-#    - sensors
-#    - remote-sensors
-#  gather_facts: no
-#  any_errors_fatal: true
-#  pre_tasks:
-#    - setup:
-#  roles:
-#    - stenographer
-#  tags:
-#    - stenographer
+- name: Setup Rulesync
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - rulesync
+  tags:
+    - rulesync
 
-#- name: Deploy Docket
-#  hosts: all
-#  gather_facts: no
-#  any_errors_fatal: true
-#  pre_tasks:
-#    - setup:
-#  roles:
-#    - docket
-#  tags:
-#    - docket
+- name: Enable Endgame script on master server
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - endgame
+  tags:
+    - endgame
+
+- name: Enable janitor script on master server
+  hosts: master-server
+  gather_facts: no
+  any_errors_fatal: true
+  pre_tasks:
+    - setup:
+  roles:
+    - janitor
+  tags:
+    - janitor
+    - enable-sensor-monitor-interface
+
+- name: Mumble Server
+  any_errors_fatal: true
+  hosts:
+    - master-server
+  roles:
+    - mumble
+  tags: mumble
 
 ...

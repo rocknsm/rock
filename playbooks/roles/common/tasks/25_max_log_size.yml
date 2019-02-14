@@ -1,0 +1,16 @@
+---
+
+- name: Set max journal size
+  lineinfile:
+    path: /etc/systemd/journald.conf
+    backrefs: yes
+    regexp: 'SystemMaxUse='
+    line: 'SystemMaxUse=500M'
+
+- name: Set global max log size
+  lineinfile:
+    path: /etc/logrotate.conf
+    insertafter: '^rotate \d$'
+    line: 'maxsize 10M'
+
+...

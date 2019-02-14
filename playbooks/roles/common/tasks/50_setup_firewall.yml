@@ -1,0 +1,84 @@
+---
+- name: 'Enable Firewalld service'
+  systemd:
+    name: firewalld
+    enabled: yes
+    state: started
+
+- name: Allow services thru firewall 
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled    
+  with_items:
+    - ssh
+    - http
+    - https
+    - dns
+    - ntp
+  when: inventory_hostname in groups['master-server']
+
+- name: Allow ports thru firewall 
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:
+    - 6443/tcp    
+    - 7472/tcp
+    - 1194/tcp
+  when: inventory_hostname in groups['master-server']
+
+- name: Allow common services thru firewall
+  firewalld:
+    service: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:
+    - ssh
+    - http
+    - https
+
+- name: Allow common ports thru firewall
+  firewalld:
+    port: "{{ item }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+  with_items:    
+    - 2376-2380/tcp
+    - 10248-10256/tcp
+    - 30000-32767/tcp
+    - 6789/tcp
+    - 6800-7300/tcp
+    - 7472/tcp    
+    - 8285/udp
+    - 8472/udp
+
+
+- name: Direct Firewall Docker Rules
+  shell: |
+    /bin/firewall-cmd --direct --add-rule ipv4 filter INPUT 1 -i docker0 -j ACCEPT
+    /bin/firewall-cmd --direct --add-rule ipv4 filter FORWARD 1 -o docker0 -j ACCEPT
+    /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter INPUT 1 -i docker0 -j ACCEPT
+    /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 1 -o docker0 -j ACCEPT
+
+- name: Direct Firewall Forward Rules
+  shell: |
+    /bin/firewall-cmd --direct --add-rule ipv4 filter FORWARD 1 -i {{ item }} -j ACCEPT
+    /bin/firewall-cmd --direct --add-rule ipv4 filter FORWARD 1 -o {{ item }} -j ACCEPT
+    /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 1 -i {{ item }} -j ACCEPT
+    /bin/firewall-cmd --permanent --direct --add-rule ipv4 filter FORWARD 1 -o {{ item }} -j ACCEPT
+  with_items:
+    - flannel.1
+    - cni0
+
+- name: Iptables Foward Rule
+  shell: |
+    /usr/sbin/iptables -P FORWARD ACCEPT
+    
+- name: firewalld reload
+  command: firewall-cmd --reload

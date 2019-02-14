@@ -18,7 +18,7 @@
     chdir: "{{ ceph_dir }}"
 
 - name: Run Ceph deploy
-  shell: ceph-deploy install --stable luminous {{ ceph_host_pool_list }}
+  shell: ceph-deploy install --no-adjust-repos --stable luminous {{ ceph_host_pool_list }}
   args:
     chdir: "{{ ceph_dir }}"
 
@@ -58,12 +58,12 @@
     chdir: "{{ ceph_dir }}"
 
 - name: Format drives
-  shell: ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].ceph_disks | join((" "+item+":")) }}
+  shell: ceph-deploy osd prepare --zap-disk {{ item }}:{{ hostvars[item].ceph_drive_list | join((" "+item+":")) }}
   args:
     chdir: "{{ ceph_dir }}"
   with_items:
     - "{{ groups['ceph'] }}"
-  when: hostvars[item].ceph_disks and hostvars[item].ceph_disks | length > 0
+  when: hostvars[item].ceph_drive_list and hostvars[item].ceph_drive_list | length > 0
 
 - name: Default osd_count to 0
   set_fact:
@@ -71,27 +71,24 @@
 
 - name: Declare osd amount
   set_fact:
-    osd_count: "{{ (osd_count | int) + ( hostvars[item].ceph_disks | length | int ) }}"
+    osd_count: "{{ (osd_count | int) + ( hostvars[item].ceph_drive_list | length | int ) }}"
   register: osd_results
   loop: "{{ groups['ceph'] }}"
-  when: hostvars[item].ceph_disks and hostvars[item].ceph_disks | length > 0
-
-- set_fact:
-    osd_count: "{{ osd_results.results | selectattr('skipped', 'undefined') | map(attribute='ansible_facts.osd_count') | map('int') | sum(start=0) }}"
+  when: hostvars[item].ceph_drive_list and hostvars[item].ceph_drive_list | length > 0
 
 - name: Create Pool
   shell: ceph osd pool create rbd {{ osd_count | int * 32 }} {{ osd_count | int * 32 }} replicated
 
 - name: Reduce duplication
   shell: |
-    ceph osd pool set rbd size 1
+    ceph osd pool set rbd size {{ ceph_redundancy }}
     ceph osd pool set rbd compression_mode force
     ceph osd pool set rbd compression_algorithm zlib
     ceph osd getcrushmap -o /tmp/crush.ceph
     crushtool -d /tmp/crush.ceph -o /tmp/crush.ceph.tmp
     sed -i 's/weight [0-9]\{3,\}.[0-9]\{3\}/weight 100.000/g' /tmp/crush.ceph.tmp
     sed -i 's/type host$/type osd/g' /tmp/crush.ceph.tmp
-    sed -i 's/max_size 10$/max_size 1/g' /tmp/crush.ceph.tmp
+    sed -i 's/max_size 10$/max_size 2/g' /tmp/crush.ceph.tmp
     crushtool -c /tmp/crush.ceph.tmp -o /tmp/crush.ceph
     ceph osd setcrushmap -i /tmp/crush.ceph
 

@@ -1,0 +1,25 @@
+- name: Copy volume deploy yaml file
+  template:
+    src: "templates/{{ item }}"
+    dest: "{{ grr_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items: 
+    - volume-deploy.yml
+
+- name: Deleting volume-deploy.yml
+  command: "kubectl delete -f {{ grr_dir }}/volume-deploy.yml --ignore-not-found"
+  ignore_errors: yes
+
+- name: Clean up PVCs
+  command: 'kubectl delete pvc data-mysql-0 grr-etc grr-installers --ignore-not-found=true'
+  ignore_errors: yes
+
+- name: Setup volumes for Kubernetes
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Grr Server"
+    file_name: "{{ grr_dir }}/volume-deploy.yml"

@@ -1,0 +1,90 @@
+######################################################
+############# Setup Zookeeper Cluster ################
+######################################################
+---
+
+- name: "Zookeeper: Create Directories"
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+  with_items:
+    - "{{ zookeeper_dir }}"
+
+- name: "Zookeeper: Copy Files"
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ zookeeper_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - configuration.xsl
+    - log4j.properties
+
+- name: "Zookeeper: Install Templates"
+  template:
+    src: "templates/zookeeper/{{ item }}.j2"
+    dest: "{{ zookeeper_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - zoo.cfg
+    - deploy.yml
+    - svc.yml
+    - java.env
+  vars:
+    remote: false
+
+- name: "Zookeeper: Flush Services"
+  shell: |
+    kubectl delete -f {{ zookeeper_dir }}/svc.yml --ignore-not-found=true
+    while [ $(kubectl get -f {{ zookeeper_dir }}/svc.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
+
+- name: "Zookeeper: Flush Deploy"
+  shell: |
+    kubectl delete -f {{ zookeeper_dir }}/deploy.yml --ignore-not-found=true
+    while [ $(kubectl get -f {{ zookeeper_dir }}/deploy.yml | tail -n +2 | wc -l) != '0' ]; do
+      echo -n .;
+      sleep 1;
+    done;
+    sleep 5;
+
+- name: "Zookeeper: Flush Config Maps"
+  command: 'kubectl delete configmap zookeeper --ignore-not-found=true'
+
+# This does the same, but with Zookeeper
+- name: "Zookeeper: Create Zookeeper Config"
+  shell: |
+    kubectl create configmap zookeeper --from-file={{ zookeeper_dir }}/zoo.cfg \
+       --from-file={{ zookeeper_dir }}/configuration.xsl \
+       --from-file={{ zookeeper_dir }}/log4j.properties \
+       --from-file={{ zookeeper_dir }}/java.env
+
+- name: "Zookeeper: Create Svc"
+  shell: "kubectl apply -f {{ zookeeper_dir }}/svc.yml"
+
+- name: Wait for Services
+  pause:
+    seconds: 10
+
+- name: "Zookeeper: Deploy Statefulset"
+  shell: "kubectl apply -f {{ zookeeper_dir }}/deploy.yml"
+
+# TODO: Need to fix this task
+- name: "Zookeeper: Wait to be ready"
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "zookeeper"
+    label: ""

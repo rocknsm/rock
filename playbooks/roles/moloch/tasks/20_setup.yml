@@ -1,0 +1,89 @@
+---
+
+- name: 'Create unclustered pcap directories'
+  file:
+    path: "{{ moloch_pcap_folder }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: directory
+  delegate_to: "{{ item }}"
+  with_items:
+    - "{{ groups['moloch'] }}"
+  when: not use_ceph_for_pcap
+
+- name: 'Create unclustered pcap directories'
+  file:
+    path: "{{ moloch_pcap_folder }}"
+    owner: "{{ moloch_user }}"
+    group: "{{ moloch_group }}"
+    mode: "{{ moloch_dir_mode }}"
+    state: directory
+  delegate_to: "{{ item }}"
+  with_items:
+    - "{{ groups['remote-sensors'] }}"
+
+- name: Run bootstrap pod
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Moloch Bootstrap"
+    file_name: "{{ moloch_dir }}/bootstrap.yml"
+
+- name: Get Bootstrap pod name
+  shell: |
+    while [ "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $2}')" != "1/1" ]; do
+      sleep 1;
+    done;
+    echo -n "$(kubectl get pods | grep moloch-bootstrap | head -n 1 | awk '{ print $1 }')"
+  register: moloch_bootstrap_pod
+
+- name: Deploy Moloch Viewer and Moloch Viewer Service
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Moloch"
+    file_name: "{{ moloch_dir }}/{{ item }}"
+  with_items:
+    - svc-viewer.yml
+    - deploy-viewer.yml
+
+- name: Deploy Moloch STS
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    resource_name: "{{ item | hash('md5') }}-moloch"
+    file_name: "{{ moloch_dir }}/{{ item }}-sts.yml"
+  with_items:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+
+- name: Wait for Moloch to be ready
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "{{ item | hash('md5') }}-moloch"
+    label: ""
+  with_items:
+    - "{{ groups['sensors'] }}"
+    - "{{ groups['remote-sensors'] }}"
+
+- name: Wait for Moloch Viewer to be ready (if you get stuck here there's probably something wrong)
+  include_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "deployments"
+    namespace: "default"
+    resource_name: "moloch-viewer"
+    label: ""
+
+- name: Remove Bootstrap
+  command: kubectl delete -f {{ moloch_dir }}/bootstrap.yml
+
+...

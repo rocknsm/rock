@@ -1,0 +1,58 @@
+---
+
+- name: Delete existing config directory
+  file:
+    path: "{{ bro_dir }}"
+    state: absent
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: "Create config directory"
+  file:
+    path: "{{ bro_dir }}/custom"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: "Create dummy rule file"
+  file:
+    path: "{{ bro_dir }}/custom/__load__.bro"
+    state: touch
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: create bro scripts directory
+  file:
+    path: "{{ bro_scripts }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy Custom Bro Scripts to Sensors
+  copy:
+    src: "{{ item }}"
+    dest: "{{ bro_scripts }}"
+  with_fileglob:
+    - "files/scripts/*"
+
+- name: Copy Files
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ bro_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - local.bro
+
+- name: Copy bro configuration files
+  include: 10_install_templates.yml hostname="{{ item[0] }}" filename="{{ item[1] }}"
+  with_nested:
+    - "{{ groups['sensors'] | union(groups['remote-sensors']) }}"
+    - ['deploy.yml', 'kafka.bro', 'networks.cfg', 'node.cfg', 'broctl.cfg']
+
+...

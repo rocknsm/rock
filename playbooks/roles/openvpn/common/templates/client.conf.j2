@@ -1,0 +1,56 @@
+client
+--allow-recursive-routing
+--route-nopull
+dev tap0
+
+proto tcp
+;proto udp
+
+# The hostname/IP and port of the server.
+remote {{ hostvars[groups['master-server'][0]].management_ipv4 }} 1194
+
+# Keep trying indefinitely to resolve the
+# host name of the OpenVPN server.
+resolv-retry infinite
+
+nobind
+
+# Downgrade privileges after initialization (non-Windows only)
+;user nobody
+;group nobody
+
+# Try to preserve some state across restarts.
+persist-key
+persist-tun
+
+# SSL/TLS parms.
+# See the server config file for more
+# description.  It's best to use
+# a separate .crt/.key file pair
+# for each client.  A single ca
+# file can be used for all clients.
+ca /etc/openvpn/pki/ca.crt
+cert /etc/openvpn/{{ inventory_hostname }}.req.crt
+key /etc/openvpn/pki/private/{{ inventory_hostname }}.key
+
+#remote-cert-tls server
+
+# If a tls-auth key is used on the server
+# then every client must also have the key.
+#tls-auth ta.key 1
+
+# Select a cryptographic cipher.
+# If the cipher option is used on the server
+# then you must also specify it here.
+# Note that v2.4 client/server will automatically
+# negotiate AES-256-GCM in TLS mode.
+cipher AES-256-CBC
+
+# Enable compression on the VPN link.
+# Don't enable this unless it is also
+# enabled in the server config file.
+#comp-lzo
+
+# Set log file verbosity.
+verb 3
+

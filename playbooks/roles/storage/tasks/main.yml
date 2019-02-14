@@ -1,0 +1,63 @@
+######################################################
+################# Setup Ceph #########################
+######################################################
+---
+
+- name: "Create directory"
+  file:  
+    path: "{{ storage_dir }}"
+    state: directory
+
+- name: Install Templates
+  template:
+    src: "templates/{{ item }}.j2"
+    dest: "{{ storage_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items:
+    - elastic.yml
+    - elastic-data.yml
+    - kafka.yml
+    - zk.yml
+    - moloch.yml
+
+- name: Flush PVCs
+  shell: "kubectl delete -f {{ storage_dir }}/{{ item }} --ignore-not-found=true"
+  with_items: 
+    - elastic.yml
+    - kafka.yml
+    - zk.yml
+
+- name: Create PVCs
+  shell: "kubectl create -f {{ storage_dir }}/{{ item }}"
+  with_items:
+    - elastic.yml
+    - kafka.yml
+    - zk.yml
+
+- name: Flush moloch pvc
+  shell: "kubectl delete -f {{ storage_dir }}/{{ item }} --ignore-not-found=true"
+  with_items:
+  - moloch.yml
+  when: use_ceph_for_pcap
+
+- name: Create molo pvc
+  shell: "kubectl create -f {{ storage_dir }}/{{ item }}"
+  with_items:
+  - moloch.yml
+  when: use_ceph_for_pcap
+
+- name: Flush es data pvc
+  shell: "kubectl delete -f {{ storage_dir }}/{{ item }} --ignore-not-found=true"
+  with_items: 
+    - elastic-data.yml
+  when: elastic_datas > 0
+
+- name: Create es data pvcs
+  shell: "kubectl create -f {{ storage_dir }}/{{ item }}"
+  with_items:
+    - elastic-data.yml
+  when: elastic_datas > 0
+
+...

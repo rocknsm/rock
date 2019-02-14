@@ -1,0 +1,14 @@
+{% for n in range(elastic_datas) %}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: data-es-data-{{ n }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ elastic_pv_size }}Gi
+  storageClassName: rbd
+{% endfor %}

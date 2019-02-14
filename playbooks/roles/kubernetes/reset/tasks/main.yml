@@ -18,12 +18,11 @@
 
 - name: Remove Kubernetes Packages to clear cache
   yum:
-    name: "{{ item }}"
+    name:
+      - kubeadm
+      - kubelet
+      - kubectl
     state: absent
-  with_items:
-    - kubeadm
-    - kubelet
-    - kubectl
   ignore_errors: yes
 
 - name: Remove Artifacts
@@ -47,9 +46,7 @@
 
 - name: Remove Interfaces
   shell: |
-    if [ $(ifconfig | grep {{ item }} | wc -l ) -gt 0 ]; then
-      ip link delete {{ item }};
-    fi
+    ip link delete {{ item }};
   with_items:
     - flannel.1
     - cni0

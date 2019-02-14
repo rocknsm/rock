@@ -1,0 +1,86 @@
+---
+
+- name: Install service template for GRR
+  template:
+    src: "templates/{{ item }}"
+    dest: "{{ grr_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items: 
+    - service.yml
+
+- name: Deleting GRR service.yml
+  command: "kubectl delete -f {{ grr_dir }}/service.yml --ignore-not-found"
+  ignore_errors: yes
+
+- name: Deploy kubernetes services for grr
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Grr Services"
+    file_name: "{{ grr_dir }}/service.yml"
+
+- name: Get Ip of service
+  shell: |
+    kubectl get service | grep "grr-frontend" | tr -s ' ' | cut -d' ' -f4
+  register: grragentip
+
+- debug:
+    msg: "====================== {{ grragentip.stdout }} =========================="
+
+- name: Install templates for google rapid response
+  template:
+    src: "templates/{{ item }}"
+    dest: "{{ grr_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items: 
+    - deploy.yml
+
+- name: Deleting GRR deploy.yml
+  command: "kubectl delete -f {{ grr_dir }}/deploy.yml --ignore-not-found"
+  ignore_errors: yes
+
+- name: Copy grr config files
+  copy:
+    src: "files/{{ item }}"
+    dest: "{{ grr_dir }}/etc/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items: "{{ grr_config_files }}"
+
+- name: Deploy Google Rapid Response!
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Grr Server"
+    file_name: "{{ grr_dir }}/deploy.yml"
+
+- name: Copy grr-server.yaml into container initalizer
+  shell: |
+    kubectl cp {{ grr_dir }}/etc/grr-server.yaml grr-frontend-0:/usr/share/grr-server/install_data/etc -c init
+  retries: 20
+  delay: 5
+  register: grrfilecopy
+  until: grrfilecopy.rc == 0
+
+- name: Copy all other files into container initalizer
+  shell: |
+    kubectl cp {{ grr_dir }}/etc/{{ item }} grr-frontend-0:/usr/share/grr-server/install_data/etc -c init  
+  with_items:    
+    - approvers.yaml
+
+- name: Wait for Grr Server to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "grr-frontend"
+    label: ""

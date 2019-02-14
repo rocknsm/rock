@@ -2,8 +2,17 @@
 ---
 
 bro_image: "tfplenum/bro"
-bro_ver: "1.0"
 bro_dir: "{{ install_dir }}/bro"
 num_bro_replicas: "{{ groups['bro'] | length }}"
+
+# This is the path of the Bro installation in the pod
+bro_container_path: "/usr/local/bro-{{ bro_version }}"
+
+# This is the directory on the sensors that will be mounted by the Bro pod
+# to add custom scripts.
+bro_scripts: "{{ bro_dir }}/bro-scripts"
+
+# This is the number of bro loggers you run - 1 is typically enough
+bro_loggers: 1
 
 ...

@@ -1,0 +1,24 @@
+{% for n in range( bro_loggers | int) %}
+[logger-{{ n }}]
+type=logger
+host=localhost
+{% endfor %}
+
+[manager]
+type=manager
+host=localhost
+
+[proxy-1]
+type=proxy
+host=localhost
+
+{%- for iface in hostvars[hostname].sensor_monitor_interface %}
+
+
+[{{ iface }}]
+type=worker
+host=localhost
+interface=af_packet::{{ iface }}
+lb_method=custom
+lb_procs={{ hostvars[hostname].bro_workers }}
+{% endfor %}

@@ -1,0 +1,12 @@
+#!/bin/bash
+ip route flush table main
+systemctl restart network
+GW_IP=$(ip route | grep default | cut -d ' ' -f3)
+openvpn --mktun --dev tap0
+ip link set tap0 up
+ip route flush dev tap0
+iptables -A OUTPUT -t mangle -p tcp --dport 1194 -j MARK --set-mark 1
+ip rule add fwmark 1 table vpn
+ip route add default via $GW_IP dev {{ management_interface }} table vpn
+ip route flush table main
+ip route add default via {{ hostvars[groups['master-server'][0]].management_ipv4 }} dev tap0 onlink metric 100

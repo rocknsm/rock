@@ -1,0 +1,43 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: moloch-bootstrap
+  labels:
+    jobgroup: moloch
+spec:
+  template:
+    metadata:
+      labels:
+        component: moloch
+    spec:
+      containers:
+      - name: "moloch"
+        image: "{{ moloch_image }}:{{ moloch_version }}"
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: PODTYPE
+          value: "BOOTSTRAP"
+        - name: MOLOCH_LOGIN
+          value: "{{ moloch_login }}"
+        - name: MOLOCH_PASS
+          value: "{{ moloch_pass }}"
+        - name: ELASTIC_FQDN
+          value: "{{ elastic_shortname }}"
+        volumeMounts:
+        - name: configini
+          mountPath: {{ moloch_path }}/etc/config.ini
+      volumes:
+      - name: configini
+        hostPath:
+          path: {{ moloch_dir }}/{{ groups['moloch'][0] }}-config.ini
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - "{{ groups['moloch'][0] }}"
+      restartPolicy: Never
+

@@ -1,0 +1,86 @@
+---
+- name: Generate full rpm list of kit
+  hosts:
+    - localhost
+    - master-server
+    - servers
+    - sensors
+    - remote-sensors
+  vars:
+     rpm_list_path: "/root/rpm_export_list"
+     curr_repo_path: "/var/www/html/offlinerepo/tfplenum-{{ ansible_distribution }}"
+     
+  any_errors_fatal: true  
+  tasks:
+    - name: remove old rpm export list
+      file:
+        path: /root/rpm_export_list
+        state: absent
+    - name: install reqoquery
+      yum:
+        name: yum-utils
+        state: installed
+
+    - name: Get Rpms
+      shell: |        
+        rpm -qa
+      register: rpmlist
+      args:
+        warn: false
+
+    - name: get repo for each rpm
+      shell: |
+        repoquery -i {{ item }} | grep "Repository" | awk '{ print $3 }'
+      with_items: "{{ rpmlist.stdout_lines }}"
+      register: repo
+
+    - name: delete existing file
+      local_action: shell /bin/rm -rf {{ rpm_list_path }}
+      with_items: "{{ repo.results }}"
+      when: '"anaconda" not in item.stdout'
+
+    - name: write to file
+      local_action: shell echo "{{item.item}}" >> {{ rpm_list_path }}
+      with_items: "{{ repo.results }}"
+      when: '"anaconda" not in item.stdout'
+
+    - name: sort file
+      local_action: shell sort -o {{ rpm_list_path }} {{ rpm_list_path }}
+      args:
+        warn: false
+
+    - name: remove duplicates
+      local_action: shell sed -i '$!N; /^\(.*\)\n\1$/!P; D' {{ rpm_list_path }}
+      args:
+        warn: false
+
+- name: Build tfplenum repo
+  hosts:
+    - localhost
+  vars:
+     rpm_list_path: "/root/rpm_export_list"     
+     curr_repo_path: "/var/www/html/offlinerepo/tfplenum-{{ ansible_distribution }}"
+     
+  any_errors_fatal: true  
+  tasks: 
+    - name: remove repo
+      file:
+        path: "{{ curr_repo_path }}"
+        state: absent
+
+    - name: create centos directory
+      file:
+        path: "{{ curr_repo_path }}"
+        state: directory
+
+    - name: remove lines starting with gpg-pubkey
+      lineinfile:
+        path: "{{ rpm_list_path }}"
+        state: absent
+        regexp: '^gpg-pubkey-'
+
+    - name: download rpms
+      shell: |
+        yumdownloader {{ item }} --destdir {{ curr_repo_path }}
+      with_lines: "cat {{ rpm_list_path }}"
+            

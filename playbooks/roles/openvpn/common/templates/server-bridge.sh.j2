@@ -1,0 +1,17 @@
+#!/bin/bash
+GW_IP=$(ip route | grep default | cut -d ' ' -f3)
+openvpn --mktun --dev tap0
+ip link set br0 down
+brctl delbr br0
+rm /etc/sysconfig/network-scripts/ifcfg-br0
+systemctl restart network
+MANAGEMENT_IFACE=$(ip route | grep default | cut -d ' ' -f5)
+ip link set $MANAGEMENT_IFACE up
+ip addr add {{ hostvars[groups['master-server'][0]].management_ipv4 }}/24 dev $MANAGEMENT_IFACE
+brctl addbr br0
+brctl addif br0 $MANAGEMENT_IFACE tap0
+ifconfig tap0 0.0.0.0 promisc up
+ifconfig $MANAGEMENT_IFACE 0.0.0.0 promisc up
+ifconfig br0 {{ hostvars[groups['master-server'][0]].management_ipv4 }} netmask 255.255.255.0 up
+ip route flush dev $MANAGEMENT_IFACE
+ip route add default via $GW_IP dev br0

@@ -158,6 +158,7 @@ spec:
       containers:
       - name: controller
         image: metallb/controller:v0.3.1
+        imagePullPolicy: IfNotPresent
         args:
         - --port=7472
         ports:
@@ -201,6 +202,7 @@ spec:
       containers:
       - name: speaker
         image: metallb/speaker:v0.3.1
+        imagePullPolicy: IfNotPresent
         args:
         - --port=7472
         env:

@@ -1,0 +1,26 @@
+{% for n in range(zookeeper_replicas) %}
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: zookeeper-data-zookeeper-{{ n }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ zookeeper_pv_size }}Gi
+  storageClassName: rbd
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: zookeeper-datalog-zookeeper-{{ n }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ zookeeper_pv_size }}Gi
+  storageClassName: rbd
+{% endfor %}

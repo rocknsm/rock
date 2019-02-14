@@ -22,22 +22,88 @@
     msg: "For some reason we could not find the management interface on your computer. Check that the management_ipv4 address listed in your inventory file matches the computer it is assigned to."
   when: management_interface is not defined
 
+- name: interface list
+  set_fact:
+    interface_list: []
+
+- name: interface list
+  set_fact:
+    interface_list: "{{ interface_list }} + [ '{{ item.stdout }}' ]"
+  with_items: "{{ nmcli_conn_name.results }}"
+  when: item.changed and item.stdout is defined
+
+- name: dns list
+  set_fact:
+    dns_list: ["127.0.0.1"]
+
+- name: Check Interface DNS
+  shell: |
+    nmcli device show {{ item }} | grep IP4.DNS | awk '{ print $2 }'
+  register: interface_dns_result
+  with_items: "{{ interface_list }}"
+  when: interface_list is defined
+
+- name: set update interface var
+  set_fact:
+    update_interface: true
+
+- name: set update interface var
+  set_fact:
+    update_interface: false
+  with_items: "{{ interface_dns_result.results }}"
+  when: item.stdout is defined and item.stdout in dns_list
+
 - name: Update DNS records for the management interface
   nmcli:
-    conn_name: "{{ item.stdout }}"
+    conn_name: "{{ item }}"
     type: ethernet
     autoconnect: yes
-    dns4:
-      - "127.0.0.1"
-      - "8.8.8.8"
+    dns4: "{{ dns_list }}"
     state: present
-  with_items: "{{ nmcli_conn_name.results }}"
-  when: item.stdout is defined
+  with_items: "{{ interface_list }}"
+  when: update_interface
+  register: dns_updated_result
 
 - name: Bump the network service
   systemd:
     name: network
     state: restarted
+  when: dns_updated_result.changed
+  register: network_service_result
+
+- name: check if docker installed
+  stat:
+    path: "/usr/bin/docker"
+  register: docker_stat_result
+
+- name: Stop docker if it is installed
+  service:
+    name: docker
+    state: stopped
+  when: docker_stat_result.stat.exists
+
+- name: check if kubelet installed
+  stat:
+    path: "/usr/bin/kubelet"
+  register: kubelet_stat_result
+
+- name: Delete var/run/docker.sock if network changed
+  file:
+    path: "/var/run/docker.sock"
+    state: absent
+  when: network_service_result.changed and docker_stat_result.stat.exists
+
+- name: Bump docker if network changed
+  service:
+    name: docker
+    state: restarted
+  when: network_service_result.changed and docker_stat_result.stat.exists
+
+- name: Bump kubelet if network changed
+  service:
+    name: kubelet
+    state: restarted
+  when: network_service_result.changed and kubelet_stat_result.stat.exists
 
 - name: Delete existing files
   file:
@@ -62,10 +128,18 @@
     name: bind-utils
     state: installed
 
+- name: create list
+  set_fact:
+    host_list: "{{ groups['master-server'] }} + {{ groups['servers'] }} + {{ groups['sensors'] }} + {{ groups['remote-sensors'] }}"
+  tags:
+    - update-dnsmasq-hosts
+
 - name: Copy over hosts template
   template:
     src: templates/hosts.j2
     dest: "{{ host_file }}"
+  tags:
+    - update-dnsmasq-hosts
 
 # This will bind dnsmasq to only one interface
 - name: Select dnsmasq bind interface
@@ -86,29 +160,62 @@
     regexp: '^#addn-hosts=/etc/banner_add_hosts'
     replace: 'addn-hosts={{ host_file }}'
 
+- name: Add dnsmasq_kube_hosts to dnsmasq conf
+  lineinfile:
+    path: "{{ conf_file }}"
+    insertafter: 'addn-hosts={{ host_file }}'
+    line: 'addn-hosts=/etc/dnsmasq_kube_hosts'
+
+- name: Create dnsmasq_kube_hosts file
+  file: 
+    path: /etc/dnsmasq_kube_hosts
+    state: touch
+
 # TODO: Add this back in when firewalld is ready
-#- name: Configure firewalld
-#  firewalld:
-#    service: dns
-#    permanent: true
-#    state: enabled
-#    zone: public
-#    immediate: yes
+- name: Configure firewalld
+  firewalld:
+    service: dns
+    permanent: true
+    state: enabled   
+    immediate: yes
+
+- name: "Create dnsmasq directory for override"
+  file:
+    path: "/etc/systemd/system/dnsmasq.service.d"
+    state: directory
+    owner: root
+    group: root
+    mode: u+rw,g+rw
+
+- name: override default dnsmasq service
+  copy:
+    src: "files/override.conf"
+    dest: "/etc/systemd/system/dnsmasq.service.d/override.conf"
+    group: root
+    owner: root
+    mode: 0644
 
 - name: Start dnsmasq and enable it
   systemd:
     name: dnsmasq
     state: restarted
     enabled: yes
+    daemon-reload: yes
+  tags:
+    - update-dnsmasq-hosts
 
 - name: Check if dnsmasq is running
   command: systemctl status dnsmasq
   ignore_errors: yes
   changed_when: false
   register: service_dnsmasq_status
+  tags:
+    - update-dnsmasq-hosts
 
 - name: Confirm dnsmasq is running
   fail:
     msg: "dnsmasq is not running for some reason. Log into {{ inventory_hostname }} and check status with 'systemctl status dnsmasq'"
   when: service_dnsmasq_status is failed
+  tags:
+    - update-dnsmasq-hosts
 ...

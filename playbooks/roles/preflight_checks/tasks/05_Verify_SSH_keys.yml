@@ -8,7 +8,7 @@
 #######################################################
 
 - name: Verify all nodes can SSH to each other with keys not passwords
-  shell: "ssh -oBatchMode=yes root@{{ item }}"
+  shell: "ssh -oBatchMode=yes root@{{ item }} exit"
   with_items: "{{ groups['nodes'] }}"
   changed_when: false
 

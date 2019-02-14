@@ -9,6 +9,7 @@ spec:
       role: master
   serviceName: "es-master-statefulset"
   replicas: {{ elastic_masters }}
+  podManagementPolicy: "Parallel"
   template:
     metadata:
       labels:
@@ -18,6 +19,7 @@ spec:
       initContainers:
       - name: init-sysctl
         image: busybox:1.27.2
+        imagePullPolicy: IfNotPresent
         command:
         - /bin/sh
         - -c
@@ -29,19 +31,17 @@ spec:
           privileged: true
       containers:
       - name: elasticsearch
-        image: {{ elasticsearch_image }}:{{ elastic_ver }}
+        image: {{ elasticsearch_image }}:{{ elastic_version }}
+        imagePullPolicy: IfNotPresent
         securityContext:
           privileged: true
           capabilities:
             add:
               - IPC_LOCK
         resources:
-          limits:
-            cpu: "{{ elastic_cpu_maximum }}"
-            memory: "{{ elastic_mem * 2 }}Gi"
           requests:
-            memory: "{{ elastic_mem * 2 }}Gi"
-            cpu: "{{ elastic_cpu_minimum }}"
+            memory: "{{ elastic_memory }}Gi"
+            cpu: "{{ elasticsearch_cpu_request }}"
         env:
         - name: NAMESPACE
           valueFrom:
@@ -53,16 +53,10 @@ spec:
               fieldPath: metadata.name
         - name: CLUSTER_NAME
           value: {{ elastic_cluster_name }}
-        - name: NODE_MASTER
-          value: "true"
-        - name: NODE_INGEST
-          value: "false"
-        - name: NODE_DATA
-          value: "false"
         - name: HTTP_ENABLE
           value: "false"
-        - name: ELASTIC_JAVA_OPTS
-          value: -Xms{{ elastic_mem }}g -Xmx{{ elastic_mem }}g
+        - name: ES_JAVA_OPTS
+          value: -Xms{{ elastic_memory // 2 }}g -Xmx{{ elastic_memory // 2 }}g
         ports:
         - containerPort: {{ elastic_data_port }}
           name: http

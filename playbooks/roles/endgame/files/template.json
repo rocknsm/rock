@@ -1,0 +1,59 @@
+{
+  "index_patterns": "endgame-*",
+  "mappings": {
+    "doc": {
+      "properties": {
+        "started": {
+          "type": "date",
+          "format": "epoch_second"
+        },
+        "connection_timestamp": {
+          "type": "date",
+          "format": "epoch_second"
+        },
+        "create_time": {
+          "type": "date",
+          "format": "epoch_second"
+        },
+        "date_modified": {
+          "type": "date",
+          "format": "epoch_second"
+        },
+        "registry_key_last_modified_time": {
+          "type": "date",
+          "format": "epoch_second"
+        },
+        "install_date": {
+          "type": "date",
+          "format": "basic_date"
+        },
+        "meta_data": {
+          "type": "object",
+          "properties": {
+            "file_name_timestamps": {
+              "type": "object",
+              "properties": {
+                "modified": {
+                  "type": "date",
+                  "format": "epoch_second"
+                },
+                "accessed": {
+                  "type": "date",
+                  "format": "epoch_second"
+                },
+                "created": {
+                  "type": "date",
+                  "format": "epoch_second"
+                },
+                "entry_modified": {
+                  "type": "date",
+                  "format": "epoch_second"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+%YAML 1.1
+---
+
+storage_dir: "{{ install_dir }}/storage"
+
+
+
+
+...

@@ -20,6 +20,15 @@ dumponexit
 
 dumpdir {{ chrony_dumpdir }}
 
+# This line ensures that if system clocks are far off sync after boot, chrony will make
+# a quick forceful adjustment instead of lightly adjusting clock speed
+# measurement count
+#             |
+# tolerance   |
+#         |   |
+#        \|/ \|/
+makestep 100 10
+
 # This directive lets 'chronyd' to serve time even if unsynchronised to any
 # NTP server.
 

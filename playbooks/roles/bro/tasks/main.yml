@@ -1,82 +1,11 @@
-######################################################
-################# Setup Kibana #######################
-######################################################
 ---
 
-- name: "Create config directory"
-  file:
-    path: "{{ bro_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u+rw,g+rw
+- import_tasks: 05_files.yml
 
-- name: Copy Files
-  copy:
-    src: "files/{{ item }}"
-    dest: "{{ bro_dir }}/{{ item }}"
-    group: root
-    owner: root
-    mode: 0644
-  with_items:
-    - broctl.cfg.tmpl
-    - node.cfg.tmpl
-    - networks.cfg.tmpl
-    - kafka.bro.tmpl
-    - local.bro.tmpl
-    - broctl.cfg.conf
-    - node.cfg.conf
-    - networks.cfg.conf
-    - kafka.bro.conf
-    - local.bro.conf
+- import_tasks: 15_cleanup.yml
+  when: inventory_hostname in groups['master-server']
 
-- name: Install templates
-  template:
-    src: "templates/{{ item }}.j2"
-    dest: "{{ bro_dir }}/{{ item }}"
-    group: root
-    owner: root
-    mode: 0644
-  with_items:
-    - deploy.yml
+- import_tasks: 25_install.yml
+  when: inventory_hostname in groups['master-server']
 
-- name: Flush Config Map
-  command: kubectl --kubeconfig {{ kubernetes_conf_file }} delete configmap bro --ignore-not-found=true
-
-- name: Create Config Map
-  shell: |
-    kubectl --kubeconfig {{ kubernetes_conf_file }} create configmap bro \
-    --from-file {{ bro_dir }}/broctl.cfg.tmpl \
-    --from-file {{ bro_dir }}/node.cfg.tmpl \
-    --from-file {{ bro_dir }}/networks.cfg.tmpl \
-    --from-file {{ bro_dir }}/kafka.bro.tmpl \
-    --from-file {{ bro_dir }}/local.bro.tmpl \
-    --from-file {{ bro_dir }}/broctl.cfg.conf \
-    --from-file {{ bro_dir }}/node.cfg.conf \
-    --from-file {{ bro_dir }}/networks.cfg.conf \
-    --from-file {{ bro_dir }}/kafka.bro.conf \
-    --from-file {{ bro_dir }}/local.bro.conf
-
-- name: Flush Deployments
-  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" delete -f {{ bro_dir }}/deploy.yml --ignore-not-found=true'
-
-- name: Deploy Services
-  import_role:
-    name: kubernetes/common
-    tasks_from: kube_create
-  vars:
-    name: "Bro"
-    file_name: "{{ bro_dir }}/deploy.yml"
-
-#- name: Wait for deployment to finish
-#  command: 'kubectl --kubeconfig="{{ kubernetes_conf_file }}" rollout status -f {{ bro_dir }}/deploy.yml'
-
-- name: Wait for Bro to be ready
-  import_role:
-    name: kubernetes/common
-    tasks_from: kube_wait
-  vars:
-    type: "deployments"
-    namespace: "default"
-    resource_name: "bro"
-    label: ""
+...

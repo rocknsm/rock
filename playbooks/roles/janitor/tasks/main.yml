@@ -1,0 +1,22 @@
+######################################################
+############# Elasticsearch cleanup task #############
+######################################################
+---
+
+- name: Create janitor directory
+  file:
+    mode: u+rx,g+rx
+    path: "{{ install_dir }}/janitor"
+    state: directory
+
+- name: Install janitor.py script on master server
+  template:
+    src: "files/janitor.py.j2"
+    dest: "{{ install_dir }}/janitor/janitor.py" 
+    mode: "0744"
+
+- name: Start cron job on the master server to run janitor script every 10 minutes
+  cron:
+    name: "ES-Janitor"
+    minute: "*/10"
+    job: "python {{ install_dir }}/janitor/janitor.py > /var/log/janitor.log"

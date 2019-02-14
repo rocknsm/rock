@@ -1,0 +1,6 @@
+---
+
+- name: "Cleanup {{ hostname }}-{{ filename }}"
+  command: "kubectl delete -f {{ suricata_dir }}/{{ hostname }}-{{ filename }} --ignore-not-found"
+
+...

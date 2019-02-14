@@ -1,0 +1,4 @@
+---
+
+maximum_disk_threshold: 90
+safe_disk_threshold: 80

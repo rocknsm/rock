@@ -27,12 +27,24 @@
   with_items: "{{ groups['nodes'] }}"
   changed_when: False
 
-- name: ping google DNS by IP
-  shell: "ping -c 1 8.8.8.8"
-  changed_when: False
+#The below installs pip (needed for the next function)
+- name: yum install pip
+  yum:
+    name: python2-pip
+    state: installed
 
-- name: ping www.Google.com
-  shell: "ping -c 1 www.google.com"
+#The below is needed for updating a python module for the cidr verify
+- name: install ipaddress
+  pip: name=ipaddress
+
+#The below code pings every ip in the services cidr ip range to verify that nothing is there.
+#It is a little gross looking as it goes from in line python to bash. But this was the fastest way to ping a /24 or larger (around 3 seconds for a /24)
+- name: Verify that the services cidr is available (no ip's in use)
+  shell: "ip=$(python -c $\'import ipaddress\nnet = ipaddress.ip_network(u\\\'{{ item }}\\\', False)\\nfor r in net:\\n print r') && output=$( for ip in $ip; do ping -c 1 $ip | grep \"bytes from\" & done;) && echo $output"
+  ignore_errors: True
+  register: result_output
+  with_items: "{{ kubernetes_services_cidr }}"
   changed_when: False
+  failed_when: result_output.stdout != ""
 
 ...

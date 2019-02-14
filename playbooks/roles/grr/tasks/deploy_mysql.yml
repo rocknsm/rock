@@ -1,0 +1,33 @@
+---
+
+- name: Copy mysql-deploy.yml file
+  template:
+    src: "templates/{{ item }}"
+    dest: "{{ grr_dir }}/{{ item }}"
+    group: root
+    owner: root
+    mode: 0644
+  with_items: 
+    - mysql-deploy.yml
+
+- name: Deleting mysql-deploy.yml
+  command: "kubectl delete -f {{ grr_dir }}/mysql-deploy.yml --ignore-not-found"
+  ignore_errors: yes
+
+- name: Deploy mysql statefulset and service
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_create
+  vars:
+    name: "Mysql Server"
+    file_name: "{{ grr_dir }}/mysql-deploy.yml"
+
+- name: Wait for mysql Server to be ready
+  import_role:
+    name: kubernetes/common
+    tasks_from: kube_wait
+  vars:
+    type: "statefulset"
+    namespace: "default"
+    resource_name: "mysql"
+    label: ""

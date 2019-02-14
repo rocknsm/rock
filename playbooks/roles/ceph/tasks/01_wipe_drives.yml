@@ -1,0 +1,23 @@
+---
+
+# Read device information (always use unit when probing)
+- name: Get disk partition information
+  parted: device={{ item }} unit=MiB
+  with_items:
+    - "{{ hostvars[inventory_hostname].ceph_drive_list }}"
+  register: partitions
+
+# Remove all partitions from disk
+# The when conditions insures that partitions actually exist on the disk in question
+# The line "{{ item.partitions[0].num }}" references the number of the partition.
+# The [0] is only there beacuse Ansible's syntax is a nonsensical jumble of BS
+- name: Delete all existing disk partitions
+  parted:
+    device: "{{ item.disk }}"
+    number: "{{ item.partitions[0].num }}"
+    state: absent
+  with_items:
+    - "{{ partitions.results }}"
+  when: item.partitions | length > 0
+
+...

@@ -1,0 +1,66 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mysql
+  namespace: default
+spec:
+  replicas: 1
+  serviceName: mysql
+  selector:
+    matchLabels:
+      name: mysql
+  template:
+    metadata:
+      labels:
+        name: mysql
+    spec:
+      nodeSelector:
+        role: server
+      restartPolicy: Always
+      containers:
+      - name: mysql
+        image: "{{ mysql_image }}:{{ mysql_tag }}"
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "{{ mysql_pwd }}"
+        command:
+        - '/bin/bash'
+        - '-c'
+        - |
+          rm -rf /var/lib/mysql/lost+found/
+          /entrypoint.sh mysqld --max-binlog-size=10000000 --binlog-expire-logs-seconds=60
+        # resources:
+        #   requests:
+        #     memory: "1Gi"
+        #     cpu: "500m"
+        #   limits:
+        #     memory: "2Gi"
+        #     cpu: "1000m"
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: rbd
+      resources:
+        requests:
+          storage: 100Gi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: mysql
+  namespace: default
+spec:
+  selector:
+    name: mysql
+  ports:
+  - protocol: TCP
+    port: 3306
+    targetPort: 3306
+  type: LoadBalancer
+  

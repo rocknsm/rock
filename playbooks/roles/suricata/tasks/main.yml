@@ -3,57 +3,19 @@
 ######################################################
 ---
 
-# This is here because Kubernetes repeatedly failed to download the image.
-# See: https://github.com/kubernetes/kubernetes/issues/59376
-# Pulling it through Docker resolves the issue
-- name: Perform image download workaround
-  docker_image:
-    name: "{{ suricata_image }}:{{ suricata_ver }}"
+- import_tasks: 05_files.yml
 
-- name: Create config directory
-  file:
-    path: "{{ suricata_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u+rw,g+rw
+- import_tasks: 15_cleanup.yml
+  when: inventory_hostname in groups['master-server']
 
-- name: Copy files
-  copy:
-    src: "files/{{ item }}"
-    dest: "{{ suricata_dir }}/{{ item }}"
-    group: root
-    owner: root
-    mode: 0644
-  with_items:
-    - suricata.yaml.tmpl
-    - filebeat.yml.tmpl
-    - suricata.yaml.conf
-    - filebeat.yml.conf
+- import_tasks: 25_install.yml
+  when: inventory_hostname in groups['master-server']
 
-- name: Install templates
-  template:
-    src: "templates/{{ item }}.j2"
-    dest: "{{ suricata_dir }}/{{ item }}"
-    group: root
-    owner: root
-    mode: 0644
-  with_items:
-    - deploy.yml
+#- name: Scale up Suricata Deployment
+#  command: "kubectl scale deployment suricata --replicas={{ groups['suricata'] | length }}"
+#  when: node_to_add is defined
+#    and node_to_add in groups['suricata']
+#  tags:
+#    - suricata-scale
 
-- name: Create ConfigMap
-  shell: |
-    kubectl delete configmap suricata
-    kubectl create configmap suricata --from-file={{ suricata_dir }}/suricata.yaml.tmpl \
-      --from-file={{ suricata_dir }}/filebeat.yml.tmpl \
-      --from-file={{ suricata_dir }}/suricata.yaml.conf \
-      --from-file={{ suricata_dir }}/filebeat.yml.conf
-
-- name: Deploy
-  shell: |
-    kubectl delete -f {{ suricata_dir }}/deploy.yml
-    kubectl apply -f {{ suricata_dir }}/deploy.yml
-    while [ $(kubectl get -f {{ suricata_dir }}/deploy.yml | tail -n +2 | awk '{print $5}') == '0' ]; do
-      echo -n .;
-      sleep 1;
-    done;
+...

@@ -5,7 +5,7 @@ metadata:
   labels:
     component: logstash
 spec:
-  replicas: 1
+  replicas: {{ logstash_replicas }}
   selector:
     matchLabels:
       component: logstash
@@ -16,16 +16,15 @@ spec:
     spec:
       containers:
       - name: logstash
-        image: {{ logstash_image }}:{{ logstash_ver }}
-        command: ["/usr/share/logstash/bin/logstash"]
+        image: {{ logstash_image }}:{{ elastic_version }}
+        imagePullPolicy: IfNotPresent
+        command: ["/bin/bash", "-c", "/usr/share/logstash/bin/logstash-plugin install file:///usr/share/logstash/plugins/tld.zip && /usr/share/logstash/bin/logstash"]
         env:
         - name: LS_HOME
           value: "{{ logstash_path }}"
         resources:
-          limits:
-            cpu: 1000m
           requests:
-            cpu: 100m
+            cpu: {{ logstash_cpu_request }}
         volumeMounts:
           - name: logstash
             mountPath: "{{ logstash_path }}/config/logstash.yml"
@@ -34,20 +33,22 @@ spec:
             mountPath: "{{ logstash_path }}/config/log4j2.properties"
             subPath: log4j2.properties
           - name: logstash
-            mountPath: "{{ logstash_path }}/config/pipelines.yml"
-            subPath: pipelines.yml
-          - name: logstash
-            mountPath: "{{ logstash_path }}/pipeline/kafka-bro.conf"
-            subPath: kafka-bro.conf
-          - name: logstash
-            mountPath: "{{ logstash_path }}/pipeline/kafka-suricata.conf"
-            subPath: kafka-suricata.conf
-          - name: logstash
-            mountPath: "{{ logstash_path }}/pipeline/kafka-fsf.conf"
-            subPath: kafka-fsf.conf
+            mountPath: "{{ logstash_path }}/logstash-template.json"
+            subPath: logstash-template.json
+          - name: pipeline
+            mountPath: "{{ logstash_path }}/pipeline"
+          - name: plugins
+            mountPath: "{{ logstash_path }}/plugins"
       nodeSelector:
         logstash: "true"
       volumes:
         - name: logstash
           configMap:
             name: logstash
+        - name: pipeline
+          configMap:
+            name: logstash-pipeline
+        - name: plugins
+          hostPath:
+            path: "{{ logstash_dir }}/plugins/"
+            type: DirectoryOrCreate
