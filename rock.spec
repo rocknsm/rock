@@ -1,6 +1,6 @@
 %global _rockdir /usr/share/rock
-%global _etcdir /etc/rocknsm
-%global _bindir /usr/sbin
+%global _sysconfdir /etc/rocknsm
+%global _sbindir /usr/sbin
 
 Name:           rock
 Version:        2.3.0
@@ -37,14 +37,14 @@ DESTDIR=%{buildroot}
 #make directories
 mkdir -p %{buildroot}/%{_rockdir}/roles
 mkdir -p %{buildroot}/%{_rockdir}/playbooks
-mkdir -p %{buildroot}/%{_bindir}
-mkdir -p %{buildroot}/%{_etcdir}
+mkdir -p %{buildroot}/%{_sbindir}
+mkdir -p %{buildroot}/%{_sysconfdir}
 
 # Install ansible files
-install -p -m 755 bin/deploy_rock.sh %{buildroot}/%{_bindir}/
-install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_bindir}/
-install -m 644 etc/hosts.ini %{buildroot}/%{_etcdir}/
-install -m 644 etc/config.yml %{buildroot}/%{_etcdir}/
+install -p -m 755 bin/deploy_rock.sh %{buildroot}/%{_sbindir}/
+install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_sbindir}/
+install -m 644 etc/hosts.ini %{buildroot}/%{_sysconfdir}/
+install -m 644 etc/config.yml %{buildroot}/%{_sysconfdir}/
 cp -a roles/. %{buildroot}/%{_rockdir}/roles
 cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
@@ -56,8 +56,8 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %doc README.md LICENSE CONTRIBUTING.md
 %config %{_rockdir}/playbooks/group_vars/all.yml
 %config %{_rockdir}/playbooks/ansible.cfg
-%config %{_etcdir}/hosts.ini
-%config %{_etcdir}/config.yml
+%config %{_sysconfdir}/hosts.ini
+%config %{_sysconfdir}/config.yml
 %defattr(0644, root, root, 0755)
 %{_rockdir}/roles/*
 %{_rockdir}/playbooks/*.yml
@@ -65,8 +65,8 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %{_rockdir}/tests/*
 
 
-%attr(0755, root, root) %{_bindir}/deploy_rock.sh
-%attr(0755, root, root) %{_bindir}/generate_defaults.sh
+%attr(0755, root, root) %{_sbindir}/deploy_rock.sh
+%attr(0755, root, root) %{_sbindir}/generate_defaults.sh
 
 %changelog
 * Fri Jan 25 2019 Bradford Dabbs <brad@dabbs.io> 2.3.0-1
