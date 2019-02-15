@@ -1,6 +1,6 @@
 %global _rockdir /usr/share/rock
 %global _etcdir /etc/rocknsm
-%global _bindir /usr/local/bin
+%global _bindir /usr/sbin
 
 Name:           rock
 Version:        2.3.0
