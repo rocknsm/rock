@@ -1,38 +1,50 @@
 ---
 
 - hosts: all
-#  vars:
-#    rock_disable_offline_repo: true
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - common
 
 - hosts: zookeeper
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: zookeeper
       when: with_zookeeper | bool
 
 - hosts: kafka
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: kafka
       when: with_kafka | bool
 
 - hosts: stenographer
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: stenographer
       when: with_stenographer | bool
       stenographer_monitor_interfaces: "{{ rock_monifs }}"
 
 - hosts: bro
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: bro
       when: with_bro | bool
 
 - hosts: suricata
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: suricata
       when: with_suricata | bool
 
 - hosts: fsf
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: fsf
       when: with_fsf | bool
@@ -40,6 +52,8 @@
 - hosts:
     - docket
     - kibana
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: lighttpd
       when: with_lighttpd | bool
@@ -47,23 +61,30 @@
 - hosts:
     - docket
     - stenographer
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: docket
       when: with_docket | bool
       docket_enable: "{{enable_docket | bool}}"
-#      ansible_cache: "~/ansible_cache/"
 
 - hosts: elasticsearch
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: elasticsearch
       when: with_elasticsearch | bool
 
 - hosts: logstash
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: logstash
       when: with_logstash | bool
 
 - hosts: kibana
+  vars_files:
+    - /etc/rocknsm/config.yml
   roles:
     - role: kibana
       when: with_kibana | bool
