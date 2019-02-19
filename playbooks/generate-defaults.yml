@@ -13,7 +13,7 @@
     template:
       backup: yes
       src: rock_config.yml.j2
-      dest: /etc/rocknsm/config-reference.yml
+      dest: /etc/rocknsm/config.yml
       owner: root
       group: root
       mode: 0644
