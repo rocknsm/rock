@@ -7,7 +7,7 @@ output {
         }
 
         elasticsearch {
-          {% if groups['elasticsearch'] > 1 %}
+          {% if groups['elasticsearch'] | length > 1 %}
       	  hosts => [{% for host in groups['es_data'] %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
           {% else %}
       	  hosts => ["127.0.0.1:9200"]
