@@ -19,7 +19,6 @@ rock_data_user: root
 rock_data_group: root
 rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface | default('lo') ])| list }}"
 rock_hostname: "{{ inventory_hostname_short }}"
-rock_fqdn: "{{ inventory_hostname }}"
 rock_mgmt_nets: [ "0.0.0.0/0" ]
 rock_cache_dir: /srv/rocknsm/support
 rock_debug: "{{ lookup('env', 'DEBUG') }}"
@@ -142,7 +141,7 @@ es_user: elasticsearch
 es_group: elasticsearch
 es_data_dir: "{{ rock_data_dir }}/elasticsearch"
 es_cluster_name: rocknsm
-es_node_name: "{{ rock_hostname }}"
+es_node_name: "{{ ansible_hostname }}"
 es_network_host: "{{ '_site:ipv4_' if ( groups['elasticsearch'] | length ) > 1 else '_local:ipv4_' }}"
 es_url: "http://{{ groups['elasticsearch'][0] if ( groups['elasticsearch'] | length ) > 1 else '127.0.0.1' }}:9200"
 es_action_auto_create_index: true

@@ -69,14 +69,22 @@
   notify:
   - Restart sshd
 
-- name: Update hosts file with inventory
-  template:
-    src: hosts.j2
+- name: Add the inventory into /etc/hosts
+  lineinfile:
     dest: /etc/hosts
+    regexp: '.*{{ item }}$'
+    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{item}}"
+    state: present
+  when: hostvars[item]['ansible_facts']['default_ipv4'] is defined
+  with_items:
+    - "{{ groups['all'] }}"
 
 - name: Set system hostname
   hostname:
-    name: "{{ rock_fqdn }}"
+    name: "{{ inventory_hostname }}"
+
+- name: Re-run Setup to populate changes
+  setup:
 
 - name: Setup EPEL repository
   yum_repository:

@@ -59,7 +59,7 @@
     organization_name: RockNSM
     organizational_unit_name: NSM Ninjas
     email_address: info@rocknsm.io
-    common_name: "{{ rock_fqdn }}"
+    common_name: "{{ ansible_hostname }}"
   when: with_kibana
   notify: Enable and restart lighttpd
 

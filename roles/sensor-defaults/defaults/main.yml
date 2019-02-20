@@ -8,8 +8,6 @@ rocknsm_dir: /opt/rocknsm
 rock_data_user: root
 rock_data_group: root
 rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface | default('lo') ])| list }}"
-rock_hostname: "{{ inventory_hostname_short }}"
-rock_fqdn: "{{ inventory_hostname }}"
 rock_mgmt_nets: [ "0.0.0.0/0" ]
 rock_cache_dir: /srv/rocknsm/support
 pulledpork_rules:
@@ -143,7 +141,7 @@ es_group: elasticsearch
 es_data_dir: "{{ rock_data_dir }}/elasticsearch"
 es_log_dir: /var/log/elasticsearch
 es_cluster_name: rocknsm
-es_node_name: "{{ rock_hostname }}"
+es_node_name: "{{ ansible_hostname }}"
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
 es_url: "http://localhost:9200"
 es_memlock_override: |
