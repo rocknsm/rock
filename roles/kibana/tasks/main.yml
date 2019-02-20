@@ -20,9 +20,14 @@
     state: "started"
     enabled: "{{ enable_kibana }}"
 
-- name: Wait for kibana to be available
-  wait_for:
-    port: "{{ kibana_port }}"
+- name: "Wait for Kibana to be available"
+  uri:
+    url: "{{kibana_url}}/api/kibana/settings"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 1
 
 - name: Blanket install/update kibana saved objects
   command: ./import-saved-items.sh "{{ kibana_url }}"
