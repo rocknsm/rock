@@ -18,7 +18,6 @@ rocknsm_dir: /opt/rocknsm
 rock_data_user: root
 rock_data_group: root
 rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface | default('lo') ])| list }}"
-rock_hostname: "{{ inventory_hostname_short }}"
 rock_mgmt_nets: [ "0.0.0.0/0" ]
 rock_cache_dir: /srv/rocknsm/support
 rock_debug: "{{ lookup('env', 'DEBUG') }}"
@@ -97,10 +96,10 @@ epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 elastic_baseurl: https://artifacts.elastic.co/packages/{{ elastic_version }}/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
-rocknsm_baseurl: https://packagecloud.io/rocknsm/2_2/el/7/$basearch
-rocknsm_srpm_baseurl: https://packagecloud.io/rocknsm/2_2/el/7/SRPMS
+rocknsm_baseurl: https://packagecloud.io/rocknsm/2_3/el/7/$basearch
+rocknsm_srpm_baseurl: https://packagecloud.io/rocknsm/2_3/el/7/SRPMS
 rocknsm_testing_baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/testing/epel-7-$basearch/
-rocknsm_gpgurl: https://packagecloud.io/rocknsm/2_2/gpgkey
+rocknsm_gpgurl: https://packagecloud.io/rocknsm/2_3/gpgkey
 rocknsm_local_baseurl: file:///srv/rocknsm
 rock_offline_gpgcheck: 0
 bro_user: bro
@@ -117,7 +116,7 @@ rock_dashboards_repo: https://github.com/rocknsm/rock-dashboards.git
 rock_dashboards_branch: master
 rock_dashboards_url: "https://github.com/rocknsm/rock-dashboards/archive/{{ rock_dashboards_branch }}.tar.gz"
 rock_dashboards_filename: "rock-dashboards_{{ rock_dashboards_branch | replace('/', '-') }}.tar.gz"
-rock_dashboards_version: 2.2
+rock_dashboards_version: 2.3
 rock_module_dir: "/opt/rocknsm/rock-dashboards-{{ rock_dashboards_branch }}"
 stenographer_user: stenographer
 stenographer_group: stenographer
