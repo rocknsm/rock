@@ -69,6 +69,20 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/generate_defaults.sh
 
 %changelog
+* Fri Feb 22 2019 Derek Ditch <derek@rocknsm.io> 2.3.0-1
+- New: Add ability to do multi-host deployment of sensor + data tiers (#339, bndabbs@gmail.com)
+- New: Integrate Docket into Kibana by default (derek@rocknsm.io)
+- New: Improvements and additional Kibana dashboards (spartan782)
+- Fixes: issue with Bro failing when monitor interface is down (#343, bndabbs@gmail.com)
+- Fixes: issue with services starting that shouldn’t (#346, therealneu5ron@gmail.com)
+- Fixes: race condition on loading dashboards into Kibana (#356, derek@rocknsm.io)
+- Fixes: configuration for Docket allowing serving from non-root URI (#361, derek@rocknsm.io)
+- Change: bro log retention value to one week rather than forever (#345, sean.cochran@gmail.com)
+- Change: Greatly improve documentation  (#338, sean.cochran@gmail.com)
+- Change: Reorganize README (#308, bradford.dabbs@elastic.co)
+- Change: Move ECS to rock-dashboards repo (#305, derek@rocknsm.io)
+- Change: Move RockNSM install paths to filesystem heirarchy standard locations (#344, bndabbs@gmail.com)
+
 * Fri Jan 25 2019 Bradford Dabbs <brad@dabbs.io> 2.3.0-1
 - Update file paths to match new structure
 - Bump minimum Ansible version to 2.7
