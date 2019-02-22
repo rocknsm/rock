@@ -4,7 +4,7 @@
 
 Name:           rock
 Version:        2.3.0
-Release:        2
+Release:        3
 
 Summary:        Network Security Monitoring collections platform
 
@@ -69,6 +69,9 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/generate_defaults.sh
 
 %changelog
+* Fri Feb 22 2019 Derek Ditch <derek@rocknsm.io> 2.3.0-3
+- Remove suricata-update from packages. It's in suricata now.
+
 * Fri Feb 22 2019 Derek Ditch <derek@rocknsm.io> 2.3.0-2
 - Bump release to fix version conflict
 
