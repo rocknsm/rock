@@ -10,8 +10,6 @@
 - debug: var=es_mem
 - debug: var=bro_cpu
 - debug: var=rock_monifs
-- debug: var=rock_hostname
-- debug: var=rock_fqdn
 - debug: var=epel_baseurl
 - debug: var=epel_gpgurl
 - debug: var=elastic_baseurl

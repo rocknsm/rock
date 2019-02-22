@@ -1,0 +1,67 @@
+---
+# tasks file for stenographer
+  ######################################################
+  ################# Config Stenographer #################
+  ######################################################
+
+- name: Set stenographer config
+  template:
+    src: stenographer-config.j2
+    dest: "/etc/stenographer/config.{{ item.1 }}"
+  with_indexed_items: "{{ stenographer_monitor_interfaces }}"
+  notify: Restart stenographer per interface
+
+- name: Create stenographer directories
+  file:
+    path: "{{ stenographer_data_dir }}/{{ item[0] }}/{{ item[1] }}"
+    mode: 0755
+    owner: "{{ stenographer_user }}"
+    group: "{{ stenographer_group }}"
+    state: directory
+  with_nested:
+    - "{{ stenographer_monitor_interfaces }}"
+    - [ 'index', 'packets' ]
+
+- name: Install stenographer service files
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/systemd/system/{{ item }}"
+    mode: 0644
+    owner: root
+    group: root
+  with_items:
+    - stenographer.service
+    - stenographer@.service
+
+- name: Generate stenographer keys
+  command: >
+    /usr/bin/stenokeys.sh {{ stenographer_user }} {{ stenographer_group }}
+  environment:
+    STENOGRAPHER_CONFIG: "/etc/stenographer/config.{{ stenographer_monitor_interfaces[0] }}"
+  args:
+    creates: /etc/stenographer/certs/client_key.pem
+
+- name: Configure stenographer service
+  service:
+    name: stenographer
+    enabled: "{{ enable_stenographer }}"
+  notify: Start stenographer service
+
+- name: Configure stenographer per interface
+  service:
+    name: "stenographer@{{ item }}"
+    enabled: "{{ enable_stenographer }}"
+  with_items: "{{ stenographer_monitor_interfaces }}"
+  notify: Start stenographer per interface
+
+- name: Configure firewall ports
+  firewalld:
+    port: "{{ 1234 + index }}/tcp"
+    permanent: yes
+    state: enabled
+    immediate: yes
+  loop: "{{ stenographer_monitor_interfaces }}"
+  loop_control:
+    index_var: index
+  when: groups['stenographer'] | difference(groups['docket']) | count > 0
+...

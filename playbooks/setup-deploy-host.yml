@@ -1,0 +1,62 @@
+---
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Install RockNSM GPG keys
+      copy:
+        src: "{{ item }}"
+        dest: "/etc/pki/rpm-gpg/{{ item }}"
+        mode: 0644
+        owner: root
+        group: root
+      with_items:
+        - RPM-GPG-KEY-RockNSM-2
+        - RPM-GPG-KEY-RockNSM-Testing
+        - RPM-GPG-KEY-RockNSM-pkgcloud-2_3
+
+    - name: Trust RockNSM GPG keys
+      rpm_key:
+        state: present
+        key: "{{ item.path }}"
+      with_items:
+        - { repoid: "rocknsm_2_3", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
+        - { repoid: "rocknsm_2_3", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_3" }
+      register: registered_keys
+
+    - name: Configure RockNSM online repos
+      yum_repository:
+        file: rocknsm
+        name: "{{ item.name }}"
+        enabled: "{{ rock_online_install }}"
+        description: "{{ item.name }}"
+        baseurl: "{{ item.baseurl }}"
+        repo_gpgcheck: 1
+        gpgcheck: "{{ item.gpgcheck }}"
+        gpgkey:
+          - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_3
+          - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
+        sslverify: 1
+        sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+        metadata_expire: 300
+        cost: 750
+        state: present
+      with_items:
+        - { name: "rocknsm_2_3", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
+        - { name: "rocknsm_2_3-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
+
+    - name: Trust RockNSM GPG keys in yum
+      command: "yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.repoid }}'"
+      with_items:
+        - { repoid: "rocknsm_2_3", test: "{{ rock_online_install }}" }
+        - { repoid: "rocknsm_2_3-source", test: "{{ rock_online_install }}" }
+      when: item.test | bool
+      changed_when: False
+      # TODO: Fix this ^^
+
+    - name: Install support packages
+      yum:
+        name:
+          - python2-jinja2
+          - python2-markupsafe
+        state: latest

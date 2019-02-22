@@ -1,0 +1,115 @@
+---
+
+- name: Install packages
+  yum:
+    name:
+      - java-1.8.0-openjdk-headless
+      - logstash
+    state: present
+
+- name: Add bro input/output for logstash
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/logstash/conf.d/{{ item }}.conf"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0640
+  when: with_bro and with_kafka
+  notify: Restart logstash
+  with_items:
+    - logstash-100-input-kafka-bro
+    - logstash-999-output-es-bro
+
+- name: Install bro-kafka filter for logstash
+  copy:
+    src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
+    dest: "/etc/logstash/conf.d/{{item}}"
+    mode: 0640
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    remote_src: "yes"
+  when: with_bro and with_kafka
+  notify: Restart logstash
+  with_items:
+    - logstash-500-filter-bro.conf
+
+- name: Add suricata input/output for logstash
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/logstash/conf.d/{{ item }}.conf"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0640
+  when: with_suricata and with_kafka
+  notify: Restart logstash
+  with_items:
+    - logstash-100-input-kafka-suricata
+    - logstash-999-output-es-suricata
+
+- name: Install suricata-kafka filter for logstash
+  copy:
+    src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
+    dest: "/etc/logstash/conf.d/{{item}}"
+    mode: 0640
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    remote_src: "yes"
+  when: with_suricata and with_kafka
+  notify: Restart logstash
+  with_items:
+    - logstash-500-filter-suricata.conf
+
+- name: Add fsf input/output for logstash
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/logstash/conf.d/{{ item }}.conf"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0640
+  when: with_fsf and with_kafka
+  notify: Restart logstash
+  with_items:
+    - logstash-100-input-kafka-fsf
+    - logstash-999-output-es-fsf
+
+- name: Install fsf-kafka filter for logstash
+  copy:
+    src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
+    dest: "/etc/logstash/conf.d/{{item}}"
+    mode: 0640
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    remote_src: "yes"
+  when: with_fsf and with_kafka
+  notify: Restart logstash
+  with_items:
+    - logstash-500-filter-fsf.conf
+
+- name: Add parse failure input/output for logstash
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/logstash/conf.d/{{ item }}.conf"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0640
+  notify: Restart logstash
+  with_items:
+    - logstash-999-output-es-parsefailures
+
+- name: Install parse failure configuration for logstash
+  copy:
+    src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
+    dest: "/etc/logstash/conf.d/{{item}}"
+    mode: 0640
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    remote_src: "yes"
+  notify: Restart logstash
+  with_items:
+    - logstash-998-filter-parsefailures.conf
+
+- name: Enable and start logstash
+  service:
+    name: logstash
+    state: "{{ 'started' if enable_logstash else 'stopped' }}"
+    enabled: "{{ enable_logstash }}"

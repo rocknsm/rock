@@ -1,0 +1,86 @@
+---
+
+- name: Install packages
+  yum:
+    name: kibana
+    state: present
+
+- name: Update kibana config
+  template:
+    src: kibana.yml.j2
+    dest: /etc/kibana/kibana.yml
+  notify: Restart kibana
+
+- name: Flush handlers
+  meta: flush_handlers
+
+- name: Enable and start kibana
+  service:
+    name: kibana
+    state: "started"
+    enabled: "{{ enable_kibana }}"
+
+- name: "Wait for Kibana to be available"
+  uri:
+    url: "{{kibana_url}}/api/kibana/settings"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 1
+
+- name: Blanket install/update kibana saved objects
+  command: ./import-saved-items.sh "{{ kibana_url }}"
+  args:
+    chdir: "{{rock_module_dir}}/configuration/kibana"
+  changed_when: false
+  # TODO: Fix this ^^
+
+- name: Configure kibana templates
+  uri:
+    method: PUT
+    url: "{{ es_url }}/_template/kibana-config"
+    body: >
+      { "order" : 0, "template" : ".kibana",
+        "settings" :
+          { "index.number_of_replicas" : "0",
+            "index.number_of_shards" : "1" },
+        "mappings" : { }, "aliases" : { } }
+    body_format: json
+    status_code: 200,201
+
+- name: Add the kibanapw shell function
+  copy:
+    src: profile.d-kibanapw.sh
+    dest: /etc/profile.d/kibanapw.sh
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Set initial kibana credentials
+  shell: >
+    export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && \
+    export kibpw=$(xkcdpass -a rock) && \
+    echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && \
+    printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | \
+    sudo tee -a /etc/lighttpd/rock-htpasswd.user > /dev/null 2>&1
+  args:
+    creates: /etc/lighttpd/rock-htpasswd.user
+  when: with_lighttpd
+
+- name: Download RockNSM elastic configs
+  get_url:
+    url: "{{ rock_dashboards_url }}"
+    dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+    mode: 0644
+  when: (with_elasticsearch or with_logstash) and rock_online_install
+
+- name: Extract RockNSM elastic configs
+  unarchive:
+    src: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
+    dest: /opt/rocknsm
+    owner: root
+    group: root
+    creates: "{{ rock_module_dir }}"
+    remote_src: yes
+  when: (with_elasticsearch or with_logstash)

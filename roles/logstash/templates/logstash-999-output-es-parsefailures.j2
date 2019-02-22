@@ -1,0 +1,13 @@
+output {
+  if [@metadata][stage] == "_parsefailure" {
+      elasticsearch {
+          {% if groups['elasticsearch'] | length > 1 %}
+      	  hosts => [{% for host in groups['es_data'] %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
+          {% else %}
+      	  hosts => ["127.0.0.1:9200"]
+          {% endif %}
+          index => "parse-failures-%{+YYYY.MM.dd}"
+          document_type => "_doc"
+      }
+  }
+}

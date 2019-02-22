@@ -1,11 +1,6 @@
 ---
 - hosts: all
   tasks:
-  - name: Apply override settings, if available
-    include_vars: /etc/rocknsm/config.yml
-    ignore_errors: true
-    failed_when: false
-
   - name: Create config directory
     file:
       state: directory

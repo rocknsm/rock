@@ -1,0 +1,29 @@
+---
+- name: Configure RockNSM online repos
+  yum_repository:
+    file: rocknsm
+    name: "{{ item.name }}"
+    enabled: "{{ rock_online_install }}"
+    description: "{{ item.name }}"
+    baseurl: "{{ item.baseurl }}"
+    repo_gpgcheck: 1
+    gpgcheck: "{{ item.gpgcheck }}"
+    gpgkey:
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_3
+      - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
+    sslverify: 1
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: 300
+    cost: 750
+    state: present
+  with_items:
+    - { name: "rocknsm_2_3", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
+    - { name: "rocknsm_2_3-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
+  when: "{{ docket_install == 'yumrepo' }}"
+
+- name: Install packages
+  yum:
+    name:
+      - docket
+      - lighttpd
+    state: present

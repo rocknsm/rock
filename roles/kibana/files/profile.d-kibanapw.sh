@@ -1,0 +1,2 @@
+# Set passwords
+function kibanapw() { if [ $# -lt 2 ]; then echo -e "Usage: kibanapw USER PASSWORD\nUsers will be added to /etc/nginx/htpasswd.users"; else egrep "^${1}:" /etc/lighttpd/rock-htpasswd.user > /dev/null 2>&1; if [[ $? -eq 0 ]]; then sudo sed -i "/${1}\:/d" /etc/lighttpd/rock-htpasswd.user; fi; printf "${1}:$(echo ${2} | openssl passwd -apr1 -stdin)\n" | sudo tee -a /etc/lighttpd/rock-htpasswd.user > /dev/null 2>&1; fi; }

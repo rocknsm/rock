@@ -1,0 +1,49 @@
+---
+- name: Check existing secret_key
+  shell: >
+    cat /etc/docket/prod.yaml | awk '/^SECRET_KEY/ {print $2}'
+  register: docket_prod
+  changed_when: false
+
+- debug: msg="{{ docket_prod }}"
+
+- name: Keep existing secret_key
+  set_fact: docket_secret="{{ docket_prod.stdout }}"
+  when: '"CHANGE_THIS" not in docket_prod.stdout'
+
+- name: Set production docket config
+  template:
+    src:  docket_prod.yaml.j2
+    dest: /etc/docket/prod.yaml
+  notify:
+    - Restart docket uwsgi
+    - Restart docket celery services
+
+- name: Set uwsgi config
+  template:
+    src: docket-uwsgi.ini.j2
+    dest: /etc/docket/docket-uwsgi.ini
+  notify:
+    - Restart docket uwsgi
+
+- name: Enable redis
+  service:
+    name: redis
+    enabled: yes
+  notify: Restart redis
+  when: docket_enable
+
+- name: Enable docket celery services
+  service:
+    name: "{{ item }}"
+    enabled: "{{ docket_enable | bool }}"
+  notify: Restart docket celery services
+  with_items:
+    - docket-celery-io
+    - docket-celery-query
+
+- name: Enable docket uwsgi service
+  service:
+    name: docket
+    enabled: "{{ docket_enable | bool }}"
+  notify: Restart docket uwsgi

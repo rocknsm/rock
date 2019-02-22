@@ -1,0 +1,23 @@
+---
+# tasks file for rocknsm.docket
+
+
+# Ensure `stenographer` and `nginx` groups exists
+- import_tasks: prereqs.yml
+
+# Install packages
+- import_tasks: install.yml
+  when: inventory_hostname in groups['docket']
+
+# Generate/copy x509 client cert/keys and CA certs
+- import_tasks: crypto.yml
+
+# Configure docket app settings
+- import_tasks: docket_config.yml
+  when: inventory_hostname in groups['docket']
+
+# Configure web server settings
+- import_tasks: lighttpd.yml
+  when: inventory_hostname in groups['docket']
+
+# Enable / Activate Services

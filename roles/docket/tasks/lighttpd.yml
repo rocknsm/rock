@@ -1,0 +1,45 @@
+---
+# - name: docket | configure lighttpd + uwsgi
+#   template:
+#     src: docket_lighttpd_scgi.conf.j2
+#     dest: /etc/lighttpd/conf.d/docket_scgi.conf
+#
+# - name: docket | configure lighttpd TLS listener
+#   template:
+#     src: docket_lighttpd_vhost.conf.j2
+#     dest: /etc/lighttpd/vhosts.d/docket.conf
+#   notify: docket | restart lighttpd
+
+- name: Create lighttpd + uwsgi config
+  template:
+    src: lighttpd-30-docket.conf.j2
+    dest: /etc/lighttpd/vhosts.d/30-docket.conf
+  notify: Restart lighttpd
+
+- name: Create vhost logdir
+  file:
+    state: directory
+    path: "/var/log/lighttpd/{{ docket_web_server_name }}/"
+    owner: lighttpd
+    group: lighttpd
+    mode: 0755
+
+- name: Enable lighttpd vhosts
+  lineinfile:
+    path: /etc/lighttpd/lighttpd.conf
+    regexp: '^#?\s*include.*vhosts\.d/.*$'
+    line: include "/etc/lighttpd/vhosts.d/*.conf"
+  notify: Restart lighttpd
+
+- name: Add lighttpd into docket group
+  user:
+    name: lighttpd
+    append: yes
+    groups: "{{ docket_group }}"
+  notify: Restart lighttpd
+
+- name: Enable lighttpd service
+  service:
+    name: lighttpd
+    enabled: yes
+  notify: Restart lighttpd

@@ -1,0 +1,14 @@
+---
+- name: Install zookeeper packages
+  yum:
+    name:
+      - java-1.8.0-headless
+      - zookeeper
+    state: installed
+
+- name: Enable and Start zookeeper
+  systemd:
+    name: zookeeper
+    state: "{{ 'started' if enable_zookeeper else 'stopped' }}"
+    enabled: "{{ enable_zookeeper }}"
+...

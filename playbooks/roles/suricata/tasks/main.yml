@@ -1,4 +1,0 @@
----
-# tasks file for suricata
-- import_tasks: "{{ method }}.yml"
-...

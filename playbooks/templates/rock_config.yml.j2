@@ -28,11 +28,7 @@ rock_monifs:
 ###############################################################################
 #                         Sensor Resource Configuration
 ###############################################################################
-# Set the hostname of the sensor:
-rock_hostname: {{ rock_hostname }}
-
-# Set the Fully Qualified Domain Name:
-rock_fqdn: {{ rock_fqdn }}
+# Set hostname and fqdn in inventory file
 
 # Set the number of CPUs assigned to Bro:
 bro_cpu: {{ bro_cpu }}
@@ -154,7 +150,7 @@ enable_zookeeper: {{ enable_zookeeper }}
 enable_kafka: {{ enable_kafka }}
 enable_lighttpd: {{ enable_lighttpd }}
 enable_fsf: {{ enable_fsf }}
-
+enable_filebeat: {{ enable_filebeat }}
 
 ###############################################################################
 #                             NEXT STEP: Deployment

@@ -1,0 +1,6 @@
+---
+# deploy.yml - Common tasks for ROCK
+- import_tasks: configure.yml
+- import_tasks: configure-time.yml
+- import_tasks: configure-pipelining.yml
+...

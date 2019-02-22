@@ -1,0 +1,78 @@
+---
+
+- name: Install packages
+  yum:
+    name:
+      - fsf
+      - filebeat
+    state: present
+
+- name: Create filebeat config directory
+  file:
+    path: /etc/filebeat/configs
+    mode: 0755
+    owner: root
+    group: root
+    state: directory
+
+- name: Add filebeat configuration file
+  template:
+    src: "{{ item.src }}"
+    dest: "/etc/filebeat/{{ item.dest }}"
+  notify: Restart filebeat
+  loop:
+    - { src: 'filebeat.yml.j2', dest: 'filebeat.yml' }
+    - { src: 'fb-fsf.yml.j2', dest: 'configs/fsf.yml' }
+
+- name: Enable and start filebeat
+  service:
+    name: filebeat
+    state: "{{ 'started' if enable_filebeat else 'stopped' }}"
+    enabled: "{{ enable_filebeat }}"
+
+- name: Create FSF data directory
+  file:
+    path: "{{ fsf_data_dir }}"
+    mode: 0755
+    owner: "{{ fsf_user }}"
+    group: "{{ fsf_group }}"
+    state: directory
+    setype: var_log_t
+
+- name: Create FSF archive directory
+  file:
+    path: "{{ fsf_archive_dir }}"
+    mode: 0755
+    owner: "{{ fsf_user }}"
+    group: "{{ fsf_group }}"
+    state: directory
+
+- name: Configure logrotate for FSF logs
+  template:
+    src: templates/logrotate-fsf.j2
+    dest: /etc/logrotate.d/fsf
+    mode: 0644
+    owner: root
+    group: root
+
+- name: Configure fsf-server
+  template:
+    src: templates/fsf-server-config.j2
+    dest: /opt/fsf/fsf-server/conf/config.py
+    owner: "{{ fsf_user }}"
+    group: "{{ fsf_group }}"
+    mode: 0644
+
+- name: Configure fsf-client
+  template:
+    src: templates/fsf-client-config.j2
+    dest: /opt/fsf/fsf-client/conf/config.py
+    owner: "{{ fsf_user }}"
+    group: "{{ fsf_group }}"
+    mode: 0644
+
+- name: Enable and start FSF
+  service:
+    name: fsf
+    state: "{{ 'started' if enable_fsf else 'stopped' }}"
+    enabled: "{{ enable_fsf }}"
