@@ -20,6 +20,6 @@
 # Any time the settings in this config file are updated, you will need to re-run
 # the deployment scripts to pick up the changes by running:
 #
-#    /usr/local/bin/deploy_rock.sh
+#    /usr/sbin/deploy_rock.sh
 #
 # For more information refer to the full documentation at: https://rocknsm.io
