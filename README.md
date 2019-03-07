@@ -4,7 +4,7 @@
 </br>
 
 <p align="center">
-  <strong><a href="https://rocknsm.gitbooks.io/rocknsm-guide/content/">Documentation</a> | <a href="https://download.rocknsm.io/">Download<a/></strong>
+  <strong><a href="https://rocknsm.github.io/rock-docs/">Documentation</a> | <a href="https://download.rocknsm.io/">Download<a/></strong>
 </p>
 
 ROCK is a collections platform, in the spirit of Network Security Monitoring by contributors from all over industry and the public sector. It's primary focus is to provide a robust, scalable sensor platform for both enduring security monitoring and incident response missions. The platform consists of 3 core capabilities:
@@ -29,7 +29,7 @@ ROCK is a collections platform, in the spirit of Network Security Monitoring by 
 
 ### Installation and Usage
 
-Please reference our [documentation](https://rocknsm.gitbooks.io/rocknsm-guide/content/) for all ROCK details to include:
+Please reference our [documentation](https://rocknsm.github.io/rock-docs/) for all ROCK details to include:
 
 - installation
 - configuration
