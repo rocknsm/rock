@@ -37,7 +37,7 @@
     url: "{{ rock_dashboards_url }}"
     dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
-  when: (with_kibana or with_elasticsearch or with_logstash) and rock_online_install
+  when: ('kibana' or 'elasticsearch' or 'logstash' in installed_services) and rock_online_install
 
 - name: Extract RockNSM elastic configs
   unarchive:
@@ -47,7 +47,7 @@
     group: root
     creates: "{{ rock_module_dir }}"
     remote_src: yes
-  when: (with_kibana or with_elasticsearch or with_logstash)
+  when: "'kibana' or 'elasticsearch' or 'logstash' in installed_services"
 
 - name: Disable IPv6 for all interfaces
   sysctl:

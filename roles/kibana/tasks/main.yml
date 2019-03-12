@@ -18,7 +18,7 @@
   service:
     name: kibana
     state: "started"
-    enabled: "{{ enable_kibana }}"
+    enabled: "{{ 'True' if 'kibana' in enabled_services else 'False' }}"
 
 - name: "Wait for Kibana to be available"
   uri:
@@ -66,14 +66,14 @@
     sudo tee -a /etc/lighttpd/rock-htpasswd.user > /dev/null 2>&1
   args:
     creates: /etc/lighttpd/rock-htpasswd.user
-  when: with_lighttpd
+  when: "'lighttpd' in installed_services"
 
 - name: Download RockNSM elastic configs
   get_url:
     url: "{{ rock_dashboards_url }}"
     dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
-  when: (with_elasticsearch or with_logstash) and rock_online_install
+  when: ('elasticsearch' or 'logstash' in installed_services) and rock_online_install
 
 - name: Extract RockNSM elastic configs
   unarchive:
@@ -83,4 +83,4 @@
     group: root
     creates: "{{ rock_module_dir }}"
     remote_src: yes
-  when: (with_elasticsearch or with_logstash)
+  when: ('elasticsearch' or 'logstash' in installed_services)

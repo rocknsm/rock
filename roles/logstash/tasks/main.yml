@@ -14,7 +14,7 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0640
-  when: with_bro and with_kafka
+  when: "'bro' and 'kafka' in installed_services"
   notify: Restart logstash
   with_items:
     - logstash-100-input-kafka-bro
@@ -28,7 +28,7 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     remote_src: "yes"
-  when: with_bro and with_kafka
+  when: "'bro' and 'kafka' in installed_services"
   notify: Restart logstash
   with_items:
     - logstash-500-filter-bro.conf
@@ -40,7 +40,7 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0640
-  when: with_suricata and with_kafka
+  when: "'suricata' and 'kafka' in installed_services"
   notify: Restart logstash
   with_items:
     - logstash-100-input-kafka-suricata
@@ -54,7 +54,7 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     remote_src: "yes"
-  when: with_suricata and with_kafka
+  when: "'suricata' and 'kafka' in installed_services"
   notify: Restart logstash
   with_items:
     - logstash-500-filter-suricata.conf
@@ -66,7 +66,7 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0640
-  when: with_fsf and with_kafka
+  when: "'fsf' and 'kafka' in installed_services"
   notify: Restart logstash
   with_items:
     - logstash-100-input-kafka-fsf
@@ -80,7 +80,7 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     remote_src: "yes"
-  when: with_fsf and with_kafka
+  when: "'fsf' and 'kafka' in installed_services"
   notify: Restart logstash
   with_items:
     - logstash-500-filter-fsf.conf
@@ -111,5 +111,5 @@
 - name: Enable and start logstash
   service:
     name: logstash
-    state: "{{ 'started' if enable_logstash else 'stopped' }}"
-    enabled: "{{ enable_logstash }}"
+    state: "started"
+    enabled: "{{ 'True' if 'logstash' in enabled_services else 'False' }}"

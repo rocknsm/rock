@@ -59,7 +59,7 @@
   service:
     name: elasticsearch
     state: "started"
-    enabled: "{{ enable_elasticsearch }}"
+    enabled: "{{ 'True' if 'elasticsearch' in enabled_services else 'False' }}"
 
 - name: Configure firewall ports
   firewalld:
@@ -95,7 +95,7 @@
     url: "{{ es_url }}/_template/default"
     body: "{{ lookup('file', 'default-mapping.json')}}"
     body_format: json
-  when: with_elasticsearch and default_index_template.status != 200
+  when: ('elasticsearch' in installed_services) and default_index_template.status != 200
   run_once: true
 
 - name: Blanket install/update elasticsearch mappings

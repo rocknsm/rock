@@ -44,13 +44,13 @@
 - name: Configure stenographer service
   service:
     name: stenographer
-    enabled: "{{ enable_stenographer }}"
+    enabled: "{{ 'True' if 'stenographer' in enabled_services else 'False' }}"
   notify: Start stenographer service
 
 - name: Configure stenographer per interface
   service:
     name: "stenographer@{{ item }}"
-    enabled: "{{ enable_stenographer }}"
+    enabled: "{{ 'True' if 'stenographer' in enabled_services else 'False' }}"
   with_items: "{{ stenographer_monitor_interfaces }}"
   notify: Start stenographer per interface
 

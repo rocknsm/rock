@@ -4,7 +4,7 @@
 - name: Start stenographer service
   service:
     name: stenographer
-    state: "{{ 'started' if enable_stenographer else 'stopped' }}"
+    state: "{{ 'started' if 'stenographer' in enabled_services else 'stopped' }}"
 
 - name: Start stenographer per interface
   service:
