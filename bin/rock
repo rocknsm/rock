@@ -2,8 +2,14 @@
 
 function run-playbook() {
 
-cd $PLAYBOOK_DIR
-ansible-playbook -i $1 $2 $3 $4
+cd "$PLAYBOOK_DIR" || exit
+if ansible-playbook -i $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK;
+then
+  return 0
+else
+  echo "Something went wrong!"
+  exit
+fi
 
 }
 
@@ -75,7 +81,6 @@ EOF
 SHORT_OPTS="hi:p:t:e:vo"
 LONG_OPTS="help,inventory:,playbook:,tags:,skip-tags:,extra:,verbose,config:,limit:,offline,yolo,list-hosts,list-tags,list-tasks"
 
-RAW_ARGS="$*"
 ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
 
 eval set -- "$ARGS"
@@ -83,12 +88,12 @@ eval set -- "$ARGS"
 CONFIG_DIR=/etc/rocknsm
 ROCK_HOME=/usr/share/rock
 PLAYBOOK_DIR=$ROCK_HOME/playbooks
-ROLES_DIR=$ROCK_HOME/roles
+PLAYBOOK=
 INVENTORY=$CONFIG_DIR/hosts.ini
 CONFIG=$CONFIG_DIR/config.yml
 VERBOSITY=
 EXTRA_OPTS=${EXTRA_OPTS}
-
+LIST_ACTION=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
@@ -173,52 +178,51 @@ case "$1" in
 
 (destroy)
         PLAYBOOK="delete-data.yml"
-        if [ "${DANGER_CONFIRM}" != "--yolo" ]; then
+        if [[ "${DANGER_CONFIRM}" != "--yolo" ]]; then
             cat << EOF
 WARNING:
     This will PERMANENTLY DESTROY all ROCK data.
     To confirm, please add the following option: --yolo
 EOF
-          if [ -z $LIST_ACTION ]; then
+          if [[ "$LIST_ACTION" = false ]]; then
             exit 1
           fi
         fi
-        run-playbook $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK
+        run-playbook
         ;;
 (deploy)
         PLAYBOOK="deploy-rock.yml"
-        if [ ! -f $CONFIG ]; then
-          run-playbook $INVENTORY $EXTRA_OPTS $VERBOSITY generate-defaults.yml $PLAYBOOK
-        else
-          run-playbook $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK
+        if [[ ! -f $CONFIG ]]; then
+          PLAYBOOK="generate-defaults.yml $PLAYBOOK"
         fi
-        if [ $? -eq 0 -a -z $LIST_ACTION ]; then
+        run-playbook
+        if [[ "$LIST_ACTION" = false ]]; then
           banner
         fi
         ;;
 (stop)
         PLAYBOOK="manage-services.yml"
-        EXTRA_OPTS="$EXTRA_OPTS -e service_action=stop"
-        run-playbook $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK
+        EXTRA_OPTS="$EXTRA_OPTS -e service_state=stopped"
+        run-playbook
         ;;
 (start)
         PLAYBOOK="manage-services.yml"
-        EXTRA_OPTS="$EXTRA_OPTS -e service_action=start"
-        run-playbook $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK
+        EXTRA_OPTS="$EXTRA_OPTS -e service_state=started"
+        run-playbook
         ;;
 (restart)
         PLAYBOOK="manage-services.yml"
-        EXTRA_OPTS="$EXTRA_OPTS -e service_action=restart"
-        run-playbook $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK
+        EXTRA_OPTS="$EXTRA_OPTS -e service_state=restarted"
+        run-playbook
         ;;
 (status)
         PLAYBOOK="manage-services.yml"
-        EXTRA_OPTS="$EXTRA_OPTS -e service_action=status"
-        run-playbook $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK
+        EXTRA_OPTS="$EXTRA_OPTS --skip-tags="service_mgmt""
+        run-playbook
         ;;
 (genconfig)
         PLAYBOOK="generate-defaults.yml"
-        run-playbook $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK
+        run-playbook
         ;;
 (*)     usage
         exit 0
