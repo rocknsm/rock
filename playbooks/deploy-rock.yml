@@ -1,5 +1,4 @@
 ---
-
 - hosts: all
   vars_files:
     - /etc/rocknsm/config.yml
@@ -11,21 +10,21 @@
     - /etc/rocknsm/config.yml
   roles:
     - role: zookeeper
-      when: with_zookeeper | bool
+      when: "'zookeeper' in installed_services"
 
 - hosts: kafka
   vars_files:
     - /etc/rocknsm/config.yml
   roles:
     - role: kafka
-      when: with_kafka | bool
+      when: "'kafka' in installed_services"
 
 - hosts: stenographer
   vars_files:
     - /etc/rocknsm/config.yml
   roles:
     - role: stenographer
-      when: with_stenographer | bool
+      when: "'stenographer' in installed_services"
       stenographer_monitor_interfaces: "{{ rock_monifs }}"
 
 - hosts: bro
@@ -33,21 +32,21 @@
     - /etc/rocknsm/config.yml
   roles:
     - role: bro
-      when: with_bro | bool
+      when: "'bro' in installed_services"
 
 - hosts: suricata
   vars_files:
     - /etc/rocknsm/config.yml
   roles:
     - role: suricata
-      when: with_suricata | bool
+      when: "'suricata' in installed_services"
 
 - hosts: fsf
   vars_files:
     - /etc/rocknsm/config.yml
   roles:
     - role: fsf
-      when: with_fsf | bool
+      when: "'fsf' in installed_services"
 
 - hosts:
     - docket
@@ -56,7 +55,7 @@
     - /etc/rocknsm/config.yml
   roles:
     - role: lighttpd
-      when: with_lighttpd | bool
+      when: "'lighttpd' in installed_services"
 
 - hosts:
     - docket
@@ -65,26 +64,26 @@
     - /etc/rocknsm/config.yml
   roles:
     - role: docket
-      when: with_docket | bool
-      docket_enable: "{{enable_docket | bool}}"
+      when: "'docket' in installed_services"
+      docket_enable: "{{'docket' in enabled_services | bool}}"
 
 - hosts: elasticsearch
   vars_files:
     - /etc/rocknsm/config.yml
   roles:
     - role: elasticsearch
-      when: with_elasticsearch | bool
+      when: "'elasticsearch' in installed_services"
 
 - hosts: logstash
   vars_files:
     - /etc/rocknsm/config.yml
   roles:
     - role: logstash
-      when: with_logstash | bool
+      when: "'logstash' in installed_services"
 
 - hosts: kibana
   vars_files:
     - /etc/rocknsm/config.yml
   roles:
     - role: kibana
-      when: with_kibana | bool
+      when: "'kibana' in installed_services"

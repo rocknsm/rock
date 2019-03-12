@@ -14,7 +14,7 @@
     mode: 0644
     owner: root
     group: root
-  when: with_kibana
+  when: "'kibana' in installed_services"
   with_items:
     - 10-rock-auth.conf
     - 10-tls.conf
@@ -34,19 +34,19 @@
     name: httpd_can_network_connect
     state: yes
     persistent: yes
-  when: with_kibana
+  when: "'kibana' in installed_services"
 
 - name: Generate sensor private key
   openssl_privatekey:
     path: "{{ http_tls_key }}"
-  when: with_kibana
+  when: "'kibana' in installed_services"
   notify: Enable and restart lighttpd
 
 - name: Generate sensor public key
   openssl_publickey:
     path: "{{ http_tls_pub }}"
     privatekey_path: "{{ http_tls_key }}"
-  when: with_kibana
+  when: "'kibana' in installed_services"
   notify: Enable and restart lighttpd
 
 - name: Generate sensor CSR
@@ -60,7 +60,7 @@
     organizational_unit_name: NSM Ninjas
     email_address: info@rocknsm.io
     common_name: "{{ ansible_hostname }}"
-  when: with_kibana
+  when: "'kibana' in installed_services"
   notify: Enable and restart lighttpd
 
 - name: Generate sensor certificate
@@ -69,7 +69,7 @@
     privatekey_path: "{{ http_tls_key }}"
     csr_path: "{{ http_tls_pub }}.csr"
     provider: selfsigned
-  when: with_kibana
+  when: "'kibana' in installed_services"
   notify: Enable and restart lighttpd
 
 - name: Combine sensor cert and key
@@ -84,7 +84,7 @@
     openssl dhparam -out {{http_tls_dhparams}} 2048
   args:
     creates: "{{http_tls_dhparams}}"
-  when: with_kibana
+  when: "'kibana' in installed_services"
   notify: Enable and restart lighttpd
 
 - name: Configure firewall ports

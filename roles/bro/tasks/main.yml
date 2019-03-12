@@ -211,7 +211,7 @@
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/kafka"
     state: present
-  when: with_kafka
+  when: "'kafka' in enabled_services"
 
 - name: Add bro aliases
   copy:
@@ -262,8 +262,9 @@
   become: yes
   become_user: "{{ bro_user }}"
 
-- name: Enable and start broctl
+- name: Enable and start bro
   service:
     name: bro
-    enabled: "{{ enable_bro }}"
+    state: "{{ 'started' if 'bro' in enabled_services else 'stopped' }}"
+    enabled: "{{ 'True' if 'bro' in enabled_services else 'False' }}"
   notify: Reload bro

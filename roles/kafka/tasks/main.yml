@@ -33,8 +33,8 @@
 - name: Enable and start kafka
   service:
     name: kafka
-    state: "{{ 'started' if enable_kafka else 'stopped' }}"
-    enabled: "{{ enable_kafka }}"
+    state: "{{ 'started' if 'kafka' in enabled_services else 'stopped' }}"
+    enabled: "{{ 'True' if 'kafka' in enabled_services else 'False' }}"
 
 
 - name: Configure firewall ports

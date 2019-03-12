@@ -48,8 +48,8 @@
 - name: Enable and start filebeat
   service:
     name: filebeat
-    state: "{{ 'started' if enable_filebeat else 'stopped' }}"
-    enabled: "{{ enable_filebeat }}"
+    state: "{{ 'started' if 'filebeat' in enabled_services else 'stopped' }}"
+    enabled: "{{ 'True' if 'filebeat' in enabled_services else 'False' }}"
 
 - name: Create suricata data directory
   file:
@@ -118,8 +118,8 @@
 - name: Enable and start suricata
   service:
     name: suricata
-    enabled: "{{ enable_suricata }}"
-    state: "{{ 'started' if enable_suricata else 'stopped' }}"
+    state: "{{ 'started' if 'suricata' in enabled_services else 'stopped' }}"
+    enabled: "{{ 'True' if 'suricata' in enabled_services else 'False' }}"
 
 - name: Configure logrotate for suricata logs
   template:
@@ -133,7 +133,7 @@
   command: /usr/bin/suricata-update add-source "emerging-threats-offline" "file:///srv/rocknsm/support/emerging.rules-suricata.tar.gz"
   args:
     creates: /var/lib/suricata/update/sources/emerging-threats-offline.yaml
-  when: with_suricata_update and not rock_online_install
+  when: "'suricata_update' in installed_services and not rock_online_install"
   become: yes
   become_user: "{{ suricata_user }}"
 
@@ -141,7 +141,7 @@
   command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
   args:
     creates: /var/lib/suricata/rules/suricata.rules
-  when: enable_suricata_update and not rock_online_install
+  when: "'suricata_update' in enabled_services and not rock_online_install"
   become: yes
   become_user: "{{ suricata_user }}"
 
@@ -149,7 +149,7 @@
   command: /usr/bin/suricata-update update-sources
   args:
     creates: /var/lib/suricata/update/cache/index.yaml
-  when: enable_suricata_update and rock_online_install
+  when: "'suricata_update' in enabled_services and rock_online_install"
   become: yes
   become_user: "{{ suricata_user }}"
 
@@ -157,7 +157,7 @@
   command: /usr/bin/suricata-update enable-source et/open
   args:
     creates: /var/lib/suricata/update/sources/et-open.yaml
-  when: enable_suricata_update and rock_online_install
+  when: "'suricata_update' in enabled_services and rock_online_install"
   become: yes
   become_user: "{{ suricata_user }}"
 
@@ -165,7 +165,7 @@
   command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
   args:
     creates: /var/lib/suricata/rules/suricata.rules
-  when: enable_suricata_update and rock_online_install
+  when: "'suricata_update' in enabled_services and rock_online_install"
   become: yes
   become_user: "{{ suricata_user }}"
 
@@ -178,4 +178,4 @@
     minute: "0"
     job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
          > /var/log/suricata-update.log 2>&1
-  when: enable_suricata_update
+  when: "'suricata_update' in enabled_services"

@@ -1,5 +1,3 @@
 ---
 # defaults file for zookeeper
-with_zookeeper: true
-enable_zookeeper: true
 method: all

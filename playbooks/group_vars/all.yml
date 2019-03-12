@@ -32,36 +32,41 @@ bro_stats_retention: 0
 
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the service is installed
-with_stenographer: true
-with_docket: true
-with_bro: true
-with_suricata: true
-with_snort: false
-with_suricata_update: true
-with_logstash: true
-with_elasticsearch: true
-with_kibana: true
-with_zookeeper: true
-with_kafka: true
-with_lighttpd: true
-with_fsf: true
+
+installed_services:
+  - stenographer
+  - docket
+  - bro
+  - suricata
+  - snort
+  - suricata_update
+  - logstash
+  - elasticsearch
+  - kibana
+  - zookeeper
+  - kafka
+  - lighttpd
+  - fsf
+  - filebeat
 
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the systemd service is enabled
-enable_stenographer: true
-enable_docket: true
-enable_bro: true
-enable_suricata: true
-enable_snort: false
-enable_suricata_update: true
-enable_logstash: true
-enable_elasticsearch: true
-enable_kibana: true
-enable_zookeeper: true
-enable_kafka: true
-enable_lighttpd: true
-enable_fsf: true
-enable_filebeat: true
+
+enabled_services:
+  - stenographer
+  - docket
+  - bro
+  - suricata
+  - snort
+  - suricata_update
+  - logstash
+  - elasticsearch
+  - kibana
+  - zookeeper
+  - kafka
+  - lighttpd
+  - fsf
+  - filebeat
 
 rocknsm_package_list:
   - jq

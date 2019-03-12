@@ -20,9 +20,7 @@
 # NOTE: management interfaces should *not* be listed here:
 
 rock_monifs:
-  {% for item in rock_monifs %}
-  - {{ item }}
-  {% endfor %}
+  {{ rock_monifs | to_nice_yaml | indent(2, False) }}
 
 
 ###############################################################################
@@ -117,40 +115,17 @@ fsf_retention: {{ fsf_retention }}
 #                              ROCK Component Options
 ###############################################################################
 
-# The following "with_" statements define what components of RockNSM are
+# The following list defines what components of RockNSM are
 # installed when running the deploy script:
 
-with_stenographer: {{ with_stenographer }}
-with_docket: {{ with_docket }}
-with_bro: {{ with_bro }}
-with_suricata: {{ with_suricata }}
-with_snort: {{ with_snort }}
-with_suricata_update: {{ with_suricata_update }}
-with_logstash: {{ with_logstash }}
-with_elasticsearch: {{ with_elasticsearch }}
-with_kibana: {{ with_kibana }}
-with_zookeeper: {{ with_zookeeper }}
-with_kafka: {{ with_kafka }}
-with_lighttpd: {{ with_lighttpd }}
-with_fsf: {{ with_fsf }}
+installed_services:
+  {{ installed_services | to_nice_yaml | indent(2, False) }}
 
-# The following "enable_" statements define what RockNSM component services
+# The following list defines what RockNSM component services
 # are enabled (start automatically on system boot):
 
-enable_stenographer: {{ enable_stenographer }}
-enable_docket: {{ enable_docket }}
-enable_bro: {{ enable_bro }}
-enable_suricata: {{ enable_suricata }}
-enable_snort: {{ enable_snort }}
-enable_suricata_update: {{ enable_suricata_update }}
-enable_logstash: {{ enable_logstash }}
-enable_elasticsearch: {{ enable_elasticsearch }}
-enable_kibana: {{ enable_kibana }}
-enable_zookeeper: {{ enable_zookeeper }}
-enable_kafka: {{ enable_kafka }}
-enable_lighttpd: {{ enable_lighttpd }}
-enable_fsf: {{ enable_fsf }}
-enable_filebeat: {{ enable_filebeat }}
+enabled_services:
+  {{ enabled_services | to_nice_yaml | indent(2, False) }}
 
 ###############################################################################
 #                             NEXT STEP: Deployment

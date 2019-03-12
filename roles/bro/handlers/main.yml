@@ -4,7 +4,7 @@
 - name: Reload bro
   service:
     name: bro
-    state: "{{ 'started' if enable_bro else 'stopped' }}"
+    state: "{{ 'started' if 'bro' in enabled_services else 'stopped' }}"
 
 - name: Configure monitor interfaces
   shell: >
