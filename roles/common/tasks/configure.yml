@@ -235,8 +235,8 @@
     mode: 0755
 
 - name: Install RockNSM control script
-  copy:
-    src: rockctl
+  template:
+    src: rockctl.j2
     dest: /usr/local/bin/rockctl
     mode: 0755
     owner: root
