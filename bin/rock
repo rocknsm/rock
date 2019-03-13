@@ -103,6 +103,11 @@ while [ "$#" -gt 0 ]; do
             shift 2
             ;;
 
+    (--playbook|-p)
+           PLAYBOOK="$2"
+           shift 2
+           ;;
+
     (--skip-tags)
             EXTRA_OPTS="$EXTRA_OPTS --skip-tags $2"
             shift 2
@@ -191,7 +196,11 @@ EOF
         run-playbook
         ;;
 (deploy)
-        PLAYBOOK="deploy-rock.yml"
+        if [[ "x$PLAYBOOK" = "x" ]];
+        then
+          PLAYBOOK="deploy-rock.yml"
+        fi
+
         if [[ ! -f $CONFIG ]]; then
           PLAYBOOK="generate-defaults.yml $PLAYBOOK"
         fi
