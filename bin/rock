@@ -68,7 +68,7 @@ Options:
 Commands:
 destroy             Destroy all ROCK data: Indexes, logs, PCAP, EVERYTHING.
                     NOTE: Will not remove any services, just the data.
-deploy              Deploy and start all kolla containers
+deploy              Deploy and start all ROCK components
 deploy-offline      Same as deploy --offline
 stop                Stop all ROCK services
 start               Start all ROCK services
