@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: localhost
   tasks:
   - name: Create config directory
     file:
