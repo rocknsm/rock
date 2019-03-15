@@ -43,7 +43,6 @@ mkdir -p %{buildroot}/%{_sysconfdir}
 # Install ansible files
 install -p -m 755 bin/rock %{buildroot}/%{_sbindir}/
 install -m 644 etc/hosts.ini %{buildroot}/%{_sysconfdir}/
-install -m 644 etc/config.yml %{buildroot}/%{_sysconfdir}/
 cp -a roles/. %{buildroot}/%{_rockdir}/roles
 cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
 
@@ -56,7 +55,7 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %config %{_rockdir}/playbooks/group_vars/all.yml
 %config %{_rockdir}/playbooks/ansible.cfg
 %config %{_sysconfdir}/hosts.ini
-%config %{_sysconfdir}/config.yml
+%ghost %{_sysconfdir}/config.yml
 %defattr(0644, root, root, 0755)
 %{_rockdir}/roles/*
 %{_rockdir}/playbooks/*.yml
