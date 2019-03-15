@@ -42,7 +42,6 @@ mkdir -p %{buildroot}/%{_sysconfdir}
 
 # Install ansible files
 install -p -m 755 bin/rock %{buildroot}/%{_sbindir}/
-install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_sbindir}/
 install -m 644 etc/hosts.ini %{buildroot}/%{_sysconfdir}/
 install -m 644 etc/config.yml %{buildroot}/%{_sysconfdir}/
 cp -a roles/. %{buildroot}/%{_rockdir}/roles
@@ -66,7 +65,6 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 
 
 %attr(0755, root, root) %{_sbindir}/rock
-%attr(0755, root, root) %{_sbindir}/generate_defaults.sh
 
 %changelog
 * Fri Feb 22 2019 Derek Ditch <derek@rocknsm.io> 2.3.0-3
