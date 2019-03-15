@@ -113,7 +113,7 @@ bro_data_dir: "{{ rock_data_dir }}/bro"
 bro_prefix: /usr
 bro_sysconfig_dir: /etc/bro
 bro_site_dir: /usr/share/bro/site
-bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
+bro_cpu: "{{ (ansible_processor_vcpus|int // 2) if (ansible_processor_vcpus|int <= 16) else 8 }}"
 bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 bro_rockscripts_branch: master
 bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
@@ -150,7 +150,7 @@ es_network_host: "{{ '_site:ipv4_' if ( groups['elasticsearch'] | length ) > 1 e
 es_url: "http://{{ groups['elasticsearch'][0] if ( groups['elasticsearch'] | length ) > 1 else '127.0.0.1' }}:9200"
 es_action_auto_create_index: true
 es_min_master_nodes: "{{ 2 if ( groups['es_masters'] | length ) == 3 else 1 }}"
-es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
+es_mem: "{{ (ansible_memtotal_mb|int // 1024 // 2) if (ansible_memtotal_mb|int // 1024) < 64 else 31 }}"
 es_log_dir: /var/log/elasticsearch
 es_memlock_override: |
   [Service]
