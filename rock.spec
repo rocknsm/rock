@@ -41,7 +41,7 @@ mkdir -p %{buildroot}/%{_sbindir}
 mkdir -p %{buildroot}/%{_sysconfdir}
 
 # Install ansible files
-install -p -m 755 bin/deploy_rock.sh %{buildroot}/%{_sbindir}/
+install -p -m 755 bin/rock %{buildroot}/%{_sbindir}/
 install -p -m 755 bin/generate_defaults.sh %{buildroot}/%{_sbindir}/
 install -m 644 etc/hosts.ini %{buildroot}/%{_sysconfdir}/
 install -m 644 etc/config.yml %{buildroot}/%{_sysconfdir}/
@@ -65,7 +65,7 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %{_rockdir}/tests/*
 
 
-%attr(0755, root, root) %{_sbindir}/deploy_rock.sh
+%attr(0755, root, root) %{_sbindir}/rock
 %attr(0755, root, root) %{_sbindir}/generate_defaults.sh
 
 %changelog
