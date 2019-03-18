@@ -66,10 +66,11 @@ Options:
 --list-tasks                       List all tasks that would be executed
 
 Commands:
-destroy             Destroy all ROCK data: Indexes, logs, PCAP, EVERYTHING.
-                    NOTE: Will not remove any services, just the data.
+destroy             Destroy all ROCK data: Indexes, logs, PCAP, EVERYTHING
+                    NOTE: Will not remove any services, just the data
 deploy              Deploy and start all ROCK components
 deploy-offline      Same as deploy --offline
+ssh-config          Configure hosts in inventory to use key-based authentication
 stop                Stop all ROCK services
 start               Start all ROCK services
 restart             Restart all ROCK services
@@ -201,6 +202,20 @@ EOF
           PLAYBOOK="deploy-rock.yml"
         fi
 
+        if [[ ! -f $CONFIG ]]; then
+          PLAYBOOK="generate-defaults.yml $PLAYBOOK"
+        fi
+        run-playbook
+        if [[ "$LIST_ACTION" = false ]]; then
+          banner
+        fi
+        ;;
+(ssh-config)
+        EXTRA_OPTS="$EXTRA_OPTS -k -K"
+        if [[ "x$PLAYBOOK" = "x" ]];
+        then
+          PLAYBOOK="auth-mgmt.yml"
+        fi
         if [[ ! -f $CONFIG ]]; then
           PLAYBOOK="generate-defaults.yml $PLAYBOOK"
         fi
