@@ -15,7 +15,7 @@
     owner: root
     group: root
   when: "'kibana' in installed_services"
-  with_items:
+  loop:
     - 10-rock-auth.conf
     - 10-tls.conf
     - 20-rock-vars.conf

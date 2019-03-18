@@ -75,11 +75,18 @@
 - name: Flush handlers
   meta: flush_handlers
 
-- name: Wait for elasticsearch to become ready
-  wait_for:
-    host: "{{ ansible_host }}"
-    port: 9200
-  run_once: true
+- name: "Wait for Elasticsearch to be available"
+  uri:
+    url: "{{ es_url }}/_cluster/health"
+    status_code: 200
+  register: result
+  until: result.status == 200
+  retries: 60
+  delay: 5
+
+- fail:
+    msg: "Elasticsearch cluster has a red status"
+  when: result.json.status == "red"
 
 - name: Check for default mapping template
   uri:

@@ -29,7 +29,7 @@
     mode: 0644
     owner: root
     group: root
-  with_items:
+  loop:
     - stenographer.service
     - stenographer@.service
 
@@ -51,7 +51,7 @@
   service:
     name: "stenographer@{{ item }}"
     enabled: "{{ 'True' if 'stenographer' in enabled_services else 'False' }}"
-  with_items: "{{ stenographer_monitor_interfaces }}"
+  loop: "{{ stenographer_monitor_interfaces }}"
   notify: Start stenographer per interface
 
 - name: Configure firewall ports
