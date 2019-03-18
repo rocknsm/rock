@@ -1,0 +1,3 @@
+---
+# generate-defaults is run during 'prepare' phase
+- import_playbook: ../../playbooks/deploy-rock.yml
