@@ -3,7 +3,7 @@
 - hosts: all
   become: true
   vars:
-    - public_keys: "{{ lookup('file', ansible_user_dir'/.ssh/id_rsa.pub') }}"
+    - public_keys: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
   vars_files:
     - "{{ rock_config }}"
   tasks:
