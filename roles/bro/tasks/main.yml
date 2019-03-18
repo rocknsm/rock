@@ -20,7 +20,7 @@
     owner: root
     group: root
     force: yes
-  with_items: "{{ rock_monifs }}"
+  loop: "{{ rock_monifs }}"
 
 - name: Configure local ifup script
   template:
@@ -64,7 +64,7 @@
     dest: "/usr/share/GeoIP/{{ item.dest }}"
     force: yes
     state: link
-  with_items:
+  loop:
     - { src: 'GeoLiteCity.dat', dest: 'GeoIPCity.dat' }
     - { src: 'GeoLiteCountry.dat', dest: 'GeoIPCountry.dat' }
     - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
@@ -95,7 +95,7 @@
     group: "{{ bro_group }}"
     state: directory
     setype: var_log_t
-  with_items:
+  loop:
     - "{{ bro_data_dir }}"
     - "{{ bro_data_dir }}/logs"
     - "{{ bro_data_dir }}/spool"
@@ -234,7 +234,7 @@
     path: /usr/bin/bro
     capability: "{{ item }}"
     state: present
-  with_items:
+  loop:
     - "cap_net_raw+eip"
     - "cap_net_admin+eip"
 
@@ -243,7 +243,7 @@
     path: /usr/bin/capstats
     capability: "{{ item }}"
     state: present
-  with_items:
+  loop:
     - "cap_net_raw+eip"
     - "cap_net_admin+eip"
 
@@ -261,6 +261,19 @@
     creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
   become: yes
   become_user: "{{ bro_user }}"
+
+- name: Check status of interfaces
+  command: >
+    /usr/sbin/ip -oneline link show dev {{ item }}
+  register: iplink
+  changed_when: False
+  loop: "{{ rock_monifs }}"
+
+- name: Bring up interfaces
+  command: >
+    /usr/sbin/ip -oneline link set dev {{ item.stdout.split(':')[1] | trim }} up
+  when: item.stdout is search("state DOWN")
+  loop:  "{{ iplink.results }}"
 
 - name: Enable and start bro
   service:

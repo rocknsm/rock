@@ -6,6 +6,7 @@
     name:
       - suricata
       - filebeat
+      - PyYAML
     state: present
 
 - name: Set monitor interface config
@@ -16,7 +17,7 @@
     owner: root
     group: root
     force: yes
-  with_items: "{{ rock_monifs }}"
+  loop: "{{ rock_monifs }}"
 
 - name: Configure local ifup script
   template:
@@ -105,7 +106,7 @@
     group: "{{ suricata_group }}"
     mode: 0755
     recurse: "yes"
-  with_items:
+  loop:
     - rules
     - update
 
@@ -149,6 +150,7 @@
   command: /usr/bin/suricata-update update-sources
   args:
     creates: /var/lib/suricata/update/cache/index.yaml
+    chdir: /var/lib/suricata
   when: "'suricata_update' in enabled_services and rock_online_install"
   become: yes
   become_user: "{{ suricata_user }}"
@@ -157,6 +159,7 @@
   command: /usr/bin/suricata-update enable-source et/open
   args:
     creates: /var/lib/suricata/update/sources/et-open.yaml
+    chdir: /var/lib/suricata
   when: "'suricata_update' in enabled_services and rock_online_install"
   become: yes
   become_user: "{{ suricata_user }}"
@@ -165,6 +168,7 @@
   command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
   args:
     creates: /var/lib/suricata/rules/suricata.rules
+    chdir: /var/lib/suricata
   when: "'suricata_update' in enabled_services and rock_online_install"
   become: yes
   become_user: "{{ suricata_user }}"

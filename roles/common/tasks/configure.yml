@@ -32,6 +32,15 @@
     group: root
     state: directory
 
+- name: Create RockNSM cache dir
+  file:
+    path: "{{ rock_cache_dir }}"
+    mode: 0755
+    owner: root
+    group: root
+    state: directory
+  when: inventory_hostname in groups.logstash
+
 - name: Download RockNSM elastic configs
   get_url:
     url: "{{ rock_dashboards_url }}"
@@ -76,8 +85,7 @@
     line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{item}}"
     state: present
   when: hostvars[item]['ansible_facts']['default_ipv4'] is defined
-  with_items:
-    - "{{ groups['all'] }}"
+  loop: "{{ groups['all'] }}"
 
 - name: Set system hostname
   hostname:
@@ -110,29 +118,6 @@
     gpgcheck: no
   when: rock_online_install
 
-- name: Install RockNSM GPG keys
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/pki/rpm-gpg/{{ item }}"
-    mode: 0644
-    owner: root
-    group: root
-  with_items:
-    - RPM-GPG-KEY-RockNSM-2
-    - RPM-GPG-KEY-RockNSM-Testing
-    - RPM-GPG-KEY-RockNSM-pkgcloud-2_3
-
-- name: Trust RockNSM GPG keys
-  rpm_key:
-    state: present
-    key: "{{ item.path }}"
-  with_items:
-    - { repoid: "rocknsm_2_3", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
-    - { repoid: "rocknsm_2_3", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_3" }
-    - { repoid: "rocknsm-testing", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-Testing"}
-    - { repoid: "rocknsm-local", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
-  register: registered_keys
-
 - name: Configure RockNSM online repos
   yum_repository:
     file: rocknsm
@@ -150,7 +135,7 @@
     metadata_expire: 300
     cost: 750
     state: present
-  with_items:
+  loop:
     - { name: "rocknsm_2_3", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
     - { name: "rocknsm_2_3-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
 
@@ -180,30 +165,58 @@
     cost: 500
   when: not rock_disable_offline_repo
 
-- name: Trust RockNSM GPG keys in yum
-  command: "yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.repoid }}'"
-  with_items:
-    - { repoid: "rocknsm_2_3", test: "{{ rock_online_install }}" }
-    - { repoid: "rocknsm_2_3-source", test: "{{ rock_online_install }}" }
-    - { repoid: "rocknsm-testing", test: "{{ rock_online_install }}" }
-    - { repoid: "rocknsm-local", test: "{{ not rock_online_install }}" }
+- name: Install RockNSM GPG keys
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/pki/rpm-gpg/{{ item }}"
+    mode: 0644
+    owner: root
+    group: root
+  loop:
+    - RPM-GPG-KEY-RockNSM-2
+    - RPM-GPG-KEY-RockNSM-Testing
+    - RPM-GPG-KEY-RockNSM-pkgcloud-2_3
+
+- name: Trust RockNSM GPG keys for RPMs
+  rpm_key:
+    state: present
+    key: "{{ item.path }}"
+  loop:
+    - repoid: "rocknsm_2_3"
+      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2"
+      test: "{{ rock_online_install }}"
+    - repoid: "rocknsm_2_3"
+      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_3"
+      test: "{{ rock_online_install }}"
+    - repoid: "rocknsm-testing"
+      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-Testing"
+      test: "{{ rock_online_install }}"
+    - repoid: "rocknsm-local"
+      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2"
+      test: "{{ not rock_disable_offline_repo }}"
+  register: registered_keys
   when: item.test | bool
-  changed_when: False
-  # TODO: Fix this ^^
+
+- name: Trust RockNSM GPG keys in yum
+  command: >
+    yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.item.repoid }}'
+  args:
+    warn: false
+  loop: "{{ registered_keys.results }}"
+  when: item.changed
 
 - name: Configure default CentOS online repos
-  yum_repository:
-    name: "{{ item.name }}"
-    enabled: "{{ rock_online_install }}"
-    description: "CentOS-$releasever - {{ item.name | title }}"
-    mirrorlist: "{{ item.mirror }}"
-    gpgcheck: 1
-    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
-    file:  CentOS-Base
-  with_items:
-  - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
-  - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
-  - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
+  ini_file:
+    path: "{{ item.path }}"
+    section: "{{ item.repo }}"
+    option: "enabled"
+    value: "{{ '1' if rock_online_install else '0' }}"
+    state: "present"
+  loop:
+    - { path: "/etc/yum.repos.d/CentOS-Base.repo", repo: "base" }
+    - { path: "/etc/yum.repos.d/CentOS-Base.repo", repo: "updates" }
+    - { path: "/etc/yum.repos.d/CentOS-Base.repo", repo: "extras" }
+  when: ansible_distribution == "CentOS"
 
 # We need to make sure pyopenssl >= 0.15 is installed to support the following module
 # https://docs.ansible.com/ansible/latest/modules/openssl_certificate_module.html#openssl-certificate-module
@@ -262,7 +275,7 @@
 - name: Set RockNSM Version
   copy:
     content: "{{ rock_version }}"
-    dest: /etc/rocknsm/rock-version
+    dest: "{{ rock_conf_dir }}/rock-version"
     mode: 0644
     owner: root
     group: root

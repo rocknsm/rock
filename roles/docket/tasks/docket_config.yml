@@ -38,7 +38,7 @@
     name: "{{ item }}"
     enabled: "{{ 'True' if 'docket' in enabled_services else 'False' }}"
   notify: Restart docket celery services
-  with_items:
+  loop:
     - docket-celery-io
     - docket-celery-query
 

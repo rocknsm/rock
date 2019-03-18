@@ -16,7 +16,7 @@
     metadata_expire: 300
     cost: 750
     state: present
-  with_items:
+  loop:
     - { name: "rocknsm_2_3", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
     - { name: "rocknsm_2_3-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
   when: "{{ docket_install == 'yumrepo' }}"
