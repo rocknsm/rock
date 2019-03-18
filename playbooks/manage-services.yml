@@ -1,7 +1,7 @@
 ---
 - hosts: all
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
   tasks:
     - name: Populate service facts
       service_facts:

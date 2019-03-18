@@ -1,5 +1,6 @@
 ---
 - hosts: localhost
+  become: True
   tasks:
   - name: Create config directory
     file:
@@ -7,13 +8,13 @@
       owner: root
       group: root
       mode:  0755
-      path: /etc/rocknsm
+      path: "{{ rock_conf_dir }}"
 
   - name: Render template
     template:
       backup: yes
       src: rock_config.yml.j2
-      dest: /etc/rocknsm/config.yml
+      dest: "{{ rock_config }}"
       owner: root
       group: root
       mode: 0644
