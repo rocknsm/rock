@@ -5,7 +5,7 @@
   vars:
     - public_keys: "{{ lookup('file', ansible_user_dir'/.ssh/id_rsa.pub') }}"
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
   tasks:
   - name: Set authorized keys
     authorized_key:

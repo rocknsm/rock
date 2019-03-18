@@ -1,27 +1,31 @@
 ---
 - hosts: all
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - common
 
 - hosts: zookeeper
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: zookeeper
       when: "'zookeeper' in installed_services"
 
 - hosts: kafka
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: kafka
       when: "'kafka' in installed_services"
 
 - hosts: stenographer
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: stenographer
       when: "'stenographer' in installed_services"
@@ -29,21 +33,24 @@
 
 - hosts: bro
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: bro
       when: "'bro' in installed_services"
 
 - hosts: suricata
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: suricata
       when: "'suricata' in installed_services"
 
 - hosts: fsf
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: fsf
       when: "'fsf' in installed_services"
@@ -52,7 +59,8 @@
     - docket
     - kibana
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: lighttpd
       when: "'lighttpd' in installed_services"
@@ -61,7 +69,8 @@
     - docket
     - stenographer
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: docket
       when: "'docket' in installed_services"
@@ -69,21 +78,24 @@
 
 - hosts: elasticsearch
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: elasticsearch
       when: "'elasticsearch' in installed_services"
 
 - hosts: logstash
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: logstash
       when: "'logstash' in installed_services"
 
 - hosts: kibana
   vars_files:
-    - /etc/rocknsm/config.yml
+    - "{{ rock_config }}"
+  become: True
   roles:
     - role: kibana
       when: "'kibana' in installed_services"
