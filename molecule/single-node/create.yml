@@ -1,0 +1,140 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ not (lookup('env', 'MOLECULE_DEBUG') | bool or molecule_yml.provisioner.log|default(false) | bool) }}"
+  vars:
+    # I don't know how to do this per instance yet
+    ssh_user: admin    # This is used for instance config
+    ssh_pass: admin    # This is used for initial authorized_keys setup
+    ssh_port: 22       # This is used for instance config
+
+    esxi_hostname: "{{molecule_yml.vmware.esxi_hostname|default(omit)}}"
+    cluster: "{{molecule_yml.vmware.cluster|default(omit)}}"
+    vmware_datacenter: "{{molecule_yml.vmware.datacenter}}"
+    vmware_datastore: "{{molecule_yml.vmware.datastore}}"
+    #vm_network_name: "{{molecule_yml.vmware.network_name|default('VM Network')}}"
+    resource_pool: "{{molecule_yml.vmware.resource_pool|default('Resources')}}"
+
+    ssh_path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/ssh_key"
+    authorized_keys: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/.ssh/authorized_keys"
+  environment:
+    VMWARE_USER: "{{ lookup('env', 'VMWARE_USER') }}"
+    VMWARE_PASSWORD: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    VMWARE_HOST: "{{ molecule_yml.vmware.vcenter_address }}"
+    VMWARE_PORT: "{{ molecule_yml.vmware.vcenter_port | default('443') }}"
+    VMWARE_VALIDATE_CERTS: "{{ molecule_yml.vmware.validate_certs |  default('Yes') }}"
+
+  tasks:
+    - name: Create SSH key
+      user:
+        name: "{{ lookup('env', 'USER') }}"
+        generate_ssh_key: true
+        ssh_key_file: "{{ ssh_path }}"
+      register: generated_ssh_key
+
+    # TODO validate network_name
+    # - name: Gather facts about network for use with instance creation
+    #   os_networks_facts:
+    #     name: "{{ neutron_network_name }}"
+    - name: List all VM templates
+      vmware_vm_facts:
+        vm_type: 'template'
+      register: template_facts
+
+    - name: Set vmware_templates fact
+      set_fact:
+        vmware_templates: "{{ template_facts.virtual_machines.keys() | sort }}"
+
+    - name: Create molecule instance(s)
+      vmware_guest:
+        esxi_hostname: "{{molecule_yml.vmware.esxi_hostname|default(omit)}}"
+        cluster: "{{molecule_yml.vmware.cluster|default(omit)}}"
+        datacenter: "{{ vmware_datacenter }}"
+        folder: "/{{ vmware_datacenter }}/vm"
+        resource_pool: "{{ resource_pool }}"
+        name: "{{ item.name }}"
+        state: poweredon
+        disk:
+          - size_gb: "{{ item.disk_size }}"
+            type: thin
+            datastore: "{{ vmware_datastore }}"
+        hardware:
+          memory_mb: "{{ item.memory }}"
+          num_cpus: "{{ item.cpu }}"
+        template: >-
+          {{ vmware_templates | select('match', item.template_pattern) |
+             list |
+             last |
+             default('TEMPLATE_NOT_FOUND') }}
+        # networks:
+        #    - name: "{{ vm_network_name }}"
+        #      type: dhcp
+        wait_for_ip_address: True
+      register: server
+      with_items: "{{ molecule_yml.platforms }}"
+      async: 7200
+      poll: 0
+      changed_when: False
+
+    - name: Wait for instance(s) creation to complete
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: vmware_jobs
+      until: vmware_jobs.finished
+      retries: 300
+      with_items: "{{ server.results }}"
+
+    - name: Inject authorized_keys using rsync
+    # Yes, this is ugly, but Ansible + VMware made me do it
+      shell: >
+        mkdir -p $(dirname {{ authorized_keys }});
+        cp {{ ssh_path }}.pub {{ authorized_keys }};
+        chmod 0600 {{ authorized_keys }};
+        sshpass -e rsync
+        --delay-updates -F --compress --archive --no-owner --no-group
+        --rsh='/usr/bin/ssh -S none -o StrictHostKeyChecking=no -o  UserKnownHostsFile=/dev/null'
+        --out-format='<<CHANGED>>%i %n%L'
+        $(dirname {{authorized_keys}})
+        {{ ssh_user }}@{{ item.instance.ipv4 }}:
+      with_items: "{{ vmware_jobs.results }}"
+      register: result
+      environment:
+        SSHPASS: "{{ ssh_pass }}"
+      changed_when: "'<<CHANGED>>' in result.stdout"
+      args:
+        warn: False
+
+    - name: Populate instance config dict
+      set_fact:
+        instance_conf_dict: {
+          'instance': "{{ item.instance.hw_name }}",
+          'address': "{{ item.instance.ipv4 }}",
+          'user': "{{ ssh_user }}",
+          'port': "{{ ssh_port }}",
+          'identity_file': "{{ ssh_path }}",
+          'ssh_pass': "{{ ssh_pass }}",
+        }
+      with_items: "{{ vmware_jobs.results }}"
+      register: instance_config_dict
+      when: vmware_jobs.changed | bool
+
+    - name: Convert instance config dict to a list
+      set_fact:
+        instance_conf: "{{ instance_config_dict.results | map(attribute='ansible_facts.instance_conf_dict') | list }}"
+      when: vmware_jobs.changed | bool
+
+    - name: Dump instance config
+      copy:
+        content: "{{ instance_conf | to_json | from_json | molecule_to_yaml | molecule_header }}"
+        dest: "{{ molecule_instance_config }}"
+      when: vmware_jobs.changed | bool
+
+    - name: Wait for SSH
+      wait_for:
+        port: "{{ ssh_port }}"
+        host: "{{ item.address }}"
+        search_regex: SSH
+        delay: 10
+      with_items: "{{ lookup('file', molecule_instance_config) | molecule_from_yaml }}"
