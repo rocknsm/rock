@@ -205,6 +205,9 @@
   - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
   - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
+# We need to make sure pyopenssl >= 0.15 is installed to support the following module
+# https://docs.ansible.com/ansible/latest/modules/openssl_certificate_module.html#openssl-certificate-module
+# The "base" repo only goes up to 0.13, so we need to exclude it for this task
 - name: Install pyopenssl package
   yum:
     name: python-pyOpenSSL
