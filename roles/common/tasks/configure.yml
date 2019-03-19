@@ -210,8 +210,7 @@
 # The "base" repo only goes up to 0.13, so we need to exclude it for this task
 - name: Install pyopenssl package
   yum:
-    name: python-pyOpenSSL
-    disablerepo: base
+    name: python2-pyOpenSSL
     state: installed
   when: "'docket' in group_names or 'stenographer' in group_names"
 
