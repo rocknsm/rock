@@ -19,7 +19,7 @@
     mode: 0644
     owner: root
     group: root
-    force: yes
+    force: true
   loop: "{{ rock_monifs }}"
 
 - name: Configure local ifup script
@@ -29,7 +29,7 @@
     mode: 0755
     owner: root
     group: root
-    force: yes
+    force: true
   notify: Configure monitor interfaces
 
 - name: Configure GeoIP Update
@@ -37,7 +37,7 @@
     src: GeoIP.conf
     dest: /etc/GeoIP.conf
 
-  # There's an issue w/ geoipupdate when env is empty
+# There's an issue w/ geoipupdate when env is empty
 - name: Update GeoIP
   shell: >
     if [ "x$HTTP_PROXY" == "x" ]; then
@@ -62,7 +62,7 @@
   file:
     src: "/usr/share/GeoIP/{{ item.src }}"
     dest: "/usr/share/GeoIP/{{ item.dest }}"
-    force: yes
+    force: true
     state: link
   loop:
     - { src: 'GeoLiteCity.dat', dest: 'GeoIPCity.dat' }
@@ -74,17 +74,17 @@
   group:
     name: "{{ bro_group }}"
     state: present
-    system: yes
+    system: true
 
 - name: Create bro user
   user:
     name: "{{ bro_user }}"
     comment: "bro service account"
-    createhome: no
+    createhome: false
     group: "{{ bro_group }}"
     home: /var/spool/bro
     shell: /sbin/nologin
-    system: yes
+    system: true
     state: present
 
 - name: Create bro directories
@@ -178,16 +178,16 @@
     owner: root
     group: root
     creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
-    remote_src: yes
-  when: not rock_online_install
+    remote_src: true
+  when: not rock_online_install | bool
 
 - name: Symlink offline ROCK bro scripts
   file:
     src: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
     dest: "{{ bro_site_dir }}/scripts/rock"
     state: link
-    force: yes
-  when: not rock_online_install
+    force: true
+  when: not rock_online_install | bool
 
 - name: Update owner for ROCK bro scripts
   file:
@@ -195,8 +195,8 @@
     owner: "{{ bro_user }}"
     group: "{{ bro_group }}"
     state: directory
-    recurse: yes
-    follow: yes
+    recurse: true
+    follow: true
   tags:
     - bro_scripts
 
@@ -259,21 +259,21 @@
   command: /usr/bin/broctl install
   args:
     creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
-  become: yes
+  become: true
   become_user: "{{ bro_user }}"
 
 - name: Check status of interfaces
   command: >
     /usr/sbin/ip -oneline link show dev {{ item }}
   register: iplink
-  changed_when: False
+  changed_when: false
   loop: "{{ rock_monifs }}"
 
 - name: Bring up interfaces
   command: >
     /usr/sbin/ip -oneline link set dev {{ item.stdout.split(':')[1] | trim }} up
   when: item.stdout is search("state DOWN")
-  loop:  "{{ iplink.results }}"
+  loop: "{{ iplink.results }}"
 
 - name: Enable and start bro
   service:

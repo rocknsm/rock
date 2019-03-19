@@ -9,7 +9,6 @@
     cluster: "{{molecule_yml.vmware.cluster|default(omit)}}"
     vmware_datacenter: "{{molecule_yml.vmware.datacenter}}"
     vmware_datastore: "{{molecule_yml.vmware.datastore}}"
-    #vm_network_name: "{{molecule_yml.vmware.network_name|default('VM Network')}}"
     resource_pool: "{{molecule_yml.vmware.resource_pool|default('Resources')}}"
   environment:
     VMWARE_USER: "{{ lookup('env', 'VMWARE_USER') }}"
@@ -27,12 +26,12 @@
         resource_pool: "{{ resource_pool }}"
         name: "{{ item.name }}"
         state: absent
-        force: True
+        force: true
       register: server
       with_items: "{{ molecule_yml.platforms }}"
       async: 7200
       poll: 0
-      changed_when: False
+      changed_when: false
 
     - name: Wait for instance(s) deletion to complete
       async_status:
@@ -46,7 +45,7 @@
       file:
         state: absent
         path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/etc"
-      become: yes
+      become: true
 
     # Mandatory configuration for Molecule to function.
     - name: Populate instance config

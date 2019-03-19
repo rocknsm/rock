@@ -1,18 +1,18 @@
 ---
 - hosts: localhost
-  become: True
+  become: true
   tasks:
   - name: Create config directory
     file:
       state: directory
       owner: root
       group: root
-      mode:  0755
+      mode: 0755
       path: "{{ rock_conf_dir }}"
 
   - name: Render template
     template:
-      backup: yes
+      backup: true
       src: rock_config.yml.j2
       dest: "{{ rock_config }}"
       owner: root

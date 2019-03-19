@@ -1,7 +1,4 @@
 ---
-# tasks file for kafka
-
-
 - name: Install packages
   yum:
     name:
@@ -21,7 +18,7 @@
   lineinfile:
     dest: "{{ kafka_config_path }}"
     regexp: "log.retention.hours="
-    line:  "log.retention.hours={{ kafka_retention }}"
+    line: "log.retention.hours={{ kafka_retention }}"
     state: present
 
 - name: Set kafka data directory
@@ -40,9 +37,9 @@
 - name: Configure firewall ports
   firewalld:
     port: "{{ item }}/tcp"
-    permanent: yes
+    permanent: true
     state: enabled
-    immediate: yes
+    immediate: true
   loop:
     - 9092
   when: groups['kafka'] | difference(groups['logstash']) | count > 0

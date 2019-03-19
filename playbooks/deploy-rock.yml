@@ -4,7 +4,7 @@
     - common
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - common
 
@@ -13,7 +13,7 @@
     - zookeeper
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: zookeeper
       when: "'zookeeper' in installed_services"
@@ -23,7 +23,7 @@
     - kafka
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: kafka
       when: "'kafka' in installed_services"
@@ -33,7 +33,7 @@
     - stenographer
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: stenographer
       when: "'stenographer' in installed_services"
@@ -45,7 +45,7 @@
     - sensor
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: bro
       when: "'bro' in installed_services"
@@ -56,7 +56,7 @@
     - sensor
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: suricata
       when: "'suricata' in installed_services"
@@ -67,7 +67,7 @@
     - sensor
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: fsf
       when: "'fsf' in installed_services"
@@ -82,7 +82,7 @@
     - web
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: lighttpd
       when: "'lighttpd' in installed_services"
@@ -95,7 +95,7 @@
     - stenographer
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: docket
       when: "'docket' in installed_services"
@@ -107,7 +107,7 @@
     - elastic
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: elasticsearch
       when: "'elasticsearch' in installed_services"
@@ -118,7 +118,7 @@
     - elastic
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: logstash
       when: "'logstash' in installed_services"
@@ -129,7 +129,7 @@
     - elastic
   vars_files:
     - "{{ rock_config }}"
-  become: True
+  become: true
   roles:
     - role: kibana
       when: "'kibana' in installed_services"

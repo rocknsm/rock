@@ -82,5 +82,5 @@
     owner: root
     group: root
     creates: "{{ rock_module_dir }}"
-    remote_src: yes
+    remote_src: true
   when: ('elasticsearch' or 'logstash' in installed_services)

@@ -14,7 +14,6 @@
     cluster: "{{molecule_yml.vmware.cluster|default(omit)}}"
     vmware_datacenter: "{{molecule_yml.vmware.datacenter}}"
     vmware_datastore: "{{molecule_yml.vmware.datastore}}"
-    #vm_network_name: "{{molecule_yml.vmware.network_name|default('VM Network')}}"
     resource_pool: "{{molecule_yml.vmware.resource_pool|default('Resources')}}"
 
     ssh_path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/ssh_key"
@@ -71,12 +70,12 @@
         # networks:
         #    - name: "{{ vm_network_name }}"
         #      type: dhcp
-        wait_for_ip_address: True
+        wait_for_ip_address: true
       register: server
       with_items: "{{ molecule_yml.platforms }}"
       async: 7200
       poll: 0
-      changed_when: False
+      changed_when: false
 
     - name: Wait for instance(s) creation to complete
       async_status:
@@ -87,7 +86,7 @@
       with_items: "{{ server.results }}"
 
     - name: Inject authorized_keys using rsync
-    # Yes, this is ugly, but Ansible + VMware made me do it
+      # Yes, this is ugly, but Ansible + VMware made me do it
       shell: >
         mkdir -p $(dirname {{ authorized_keys }});
         cp {{ ssh_path }}.pub {{ authorized_keys }};
@@ -104,7 +103,7 @@
         SSHPASS: "{{ ssh_pass }}"
       changed_when: "'<<CHANGED>>' in result.stdout"
       args:
-        warn: False
+        warn: false
 
     - name: Populate instance config dict
       set_fact:

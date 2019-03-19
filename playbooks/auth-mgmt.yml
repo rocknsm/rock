@@ -7,15 +7,15 @@
   vars_files:
     - "{{ rock_config }}"
   tasks:
-  - name: Set authorized keys
-    authorized_key:
-      user: "{{ ansible_env.SUDO_USER }}"
-      state: present
-      key: "{{ public_keys }}"
+    - name: Set authorized keys
+      authorized_key:
+        user: "{{ ansible_env.SUDO_USER }}"
+        state: present
+        key: "{{ public_keys }}"
 
-  - name: Enable sudo w/o password
-    lineinfile:
-     path: /etc/sudoers
-     state: present
-     regexp: '^{{ ansible_env.SUDO_USER }}\s'
-     line: '{{ ansible_env.SUDO_USER }} ALL=(ALL) NOPASSWD: ALL'
+    - name: Enable sudo w/o password
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^{{ ansible_env.SUDO_USER }}\s'
+        line: '{{ ansible_env.SUDO_USER }} ALL=(ALL) NOPASSWD: ALL'

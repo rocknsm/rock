@@ -6,14 +6,14 @@ dependency:
 driver:
   name: delegated
   options:
-    managed: True
+    managed: true
 vmware:
   network_name: CyberLab
   datastore: vmstore
   datacenter: Datacenter
   vcenter_address: vcenter.rocklab.lan
   esxi_hostname: 192.168.73.40
-  validate_certs: False
+  validate_certs: false
   resource_pool: "Resources"
 lint:
   name: yamllint
@@ -46,8 +46,8 @@ platforms:
       - logstash
 provisioner:
   name: ansible
-  log: True
-  become: True
+  log: true
+  become: true
   env:
     ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/roles"
   options:
@@ -55,20 +55,20 @@ provisioner:
       rock_conf_dir: "${MOLECULE_EPHEMERAL_DIRECTORY}/etc"
       rock_config: "${MOLECULE_EPHEMERAL_DIRECTORY}/etc/config"
       rock_monifs: ["dummy0"]
-      rock_disable_offline_repo: True
-      rock_enable_testing: True
+      rock_disable_offline_repo: true
+      rock_enable_testing: true
       # Must static the es_mem var for now until #386 is resolved
       es_mem: 8
   inventory:
     group_vars:
       elasticsearch:
         node_master: false
-        node_data:   false
+        node_data: false
         node_ingest: false
       es_masters:
         node_master: true
       es_data:
-        node_data:   true
+        node_data: true
       es_ingest:
         node_ingest: true
   lint:

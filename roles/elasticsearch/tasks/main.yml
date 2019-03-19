@@ -64,9 +64,9 @@
 - name: Configure firewall ports
   firewalld:
     port: "{{ item }}/tcp"
-    permanent: yes
+    permanent: true
     state: enabled
-    immediate: yes
+    immediate: true
   when: groups['elasticsearch'] | count > 1
   loop:
     - 9200
@@ -92,7 +92,7 @@
   uri:
     method: "GET"
     url: "{{ es_url }}/_template/default"
-  failed_when: False
+  failed_when: false
   register: default_index_template
   run_once: true
 

@@ -16,7 +16,7 @@
     mode: 0644
     owner: root
     group: root
-    force: yes
+    force: true
   loop: "{{ rock_monifs }}"
 
 - name: Configure local ifup script
@@ -26,7 +26,7 @@
     mode: 0755
     owner: root
     group: root
-    force: yes
+    force: true
   notify: Configure monitor interfaces
 
 - name: Create filebeat config directory
@@ -135,7 +135,7 @@
   args:
     creates: /var/lib/suricata/update/sources/emerging-threats-offline.yaml
   when: "'suricata_update' in installed_services and not rock_online_install"
-  become: yes
+  become: true
   become_user: "{{ suricata_user }}"
 
 - name: Offline install of suricata rules
@@ -143,7 +143,7 @@
   args:
     creates: /var/lib/suricata/rules/suricata.rules
   when: "'suricata_update' in enabled_services and not rock_online_install"
-  become: yes
+  become: true
   become_user: "{{ suricata_user }}"
 
 - name: Update suricata-update source index
@@ -152,7 +152,7 @@
     creates: /var/lib/suricata/update/cache/index.yaml
     chdir: /var/lib/suricata
   when: "'suricata_update' in enabled_services and rock_online_install"
-  become: yes
+  become: true
   become_user: "{{ suricata_user }}"
 
 - name: Explicitly enable ET rules for suricata-update online
@@ -161,7 +161,7 @@
     creates: /var/lib/suricata/update/sources/et-open.yaml
     chdir: /var/lib/suricata
   when: "'suricata_update' in enabled_services and rock_online_install"
-  become: yes
+  become: true
   become_user: "{{ suricata_user }}"
 
 - name: Suricata-update online rules pull
@@ -170,7 +170,7 @@
     creates: /var/lib/suricata/rules/suricata.rules
     chdir: /var/lib/suricata
   when: "'suricata_update' in enabled_services and rock_online_install"
-  become: yes
+  become: true
   become_user: "{{ suricata_user }}"
 
 - name: Cron for suricata-update
