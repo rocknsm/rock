@@ -1,5 +1,7 @@
 ---
 - hosts: all
+  tags:
+    - common
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -7,6 +9,8 @@
     - common
 
 - hosts: zookeeper
+  tags:
+    - zookeeper
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -15,6 +19,8 @@
       when: "'zookeeper' in installed_services"
 
 - hosts: kafka
+  tags:
+    - kafka
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -23,6 +29,8 @@
       when: "'kafka' in installed_services"
 
 - hosts: stenographer
+  tags:
+    - stenographer
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -32,6 +40,9 @@
       stenographer_monitor_interfaces: "{{ rock_monifs }}"
 
 - hosts: bro
+  tags:
+    - bro
+    - sensor
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -40,6 +51,9 @@
       when: "'bro' in installed_services"
 
 - hosts: suricata
+  tags:
+    - suricata
+    - sensor
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -48,6 +62,9 @@
       when: "'suricata' in installed_services"
 
 - hosts: fsf
+  tags:
+    - fsf
+    - sensor
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -58,6 +75,11 @@
 - hosts:
     - docket
     - kibana
+  tags:
+    - docket
+    - kibana
+    - lighttpd
+    - web
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -66,6 +88,9 @@
       when: "'lighttpd' in installed_services"
 
 - hosts:
+    - docket
+    - stenographer
+  tags:
     - docket
     - stenographer
   vars_files:
@@ -77,6 +102,9 @@
       docket_enable: "{{'docket' in enabled_services | bool}}"
 
 - hosts: elasticsearch
+  tags:
+    - elasticsearch
+    - elastic
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -85,6 +113,9 @@
       when: "'elasticsearch' in installed_services"
 
 - hosts: logstash
+  tags:
+    - logstash
+    - elastic
   vars_files:
     - "{{ rock_config }}"
   become: True
@@ -93,6 +124,9 @@
       when: "'logstash' in installed_services"
 
 - hosts: kibana
+  tags:
+    - kibana
+    - elastic
   vars_files:
     - "{{ rock_config }}"
   become: True
