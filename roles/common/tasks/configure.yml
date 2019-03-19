@@ -205,13 +205,6 @@
   - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
   - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
 
-- name: Install pyopenssl package
-  yum:
-    name: python-pyOpenSSL
-    disablerepo: base
-    state: installed
-  when: "'docket' in group_names or 'stenographer' in group_names"
-
 - name: Install core packages
   yum:
     name: "{{ rocknsm_package_list }}"
