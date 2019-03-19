@@ -80,6 +80,7 @@ rocknsm_package_list:
   - tmux
   - nmap-ncat
   - logrotate
+  - python-pyOpenSSL
   - firewalld
   - chrony
   - libselinux-python
