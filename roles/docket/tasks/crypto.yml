@@ -7,10 +7,15 @@
 
 # Configure docket app settings
 - name: Ensure ansible_cache dir exists
-  local_action: file path={{ ansible_cache }} state=directory mode=0700
+  local_action: tempfile state=directory
   changed_when: false
+  register: cachedir
 
-# TODO: this should probably
+- name: Set ansible_cache fact
+  set_fact:
+    ansible_cache: cachedir.path
+
+# TODO: Not sure why this is needed here
 - name: Ensure rock nsm conf dir exists
   file:
     path: "{{ rocknsm_conf_dir }}"
@@ -39,7 +44,6 @@
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
   when: inventory_hostname in groups['docket']
-
 
 # Generate/copy x509 client cert/keys and CA certs
 # Use new openssl module in ansible 2.3
@@ -110,6 +114,7 @@
   loop: "{{ groups['docket'] }}"
   when:
     - inventory_hostname in groups['stenographer']
+    - not new_csr is skipped
 
 - name: Sign certificate signing requests
   openssl_certificate:

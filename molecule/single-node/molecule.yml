@@ -18,7 +18,7 @@ vmware:
 lint:
   name: yamllint
 platforms:
-  - name: "${MOLECULE_SCENARIO_NAME}-instance-1"
+  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}-instance-1"
     memory: 16384
     cpu: 4
     disk_size: 64
@@ -50,6 +50,8 @@ provisioner:
   become: true
   env:
     ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/roles"
+    VMWARE_USER: "${VMWARE_USER}"
+    VMWARE_PASSWORD: "${VMWARE_PASSWORD}"
   options:
     extra-vars:
       rock_conf_dir: "${MOLECULE_EPHEMERAL_DIRECTORY}/etc"
@@ -81,3 +83,4 @@ verifier:
   name: testinfra
   lint:
     name: flake8
+    enabled: false

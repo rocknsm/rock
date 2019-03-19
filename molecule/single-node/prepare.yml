@@ -14,5 +14,3 @@
       command: /usr/sbin/ip link add dummy0 type dummy
       args:
         creates: /sys/class/net/dummy0
-
-- import_playbook: ../../playbooks/generate-defaults.yml
