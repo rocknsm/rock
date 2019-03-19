@@ -2,8 +2,9 @@
 - hosts: all
   tags:
     - common
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - common
@@ -11,8 +12,9 @@
 - hosts: zookeeper
   tags:
     - zookeeper
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: zookeeper
@@ -21,8 +23,9 @@
 - hosts: kafka
   tags:
     - kafka
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: kafka
@@ -31,8 +34,9 @@
 - hosts: stenographer
   tags:
     - stenographer
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: stenographer
@@ -43,8 +47,9 @@
   tags:
     - bro
     - sensor
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: bro
@@ -54,8 +59,9 @@
   tags:
     - suricata
     - sensor
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: suricata
@@ -65,8 +71,9 @@
   tags:
     - fsf
     - sensor
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: fsf
@@ -80,8 +87,9 @@
     - kibana
     - lighttpd
     - web
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: lighttpd
@@ -93,21 +101,23 @@
   tags:
     - docket
     - stenographer
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: docket
       when: "'docket' in installed_services"
-      docket_enable: "{{'docket' in enabled_services | bool}}"
+      docket_enable: "{{ ('docket' in enabled_services) | bool}}"
 
 - hosts: elasticsearch
   tags:
     - elasticsearch
     - elastic
     - es_before
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   vars:
     - es_step: "before"
   become: true
@@ -149,8 +159,9 @@
   tags:
     - logstash
     - elastic
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: logstash
@@ -160,8 +171,9 @@
   tags:
     - kibana
     - elastic
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   become: true
   roles:
     - role: kibana

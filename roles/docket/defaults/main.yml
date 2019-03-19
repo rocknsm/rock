@@ -1,7 +1,5 @@
 ---
 # defaults file for rocknsm.docket
-ansible_cache: /tmp/ansible_cache
-
 rocknsm_conf_dir: /etc/rocknsm
 rocknsm_conf_user: root
 rocknsm_conf_group: root
