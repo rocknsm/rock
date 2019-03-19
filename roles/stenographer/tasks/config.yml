@@ -1,8 +1,7 @@
 ---
-# tasks file for stenographer
-  ######################################################
-  ################# Config Stenographer #################
-  ######################################################
+#######################################################
+################# Config Stenographer #################
+#######################################################
 
 - name: Set stenographer config
   template:
@@ -57,9 +56,9 @@
 - name: Configure firewall ports
   firewalld:
     port: "{{ 1234 + index }}/tcp"
-    permanent: yes
+    permanent: true
     state: enabled
-    immediate: yes
+    immediate: true
   loop: "{{ stenographer_monitor_interfaces }}"
   loop_control:
     index_var: index

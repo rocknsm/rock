@@ -97,7 +97,7 @@ docket_web_dhparams: "{{ http_tls_dhparams }}"
 ansible_cache: "~/ansible_cache/"
 
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
-epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
+epel_gpgurl: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 elastic_baseurl: https://artifacts.elastic.co/packages/{{ elastic_version }}/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 

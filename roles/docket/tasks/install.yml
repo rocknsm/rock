@@ -17,8 +17,8 @@
     cost: 750
     state: present
   loop:
-    - { name: "rocknsm_2_3", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
-    - { name: "rocknsm_2_3-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
+    - { name: "rocknsm_2_3", gpgcheck: true, baseurl: "{{ rocknsm_baseurl }}" }
+    - { name: "rocknsm_2_3-source", gpgcheck: false, baseurl: "{{ rocknsm_srpm_baseurl }}" }
   when: "{{ docket_install == 'yumrepo' }}"
 
 - name: Install packages

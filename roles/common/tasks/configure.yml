@@ -55,7 +55,7 @@
     owner: root
     group: root
     creates: "{{ rock_module_dir }}"
-    remote_src: yes
+    remote_src: true
   when: "'kibana' or 'elasticsearch' or 'logstash' in installed_services"
 
 - name: Disable IPv6 for all interfaces
@@ -76,7 +76,7 @@
     regexp: AddressFamily
     line: AddressFamily inet
   notify:
-  - Restart sshd
+    - Restart sshd
 
 - name: Add the inventory into /etc/hosts
   lineinfile:
@@ -100,7 +100,7 @@
     description: EPEL YUM repo
     baseurl: "{{ epel_baseurl }}"
     gpgkey: "{{ epel_gpgurl }}"
-    gpgcheck: yes
+    gpgcheck: true
   when: rock_online_install
 
 - name: Manually trust CentOS GPG key
@@ -114,8 +114,8 @@
     name: elastic-6.x
     description: Elastic Stack repository for 6.x
     baseurl: "{{ elastic_baseurl }}"
-    gpgkey:  "{{ elastic_gpgurl }}"
-    gpgcheck: no
+    gpgkey: "{{ elastic_gpgurl }}"
+    gpgcheck: false
   when: rock_online_install
 
 - name: Configure RockNSM online repos
@@ -136,8 +136,8 @@
     cost: 750
     state: present
   loop:
-    - { name: "rocknsm_2_3", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
-    - { name: "rocknsm_2_3-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
+    - { name: "rocknsm_2_3", gpgcheck: true, baseurl: "{{ rocknsm_baseurl }}" }
+    - { name: "rocknsm_2_3-source", gpgcheck: false, baseurl: "{{ rocknsm_srpm_baseurl }}" }
 
 - name: Configure RockNSM online testing repos
   yum_repository:
@@ -163,7 +163,7 @@
     gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
     repo_gpgcheck: "{{ rock_offline_gpgcheck }}"
     cost: 500
-  when: not rock_disable_offline_repo
+  when: not rock_disable_offline_repo | bool
 
 - name: Install RockNSM GPG keys
   copy:
@@ -235,16 +235,16 @@
 - name: Enable and start firewalld
   service:
     name: firewalld
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Configure firewall ports
   firewalld:
     port: "{{ item[1].port }}"
     source: "{{ item[0] }}"
-    permanent: yes
+    permanent: true
     state: enabled
-    immediate: yes
+    immediate: true
   with_nested:
     - "{{ rock_mgmt_nets }}"
     -
@@ -268,7 +268,7 @@
   file:
     src: "/usr/local/bin/rockctl"
     dest: "/usr/sbin/rockctl"
-    force: yes
+    force: true
     state: link
 
 - name: Set RockNSM Version

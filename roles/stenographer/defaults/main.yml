@@ -5,4 +5,4 @@ stenographer_user: stenographer
 stenographer_group: stenographer
 stenographer_monitor_interfaces: [eth0]
 enable_stenographer: true
-action: deploy
+method: deploy

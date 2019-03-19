@@ -32,8 +32,8 @@
 - name: Enable lighttpd to perform proxy connect
   seboolean:
     name: httpd_can_network_connect
-    state: yes
-    persistent: yes
+    state: true
+    persistent: true
   when: "'kibana' in installed_services"
 
 - name: Generate sensor private key
@@ -90,8 +90,8 @@
 - name: Configure firewall ports
   firewalld:
     port: "{{ item }}/tcp"
-    permanent: yes
+    permanent: true
     state: enabled
-    immediate: yes
+    immediate: true
   loop:
     - 443

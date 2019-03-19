@@ -8,7 +8,7 @@
 - name: Enable and start chrony
   service:
     name: chronyd
-    enabled: yes
+    enabled: true
     state: started
 
 - name: Set system timezone

@@ -13,7 +13,7 @@
 
 - name: Set production docket config
   template:
-    src:  docket_prod.yaml.j2
+    src: docket_prod.yaml.j2
     dest: /etc/docket/prod.yaml
   notify:
     - Restart docket uwsgi
@@ -29,7 +29,7 @@
 - name: Enable redis
   service:
     name: redis
-    enabled: yes
+    enabled: true
   notify: Restart redis
   when: "'docket' in enabled_services"
 

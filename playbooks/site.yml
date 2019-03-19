@@ -1,2 +1,2 @@
-#!/usr/bin/env ansible-playbook
+---
 - import_playbook: deploy-rock.yml
