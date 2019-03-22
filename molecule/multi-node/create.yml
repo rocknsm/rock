@@ -28,7 +28,7 @@
   tasks:
     - name: Create SSH key
       user:
-        name: "molecule"
+        name: "dcode"
         generate_ssh_key: true
         ssh_key_file: "{{ ssh_path }}"
       register: generated_ssh_key

@@ -19,7 +19,7 @@
   loop:
     - { name: "rocknsm_2_3", gpgcheck: true, baseurl: "{{ rocknsm_baseurl }}" }
     - { name: "rocknsm_2_3-source", gpgcheck: false, baseurl: "{{ rocknsm_srpm_baseurl }}" }
-  when: "{{ docket_install == 'yumrepo' }}"
+  when: docket_install == 'yumrepo'
 
 - name: Install packages
   yum:

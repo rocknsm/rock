@@ -24,7 +24,7 @@ processors:
  # Configure what outputs to use when sending the data collected by the beat.
  # Multiple outputs may be used.
 
- output.kafka:
+output.kafka:
    hosts: [{% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}]
 
    topic: '%{[kafka_topic]}'

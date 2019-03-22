@@ -39,14 +39,21 @@
     owner: root
     group: root
     state: directory
-  when: inventory_hostname in groups.logstash
+  when:
+    - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
+    - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
+
 
 - name: Download RockNSM elastic configs
   get_url:
     url: "{{ rock_dashboards_url }}"
     dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
-  when: ('kibana' or 'elasticsearch' or 'logstash' in installed_services) and rock_online_install
+  when:
+    - rock_online_install
+    - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
+    - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
+
 
 - name: Extract RockNSM elastic configs
   unarchive:
@@ -56,7 +63,10 @@
     group: root
     creates: "{{ rock_module_dir }}"
     remote_src: true
-  when: "'kibana' or 'elasticsearch' or 'logstash' in installed_services"
+  when:
+    - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
+    - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
+
 
 - name: Disable IPv6 for all interfaces
   sysctl:
@@ -255,6 +265,9 @@
     dest: "{{ rock_cache_dir }}"
     state: directory
     mode: 0755
+  when:
+    - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
+    - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
 
 - name: Install RockNSM control script
   template:
