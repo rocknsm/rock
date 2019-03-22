@@ -6,7 +6,7 @@
     return_content: true
     timeout: 2
   register: result
-  until: result.json.status == "green"
+  until: result.json is defined and result.json.status == "green"
   retries: 300
   delay: 3
   run_once: true
