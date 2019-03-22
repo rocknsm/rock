@@ -76,9 +76,5 @@
 - name: Determine if Elasticsearch needs to be restarted
   set_fact:
     es_restart: true
-  when: item.changed and (es_install.changed|bool == false)
-  loop:
-    - es_config
-    - es_memlock
-    - es_jvm
+  when: "(es_config.changed or es_memlock.changed or es_jvm.changed) and not es_install.changed"
 ...
