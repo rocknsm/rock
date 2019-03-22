@@ -56,7 +56,7 @@
     daemon_reload: true
   when: es_memlock.changed
   tags:
-    - skip_ansible_lint
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
 - name: Enable and start elasticsearch
   service:
@@ -95,7 +95,6 @@
     es_restart: true
   when: "(es_config.changed or es_memlock.changed or es_jvm.changed) and not es_install.changed"
   tags:
-    - skip_ansible_lint
-    # [503] Tasks that run when changed should likely be handlers
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
 ...
