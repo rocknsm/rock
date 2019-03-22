@@ -22,6 +22,7 @@ platforms:
     memory: 16384
     cpu: 4
     disk_size: 64
+    guest_id: centos7_64Guest
     template_pattern: '^template-centos-7'
     children:
       - rock
@@ -59,8 +60,14 @@ provisioner:
       rock_monifs: ["dummy0"]
       rock_disable_offline_repo: true
       rock_enable_testing: true
+      elastic_baseurl: http://internal-mirror.cyberlab.lan/elastic/6.x/
       # Must static the es_mem var for now until #386 is resolved
       es_mem: 8
+  config_options:
+    defaults:
+      callback_whitelist: timer,profile_tasks,profile_role
+    connection:
+      pipelining: true
   inventory:
     group_vars:
       elasticsearch:

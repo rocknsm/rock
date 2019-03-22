@@ -4,6 +4,63 @@
     daemon_reload: true
 
 - name: Restart elasticsearch
+  debug: msg="Restarting Elasticsearch Sequence"
+  notify:
+    - Disable cluster shard allocation
+
+- name: Disable cluster shard allocation
+  uri:
+    url: "http://{{ ansible_hostname }}:9200/_cluster/settings"
+    body: '{"transient": {"cluster.routing.allocation.enable":"none"}}'
+    body_format: json
+    timeout: 2
+    method: PUT
+  register: result
+  until: result.json.acknowledged is defined
+  retries: 300
+  delay: 3
+  changed_when: result.json.acknowledged == true
+  notify:
+    - do restart elasticsearch
+
+- name: do restart elasticsearch
   service:
     name: elasticsearch
     state: restarted
+  notify:
+    - wait node online
+
+- name: wait node online
+  uri:
+    url: "http://{{ ansible_hostname }}:9200/_nodes/{{ansible_hostname}}/name"
+    timeout: 2
+  register: result
+  until: result.json._nodes.total == 1
+  retries: 200
+  delay: 3
+  notify:
+    - Enable cluster shard allocation
+
+- name: Enable cluster shard allocation
+  uri:
+    url: "http://{{ ansible_hostname }}:9200/_cluster/settings"
+    body: '{"transient": {"cluster.routing.allocation.enable":"all"}}'
+    body_format: json
+    timeout: 2
+    method: PUT
+  register: result
+  until: result.json.acknowledged is defined
+  retries: 300
+  delay: 3
+  changed_when: result.json.acknowledged == true
+  notify:
+    - Wait until cluster green
+
+- name: Wait until cluster green
+  uri:
+    url: "http://{{ ansible_hostname }}:9200/_cluster/health"
+    timeout: 2
+  register: result
+  until: result.json.status == "green"
+  retries: 300
+  delay: 3

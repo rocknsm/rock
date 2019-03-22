@@ -130,24 +130,25 @@
     - elasticsearch
     - elastic
     - es_restart
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   vars:
     - es_step: "restart"
   serial: 1
   become: true
-  when: es_restart
   roles:
     - role: elasticsearch
-      when: "'elasticsearch' in installed_services and (es_restart is defined and es_restart)""
+      when: "'elasticsearch' in installed_services and (es_restart is defined and es_restart)"
 
 - hosts: elasticsearch
   tags:
     - elasticsearch
     - elastic
     - es_after
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   vars:
     - es_step: "after"
   become: true
