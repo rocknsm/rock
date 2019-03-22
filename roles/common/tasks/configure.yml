@@ -248,17 +248,43 @@
     enabled: true
     state: started
 
+# Use 'internal' zone for intra-ROCK communication
+- name: Create internal firewall zone
+  firewalld:
+    state: present
+    zone: internal
+    permanent: true
+  register: result
+
+- name: Reload firewalld to load zone
+  service:
+    name: firewalld
+    state: restarted
+  when: result.changed
+
+# Use 'work' zone for management network
+- name: Create internal firewall zone
+  firewalld:
+    state: present
+    zone: work
+    permanent: true
+  register: result
+
+- name: Reload firewalld to load zone
+  service:
+    name: firewalld
+    state: restarted
+  when: result.changed
+
 - name: Configure firewall ports
   firewalld:
-    port: "{{ item[1].port }}"
+    port: "{{ item[1] }}"
     source: "{{ item[0] }}"
+    zone: work
     permanent: true
     state: enabled
     immediate: true
-  with_nested:
-    - "{{ rock_mgmt_nets }}"
-    -
-      - { port: "22/tcp" }
+  loop: "{{ rock_mgmt_nets | product(['22/tcp']) | list }}"
 
 - name: Ensure cache directory exists
   file:

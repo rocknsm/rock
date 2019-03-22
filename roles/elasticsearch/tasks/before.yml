@@ -60,21 +60,35 @@
   service:
     name: elasticsearch
     state: "started"
-    enabled: "{{ 'True' if 'elasticsearch' in enabled_services else 'False' }}"
+    enabled: "{{ 'true' if 'elasticsearch' in enabled_services else 'false' }}"
 
-- name: Configure firewall ports
+- name: Create internal firewall zone
   firewalld:
-    port: "{{ item }}/tcp"
+    state: present
+    zone: internal
+    permanent: true
+  register: result
+
+- name: Reload firewalld to load zone
+  service:
+    name: firewalld
+    state: restarted
+  when: result.changed
+
+- name: Configure firewall ports for internal elastic communication
+  firewalld:
+    port: "{{ item.1 }}/tcp"
     permanent: true
     state: enabled
     immediate: true
-  when: groups['elasticsearch'] | count > 1
-  loop:
-    - 9200
-    - 9300
+    source: "{{ hostvars[item.0]['ansible_default_ipv4']['address'] }}"
+    zone: internal
+  when: (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1
+  loop: "{{(groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana'])) | product([9200, 9300]) | list }}"
 
 - name: Determine if Elasticsearch needs to be restarted
   set_fact:
     es_restart: true
   when: "(es_config.changed or es_memlock.changed or es_jvm.changed) and not es_install.changed"
+
 ...
