@@ -82,7 +82,7 @@
     state: enabled
     immediate: true
     source: "{{ hostvars[item.0]['ansible_default_ipv4']['address'] }}"
-    zone: internal
+    zone: work  # This should be a different zone, but leaving this here for now
   when: (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1
   loop: "{{(groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana'])) | product([9200, 9300]) | list }}"
 

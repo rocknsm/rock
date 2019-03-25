@@ -263,7 +263,7 @@
   when: result.changed
 
 # Use 'work' zone for management network
-- name: Create internal firewall zone
+- name: Create work firewall zone
   firewalld:
     state: present
     zone: work
