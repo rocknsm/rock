@@ -18,8 +18,10 @@ Requires:       ansible >= 2.7.0
 Requires:       python-jinja2 >= 2.9.0
 Requires:       python-markupsafe >= 0.23
 Requires:       python-pyOpenSSL
+Requires:       python-netaddr
 Requires:       libselinux-python
 Requires:       git
+Requires:       yq
 
 %description
 ROCK is a collections platform, in the spirit of Network Security Monitoring.
@@ -42,6 +44,7 @@ mkdir -p %{buildroot}/%{_sysconfdir}
 
 # Install ansible files
 install -p -m 755 bin/rock %{buildroot}/%{_sbindir}/
+install -p -m 755 bin/rock_setup %{buildroot}/%{_sbindir}/
 install -m 644 etc/hosts.ini %{buildroot}/%{_sysconfdir}/
 cp -a roles/. %{buildroot}/%{_rockdir}/roles
 cp -a playbooks/. %{buildroot}/%{_rockdir}/playbooks
