@@ -1,14 +1,11 @@
 ---
 - hosts: localhost
   become: true
-<<<<<<< HEAD
   vars:
     - config_src: rock_config.yml.j2
-=======
   tags:
     - common
     - local
->>>>>>> Fix elasticsearch health checks, configure firewall
   tasks:
   - name: Create config directory
     file:
