@@ -52,6 +52,7 @@ function usage() {
   cat <<EOF
 Usage: $0 COMMAND [options]
 Options:
+--config, -c <config_yaml>         Specify full path to configuration overrides
 --inventory, -i <inventory_path>   Specify path to Ansible inventory file
 --playbook, -p <playbook_path>     Specify path to Ansible playbook file
 --help, -h                         Show this usage information
@@ -79,8 +80,8 @@ genconfig           Generate default configuration based on current system
 EOF
 }
 
-SHORT_OPTS="hi:p:t:e:vo"
-LONG_OPTS="help,inventory:,playbook:,tags:,skip-tags:,extra:,verbose,config:,limit:,offline,yolo,list-hosts,list-tags,list-tasks"
+SHORT_OPTS="c:hi:p:t:e:vo"
+LONG_OPTS="config:help,inventory:,playbook:,tags:,skip-tags:,extra:,verbose,config:,limit:,offline,yolo,list-hosts,list-tags,list-tasks"
 
 ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
 
@@ -91,13 +92,19 @@ ROCK_HOME=/usr/share/rock
 PLAYBOOK_DIR=$ROCK_HOME/playbooks
 PLAYBOOK=
 INVENTORY=$CONFIG_DIR/hosts.ini
-CONFIG=$CONFIG_DIR/config.yml
+CONFIG=
 VERBOSITY=
 EXTRA_OPTS=${EXTRA_OPTS}
 LIST_ACTION=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
+
+    (--config|-c)
+            CONFIG="$2"
+            EXTRA_OPTS="$EXTRA_OPTS -e @$CONFIG"
+            shift 2
+            ;;
 
     (--inventory|-i)
             INVENTORY="$2"
