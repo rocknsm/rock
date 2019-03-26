@@ -37,6 +37,35 @@ Please reference our [documentation](https://rocknsm.gitbooks.io/rocknsm-guide/c
 - troubleshooting
 
 
+### Testing
+
+We use [molecule](https://molecule.readthedocs.io/) for testing playbooks using
+vSphere instances in one or more of the developers' labs. Specifically, we're
+using [these CookieCutter](https://github.com/Perched/molecule-cookiecutter-vsphere) templates for molecule, as found in the `molecule/` directory.
+
+If you're looking to run these tests in a different vCenter environment, you'll
+need ti edit the `molecule` block in `molecule.yml` for each of the scenarios.
+After that, you authenticate using the environment variables `VMWARE_USER` and
+`VMWARE_PASSWORD`. These are the standard Ansible environment variables and get
+passed to the respective VMware modules.
+
+In `molecule`, the easiest way to is to create a `.env.yml` file in the root
+of the `rock` project directory with this information. Example:
+
+```yaml
+---
+VMWARE_USER: "myuser@vsphere.local"
+VMWARE_PASSWORD: "its-a-secret-to-everybody"
+```
+
+You can then run all the tests.
+
+```shell
+docker run --rm -ti -v $(pwd):/src  \
+   -w /src quay.io/perched/molecule-vsphere test --all
+```
+
+
 ## Thanks
 This architecture is made possible by the efforts of an ever-growing list of amazing people. Look around our Github to see the whole list.
 
