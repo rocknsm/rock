@@ -3,7 +3,7 @@
 # Script: rock_setup
 # Purpose: One stop shop. Provides a TUI against the /etc/rock/config.yml, as well as abstracting some other stuff like setting a static IP. e.g. "Welcome to Thunderdome."
 # Dev notes: Accompanying "RESET_TUI" makes life easier to iterate on this badboy.
-# Changelog: 
+# Changelog:
 #  - 20190324 - The original.
 
 #NEEDS:
@@ -13,15 +13,19 @@
 #   * http://www.pixelbeat.org/programs/crudini/
 
 if [[ $EUID -ne 0 ]]; then
-   echo "rock_setup must be run with root permissions, e.g. with 'sudo'" 
+   echo "rock_setup must be run with root permissions, e.g. with 'sudo'"
    exit 1
 fi
 
 # Global Variables
-if [[ "$(yq r /etc/rocknsm/config.yml rock_mgmtifs)" = "null" ]]; then
+conf_dir=/etc/rocknsm
+inventory=${conf_dir}/hosts.ini
+base_config=${conf_dir}/config.yml
+override_config=/tmp/setup_overrides.yml
+if [[ "$(yq r ${base_config} rock_mgmtifs)" = "null" ]]; then
   mgmt_if=$(ip route get 255.255.255.255 | awk '{print $4; exit}') #Anaconda's default route is "the one to beat".
 else
-  mgmt_if=$(yq r /etc/rocknsm/config.yml rock_mgmtifs | awk '{print $2}')
+  mgmt_if=$(yq r "${base_config}" rock_mgmtifs | awk '{print $2}')
 fi
 monifs=
 mgmt_ip=
@@ -49,11 +53,8 @@ SERVICES[filebeat]="Ingests FSF and Suricata files into Elastic"
 # This is especially important since yq schwacks all comment fields. :(
 # We can hope it's fixed someday: https://github.com/mikefarah/yq/issues/19
 backup_config(){
-  if [[ ! -f /etc/rocknsm/config.yml.orig ]]; then 
-    cp /etc/rocknsm/config.yml /etc/rocknsm/config.yml.orig
-  fi
-  cp /etc/rocknsm/config.yml /etc/rocknsm/config.yml.backup.$(date +%Y%m%d-%H%M%S)
-  cp /etc/rocknsm/hosts.ini /etc/rocknsm/hosts.ini.backup.$(date +%Y%m%d-%H%M%S)
+  cp "${base_config}" "${base_config}".backup.$(date +%Y%m%d-%H%M%S)
+  cp "$inventory" "${inventory}".backup.$(date +%Y%m%d-%H%M%S)
 }
 
 # Copious logging is the key to successful troubleshooting should something go sideways.
@@ -103,7 +104,7 @@ real_gateway(){
 }
 
 # This function takes an IP/CIDR and validates that it's actually possible in the real world.
-# Less garbage to deal with later. ;) 
+# Less garbage to deal with later. ;)
 real_network(){
   IP=$1
   python -c "from netaddr import *; ip = IPNetwork(\"${IP}\")" > /dev/null 2>&1
@@ -116,13 +117,13 @@ real_network(){
 
 # Menu to select which components get installed.
 # Reads the currently enabled components and populates the selection box. Takes selection an replaces the array.
-# The "source of truth" for this is the SERVICES array defined at the top of this script. 
+# The "source of truth" for this is the SERVICES array defined at the top of this script.
 components(){
   components_a=()
-  for i in $(yq r /etc/rocknsm/config.yml installed_services | awk '{print $2}'); do
+  for i in $(yq r "${base_config}" installed_services | awk '{print $2}'); do
     components_a+=( $i )
   done
-  
+
   component_list=()
   for K in "${!SERVICES[@]}"; do
     contains "${components_a[@]}" "${K}"
@@ -132,14 +133,13 @@ components(){
       component_list+=("${K^^}" "${SERVICES[$K]}" "OFF")
     fi
   done
-  
-  
+
+
   enable_components=$(whiptail --separate-output --title "ROCK Installer :: Components" --checklist "Choose which components to install:" 30 90 20 "${component_list[@]}" 3>&2 2>&1 1>&3)
 
   echo "Enabling install of: ${enable_components}" | logit info
-  yq d -i /etc/rocknsm/config.yml "installed_services[*]"
   for comp in ${enable_components}; do
-    yq w -i /etc/rocknsm/config.yml "installed_services[+]" "${comp,,}"
+    yq w -i "${override_config}" "installed_services[+]" "${comp,,}"
   done
 }
 
@@ -147,7 +147,7 @@ components(){
 # This is functionally identical to "components".
 services(){
   services_a=()
-  for i in $(yq r /etc/rocknsm/config.yml enabled_services | awk '{print $2}'); do
+  for i in $(yq r "${base_config}" enabled_services | awk '{print $2}'); do
     services_a+=( $i )
   done
 
@@ -163,11 +163,10 @@ services(){
 
 
   enable_services=$(whiptail --separate-output --title "ROCK Installer :: Services" --checklist "Choose which services should start on boot:" 30 90 20 "${services_list[@]}" 3>&2 2>&1 1>&3)
-  
+
   echo "Enabling startup of: ${enable_services}" | logit info
-  yq d -i /etc/rocknsm/config.yml "enabled_services[*]"
   for svc in ${enable_services}; do
-    yq w -i /etc/rocknsm/config.yml "enabled_services[+]" "${svc,,}"
+    yq w -i "${override_config}" "enabled_services[+]" "${svc,,}"
   done
 }
 
@@ -181,8 +180,7 @@ select_interfaces(){
   #echo $mgmt_if
 
   # This isn't necessary for deploying rock, but gives us persistence for the value across runs.
-  yq d -i /etc/rocknsm/config.yml "rock_mgmtifs[*]"
-  yq w -i /etc/rocknsm/config.yml "rock_mgmtifs[+]" ${mgmt_if}
+  yq w -i "${override_config}" "rock_mgmtifs[+]" ${mgmt_if}
 
   # Whiptail select monitoring iface(s):
   iface_list=()
@@ -192,9 +190,8 @@ select_interfaces(){
   # echo ${monifs}
   # TODO: We might wanna make sure they selected at least one.
 
-  yq d -i /etc/rocknsm/config.yml "rock_monifs[*]"
   for monif in $monifs; do
-    yq w -i /etc/rocknsm/config.yml "rock_monifs[+]" "${monif}"
+    yq w -i "${override_config}" "rock_monifs[+]" "${monif}"
   done
   # TODO: Might be useful to dynamically scale this window in case someone has a metric butt-ton of interfaces.
   whiptail --title "ROCK Installer :: Interface Selections" --msgbox "ROCK will use the following interfaces:\n\n Management:\n${mgmt_if}\n Monitoring:\n${monifs}" 20 78 3>&1 1>&2 2>&3
@@ -329,14 +326,14 @@ set_hostname(){
 }
 
 set_online(){
-  if (whiptail --title "ROCK Installer :: Online/Offline Install" --yesno "Would you like and online install?\n\nYes = Online\nNo = Offline" 13 78) then 
-    yq w -i  /etc/rocknsm/config.yml rock_online_install "true"
+  if (whiptail --title "ROCK Installer :: Online/Offline Install" --yesno "Would you like and online install?\n\nYes = Online\nNo = Offline" 13 78) then
+    yq w -i "${override_config}" rock_online_install "true"
     online_install="True"
   else
-    yq w -i  /etc/rocknsm/config.yml rock_online_install "false"
+    yq w -i  "${override_config}" rock_online_install "false"
     online_install="False"
   fi
-  # Let's make a memory...
+  #Making memories...
   echo "Online install was set to ${online_install}." | logit info
 }
 
@@ -345,7 +342,15 @@ choose_role(){
 }
 
 display_config(){
-  whiptail --title "ROCK Installer :: Display Config" --textbox /etc/rocknsm/config.yml --scrolltext 40 98
+  whiptail --title "ROCK Installer :: Display Config" --textbox "${override_config}" --scrolltext 40 98
+}
+
+write_config(){
+  if (whiptail --title "ROCK Installer :: Write Config" --yesno "Would you like to write save your config changes to ${base_config}?" 13 78) then
+    (rock genconfig --config "${override_config}")
+  else
+    whiptail --title "ROCK Installer :: Write Config" --msgbox "You opted not to apply settings." 20 78 3>&1 1>&2 2>&3
+  fi
 }
 
 run_installer(){
@@ -363,6 +368,7 @@ main(){
   "Choose Components to Install" "Pick which services to install and start." \
   "Choose Services to Start" "Choose which services start by default." \
   "Display Config" "Brief overview before you let it rip." \
+  "Write Config" "Write your changes to ${base_config}" \
   "Run Installer" "Grip it and rip it." \
   "<-- Exit" "Leave the installer." \
   3>&1 1>&2 2>&3
@@ -370,7 +376,7 @@ main(){
   #echo $main_choice
 
   case $main_choice in
-    "Select Interfaces") select_interfaces 
+    "Select Interfaces") select_interfaces
     ;;
     "Management IP") set_addressing
     ;;
@@ -385,6 +391,8 @@ main(){
     "Choose Services to Start") services
     ;;
     "Display Config") display_config
+    ;;
+    "Write Config") write_config
     ;;
     "Run Installer") run_installer
     ;;
@@ -403,6 +411,9 @@ main(){
 
 echo "rock_setup started..." | logit info
 backup_config
+if [[ ! -f ${override_config} ]]; then
+  rock genconfig -e "config_src=setup_config.yml.j2" -e "rock_config=${override_config}" -v > /dev/null
+fi
 while :; do
   clear
   main
