@@ -354,7 +354,11 @@ write_config(){
 }
 
 run_installer(){
-  whiptail --title "ROCK Installer :: Run Install" --msgbox "Just FYI...\nI have'nt done this part yet. This will be Brad's magic.\nStay tuned...." 12 78 3>&1 1>&2 2>&3
+  if (whiptail --title "ROCK Installer :: Run Install" --yesno "Would you like to kick off a deployment?" 13 78) then
+    (rock deploy)
+  else
+    whiptail --title "ROCK Installer :: Run Install" --msgbox "You opted not to run the deployment." 20 78 3>&1 1>&2 2>&3
+  fi
 }
 
 # This is the "main menu", as the name would lead you to believe...
