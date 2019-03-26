@@ -22,6 +22,7 @@ Requires:       python-netaddr
 Requires:       libselinux-python
 Requires:       git
 Requires:       yq
+Requires:       crudini
 
 %description
 ROCK is a collections platform, in the spirit of Network Security Monitoring.
