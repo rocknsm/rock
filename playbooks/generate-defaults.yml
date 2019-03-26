@@ -1,6 +1,8 @@
 ---
 - hosts: localhost
   become: true
+  vars:
+    - config_src: rock_config.yml.j2
   tasks:
   - name: Create config directory
     file:
@@ -13,7 +15,7 @@
   - name: Render template
     template:
       backup: true
-      src: rock_config.yml.j2
+      src: "{{ config_src }}"
       dest: "{{ rock_config }}"
       owner: root
       group: root
