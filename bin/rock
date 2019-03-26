@@ -258,6 +258,17 @@ EOF
         run-playbook
         ;;
 (setup)
+        if [[ ! -f $CONFIG ]]; then
+          PLAYBOOK="generate-defaults.yml"
+          printf "It looks ${CONFIG} doesn't exist yet.\n\nHang on while I create that for you..."
+          if [[ "x$VERBOSITY" = "x" ]];
+          then
+            run-playbook > /dev/null
+          else
+            run-playbook
+          fi
+        fi
+        
         ( rock_setup )
         ;;
 (*)     usage
