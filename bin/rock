@@ -93,7 +93,8 @@ ROCK_HOME=/usr/share/rock
 PLAYBOOK_DIR=$ROCK_HOME/playbooks
 PLAYBOOK=
 INVENTORY=$CONFIG_DIR/hosts.ini
-CONFIG=
+CONFIG=$CONFIG_DIR/config.yml
+CONF_OVERRIDES=
 VERBOSITY=
 EXTRA_OPTS=${EXTRA_OPTS}
 LIST_ACTION=false
@@ -102,8 +103,8 @@ while [ "$#" -gt 0 ]; do
     case "$1" in
 
     (--config|-c)
-            CONFIG="$2"
-            EXTRA_OPTS="$EXTRA_OPTS -e @$CONFIG"
+            CONF_OVERRIDES="$2"
+            EXTRA_OPTS="$EXTRA_OPTS -e @$CONF_OVERRIDES"
             shift 2
             ;;
 
