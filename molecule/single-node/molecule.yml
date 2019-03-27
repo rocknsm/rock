@@ -60,7 +60,6 @@ provisioner:
       rock_monifs: ["dummy0"]
       rock_disable_offline_repo: true
       rock_enable_testing: true
-      elastic_baseurl: http://internal-mirror.cyberlab.lan/elastic/6.x/
       # Must static the es_mem var for now until #386 is resolved
       es_mem: 8
   config_options:
