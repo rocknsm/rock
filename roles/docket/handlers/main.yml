@@ -2,17 +2,16 @@
 # handlers file for rocknsm.docket
 - name: Cleanup csr on docket host
   file:
-    path: "{{docket_x509_key}}.csr"
+    path: "{{ docket_x509_key }}.csr"
     state: absent
-  when: "{{ inventory_hostname in groups['docket'] | bool }}"
+  when: inventory_hostname in groups['docket'] | bool
 
 - name: Cleanup csr on sensor hosts
   file:
-    path: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname}}.csr"
+    path: "{{ steno_certs_dir }}/{{ hostvars[item].inventory_hostname }}.csr"
     state: absent
   loop: "{{ groups['docket'] }}"
-  when:
-    - "{{ inventory_hostname in groups['stenographer'] | bool}}"
+  when: inventory_hostname in groups['stenographer'] | bool
 
 - name: Restart redis
   service:

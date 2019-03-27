@@ -7,12 +7,12 @@
 
 # Configure docket app settings
 - name: Ensure ansible_cache dir exists
-  local_action:
-    module: tempfile
+  tempfile:
     state: directory
   changed_when: false
   register: cachedir
   run_once: true
+  delegate_to: localhost
 
 - name: Set ansible_cache fact
   set_fact:
@@ -52,13 +52,13 @@
 # Use new openssl module in ansible 2.3
 - name: Create docket private key
   openssl_privatekey:
-    path: "{{docket_x509_key}}"
+    path: "{{ docket_x509_key }}"
     size: 4096
   when: inventory_hostname in groups['docket']
 
 - name: Set perms on private key
   file:
-    path: "{{docket_x509_key}}"
+    path: "{{ docket_x509_key }}"
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
     mode: "0644"
@@ -66,7 +66,7 @@
 
 - name: Check for certificate
   stat:
-    path: "{{docket_x509_dir}}/docket-{{inventory_hostname_short}}_sensor-{{item}}_cert.pem"
+    path: "{{ docket_x509_dir }}/docket-{{ inventory_hostname_short }}_sensor-{{ item }}_cert.pem"
   register: docket_cert
   changed_when: false
   loop: "{{ groups['stenographer'] }}"
@@ -91,8 +91,8 @@
 
 - name: Fetch csr
   fetch:
-    src: "{{docket_x509_key}}.csr"
-    dest: "{{ ansible_cache }}/{{inventory_hostname_short}}.csr"
+    src: "{{ docket_x509_key }}.csr"
+    dest: "{{ ansible_cache }}/{{ inventory_hostname_short }}.csr"
     flat: true
   when:
     - inventory_hostname in groups['docket']
@@ -112,8 +112,8 @@
 
 - name: Push csr to stenographer hosts
   copy:
-    src: "{{ansible_cache}}/{{hostvars[item].inventory_hostname_short}}.csr"
-    dest: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname_short}}.csr"
+    src: "{{ ansible_cache }}/{{ hostvars[item].inventory_hostname_short }}.csr"
+    dest: "{{ steno_certs_dir }}/{{ hostvars[item].inventory_hostname_short }}.csr"
   loop: "{{ groups['docket'] }}"
   when:
     - inventory_hostname in groups['stenographer']
@@ -121,10 +121,10 @@
 
 - name: Sign certificate signing requests
   openssl_certificate:
-    path: "{{steno_certs_dir}}/docket-{{hostvars[item].inventory_hostname_short}}_sensor-{{inventory_hostname_short}}_cert.pem"
-    csr_path: "{{steno_certs_dir}}/{{hostvars[item].inventory_hostname_short}}.csr"
-    ownca_privatekey_path: "{{steno_ca_key}}"
-    ownca_path: "{{steno_ca_cert}}"
+    path: "{{ steno_certs_dir }}/docket-{{ hostvars[item].inventory_hostname_short }}_sensor-{{ inventory_hostname_short }}_cert.pem"
+    csr_path: "{{ steno_certs_dir }}/{{ hostvars[item].inventory_hostname_short }}.csr"
+    ownca_privatekey_path: "{{ steno_ca_key }}"
+    ownca_path: "{{ steno_ca_cert }}"
     provider: ownca
   loop: "{{ groups['docket'] }}"
   when:
@@ -133,8 +133,8 @@
 
 - name: Pull certificates back
   fetch:
-    src: "{{steno_certs_dir}}/docket-{{hostvars[item].inventory_hostname_short}}_sensor-{{inventory_hostname_short}}_cert.pem"
-    dest: "{{ansible_cache}}/docket-{{hostvars[item].inventory_hostname_short}}_sensor-{{inventory_hostname_short}}_cert.pem"
+    src: "{{ steno_certs_dir }}/docket-{{ hostvars[item].inventory_hostname_short }}_sensor-{{ inventory_hostname_short }}_cert.pem"
+    dest: "{{ ansible_cache }}/docket-{{ hostvars[item].inventory_hostname_short }}_sensor-{{ inventory_hostname_short }}_cert.pem"
     flat: true
   loop: "{{ groups['docket'] }}"
   when:
@@ -143,8 +143,8 @@
 
 - name: Pull back ca certificates
   fetch:
-    src: "{{steno_ca_cert}}"
-    dest: "{{ansible_cache}}/{{inventory_hostname_short}}_ca_cert.pem"
+    src: "{{ steno_ca_cert }}"
+    dest: "{{ ansible_cache }}/{{ inventory_hostname_short }}_ca_cert.pem"
     flat: true
   when:
     - inventory_hostname in groups['stenographer']
@@ -152,8 +152,8 @@
 
 - name: Push certificates to docket hosts
   copy:
-    src: "{{ansible_cache}}/docket-{{inventory_hostname_short}}_sensor-{{hostvars[item].inventory_hostname_short}}_cert.pem"
-    dest: "{{docket_x509_dir}}/docket-{{inventory_hostname_short}}_sensor-{{hostvars[item].inventory_hostname_short}}_cert.pem"
+    src: "{{ ansible_cache }}/docket-{{ inventory_hostname_short }}_sensor-{{ hostvars[item].inventory_hostname_short }}_cert.pem"
+    dest: "{{ docket_x509_dir }}/docket-{{ inventory_hostname_short }}_sensor-{{ hostvars[item].inventory_hostname_short }}_cert.pem"
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
     mode: "0644"
@@ -164,8 +164,8 @@
 
 - name: Push stenographer ca certs
   copy:
-    src: "{{ansible_cache}}/{{hostvars[item].inventory_hostname_short}}_ca_cert.pem"
-    dest: "{{docket_x509_dir}}/{{hostvars[item].inventory_hostname_short}}_ca_cert.pem"
+    src: "{{ ansible_cache }}/{{ hostvars[item].inventory_hostname_short }}_ca_cert.pem"
+    dest: "{{ docket_x509_dir }}/{{ hostvars[item].inventory_hostname_short }}_ca_cert.pem"
     owner: "{{ docket_x509_user }}"
     group: "{{ docket_x509_group }}"
     mode: "0644"
@@ -174,9 +174,9 @@
     - inventory_hostname in groups['docket']
 
 - name: Cleanup {{ ansible_cache }} dir
-  local_action:
-    module: file
+  file:
     name: "{{ ansible_cache }}/"
     state: absent
   changed_when: false
   run_once: true
+  delegate_to: localhost

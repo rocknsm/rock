@@ -16,6 +16,7 @@
     vmware_datastore: "{{molecule_yml.vmware.datastore}}"
     resource_pool: "{{molecule_yml.vmware.resource_pool|default('Resources')}}"
 
+    deploy_user: "{{ lookup('env', 'USER') or 'root' }}"
     ssh_path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/ssh_key"
     authorized_keys: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/.ssh/authorized_keys"
   environment:
@@ -24,11 +25,10 @@
     VMWARE_HOST: "{{ molecule_yml.vmware.vcenter_address }}"
     VMWARE_PORT: "{{ molecule_yml.vmware.vcenter_port | default('443') }}"
     VMWARE_VALIDATE_CERTS: "{{ molecule_yml.vmware.validate_certs |  default('Yes') }}"
-
   tasks:
     - name: Create SSH key
       user:
-        name: "molecule"
+        name: "{{ deploy_user }}"
         generate_ssh_key: true
         ssh_key_file: "{{ ssh_path }}"
       register: generated_ssh_key

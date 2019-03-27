@@ -10,6 +10,12 @@ es_network_host: >-
   {%- else -%}
   _local:ipv4_
   {%- endif -%}
+es_interface: >-
+    {%- if (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1 -%}
+    {{ ansible_hostname }}
+    {%- else -%}
+    localhost
+    {%- endif -%}
 es_action_auto_create_index: true
 es_min_master_nodes: "{{ 2 if ( groups['es_masters'] | length ) == 3 else 1 }}"
 es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
