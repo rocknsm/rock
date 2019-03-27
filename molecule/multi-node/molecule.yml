@@ -33,7 +33,6 @@ platforms:
       - kafka
       - stenographer
       - suricata
-      - suricata_update
       - filebeat
       - logstash
   - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}-instance-2"
@@ -134,9 +133,6 @@ provisioner:
           suricata:
             children:
               sensors:
-          suricata_update:
-            children:
-              suricata:
           filebeat:
             children:
               fsf:

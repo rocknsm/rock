@@ -39,7 +39,6 @@ platforms:
       - kafka
       - stenographer
       - suricata
-      - suricata_update
       - filebeat
       - elasticsearch
       - docket
