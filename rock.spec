@@ -68,6 +68,7 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 
 
 %attr(0755, root, root) %{_sbindir}/rock
+%attr(0755, root, root) %{_sbindir}/rock_setup
 
 %changelog
 * Fri Feb 22 2019 Derek Ditch <derek@rocknsm.io> 2.3.0-3
