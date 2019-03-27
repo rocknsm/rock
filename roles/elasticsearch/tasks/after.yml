@@ -2,7 +2,7 @@
 - name: Make sure cluster is green
   uri:
     method: "GET"
-    url: "http://{{ ansible_hostname }}:9200/_cluster/health"
+    url: "http://{{ es_interface }}:9200/_cluster/health"
     return_content: true
     timeout: 2
   register: result
@@ -30,7 +30,7 @@
   uri:
     method: PUT
     url: "{{ es_url }}/_template/default"
-    body: "{{ lookup('file', 'default-mapping.json')}}"
+    body: "{{ lookup('file', 'default-mapping.json') }}"
     body_format: json
   when: ('elasticsearch' in installed_services) and default_index_template.status != 200
   run_once: true

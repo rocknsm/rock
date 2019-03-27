@@ -74,16 +74,16 @@
 
 - name: Combine sensor cert and key
   shell: >
-    cat {{http_tls_key}} {{http_tls_crt}} > {{http_tls_combined}}
+    cat {{ http_tls_key }} {{ http_tls_crt }} > {{ http_tls_combined }}
   args:
     creates: "{{ http_tls_combined }}"
   notify: Enable and restart lighttpd
 
 - name: Generate DH parameters
   command: >
-    openssl dhparam -out {{http_tls_dhparams}} 2048
+    openssl dhparam -out {{ http_tls_dhparams }} 2048
   args:
-    creates: "{{http_tls_dhparams}}"
+    creates: "{{ http_tls_dhparams }}"
   when: "'kibana' in installed_services"
   notify: Enable and restart lighttpd
 

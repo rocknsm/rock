@@ -92,7 +92,7 @@
   lineinfile:
     dest: /etc/hosts
     regexp: '.*{{ item }}$'
-    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{item}}"
+    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ item }}"
     state: present
   when: hostvars[item]['ansible_facts']['default_ipv4'] is defined
   loop: "{{ groups['all'] }}"
@@ -214,6 +214,8 @@
     warn: false
   loop: "{{ registered_keys.results }}"
   when: item.changed
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
 - name: Configure default CentOS online repos
   ini_file:
@@ -261,6 +263,8 @@
     name: firewalld
     state: restarted
   when: result.changed
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
 # Use 'work' zone for management network
 - name: Create work firewall zone
@@ -275,6 +279,8 @@
     name: firewalld
     state: restarted
   when: result.changed
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
 - name: Configure firewall ports
   firewalld:

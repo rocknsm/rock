@@ -108,7 +108,7 @@
   roles:
     - role: docket
       when: "'docket' in installed_services"
-      docket_enable: "{{ ('docket' in enabled_services) | bool}}"
+      docket_enable: "{{ ('docket' in enabled_services) | bool }}"
 
 - hosts: elasticsearch
   tags:

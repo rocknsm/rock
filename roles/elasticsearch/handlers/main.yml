@@ -11,7 +11,7 @@
 - name: Disable cluster shard allocation
   uri:
     url: "http://{{ ansible_hostname }}:9200/_cluster/settings"
-    body: '{"transient": {"cluster.routing.allocation.enable":"none"}}'
+    body: '{"transient": {"cluster.routing.allocation.enable":"none" }}'
     body_format: json
     timeout: 2
     method: PUT
@@ -19,7 +19,7 @@
   until: result.json.acknowledged is defined
   retries: 300
   delay: 3
-  changed_when: result.json.acknowledged == true
+  changed_when: result.json.acknowledged | bool
   notify:
     - do restart elasticsearch
 
@@ -32,7 +32,7 @@
 
 - name: wait node online
   uri:
-    url: "http://{{ ansible_hostname }}:9200/_nodes/{{ansible_hostname}}/name"
+    url: "http://{{ ansible_hostname }}:9200/_nodes/{{ ansible_hostname }}/name"
     timeout: 2
   register: result
   until: result.json._nodes.total == 1
@@ -44,7 +44,7 @@
 - name: Enable cluster shard allocation
   uri:
     url: "http://{{ ansible_hostname }}:9200/_cluster/settings"
-    body: '{"transient": {"cluster.routing.allocation.enable":"all"}}'
+    body: '{"transient": {"cluster.routing.allocation.enable":"all" }}'
     body_format: json
     timeout: 2
     method: PUT
@@ -52,7 +52,7 @@
   until: result.json.acknowledged is defined
   retries: 300
   delay: 3
-  changed_when: result.json.acknowledged == true
+  changed_when: result.json.acknowledged | bool
   notify:
     - Wait until cluster green
 

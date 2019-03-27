@@ -22,8 +22,8 @@
 
 - name: Install bro-kafka filter for logstash
   copy:
-    src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
-    dest: "/etc/logstash/conf.d/{{item}}"
+    src: "{{ rock_module_dir }}/configuration/logstash/{{ item }}"
+    dest: "/etc/logstash/conf.d/{{ item }}"
     mode: 0640
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
@@ -48,8 +48,8 @@
 
 - name: Install suricata-kafka filter for logstash
   copy:
-    src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
-    dest: "/etc/logstash/conf.d/{{item}}"
+    src: "{{ rock_module_dir }}/configuration/logstash/{{ item }}"
+    dest: "/etc/logstash/conf.d/{{ item }}"
     mode: 0640
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
@@ -74,8 +74,8 @@
 
 - name: Install fsf-kafka filter for logstash
   copy:
-    src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
-    dest: "/etc/logstash/conf.d/{{item}}"
+    src: "{{ rock_module_dir }}/configuration/logstash/{{ item }}"
+    dest: "/etc/logstash/conf.d/{{ item }}"
     mode: 0640
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
@@ -98,8 +98,8 @@
 
 - name: Install parse failure configuration for logstash
   copy:
-    src: "{{rock_module_dir}}/configuration/logstash/{{item}}"
-    dest: "/etc/logstash/conf.d/{{item}}"
+    src: "{{ rock_module_dir }}/configuration/logstash/{{ item }}"
+    dest: "/etc/logstash/conf.d/{{ item }}"
     mode: 0640
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"

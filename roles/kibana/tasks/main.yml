@@ -22,7 +22,7 @@
 
 - name: "Wait for Kibana to be available"
   uri:
-    url: "{{kibana_url}}/api/kibana/settings"
+    url: "{{ kibana_url }}/api/kibana/settings"
     status_code: 200
   register: result
   until: result.status == 200
@@ -32,7 +32,7 @@
 - name: Blanket install/update kibana saved objects
   command: ./import-saved-items.sh "{{ kibana_url }}"
   args:
-    chdir: "{{rock_module_dir}}/configuration/kibana"
+    chdir: "{{ rock_module_dir }}/configuration/kibana"
   changed_when: false
   # TODO: Fix this ^^
 
@@ -59,6 +59,7 @@
 
 - name: Set initial kibana credentials
   shell: >
+    set -o pipefail
     export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && \
     export kibpw=$(xkcdpass -a rock) && \
     echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && \

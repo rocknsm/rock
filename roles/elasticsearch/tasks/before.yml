@@ -55,6 +55,8 @@
   systemd:
     daemon_reload: true
   when: es_memlock.changed
+  tags:
+    - skip_ansible_lint
 
 - name: Enable and start elasticsearch
   service:
@@ -74,6 +76,8 @@
     name: firewalld
     state: restarted
   when: result.changed
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
 - name: Configure firewall ports for internal elastic communication
   firewalld:
@@ -84,11 +88,14 @@
     source: "{{ hostvars[item.0]['ansible_default_ipv4']['address'] }}"
     zone: work  # This should be a different zone, but leaving this here for now
   when: (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1
-  loop: "{{(groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana'])) | product([9200, 9300]) | list }}"
+  loop: "{{ (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana'])) | product([9200, 9300]) | list }}"
 
 - name: Determine if Elasticsearch needs to be restarted
   set_fact:
     es_restart: true
   when: "(es_config.changed or es_memlock.changed or es_jvm.changed) and not es_install.changed"
+  tags:
+    - skip_ansible_lint
+    # [503] Tasks that run when changed should likely be handlers
 
 ...

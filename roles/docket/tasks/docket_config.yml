@@ -1,6 +1,7 @@
 ---
 - name: Check existing secret_key
   shell: >
+    set -o pipefail
     cat /etc/docket/prod.yaml | awk '/^SECRET_KEY/ {print $2}'
   register: docket_prod
   changed_when: false

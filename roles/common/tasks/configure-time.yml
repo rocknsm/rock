@@ -16,16 +16,22 @@
   when: ansible_date_time.tz != "UTC"
 
 - name: Check if RTC set to UTC
-  shell: timedatectl | awk '/RTC in local/ { print $5 }'
+  shell: >
+    set -o pipefail
+    timedatectl | awk '/RTC in local/ { print $5 }'
   changed_when: false
   register: chrony_local_utc
 
 - name: Set system hardware clock to UTC
-  command: /usr/bin/timedatectl set-local-rtc no
+  command: >
+    set -o pipefail
+    /usr/bin/timedatectl set-local-rtc no
   when: chrony_local_utc == 'yes'
 
 - name: Check if NTP is enabled
-  shell: timedatectl | awk '/NTP enabled/ { print $3 }'
+  shell: >
+    set -o pipefail
+    timedatectl | awk '/NTP enabled/ { print $3 }'
   changed_when: false
   register: chrony_ntp_enabled
 

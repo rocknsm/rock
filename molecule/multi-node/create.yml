@@ -16,6 +16,7 @@
     vmware_datastore: "{{molecule_yml.vmware.datastore}}"
     resource_pool: "{{molecule_yml.vmware.resource_pool|default('Resources')}}"
 
+    deploy_user: "{{ lookup('env', 'USER') or 'root' }}"
     ssh_path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/ssh_key"
     authorized_keys: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/.ssh/authorized_keys"
   environment:
@@ -28,7 +29,7 @@
   tasks:
     - name: Create SSH key
       user:
-        name: "dcode"
+        name: "{{ deploy_user }}"
         generate_ssh_key: true
         ssh_key_file: "{{ ssh_path }}"
       register: generated_ssh_key
