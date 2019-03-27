@@ -191,8 +191,8 @@ select_interfaces(){
   # echo ${monifs}
   # TODO: We might wanna make sure they selected at least one.
 
+  yq d -i "${override_config}" "rock_monifs[*]"
   for monif in $monifs; do
-    yq d -i "${override_config}" "rock_monifs[*]"
     yq w -i "${override_config}" "rock_monifs[+]" "${monif}"
   done
   # TODO: Might be useful to dynamically scale this window in case someone has a metric butt-ton of interfaces.
