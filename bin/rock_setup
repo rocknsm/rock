@@ -136,6 +136,7 @@ components(){
   enable_components=$(whiptail --separate-output --title "ROCK Installer :: Components" --checklist "Choose which components to install:" 30 90 20 "${component_list[@]}" 3>&2 2>&1 1>&3)
 
   echo "Enabling install of: ${enable_components}" | logit info
+  yq d -i "${override_config}" "installed_services[*]"
   for comp in ${enable_components}; do
     yq w -i "${override_config}" "installed_services[+]" "${comp,,}"
   done
@@ -163,6 +164,7 @@ services(){
   enable_services=$(whiptail --separate-output --title "ROCK Installer :: Services" --checklist "Choose which services should start on boot:" 30 90 20 "${services_list[@]}" 3>&2 2>&1 1>&3)
 
   echo "Enabling startup of: ${enable_services}" | logit info
+  yq d -i "${override_config}" "enabled_services[*]"
   for svc in ${enable_services}; do
     yq w -i "${override_config}" "enabled_services[+]" "${svc,,}"
   done
@@ -178,6 +180,7 @@ select_interfaces(){
   #echo $mgmt_if
 
   # This isn't necessary for deploying rock, but gives us persistence for the value across runs.
+  yq d -i "${override_config}" "rock_mgmtifs[*]"
   yq w -i "${override_config}" "rock_mgmtifs[+]" ${mgmt_if}
 
   # Whiptail select monitoring iface(s):
@@ -189,6 +192,7 @@ select_interfaces(){
   # TODO: We might wanna make sure they selected at least one.
 
   for monif in $monifs; do
+    yq d -i "${override_config}" "rock_monifs[*]"
     yq w -i "${override_config}" "rock_monifs[+]" "${monif}"
   done
   # TODO: Might be useful to dynamically scale this window in case someone has a metric butt-ton of interfaces.
