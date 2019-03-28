@@ -349,7 +349,12 @@ display_config(){
 
 write_config(){
   if (whiptail --title "ROCK Installer :: Write Config" --yesno "Would you like to write save your config changes to ${base_config}?" 13 78) then
-    (rock genconfig --config "${override_config}")
+    if source /usr/sbin/rock genconfig --config "${override_config}"; then
+      return 0
+    else
+      echo "Something went wrong! Check ${ROCK_LOG} for more information" | logit crit
+      whiptail --title "ROCK Installer :: Write Config" --msgbox "Something went wrong!\n\nCheck ${ROCK_LOG} for more information" 20 78 3>&1 1>&2 2>&3
+    fi
   else
     whiptail --title "ROCK Installer :: Write Config" --msgbox "You opted not to apply settings." 20 78 3>&1 1>&2 2>&3
   fi
@@ -357,7 +362,12 @@ write_config(){
 
 run_installer(){
   if (whiptail --title "ROCK Installer :: Run Install" --yesno "Would you like to kick off a deployment?" 13 78) then
-    (rock deploy)
+    if source /usr/sbin/rock deploy; then
+      return 0
+    else
+      echo "Something went wrong! Check ${ROCK_LOG} for more information" | logit crit
+      whiptail --title "ROCK Installer :: Run Install" --msgbox "Something went wrong!\n\nCheck ${ROCK_LOG} for more information" 20 78 3>&1 1>&2 2>&3
+    fi
   else
     whiptail --title "ROCK Installer :: Run Install" --msgbox "You opted not to run the deployment." 20 78 3>&1 1>&2 2>&3
   fi
