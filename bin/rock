@@ -15,11 +15,11 @@ if [[ ! -d ${LOG_DIR} ]]; then
 fi
 
 cd "$PLAYBOOK_DIR" || exit
-if ANSIBLE_LOG_PATH=${ROCK_LOG} ansible-playbook -i $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK;
+if ANSIBLE_LOG_PATH="${ROCK_LOG}" ansible-playbook -i ${INVENTORY} ${EXTRA_OPTS} ${VERBOSITY} ${PLAYBOOK};
 then
   return 0
 else
-  printf "Something went wrong!\nCheck ${ROCK_LOG} for more information\n"
+  printf "Something went wrong!\nCheck %s for more information\n" "${ROCK_LOG}"
   exit
 fi
 
@@ -267,9 +267,9 @@ EOF
         run-playbook
         ;;
 (status)
-        COMMAND=${1}
+        COMMAND="${1}"
         PLAYBOOK="manage-services.yml"
-        EXTRA_OPTS="$EXTRA_OPTS --skip-tags="service_mgmt""
+        EXTRA_OPTS="$EXTRA_OPTS --skip-tags='service_mgmt'"
         run-playbook
         ;;
 (genconfig)
@@ -281,7 +281,7 @@ EOF
         COMMAND=${1}
         if [[ ! -f $CONFIG ]]; then
           PLAYBOOK="generate-defaults.yml"
-          printf "It looks ${CONFIG} doesn't exist yet.\n\nHang on while I create that for you..."
+          printf "It looks %s doesn't exist yet.\n\nHang on while I create that for you..." "${CONFIG}"
           if [[ "x$VERBOSITY" = "x" ]];
           then
             run-playbook
@@ -289,7 +289,7 @@ EOF
             run-playbook
           fi
         fi
-        
+
         ( rock_setup )
         ;;
 (*)     usage
