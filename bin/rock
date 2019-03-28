@@ -2,12 +2,24 @@
 
 function run-playbook() {
 
+log_dir=/var/log/rocknsm
+log_file=${log_dir}/${COMMAND}-$(date +%Y%m%d-%H%M%S).log
+
+if [[ $EUID -ne 0 ]]; then
+   echo "rock ${COMMAND} must be run with root permissions, e.g. with 'sudo'"
+   exit 1
+fi
+
+if [[ ! -d ${log_dir} ]]; then
+   mkdir ${log_dir}
+fi
+
 cd "$PLAYBOOK_DIR" || exit
-if ansible-playbook -i $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK;
+if ANSIBLE_LOG_PATH=${log_file} ansible-playbook -i $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK;
 then
   return 0
 else
-  echo "Something went wrong!"
+  printf "Something went wrong!\nCheck ${log_file} for more information\n"
   exit
 fi
 
@@ -192,6 +204,7 @@ done
 case "$1" in
 
 (destroy)
+        COMMAND=${1}
         PLAYBOOK="delete-data.yml"
         if [[ "${DANGER_CONFIRM}" != "--yolo" ]]; then
             cat << EOF
@@ -206,6 +219,7 @@ EOF
         run-playbook
         ;;
 (deploy)
+        COMMAND=${1}
         if [[ "x$PLAYBOOK" = "x" ]];
         then
           PLAYBOOK="deploy-rock.yml"
@@ -220,6 +234,7 @@ EOF
         fi
         ;;
 (ssh-config)
+        COMMAND=${1}
         EXTRA_OPTS="$EXTRA_OPTS -k -K"
         if [[ "x$PLAYBOOK" = "x" ]];
         then
@@ -234,36 +249,42 @@ EOF
         fi
         ;;
 (stop)
+        COMMAND=${1}
         PLAYBOOK="manage-services.yml"
         EXTRA_OPTS="$EXTRA_OPTS -e service_state=stopped"
         run-playbook
         ;;
 (start)
+        COMMAND=${1}
         PLAYBOOK="manage-services.yml"
         EXTRA_OPTS="$EXTRA_OPTS -e service_state=started"
         run-playbook
         ;;
 (restart)
+        COMMAND=${1}
         PLAYBOOK="manage-services.yml"
         EXTRA_OPTS="$EXTRA_OPTS -e service_state=restarted"
         run-playbook
         ;;
 (status)
+        COMMAND=${1}
         PLAYBOOK="manage-services.yml"
         EXTRA_OPTS="$EXTRA_OPTS --skip-tags="service_mgmt""
         run-playbook
         ;;
 (genconfig)
+        COMMAND=${1}
         PLAYBOOK="generate-defaults.yml"
         run-playbook
         ;;
 (setup)
+        COMMAND=${1}
         if [[ ! -f $CONFIG ]]; then
           PLAYBOOK="generate-defaults.yml"
           printf "It looks ${CONFIG} doesn't exist yet.\n\nHang on while I create that for you..."
           if [[ "x$VERBOSITY" = "x" ]];
           then
-            run-playbook > /dev/null
+            run-playbook
           else
             run-playbook
           fi
