@@ -2,24 +2,24 @@
 
 function run-playbook() {
 
-log_dir=/var/log/rocknsm
-log_file=${log_dir}/${COMMAND}-$(date +%Y%m%d-%H%M%S).log
+LOG_DIR=/var/log/rocknsm
+ROCK_LOG=${LOG_DIR}/${COMMAND}-$(date +%Y%m%d-%H%M%S).log
 
 if [[ $EUID -ne 0 ]]; then
    echo "rock ${COMMAND} must be run with root permissions, e.g. with 'sudo'"
    exit 1
 fi
 
-if [[ ! -d ${log_dir} ]]; then
-   mkdir ${log_dir}
+if [[ ! -d ${LOG_DIR} ]]; then
+   mkdir ${LOG_DIR}
 fi
 
 cd "$PLAYBOOK_DIR" || exit
-if ANSIBLE_LOG_PATH=${log_file} ansible-playbook -i $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK;
+if ANSIBLE_LOG_PATH=${ROCK_LOG} ansible-playbook -i $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK;
 then
   return 0
 else
-  printf "Something went wrong!\nCheck ${log_file} for more information\n"
+  printf "Something went wrong!\nCheck ${ROCK_LOG} for more information\n"
   exit
 fi
 
