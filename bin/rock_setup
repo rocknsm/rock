@@ -51,8 +51,8 @@ SERVICES[filebeat]="Ingests FSF and Suricata files into Elastic"
 # This is especially important since yq schwacks all comment fields. :(
 # We can hope it's fixed someday: https://github.com/mikefarah/yq/issues/19
 backup_config(){
-  cp "${base_config}" "${base_config}".backup.$(date +%Y%m%d-%H%M%S)
-  cp "$inventory" "${inventory}".backup.$(date +%Y%m%d-%H%M%S)
+  cp "${base_config}" "${base_config}".backup."$(date +%Y%m%d-%H%M%S)"
+  cp "$inventory" "${inventory}".backup."$(date +%Y%m%d-%H%M%S)"
 }
 
 # Copious logging is the key to successful troubleshooting should something go sideways.
@@ -61,7 +61,7 @@ backup_config(){
 # OR (If output means bad stuff)
 # 'some_important_task | logit crit'
 logit(){
-  logger -t rock_setup -p $1
+  logger -t rock_setup -p "${1}"
 }
 
 # Test an array for an element. Used in the component and startup functions.
@@ -80,8 +80,7 @@ function contains() {
 # Prevents sending garbage to any of the IP'ing commands.
 real_ip(){
   IP=$1
-  python -c "from netaddr import *; ip = IPAddress(\"${IP}\")" > /dev/null 2>&1
-  if [[ $? -eq 0 ]]; then
+  if (python -c "from netaddr import *; ip = IPAddress(\"${IP}\")" > /dev/null 2>&1); then
     return 0
   else
     return 1
@@ -93,8 +92,7 @@ real_ip(){
 real_gateway(){
   IP=$1
   GW=$2
-  python -c "from netaddr import *; import sys; ip = IPNetwork(\"${IP}\"); ip_list = list(ip); result = IPAddress(\"${GW}\") in ip_list; (result) and sys.exit(0) or sys.exit(1)" > /dev/null 2>&1
-  if [[ $? -eq 0 ]]; then
+  if (python -c "from netaddr import *; import sys; ip = IPNetwork(\"${IP}\"); ip_list = list(ip); result = IPAddress(\"${GW}\") in ip_list; (result) and sys.exit(0) or sys.exit(1)" > /dev/null 2>&1); then
     return 0
   else
     return 1
@@ -105,8 +103,7 @@ real_gateway(){
 # Less garbage to deal with later. ;)
 real_network(){
   IP=$1
-  python -c "from netaddr import *; ip = IPNetwork(\"${IP}\")" > /dev/null 2>&1
-  if [[ $? -eq 0 ]]; then
+  if (python -c "from netaddr import *; ip = IPNetwork(\"${IP}\")" > /dev/null 2>&1); then
     return 0
   else
     return 1
@@ -119,13 +116,12 @@ real_network(){
 components(){
   components_a=()
   for i in $(yq r "${base_config}" installed_services | awk '{print $2}'); do
-    components_a+=( $i )
+    components_a+=( "${i}" )
   done
 
   component_list=()
   for K in "${!SERVICES[@]}"; do
-    contains "${components_a[@]}" "${K}"
-    if [[ $? -eq 0 ]]; then
+    if (contains "${components_a[@]}" "${K}"); then
       component_list+=("${K^^}" "${SERVICES[$K]}" "ON")
     else
       component_list+=("${K^^}" "${SERVICES[$K]}" "OFF")
@@ -147,13 +143,12 @@ components(){
 services(){
   services_a=()
   for i in $(yq r "${base_config}" enabled_services | awk '{print $2}'); do
-    services_a+=( $i )
+    services_a+=( "${i}" )
   done
 
   services_list=()
   for K in "${!SERVICES[@]}"; do
-    contains "${services_a[@]}" "${K}"
-    if [[ $? -eq 0 ]]; then
+    if (contains "${services_a[@]}" "${K}"); then
       services_list+=("${K^^}" "${SERVICES[$K]}" "ON")
     else
       services_list+=("${K^^}" "${SERVICES[$K]}" "OFF")
@@ -174,18 +169,18 @@ services(){
 select_interfaces(){
   # Whiptail selection of management iface:
   iface_list=()
-  for i in $(ip a | grep -E "^[0-9]:*" | awk -F: '{print $2}' | sed 's/\s//g' | grep -v lo); do if [[ "$i" = "$mgmt_if" ]]; then iface_list+=("${i}" "Interface ${i^^}" "ON"); else iface_list+=("${i}" "Interface ${i^^}" "OFF"); fi; done
+  for i in $(ip a | grep -E "^[0-9]:*" | awk -F: '{print $2}' | sed 's/\s//g' | grep -v lo); do if [[ "$i" = "${mgmt_if}" ]]; then iface_list+=("${i}" "Interface ${i^^}" "ON"); else iface_list+=("${i}" "Interface ${i^^}" "OFF"); fi; done
 
   mgmt_if=$(whiptail --title "ROCK Installer :: Management Interface" --radiolist "Choose a management interface:\n(Odds are you don't need to change this.)" 20 78 4 "${iface_list[@]}" 3>&1 1>&2 2>&3)
-  #echo $mgmt_if
+  #echo "${mgmt_if}"
 
   # This isn't necessary for deploying rock, but gives us persistence for the value across runs.
   yq d -i "${override_config}" "rock_mgmtifs[*]"
-  yq w -i "${override_config}" "rock_mgmtifs[+]" ${mgmt_if}
+  yq w -i "${override_config}" "rock_mgmtifs[+]" "${mgmt_if}"
 
   # Whiptail select monitoring iface(s):
   iface_list=()
-  for i in $(ip a | grep -E "^[0-9]:*" | awk -F: '{print $2}' | sed 's/\s//g' | grep -v lo); do if [[ "$i" != "$mgmt_if" ]]; then iface_list+=("${i}" "Interface ${i^^}" "ON"); fi; done
+  for i in $(ip a | grep -E "^[0-9]:*" | awk -F: '{print $2}' | sed 's/\s//g' | grep -v lo); do if [[ "$i" != "${mgmt_if}" ]]; then iface_list+=("${i}" "Interface ${i^^}" "ON"); fi; done
 
   monifs=$(whiptail --separate-output --title "ROCK Installer :: Monitoring Interface(s)" --checklist "Choose your monitoring interface(s):\n(You need at least one.)" 20 78 4 "${iface_list[@]}" 3>&1 1>&2 2>&3)
   # echo ${monifs}
@@ -204,40 +199,37 @@ select_interfaces(){
 clear_interface(){
   echo "Clearing ${mgmt_if}..." | logit info
 
-  conn_name=$(nmcli --fields GENERAL.CONNECTION dev show $mgmt_if | awk -F: '{print $2}' | sed 's/^\s*//g')
-  if [[ "$conn_name" == "$mgmt_if" ]]; then
-    nmcli con del $mgmt_if 2>&1 | logit info
-    nmcli con add con-name $mgmt_if ifname $mgmt_if type ethernet autoconnect yes 2>&1 | logit info
-  elif [[ "$conn_name"  == '--' ]]; then
-    nmcli con add con-name $mgmt_if ifname $mgmt_if type ethernet autoconnect yes 2>&1 | logit info
+  conn_name=$(nmcli --fields GENERAL.CONNECTION dev show "${mgmt_if}" | awk -F: '{print $2}' | sed 's/^\s*//g')
+  if [[ "${conn_name}" == "${mgmt_if}" ]]; then
+    nmcli con del "${mgmt_if}" 2>&1 | logit info
+    nmcli con add con-name "${mgmt_if}" ifname "${mgmt_if}" type ethernet autoconnect yes 2>&1 | logit info
+  elif [[ "${conn_name}"  == '--' ]]; then
+    nmcli con add con-name "${mgmt_if}" ifname "${mgmt_if}" type ethernet autoconnect yes 2>&1 | logit info
   else
-    nmcli con del $conn_name 2>&1 | logit info
-    nmcli con add con-name $mgmt_if ifname $mgmt_if type ethernet autoconnect yes 2>&1 | logit info
+    nmcli con del "${conn_name}" 2>&1 | logit info
+    nmcli con add con-name "${mgmt_if}" ifname "${mgmt_if}" type ethernet autoconnect yes 2>&1 | logit info
   fi
 }
 
 set_static(){
-  mgmt_status=$(nmcli dev | grep $mgmt_if | awk '{print $3}')
+  mgmt_status=$(nmcli dev | grep "${mgmt_if}" | awk '{print $3}')
 
   mgmt_ip=$(whiptail --inputbox "Enter the IP address and CIDR mask for this interface (Ex: 192.168.100.1/24):" 8 78 --title "ROCK Installer :: Static IP Address/CIDR" 3>&1 1>&2 2>&3)
-  real_network $mgmt_ip
-  if [[ $? -ne 0 ]]; then
+  if ! (real_network "${mgmt_ip}"); then
     whiptail --title "ROCK Installer :: Invalid IP and CIDR" --msgbox "The IP and CIDR you entered was invalid. Please try again." 20 78 3>&1 1>&2 2>&3
     return
   fi
 
   # Enter a gateway.
   mgmt_gw=$(whiptail --inputbox "Enter the gateway IP address:" 8 78 --title "ROCK Installer :: Static IP :: Gateway" 3>&1 1>&2 2>&3)
-  real_ip $mgmt_gw
-  if [[ $? -ne 0 ]]; then
+  if ! (real_ip "${mgmt_gw}"); then
     whiptail --title "ROCK Installer :: Invalid Gateway IP" --msgbox "The IP you entered was invalid. Please try again." 20 78 3>&1 1>&2 2>&3
     return
   fi
 
   # Enter DNS settings
   mgmt_dns=$(whiptail --inputbox "Enter the IP address for your DNS server: " 8 78 --title "ROCK Installer :: Static IP :: DNS IP" 3>&1 1>&2 2>&3)
-  real_ip $mgmt_dns
-  if [[ $? -ne 0 ]]; then
+  if ! (real_ip "${mgmt_dns}"); then
     whiptail --title "ROCK Installer :: Invalid DNS IP" --msgbox "The IP you entered was invalid. Please try again." 20 78 3>&1 1>&2 2>&3
     return
   fi
@@ -255,15 +247,15 @@ set_static(){
     #whiptail --title "ROCK Installer :: Static IP :: Applying" --msgbox "Applying changes. Hold on to your butt..." 20 78 3>&1 1>&2 2>&3
 
     # Clear interface
-    clear_interface $mgmt_if
+    clear_interface "${mgmt_if}"
 
     # Let's do it live...
     nmcli con show 2>&1 | logit info
     echo "Setting static IP on ${mgmt_if}: ${mgmt_ip} GW: ${mgmt_gw} DNS: ${mgmt_dns}" | logit info
-    nmcli con down $mgmt_if 2>&1 | logit info
-    nmcli con mod $mgmt_if ifname $mgmt_if ip4 $mgmt_ip gw4 $mgmt_gw ipv4.method manual 2>&1 | logit info
-    nmcli con mod $mgmt_if +ipv4.dns $mgmt_dns 2>&1 | logit info
-    nmcli con up $mgmt_if 2>&1 | logit info
+    nmcli con down "${mgmt_if}" 2>&1 | logit info
+    nmcli con mod "${mgmt_if}" ifname "${mgmt_if}" ip4 "${mgmt_ip}" gw4 "${mgmt_gw}" ipv4.method manual 2>&1 | logit info
+    nmcli con mod "${mgmt_if}" +ipv4.dns "${mgmt_dns}" 2>&1 | logit info
+    nmcli con up "${mgmt_if}" 2>&1 | logit info
     sleep 3
     nmcli con show 2>&1 | logit info
   else
@@ -274,18 +266,18 @@ set_static(){
 }
 
 set_dhcp(){
-  mgmt_status=$(nmcli dev | grep $mgmt_if | awk '{print $3}')
+  mgmt_status=$(nmcli dev | grep "${mgmt_if}" | awk '{print $3}')
   whiptail --title "ROCK Installer :: DHCP" --msgbox "Setting interface ${mgmt_if}, with a connection status of ${mgmt_status}, to DHCP." 8 78 3>&1 1>&2 2>&3
 
-  clear_interface $mgmt_if
-  echo "Setting $mgmt_if to DHCP." | logit info
+  clear_interface "${mgmt_if}"
+  echo "Setting ${mgmt_if} to DHCP." | logit info
   sleep 3
   nmcli con show 2>&1 | logit info
-  nmcli con mod $mgmt_if autoconnect yes ipv4.method auto 2>&1 | logit info
-  echo "Setting $mgmt_if to down." | logit info
-  nmcli con down $mgmt_if 2>&1 | logit info
-  echo "Setting $mgmt_if to up." | logit info
-  nmcli con up $mgmt_if 2>&1 | logit info
+  nmcli con mod "${mgmt_if}" autoconnect yes ipv4.method auto 2>&1 | logit info
+  echo "Setting ${mgmt_if} to down." | logit info
+  nmcli con down "${mgmt_if}" 2>&1 | logit info
+  echo "Setting ${mgmt_if} to up." | logit info
+  nmcli con up "${mgmt_if}" 2>&1 | logit info
   echo "Completed DHCP config." | logit info
 }
 
@@ -415,7 +407,7 @@ main(){
     "<-- Exit") echo "rock_setup exiting..." | logit info
     exit 0
     ;;
-    *) whiptail --title "Unknown Option" --msgbox "I don't know "${main_choice}"\nThis might need an issue filed..." 8 78 3>&1 1>&2 2>&3
+    *) whiptail --title "Unknown Option" --msgbox "I don't know ${main_choice}\nThis might need an issue filed..." 8 78 3>&1 1>&2 2>&3
     echo "rock_setup exiting (weirdly), chose ${main_choice}..." | logit info
     exit 99
     ;;
