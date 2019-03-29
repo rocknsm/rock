@@ -23,3 +23,5 @@ Vagrantfile.vmware
 pkg/
 repo/
 tmp/
+.env.yml
+.python-version

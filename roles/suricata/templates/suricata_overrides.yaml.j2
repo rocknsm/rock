@@ -10,12 +10,12 @@ af-packet:
     #threads: auto
     cluster-id: {{ 99 - loop.index0 }}
     cluster-type: cluster_flow
-    defrag: yes
-    use-mmap: yes
-    mmap-locked: yes
-    #rollover: yes
-    tpacket-v3: yes
-    use-emergency-flush: yes
+    defrag: true
+    use-mmap: true
+    mmap-locked: true
+    #rollover: true
+    tpacket-v3: true
+    use-emergency-flush: true
 {% endfor %}
 default-log-dir: {{ suricata_data_dir }}
 
@@ -23,36 +23,36 @@ default-log-dir: {{ suricata_data_dir }}
 magic-file: /usr/share/file/magic
 outputs:
   - fast:
-      enabled: yes
+      enabled: true
       filename: fast.log
-      append: yes
+      append: true
   - eve-log:
-      enabled: yes
+      enabled: true
       filetype: regular
       filename: eve.json
       types:
         - alert:
-            http: yes
-            tls: yes
-            ssh: yes
-            smtp: yes
-            tagged-packets: yes
+            http: true
+            tls: true
+            ssh: true
+            smtp: true
+            tagged-packets: true
             xff:
-              enabled: no
+              enabled: false
         - files:
-            force-magic: yes
+            force-magic: true
             force-hash: [sha256, sha1, md5]
         - stats:
-            totals: yes
-            threads: no
-            deltas: no
+            totals: true
+            threads: false
+            deltas: false
         - flow
         - http
         - dns
         - tls
   - unified2-alert:
-      enabled: yes
+      enabled: true
       filename: unified2.alert
       limit: 32mb
       sensor-id: 0
-      payload: yes
+      payload: true

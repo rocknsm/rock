@@ -1,0 +1,59 @@
+---
+- name: Destroy
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ not (lookup('env', 'MOLECULE_DEBUG') | bool or molecule_yml.provisioner.log|default(false) | bool) }}"
+  vars:
+    esxi_hostname: "{{molecule_yml.vmware.esxi_hostname|default(omit)}}"
+    cluster: "{{molecule_yml.vmware.cluster|default(omit)}}"
+    vmware_datacenter: "{{molecule_yml.vmware.datacenter}}"
+    vmware_datastore: "{{molecule_yml.vmware.datastore}}"
+    resource_pool: "{{molecule_yml.vmware.resource_pool|default('Resources')}}"
+  environment:
+    VMWARE_USER: "{{ lookup('env', 'VMWARE_USER') }}"
+    VMWARE_PASSWORD: "{{ lookup('env', 'VMWARE_PASSWORD') }}"
+    VMWARE_HOST: "{{ molecule_yml.vmware.vcenter_address }}"
+    VMWARE_PORT: "{{ molecule_yml.vmware.vcenter_port | default('443') }}"
+    VMWARE_VALIDATE_CERTS: "{{ molecule_yml.vmware.validate_certs |  default('Yes') }}"
+  tasks:
+    - name: Destroy molecule instance(s)
+      vmware_guest:
+        esxi_hostname: "{{molecule_yml.vmware.esxi_hostname|default(omit)}}"
+        cluster: "{{molecule_yml.vmware.cluster|default(omit)}}"
+        datacenter: "{{ vmware_datacenter }}"
+        folder: "/{{ vmware_datacenter }}/vm"
+        resource_pool: "{{ resource_pool }}"
+        name: "{{ item.name }}"
+        state: absent
+        force: true
+      register: server
+      with_items: "{{ molecule_yml.platforms }}"
+      async: 7200
+      poll: 0
+      changed_when: false
+
+    - name: Wait for instance(s) deletion to complete
+      async_status:
+        jid: "{{ item.ansible_job_id }}"
+      register: vmware_jobs
+      until: vmware_jobs.finished
+      retries: 300
+      with_items: "{{ server.results }}"
+
+    - name: Remove RockNSM config directory
+      file:
+        state: absent
+        path: "{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}/etc"
+      become: true
+
+    # Mandatory configuration for Molecule to function.
+    - name: Populate instance config
+      set_fact:
+        instance_conf: {}
+
+    - name: Dump instance config
+      copy:
+        content: "{{ instance_conf | to_json | from_json | molecule_to_yaml | molecule_header }}"
+        dest: "{{ molecule_instance_config }}"
+      when: vmware_jobs.changed | bool

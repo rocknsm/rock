@@ -27,8 +27,8 @@
 - name: Enable and start filebeat
   service:
     name: filebeat
-    state: "{{ 'started' if enable_filebeat else 'stopped' }}"
-    enabled: "{{ enable_filebeat }}"
+    state: "{{ 'started' if 'filebeat' in enabled_services else 'stopped' }}"
+    enabled: "{{ 'True' if 'filebeat' in enabled_services else 'False' }}"
 
 - name: Create FSF data directory
   file:
@@ -74,5 +74,5 @@
 - name: Enable and start FSF
   service:
     name: fsf
-    state: "{{ 'started' if enable_fsf else 'stopped' }}"
-    enabled: "{{ enable_fsf }}"
+    state: "{{ 'started' if 'fsf' in enabled_services else 'stopped' }}"
+    enabled: "{{ 'True' if 'fsf' in enabled_services else 'False' }}"

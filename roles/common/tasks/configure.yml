@@ -32,12 +32,28 @@
     group: root
     state: directory
 
+- name: Create RockNSM cache dir
+  file:
+    path: "{{ rock_cache_dir }}"
+    mode: 0755
+    owner: root
+    group: root
+    state: directory
+  when:
+    - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
+    - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
+
+
 - name: Download RockNSM elastic configs
   get_url:
     url: "{{ rock_dashboards_url }}"
     dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
-  when: (with_kibana or with_elasticsearch or with_logstash) and rock_online_install
+  when:
+    - rock_online_install
+    - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
+    - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
+
 
 - name: Extract RockNSM elastic configs
   unarchive:
@@ -46,8 +62,11 @@
     owner: root
     group: root
     creates: "{{ rock_module_dir }}"
-    remote_src: yes
-  when: (with_kibana or with_elasticsearch or with_logstash)
+    remote_src: true
+  when:
+    - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
+    - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
+
 
 - name: Disable IPv6 for all interfaces
   sysctl:
@@ -67,17 +86,16 @@
     regexp: AddressFamily
     line: AddressFamily inet
   notify:
-  - Restart sshd
+    - Restart sshd
 
 - name: Add the inventory into /etc/hosts
   lineinfile:
     dest: /etc/hosts
     regexp: '.*{{ item }}$'
-    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{item}}"
+    line: "{{ hostvars[item]['ansible_default_ipv4']['address'] }} {{ item }}"
     state: present
   when: hostvars[item]['ansible_facts']['default_ipv4'] is defined
-  with_items:
-    - "{{ groups['all'] }}"
+  loop: "{{ groups['all'] }}"
 
 - name: Set system hostname
   hostname:
@@ -92,7 +110,7 @@
     description: EPEL YUM repo
     baseurl: "{{ epel_baseurl }}"
     gpgkey: "{{ epel_gpgurl }}"
-    gpgcheck: yes
+    gpgcheck: true
   when: rock_online_install
 
 - name: Manually trust CentOS GPG key
@@ -106,32 +124,9 @@
     name: elastic-6.x
     description: Elastic Stack repository for 6.x
     baseurl: "{{ elastic_baseurl }}"
-    gpgkey:  "{{ elastic_gpgurl }}"
-    gpgcheck: no
+    gpgkey: "{{ elastic_gpgurl }}"
+    gpgcheck: false
   when: rock_online_install
-
-- name: Install RockNSM GPG keys
-  copy:
-    src: "{{ item }}"
-    dest: "/etc/pki/rpm-gpg/{{ item }}"
-    mode: 0644
-    owner: root
-    group: root
-  with_items:
-    - RPM-GPG-KEY-RockNSM-2
-    - RPM-GPG-KEY-RockNSM-Testing
-    - RPM-GPG-KEY-RockNSM-pkgcloud-2_3
-
-- name: Trust RockNSM GPG keys
-  rpm_key:
-    state: present
-    key: "{{ item.path }}"
-  with_items:
-    - { repoid: "rocknsm_2_3", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
-    - { repoid: "rocknsm_2_3", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_3" }
-    - { repoid: "rocknsm-testing", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-Testing"}
-    - { repoid: "rocknsm-local", path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2" }
-  register: registered_keys
 
 - name: Configure RockNSM online repos
   yum_repository:
@@ -150,9 +145,9 @@
     metadata_expire: 300
     cost: 750
     state: present
-  with_items:
-    - { name: "rocknsm_2_3", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
-    - { name: "rocknsm_2_3-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
+  loop:
+    - { name: "rocknsm_2_3", gpgcheck: true, baseurl: "{{ rocknsm_baseurl }}" }
+    - { name: "rocknsm_2_3-source", gpgcheck: false, baseurl: "{{ rocknsm_srpm_baseurl }}" }
 
 - name: Configure RockNSM online testing repos
   yum_repository:
@@ -178,32 +173,71 @@
     gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
     repo_gpgcheck: "{{ rock_offline_gpgcheck }}"
     cost: 500
-  when: not rock_disable_offline_repo
+  when: not rock_disable_offline_repo | bool
+
+- name: Install RockNSM GPG keys
+  copy:
+    src: "{{ item }}"
+    dest: "/etc/pki/rpm-gpg/{{ item }}"
+    mode: 0644
+    owner: root
+    group: root
+  loop:
+    - RPM-GPG-KEY-RockNSM-2
+    - RPM-GPG-KEY-RockNSM-Testing
+    - RPM-GPG-KEY-RockNSM-pkgcloud-2_3
+
+- name: Trust RockNSM GPG keys for RPMs
+  rpm_key:
+    state: present
+    key: "{{ item.path }}"
+  loop:
+    - repoid: "rocknsm_2_3"
+      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2"
+      test: "{{ rock_online_install }}"
+    - repoid: "rocknsm_2_3"
+      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_3"
+      test: "{{ rock_online_install }}"
+    - repoid: "rocknsm-testing"
+      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-Testing"
+      test: "{{ rock_online_install }}"
+    - repoid: "rocknsm-local"
+      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2"
+      test: "{{ not rock_disable_offline_repo }}"
+  register: registered_keys
+  when: item.test | bool
 
 - name: Trust RockNSM GPG keys in yum
-  command: "yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.repoid }}'"
-  with_items:
-    - { repoid: "rocknsm_2_3", test: "{{ rock_online_install }}" }
-    - { repoid: "rocknsm_2_3-source", test: "{{ rock_online_install }}" }
-    - { repoid: "rocknsm-testing", test: "{{ rock_online_install }}" }
-    - { repoid: "rocknsm-local", test: "{{ not rock_online_install }}" }
-  when: item.test | bool
-  changed_when: False
-  # TODO: Fix this ^^
+  command: >
+    yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.item.repoid }}'
+  args:
+    warn: false
+  loop: "{{ registered_keys.results }}"
+  when: item.changed
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
 - name: Configure default CentOS online repos
-  yum_repository:
-    name: "{{ item.name }}"
-    enabled: "{{ rock_online_install }}"
-    description: "CentOS-$releasever - {{ item.name | title }}"
-    mirrorlist: "{{ item.mirror }}"
-    gpgcheck: 1
-    gpgkey: "file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7"
-    file:  CentOS-Base
-  with_items:
-  - { name: base, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=os&infra=$infra" }
-  - { name: updates, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=updates&infra=$infra" }
-  - { name: extras, mirror: "http://mirrorlist.centos.org/?release=$releasever&arch=$basearch&repo=extras&infra=$infra"}
+  ini_file:
+    path: "{{ item.path }}"
+    section: "{{ item.repo }}"
+    option: "enabled"
+    value: "{{ '1' if rock_online_install else '0' }}"
+    state: "present"
+  loop:
+    - { path: "/etc/yum.repos.d/CentOS-Base.repo", repo: "base" }
+    - { path: "/etc/yum.repos.d/CentOS-Base.repo", repo: "updates" }
+    - { path: "/etc/yum.repos.d/CentOS-Base.repo", repo: "extras" }
+  when: ansible_distribution == "CentOS"
+
+# We need to make sure pyopenssl >= 0.15 is installed to support the following module
+# https://docs.ansible.com/ansible/latest/modules/openssl_certificate_module.html#openssl-certificate-module
+# The "base" repo only goes up to 0.13, so we need to exclude it for this task
+- name: Install pyopenssl package
+  yum:
+    name: python2-pyOpenSSL
+    state: installed
+  when: "'docket' in group_names or 'stenographer' in group_names"
 
 - name: Install core packages
   yum:
@@ -213,30 +247,63 @@
 - name: Enable and start firewalld
   service:
     name: firewalld
-    enabled: yes
+    enabled: true
     state: started
+
+# Use 'internal' zone for intra-ROCK communication
+- name: Create internal firewall zone
+  firewalld:
+    state: present
+    zone: internal
+    permanent: true
+  register: result
+
+- name: Reload firewalld to load zone
+  service:
+    name: firewalld
+    state: restarted
+  when: result.changed
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
+
+# Use 'work' zone for management network
+- name: Create work firewall zone
+  firewalld:
+    state: present
+    zone: work
+    permanent: true
+  register: result
+
+- name: Reload firewalld to load zone
+  service:
+    name: firewalld
+    state: restarted
+  when: result.changed
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
 - name: Configure firewall ports
   firewalld:
-    port: "{{ item[1].port }}"
+    port: "{{ item[1] }}"
     source: "{{ item[0] }}"
-    permanent: yes
+    zone: work
+    permanent: true
     state: enabled
-    immediate: yes
-  with_nested:
-    - "{{ rock_mgmt_nets }}"
-    -
-      - { port: "22/tcp" }
+    immediate: true
+  loop: "{{ rock_mgmt_nets | product(['22/tcp']) | list }}"
 
 - name: Ensure cache directory exists
   file:
     dest: "{{ rock_cache_dir }}"
     state: directory
     mode: 0755
+  when:
+    - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
+    - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
 
 - name: Install RockNSM control script
-  copy:
-    src: rockctl
+  template:
+    src: rockctl.j2
     dest: /usr/local/bin/rockctl
     mode: 0755
     owner: root
@@ -246,13 +313,13 @@
   file:
     src: "/usr/local/bin/rockctl"
     dest: "/usr/sbin/rockctl"
-    force: yes
+    force: true
     state: link
 
 - name: Set RockNSM Version
   copy:
     content: "{{ rock_version }}"
-    dest: /etc/rocknsm/rock-version
+    dest: "{{ rock_conf_dir }}/rock-version"
     mode: 0644
     owner: root
     group: root

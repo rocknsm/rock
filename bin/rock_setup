@@ -1,0 +1,426 @@
+#!/bin/bash
+
+# Script: rock_setup
+# Purpose: One stop shop. Provides a TUI against the /etc/rock/config.yml, as well as abstracting some other stuff like setting a static IP. e.g. "Welcome to Thunderdome."
+# Dev notes: Accompanying "RESET_TUI" makes life easier to iterate on this badboy.
+# Changelog:
+#  - 20190324 - The original.
+
+#NEEDS:
+# Install yq to /usr/bin (RPM)
+# yum install python-netaddr
+# Install crudini "yum install crudini"
+#   * http://www.pixelbeat.org/programs/crudini/
+
+if [[ $EUID -ne 0 ]]; then
+   echo "rock_setup must be run with root permissions, e.g. with 'sudo'"
+   exit 1
+fi
+
+# Global Variables
+conf_dir=/etc/rocknsm
+inventory=${conf_dir}/hosts.ini
+base_config=${conf_dir}/config.yml
+override_config=/tmp/setup_overrides.yml
+if [[ "$(yq r ${base_config} rock_mgmtifs)" = "null" ]]; then
+  mgmt_if=$(ip route get 255.255.255.255 | awk '{print $4; exit}') #Anaconda's default route is "the one to beat".
+else
+  mgmt_if=$(yq r "${base_config}" rock_mgmtifs | awk '{print $2}')
+fi
+monifs=
+mgmt_ip=
+mgmt_gw=
+mgmt_dns=
+sensor_hostname=
+declare -A SERVICES
+SERVICES[stenographer]="Full packet capture"
+SERVICES[docket]="Web interface and API to stenographer"
+SERVICES[bro]="Traffic metadata"
+SERVICES[suricata]="Signature-based IDS"
+SERVICES[logstash]="Data pipeline Swiss Army knife"
+SERVICES[elasticsearch]="Full text indexing magic"
+SERVICES[kibana]="UI into Elastic Data"
+SERVICES[zookeeper]="Required by abd Manages Kafka"
+SERVICES[kafka]="Message Queueing"
+SERVICES[lighttpd]="Provides the network facing service for Kibana and Docket"
+SERVICES[fsf]="The deepest of file analysis"
+SERVICES[filebeat]="Ingests FSF and Suricata files into Elastic"
+
+
+# If something in yq, or elsewhwere, poops the bed, we need a way to recover the original config.
+# This is especially important since yq schwacks all comment fields. :(
+# We can hope it's fixed someday: https://github.com/mikefarah/yq/issues/19
+backup_config(){
+  cp "${base_config}" "${base_config}".backup.$(date +%Y%m%d-%H%M%S)
+  cp "$inventory" "${inventory}".backup.$(date +%Y%m%d-%H%M%S)
+}
+
+# Copious logging is the key to successful troubleshooting should something go sideways.
+# Send output from anything that could be complaining to this function like:
+# 'some_task --with=arguments 2>$1 | logit info'
+# OR (If output means bad stuff)
+# 'some_important_task | logit crit'
+logit(){
+  logger -t rock_setup -p $1
+}
+
+# Test an array for an element. Used in the component and startup functions.
+function contains() {
+    local n=$#
+    local value=${!n}
+    for ((i=1;i < $#;i++)) {
+        if [ "${!i}" == "${value}" ]; then
+            return 0
+        fi
+    }
+    return 1
+}
+
+# This function takes an IP and uses python's 'netaddr' module to make sure it's a real IP.
+# Prevents sending garbage to any of the IP'ing commands.
+real_ip(){
+  IP=$1
+  python -c "from netaddr import *; ip = IPAddress(\"${IP}\")" > /dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# This function takes an IP and gateway and makes sure the gatway is in the defined network of the IP.
+# Again, preventing garbage and unnecessary errors.
+real_gateway(){
+  IP=$1
+  GW=$2
+  python -c "from netaddr import *; import sys; ip = IPNetwork(\"${IP}\"); ip_list = list(ip); result = IPAddress(\"${GW}\") in ip_list; (result) and sys.exit(0) or sys.exit(1)" > /dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# This function takes an IP/CIDR and validates that it's actually possible in the real world.
+# Less garbage to deal with later. ;)
+real_network(){
+  IP=$1
+  python -c "from netaddr import *; ip = IPNetwork(\"${IP}\")" > /dev/null 2>&1
+  if [[ $? -eq 0 ]]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Menu to select which components get installed.
+# Reads the currently enabled components and populates the selection box. Takes selection an replaces the array.
+# The "source of truth" for this is the SERVICES array defined at the top of this script.
+components(){
+  components_a=()
+  for i in $(yq r "${base_config}" installed_services | awk '{print $2}'); do
+    components_a+=( $i )
+  done
+
+  component_list=()
+  for K in "${!SERVICES[@]}"; do
+    contains "${components_a[@]}" "${K}"
+    if [[ $? -eq 0 ]]; then
+      component_list+=("${K^^}" "${SERVICES[$K]}" "ON")
+    else
+      component_list+=("${K^^}" "${SERVICES[$K]}" "OFF")
+    fi
+  done
+
+
+  enable_components=$(whiptail --separate-output --title "ROCK Installer :: Components" --checklist "Choose which components to install:" 30 90 20 "${component_list[@]}" 3>&2 2>&1 1>&3)
+
+  echo "Enabling install of: ${enable_components}" | logit info
+  yq d -i "${override_config}" "installed_services[*]"
+  for comp in ${enable_components}; do
+    yq w -i "${override_config}" "installed_services[+]" "${comp,,}"
+  done
+}
+
+# Menu to select which services get enabled.
+# This is functionally identical to "components".
+services(){
+  services_a=()
+  for i in $(yq r "${base_config}" enabled_services | awk '{print $2}'); do
+    services_a+=( $i )
+  done
+
+  services_list=()
+  for K in "${!SERVICES[@]}"; do
+    contains "${services_a[@]}" "${K}"
+    if [[ $? -eq 0 ]]; then
+      services_list+=("${K^^}" "${SERVICES[$K]}" "ON")
+    else
+      services_list+=("${K^^}" "${SERVICES[$K]}" "OFF")
+    fi
+  done
+
+
+  enable_services=$(whiptail --separate-output --title "ROCK Installer :: Services" --checklist "Choose which services should start on boot:" 30 90 20 "${services_list[@]}" 3>&2 2>&1 1>&3)
+
+  echo "Enabling startup of: ${enable_services}" | logit info
+  yq d -i "${override_config}" "enabled_services[*]"
+  for svc in ${enable_services}; do
+    yq w -i "${override_config}" "enabled_services[+]" "${svc,,}"
+  done
+}
+
+# Menus to allow selecting the Management and Monitoring interfaces. Don't question the "3>&1 1>&2 2>&3", hic sunt dracones.
+select_interfaces(){
+  # Whiptail selection of management iface:
+  iface_list=()
+  for i in $(ip a | grep -E "^[0-9]:*" | awk -F: '{print $2}' | sed 's/\s//g' | grep -v lo); do if [[ "$i" = "$mgmt_if" ]]; then iface_list+=("${i}" "Interface ${i^^}" "ON"); else iface_list+=("${i}" "Interface ${i^^}" "OFF"); fi; done
+
+  mgmt_if=$(whiptail --title "ROCK Installer :: Management Interface" --radiolist "Choose a management interface:\n(Odds are you don't need to change this.)" 20 78 4 "${iface_list[@]}" 3>&1 1>&2 2>&3)
+  #echo $mgmt_if
+
+  # This isn't necessary for deploying rock, but gives us persistence for the value across runs.
+  yq d -i "${override_config}" "rock_mgmtifs[*]"
+  yq w -i "${override_config}" "rock_mgmtifs[+]" ${mgmt_if}
+
+  # Whiptail select monitoring iface(s):
+  iface_list=()
+  for i in $(ip a | grep -E "^[0-9]:*" | awk -F: '{print $2}' | sed 's/\s//g' | grep -v lo); do if [[ "$i" != "$mgmt_if" ]]; then iface_list+=("${i}" "Interface ${i^^}" "ON"); fi; done
+
+  monifs=$(whiptail --separate-output --title "ROCK Installer :: Monitoring Interface(s)" --checklist "Choose your monitoring interface(s):\n(You need at least one.)" 20 78 4 "${iface_list[@]}" 3>&1 1>&2 2>&3)
+  # echo ${monifs}
+  # TODO: We might wanna make sure they selected at least one.
+
+  yq d -i "${override_config}" "rock_monifs[*]"
+  for monif in $monifs; do
+    yq w -i "${override_config}" "rock_monifs[+]" "${monif}"
+  done
+  # TODO: Might be useful to dynamically scale this window in case someone has a metric butt-ton of interfaces.
+  whiptail --title "ROCK Installer :: Interface Selections" --msgbox "ROCK will use the following interfaces:\n\n Management:\n${mgmt_if}\n Monitoring:\n${monifs}" 20 78 3>&1 1>&2 2>&3
+  # Let's make a memory...
+  echo "Interfaces selected! We picked MGMT: ${mgmt_if} and MONIF: ${monifs//[$'\t\r\n']}" | logit info
+}
+
+clear_interface(){
+  echo "Clearing ${mgmt_if}..." | logit info
+
+  conn_name=$(nmcli --fields GENERAL.CONNECTION dev show $mgmt_if | awk -F: '{print $2}' | sed 's/^\s*//g')
+  if [[ "$conn_name" == "$mgmt_if" ]]; then
+    nmcli con del $mgmt_if 2>&1 | logit info
+    nmcli con add con-name $mgmt_if ifname $mgmt_if type ethernet autoconnect yes 2>&1 | logit info
+  elif [[ "$conn_name"  == '--' ]]; then
+    nmcli con add con-name $mgmt_if ifname $mgmt_if type ethernet autoconnect yes 2>&1 | logit info
+  else
+    nmcli con del $conn_name 2>&1 | logit info
+    nmcli con add con-name $mgmt_if ifname $mgmt_if type ethernet autoconnect yes 2>&1 | logit info
+  fi
+}
+
+set_static(){
+  mgmt_status=$(nmcli dev | grep $mgmt_if | awk '{print $3}')
+
+  mgmt_ip=$(whiptail --inputbox "Enter the IP address and CIDR mask for this interface (Ex: 192.168.100.1/24):" 8 78 --title "ROCK Installer :: Static IP Address/CIDR" 3>&1 1>&2 2>&3)
+  real_network $mgmt_ip
+  if [[ $? -ne 0 ]]; then
+    whiptail --title "ROCK Installer :: Invalid IP and CIDR" --msgbox "The IP and CIDR you entered was invalid. Please try again." 20 78 3>&1 1>&2 2>&3
+    return
+  fi
+
+  # Enter a gateway.
+  mgmt_gw=$(whiptail --inputbox "Enter the gateway IP address:" 8 78 --title "ROCK Installer :: Static IP :: Gateway" 3>&1 1>&2 2>&3)
+  real_ip $mgmt_gw
+  if [[ $? -ne 0 ]]; then
+    whiptail --title "ROCK Installer :: Invalid Gateway IP" --msgbox "The IP you entered was invalid. Please try again." 20 78 3>&1 1>&2 2>&3
+    return
+  fi
+
+  # Enter DNS settings
+  mgmt_dns=$(whiptail --inputbox "Enter the IP address for your DNS server: " 8 78 --title "ROCK Installer :: Static IP :: DNS IP" 3>&1 1>&2 2>&3)
+  real_ip $mgmt_dns
+  if [[ $? -ne 0 ]]; then
+    whiptail --title "ROCK Installer :: Invalid DNS IP" --msgbox "The IP you entered was invalid. Please try again." 20 78 3>&1 1>&2 2>&3
+    return
+  fi
+
+  # Review settings w/ exit option
+  iface_settings=""
+  iface_settings="The following settings will be applied to ${mgmt_if}:\n"
+  iface_settings="${iface_settings}IP/Mask: ${mgmt_ip}\n"
+  iface_settings="${iface_settings}Gateway: ${mgmt_gw}\n"
+  iface_settings="${iface_settings}DNS: ${mgmt_dns}\n"
+  iface_settings="${iface_settings}Interface Status: ${mgmt_status}\n"
+
+  if (whiptail --title "ROCK Installer :: Static IP :: Review Changes" --yesno "${iface_settings}\nWould you like to make these changes? (Yes/No):" 13 78) then
+    clear
+    #whiptail --title "ROCK Installer :: Static IP :: Applying" --msgbox "Applying changes. Hold on to your butt..." 20 78 3>&1 1>&2 2>&3
+
+    # Clear interface
+    clear_interface $mgmt_if
+
+    # Let's do it live...
+    nmcli con show 2>&1 | logit info
+    echo "Setting static IP on ${mgmt_if}: ${mgmt_ip} GW: ${mgmt_gw} DNS: ${mgmt_dns}" | logit info
+    nmcli con down $mgmt_if 2>&1 | logit info
+    nmcli con mod $mgmt_if ifname $mgmt_if ip4 $mgmt_ip gw4 $mgmt_gw ipv4.method manual 2>&1 | logit info
+    nmcli con mod $mgmt_if +ipv4.dns $mgmt_dns 2>&1 | logit info
+    nmcli con up $mgmt_if 2>&1 | logit info
+    sleep 3
+    nmcli con show 2>&1 | logit info
+  else
+    echo "Static IP - User declined making changes on ${mgmt_if}: ${mgmt_ip} GW: ${mgmt_gw} DNS: ${mgmt_dns}" | logit info
+    whiptail --title "ROCK Installer :: Set IP - try again" --msgbox "You opted not to apply settings." 20 78 3>&1 1>&2 2>&3
+    return
+  fi
+}
+
+set_dhcp(){
+  mgmt_status=$(nmcli dev | grep $mgmt_if | awk '{print $3}')
+  whiptail --title "ROCK Installer :: DHCP" --msgbox "Setting interface ${mgmt_if}, with a connection status of ${mgmt_status}, to DHCP." 8 78 3>&1 1>&2 2>&3
+
+  clear_interface $mgmt_if
+  echo "Setting $mgmt_if to DHCP." | logit info
+  sleep 3
+  nmcli con show 2>&1 | logit info
+  nmcli con mod $mgmt_if autoconnect yes ipv4.method auto 2>&1 | logit info
+  echo "Setting $mgmt_if to down." | logit info
+  nmcli con down $mgmt_if 2>&1 | logit info
+  echo "Setting $mgmt_if to up." | logit info
+  nmcli con up $mgmt_if 2>&1 | logit info
+  echo "Completed DHCP config." | logit info
+}
+
+# Menus to allow setting static/dhcp addressing
+set_addressing(){
+  # Whiptail menu to select DHCP or Static
+  ip_style=$(whiptail --title "ROCK Installer :: Management IP Address" --menu "How would you like to set your management IP?" 20 78 4 \
+  "DHCP" "Use DHCP for management interface." \
+  "STATIC" "Use Static IP for management interface." \
+  3>&1 1>&2 2>&3
+  )
+  #echo ${ip_style}
+  # Choose your own adventure! DHCP or STATIC...
+  case $ip_style in
+    # DHCP
+    "DHCP") echo "Setting a DHCP address..." | logit info
+    set_dhcp
+    ;;
+    # STATIC
+    "STATIC") echo "Setting a static address..." | logit info
+    set_static
+    ;;
+    # Aww crap...
+    *) echo "Something that should never happen happened in the set_addressing function. Help..." | logit crit
+  esac
+  whiptail --title "ROCK Installer :: Management Addressing" --msgbox "ROCK has set a ${ip_style,,} address for the management interface (${mgmt_if})." 8 78 3>&1 1>&2 2>&3
+  # Lets make a memory...
+  echo "We finished setting the management IP address." | logit info
+}
+
+# Doesn't take into account multi-host. I'd suggest some usage of 'crudini', which I've added as a pre-req, to handle that.
+set_hostname(){
+  # WARNING - This isn't 100% full featured yet. We should do multi-host someday. But for now, let's let people know...
+  whiptail --title "ROCK Installer :: Set Hostname" --msgbox "Just FYI...\nRight now, this TUI only handles a single node install. So setting this hostname is \"one and done\".\nStay tuned...." 12 78 3>&1 1>&2 2>&3
+  sensor_hostname=$(whiptail --inputbox "Enter a hostname for this host:" 8 78 --title "ROCK Installer :: Set Hostname" 3>&1 1>&2 2>&3)
+  echo "Setting hostname to ${sensor_hostname}." | logit info
+  current_name=$(crudini --get /etc/rocknsm/hosts.ini rock | awk '{print $1}')
+  sed -i "s/${current_name}/${sensor_hostname}/g" /etc/rocknsm/hosts.ini
+  whiptail --title "ROCK Installer :: Set Hostname" --msgbox "Hostnamme set to ${sensor_hostname}." 10 78 3>&1 1>&2 2>&3
+}
+
+set_online(){
+  if (whiptail --title "ROCK Installer :: Online/Offline Install" --yesno "Would you like and online install?\n\nYes = Online\nNo = Offline" 13 78) then
+    yq w -i "${override_config}" rock_online_install "true"
+    online_install="True"
+  else
+    yq w -i  "${override_config}" rock_online_install "false"
+    online_install="False"
+  fi
+  #Making memories...
+  echo "Online install was set to ${online_install}." | logit info
+}
+
+choose_role(){
+  whiptail --title "ROCK Installer :: Choose Role" --msgbox "Just FYI...\nRight now, this TUI only handles a single node install.\nStay tuned...." 12 78 3>&1 1>&2 2>&3
+}
+
+display_config(){
+  whiptail --title "ROCK Installer :: Display Config" --textbox "${override_config}" --scrolltext 40 98
+}
+
+write_config(){
+  if (whiptail --title "ROCK Installer :: Write Config" --yesno "Would you like to write save your config changes to ${base_config}?" 13 78) then
+    (rock genconfig --config "${override_config}")
+  else
+    whiptail --title "ROCK Installer :: Write Config" --msgbox "You opted not to apply settings." 20 78 3>&1 1>&2 2>&3
+  fi
+}
+
+run_installer(){
+  if (whiptail --title "ROCK Installer :: Run Install" --yesno "Would you like to kick off a deployment?" 13 78) then
+    (rock deploy)
+  else
+    whiptail --title "ROCK Installer :: Run Install" --msgbox "You opted not to run the deployment." 20 78 3>&1 1>&2 2>&3
+  fi
+}
+
+# This is the "main menu", as the name would lead you to believe...
+main(){
+  main_choice=$(whiptail --title "ROCK Installer :: Main Menu" --menu "Choose your adventure:" 25 78 16 \
+  "Select Interfaces" "View/Select interfaces to configure." \
+  "Management IP" "Set a management IP" \
+  "Set Hostname" "Set the sensor name." \
+  "Offline/Online" "Choose install type." \
+  "Choose a Role" "Pick your node type." \
+  "Choose Components to Install" "Pick which services to install and start." \
+  "Choose Services to Start" "Choose which services start by default." \
+  "Display Config" "Brief overview before you let it rip." \
+  "Write Config" "Write your changes to ${base_config}" \
+  "Run Installer" "Grip it and rip it." \
+  "<-- Exit" "Leave the installer." \
+  3>&1 1>&2 2>&3
+  )
+  #echo $main_choice
+
+  case $main_choice in
+    "Select Interfaces") select_interfaces
+    ;;
+    "Management IP") set_addressing
+    ;;
+    "Set Hostname") set_hostname
+    ;;
+    "Offline/Online") set_online
+    ;;
+    "Choose a Role") choose_role
+    ;;
+    "Choose Components to Install") components
+    ;;
+    "Choose Services to Start") services
+    ;;
+    "Display Config") display_config
+    ;;
+    "Write Config") write_config
+    ;;
+    "Run Installer") run_installer
+    ;;
+    "<-- Exit") echo "rock_setup exiting..." | logit info
+    exit 0
+    ;;
+    *) whiptail --title "Unknown Option" --msgbox "I don't know "${main_choice}"\nThis might need an issue filed..." 8 78 3>&1 1>&2 2>&3
+    echo "rock_setup exiting (weirdly), chose ${main_choice}..." | logit info
+    exit 99
+    ;;
+  esac
+}
+
+# MAIN
+# Here begins the magic. Let's cook this pig.
+
+echo "rock_setup started..." | logit info
+backup_config
+if [[ ! -f ${override_config} ]]; then
+  rock genconfig -e "config_src=setup_config.yml.j2" -e "rock_config=${override_config}" -v > /dev/null
+fi
+while :; do
+  clear
+  main
+done

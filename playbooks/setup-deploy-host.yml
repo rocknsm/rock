@@ -42,8 +42,8 @@
         cost: 750
         state: present
       with_items:
-        - { name: "rocknsm_2_3", gpgcheck: yes, baseurl: "{{ rocknsm_baseurl }}" }
-        - { name: "rocknsm_2_3-source", gpgcheck: no, baseurl: "{{ rocknsm_srpm_baseurl }}" }
+        - { name: "rocknsm_2_3", gpgcheck: true, baseurl: "{{ rocknsm_baseurl }}" }
+        - { name: "rocknsm_2_3-source", gpgcheck: false, baseurl: "{{ rocknsm_srpm_baseurl }}" }
 
     - name: Trust RockNSM GPG keys in yum
       command: "yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.repoid }}'"
@@ -51,7 +51,7 @@
         - { repoid: "rocknsm_2_3", test: "{{ rock_online_install }}" }
         - { repoid: "rocknsm_2_3-source", test: "{{ rock_online_install }}" }
       when: item.test | bool
-      changed_when: False
+      changed_when: false
       # TODO: Fix this ^^
 
     - name: Install support packages

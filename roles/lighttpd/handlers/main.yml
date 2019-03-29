@@ -2,5 +2,15 @@
 - name: Enable and restart lighttpd
   systemd:
     name: lighttpd
-    state: "{{ 'restarted' if enable_lighttpd else 'stopped' }}"
-    enabled: "{{ enable_lighttpd }}"
+    state: >-
+      {%- if 'lighttpd' in enabled_services or 'docket' in enabled_services -%}
+        restarted
+      {%- else -%}
+        stopped
+      {%- endif -%}
+    enabled: >-
+      {%- if 'lighttpd' in enabled_services or 'docket' in enabled_services -%}
+        True
+      {%- else -%}
+        False
+      {%- endif -%}

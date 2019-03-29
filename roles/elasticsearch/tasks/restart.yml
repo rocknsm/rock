@@ -1,0 +1,47 @@
+---
+- name: Disable cluster shard allocation
+  uri:
+    url: "http://{{ es_interface }}:9200/_cluster/settings"
+    body: '{"transient": {"cluster.routing.allocation.enable":"none" }}'
+    body_format: json
+    timeout: 2
+    method: PUT
+  register: result
+  until: result.json.acknowledged is defined
+  retries: 300
+  delay: 3
+  changed_when: result.json.acknowledged | bool
+
+- name: Restart elasticsearch
+  service:
+    name: elasticsearch
+    state: restarted
+
+- name: Wait for elasticsearch to become ready
+  wait_for:
+    host: "{{ ansible_host }}"
+    port: 9200
+
+- name: Make sure node has joined the cluster
+  uri:
+    url: "http://{{ es_interface }}:9200/_nodes/{{ ansible_hostname }}/name"
+    return_content: true
+    timeout: 5
+  register: result
+  until: result.json._nodes.total == 1
+  retries: 200
+  delay: 10
+
+- name: Enable cluster shard allocation
+  uri:
+    url: "http://{{ es_interface }}:9200/_cluster/settings"
+    body: '{"transient": {"cluster.routing.allocation.enable":"all" }}'
+    body_format: json
+    timeout: 2
+    method: PUT
+  register: result
+  until: result.json.acknowledged is defined
+  retries: 300
+  delay: 3
+  changed_when: result.json.acknowledged | bool
+...

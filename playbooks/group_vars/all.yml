@@ -10,10 +10,11 @@ elastic:
 elastic_version: "{{ elastic.major_version }}.{{ elastic.suffix }}"
 rock_online_install: true
 rock_enable_testing: false
-rock_disable_offline_repo: false
+rock_disable_offline_repo: true
 rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
 rock_data_dir: /data
 rock_conf_dir: /etc/rocknsm
+rock_config: "{{ rock_conf_dir }}/config.yml"
 rocknsm_dir: /opt/rocknsm
 rock_data_user: root
 rock_data_group: root
@@ -32,36 +33,37 @@ bro_stats_retention: 0
 
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the service is installed
-with_stenographer: true
-with_docket: true
-with_bro: true
-with_suricata: true
-with_snort: false
-with_suricata_update: true
-with_logstash: true
-with_elasticsearch: true
-with_kibana: true
-with_zookeeper: true
-with_kafka: true
-with_lighttpd: true
-with_fsf: true
+
+installed_services:
+  - stenographer
+  - docket
+  - bro
+  - suricata
+  - logstash
+  - elasticsearch
+  - kibana
+  - zookeeper
+  - kafka
+  - lighttpd
+  - fsf
+  - filebeat
 
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the systemd service is enabled
-enable_stenographer: true
-enable_docket: true
-enable_bro: true
-enable_suricata: true
-enable_snort: false
-enable_suricata_update: true
-enable_logstash: true
-enable_elasticsearch: true
-enable_kibana: true
-enable_zookeeper: true
-enable_kafka: true
-enable_lighttpd: true
-enable_fsf: true
-enable_filebeat: true
+
+enabled_services:
+  - stenographer
+  - docket
+  - bro
+  - suricata
+  - logstash
+  - elasticsearch
+  - kibana
+  - zookeeper
+  - kafka
+  - lighttpd
+  - fsf
+  - filebeat
 
 rocknsm_package_list:
   - jq
@@ -75,7 +77,6 @@ rocknsm_package_list:
   - tmux
   - nmap-ncat
   - logrotate
-  - python-pyOpenSSL
   - firewalld
   - chrony
   - libselinux-python
@@ -89,10 +90,8 @@ http_tls_dhparams: /etc/pki/tls/misc/http_tls_dhparams.pem
 docket_web_pemfile: "{{ http_tls_combined }}"
 docket_web_dhparams: "{{ http_tls_dhparams }}"
 
-ansible_cache: "~/ansible_cache/"
-
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
-epel_gpgurl:  https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
+epel_gpgurl: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 elastic_baseurl: https://artifacts.elastic.co/packages/{{ elastic_version }}/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
@@ -108,7 +107,7 @@ bro_data_dir: "{{ rock_data_dir }}/bro"
 bro_prefix: /usr
 bro_sysconfig_dir: /etc/bro
 bro_site_dir: /usr/share/bro/site
-bro_cpu: "{{ (ansible_processor_vcpus // 2) if (ansible_processor_vcpus <= 16) else 8 }}"
+bro_cpu: "{{ (ansible_processor_vcpus|int // 2) if (ansible_processor_vcpus|int <= 16) else 8 }}"
 bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 bro_rockscripts_branch: master
 bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
@@ -145,7 +144,7 @@ es_network_host: "{{ '_site:ipv4_' if ( groups['elasticsearch'] | length ) > 1 e
 es_url: "http://{{ groups['elasticsearch'][0] if ( groups['elasticsearch'] | length ) > 1 else '127.0.0.1' }}:9200"
 es_action_auto_create_index: true
 es_min_master_nodes: "{{ 2 if ( groups['es_masters'] | length ) == 3 else 1 }}"
-es_mem: "{{ (ansible_memtotal_mb // 1024 // 2) if (ansible_memtotal_mb // 1024) < 64 else 31 }}"
+es_mem: "{{ (ansible_memtotal_mb|int // 1024 // 2) if (ansible_memtotal_mb|int // 1024) < 64 else 31 }}"
 es_log_dir: /var/log/elasticsearch
 es_memlock_override: |
   [Service]

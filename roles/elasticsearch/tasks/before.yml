@@ -1,0 +1,100 @@
+---
+
+- name: Install packages
+  yum:
+    name:
+      - java-1.8.0-openjdk-headless
+      - elasticsearch
+    state: installed
+  register: es_install
+
+- name: Create elasticsearch directory
+  file:
+    path: "{{ es_data_dir }}"
+    mode: 0755
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    state: directory
+
+- name: Setup elasticsearch config
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+    owner: root
+    group: "{{ es_group }}"
+    mode: 0640
+  register: es_config
+
+- name: Create elasticsearch systemd override dir
+  file:
+    path: /etc/systemd/system/elasticsearch.service.d
+    owner: root
+    group: root
+    mode: 0755
+    state: directory
+
+- name: Enable elasticsearch memlock in service override
+  copy:
+    content: "{{ es_memlock_override }}"
+    dest: /etc/systemd/system/elasticsearch.service.d/override.conf
+    mode: 0644
+    owner: root
+    group: root
+  register: es_memlock
+
+- name: Setup elasticsearch JVM options
+  template:
+    src: templates/es-jvm.options.j2
+    dest: /etc/elasticsearch/jvm.options
+    mode: 0640
+    owner: root
+    group: "{{ es_group }}"
+  register: es_jvm
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: true
+  when: es_memlock.changed
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
+
+- name: Enable and start elasticsearch
+  service:
+    name: elasticsearch
+    state: "started"
+    enabled: "{{ 'true' if 'elasticsearch' in enabled_services else 'false' }}"
+
+- name: Create internal firewall zone
+  firewalld:
+    state: present
+    zone: internal
+    permanent: true
+  register: result
+
+- name: Reload firewalld to load zone
+  service:
+    name: firewalld
+    state: restarted
+  when: result.changed
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
+
+- name: Configure firewall ports for internal elastic communication
+  firewalld:
+    port: "{{ item.1 }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+    source: "{{ hostvars[item.0]['ansible_default_ipv4']['address'] }}"
+    zone: work  # This should be a different zone, but leaving this here for now
+  when: (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1
+  loop: "{{ (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana'])) | product([9200, 9300]) | list }}"
+
+- name: Determine if Elasticsearch needs to be restarted
+  set_fact:
+    es_restart: true
+  when: "(es_config.changed or es_memlock.changed or es_jvm.changed) and not es_install.changed"
+  tags:
+    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
+
+...

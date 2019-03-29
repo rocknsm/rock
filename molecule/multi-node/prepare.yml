@@ -1,0 +1,16 @@
+---
+- name: Prepare
+  hosts: sensors
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Add dummy network interface kernel module
+      modprobe:
+        name: dummy
+        state: present
+        params: numdummies=0
+
+    - name: Create dummy0 interface
+      command: /usr/sbin/ip link add dummy0 type dummy
+      args:
+        creates: /sys/class/net/dummy0

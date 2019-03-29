@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo rm /etc/rocknsm/*.backup.*
+cat /etc/rocknsm/config.yml.orig | sudo tee /etc/rocknsm/config.yml

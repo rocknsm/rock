@@ -1,13 +1,13 @@
 ---
 # handlers file for Bro
 
-- name: Reload bro
-  service:
-    name: bro
-    state: "{{ 'started' if enable_bro else 'stopped' }}"
-
 - name: Configure monitor interfaces
   shell: >
     for intf in {{ rock_monifs | join(' ') }}; do
       /sbin/ifup ${intf};
     done
+
+- name: Reload bro
+  service:
+    name: bro
+    state: "{{ 'started' if 'bro' in enabled_services else 'stopped' }}"

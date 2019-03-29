@@ -1,90 +1,181 @@
 ---
-
 - hosts: all
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - common
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - common
 
 - hosts: zookeeper
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - zookeeper
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: zookeeper
-      when: with_zookeeper | bool
+      when: "'zookeeper' in installed_services"
 
 - hosts: kafka
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - kafka
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: kafka
-      when: with_kafka | bool
+      when: "'kafka' in installed_services"
 
 - hosts: stenographer
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - stenographer
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: stenographer
-      when: with_stenographer | bool
+      when: "'stenographer' in installed_services"
       stenographer_monitor_interfaces: "{{ rock_monifs }}"
 
 - hosts: bro
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - bro
+    - sensor
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: bro
-      when: with_bro | bool
+      when: "'bro' in installed_services"
 
 - hosts: suricata
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - suricata
+    - sensor
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: suricata
-      when: with_suricata | bool
+      when: "'suricata' in installed_services"
 
 - hosts: fsf
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - fsf
+    - sensor
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: fsf
-      when: with_fsf | bool
+      when: "'fsf' in installed_services"
 
 - hosts:
     - docket
     - kibana
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - docket
+    - kibana
+    - lighttpd
+    - web
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: lighttpd
-      when: with_lighttpd | bool
+      when: "'lighttpd' in installed_services"
 
 - hosts:
     - docket
     - stenographer
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - docket
+    - stenographer
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: docket
-      when: with_docket | bool
-      docket_enable: "{{enable_docket | bool}}"
+      when: "'docket' in installed_services"
+      docket_enable: "{{ ('docket' in enabled_services) | bool }}"
 
 - hosts: elasticsearch
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - elasticsearch
+    - elastic
+    - es_before
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  vars:
+    - es_step: "before"
+  become: true
   roles:
     - role: elasticsearch
-      when: with_elasticsearch | bool
+      when: "'elasticsearch' in installed_services"
+
+- hosts: elasticsearch
+  tags:
+    - elasticsearch
+    - elastic
+    - es_restart
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  vars:
+    - es_step: "restart"
+  serial: 1
+  become: true
+  roles:
+    - role: elasticsearch
+      when: "'elasticsearch' in installed_services and (es_restart is defined and es_restart)"
+
+- hosts: elasticsearch
+  tags:
+    - elasticsearch
+    - elastic
+    - es_after
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  vars:
+    - es_step: "after"
+  become: true
+  roles:
+    - role: elasticsearch
+      when: "'elasticsearch' in installed_services"
 
 - hosts: logstash
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - logstash
+    - elastic
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: logstash
-      when: with_logstash | bool
+      when: "'logstash' in installed_services"
 
 - hosts: kibana
-  vars_files:
-    - /etc/rocknsm/config.yml
+  tags:
+    - kibana
+    - elastic
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  become: true
   roles:
     - role: kibana
-      when: with_kibana | bool
+      when: "'kibana' in installed_services"

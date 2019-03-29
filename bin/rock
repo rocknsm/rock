@@ -1,0 +1,277 @@
+#!/bin/bash
+
+function run-playbook() {
+
+cd "$PLAYBOOK_DIR" || exit
+if ansible-playbook -i $INVENTORY $EXTRA_OPTS $VERBOSITY $PLAYBOOK;
+then
+  return 0
+else
+  echo "Something went wrong!"
+  exit
+fi
+
+}
+
+function banner() {
+  cat << 'EOF'
+┌──────────────────────────────────────────────────────────────────────────────┐
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                       Thank you for installing:                              │
+│                                                                              │
+│                                                                              │
+│                 :::::::..       ...       .,-:::::  :::  .                   │
+│                 ;;;;``;;;;   .;;;;;;;.  ,;;;'````'  ;;; .;;,.                │
+│                  [[[,/[[['  ,[[     [[,[[[          [[[[[/'                  │
+│                  $$$$$$c    $$$,     $$$$$$        _$$$$,                    │
+│                  888b "88bo,"888,_ _,88P`88bo,__,o,"888"88o,                 │
+│                  MMMM   "W"   "YMMMMMP"   "YUMMMMMP"MMM "MMP"                │
+│                          :::.    :::. .::::::. .        :                    │
+│                          `;;;;,  `;;;;;;`    ` ;;,.    ;;;                   │
+│                            [[[[[. '[['[==/[[[[,[[[[, ,[[[[,                  │
+│                            $$$ "Y$c$$  '''    $$$$$$$$$"$$$                  │
+│                            888    Y88 88b    dP888 Y88" 888o                 │
+│                            MMM     YM  "YMmMY" MMM  M'  "MMM                 │
+│                                                                              │
+|                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+EOF
+}
+
+function usage() {
+  cat <<EOF
+Usage: $0 COMMAND [options]
+Options:
+--config, -c <config_yaml>         Specify full path to configuration overrides
+--inventory, -i <inventory_path>   Specify path to Ansible inventory file
+--playbook, -p <playbook_path>     Specify path to Ansible playbook file
+--help, -h                         Show this usage information
+--tags, -t <tags>                  Only run plays and tasks tagged with these values
+--skip-tags <tags>                 Only run plays and tasks whose tags do not match these values
+--extra, -e <ansible variables>    Set additional variables as key=value or YAML/JSON passed to ansible-playbook
+--limit <host>                     Specify host to run plays
+--verbose, -v                      Increase verbosity of ansible-playbook
+--offline, -o                      Deploy ROCK using only local repos
+--list-hosts                       Outputs a list of matching hosts; does not execute anything else
+--list-tags                        List all available tags
+--list-tasks                       List all tasks that would be executed
+
+Commands:
+destroy             Destroy all ROCK data: Indexes, logs, PCAP, EVERYTHING
+                    NOTE: Will not remove any services, just the data
+deploy              Deploy and start all ROCK components
+deploy-offline      Same as deploy --offline
+setup               Launch TUI to configure host in preparation for deploy
+ssh-config          Configure hosts in inventory to use key-based authentication
+stop                Stop all ROCK services
+start               Start all ROCK services
+restart             Restart all ROCK services
+status              Report status for all ROCK services
+genconfig           Generate default configuration based on current system
+EOF
+}
+
+SHORT_OPTS="c:hi:p:t:e:vo"
+LONG_OPTS="config:help,inventory:,playbook:,tags:,skip-tags:,extra:,verbose,config:,limit:,offline,yolo,list-hosts,list-tags,list-tasks"
+
+ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
+
+eval set -- "$ARGS"
+
+CONFIG_DIR=/etc/rocknsm
+ROCK_HOME=/usr/share/rock
+PLAYBOOK_DIR=$ROCK_HOME/playbooks
+PLAYBOOK=
+INVENTORY=$CONFIG_DIR/hosts.ini
+CONFIG=$CONFIG_DIR/config.yml
+CONF_OVERRIDES=
+VERBOSITY=
+EXTRA_OPTS=${EXTRA_OPTS}
+LIST_ACTION=false
+
+while [ "$#" -gt 0 ]; do
+    case "$1" in
+
+    (--config|-c)
+            CONF_OVERRIDES="$2"
+            EXTRA_OPTS="$EXTRA_OPTS -e @$CONF_OVERRIDES"
+            shift 2
+            ;;
+
+    (--inventory|-i)
+            INVENTORY="$2"
+            shift 2
+            ;;
+
+    (--playbook|-p)
+           PLAYBOOK="$2"
+           shift 2
+           ;;
+
+    (--skip-tags)
+            EXTRA_OPTS="$EXTRA_OPTS --skip-tags $2"
+            shift 2
+            ;;
+
+    (--tags|-t)
+            EXTRA_OPTS="$EXTRA_OPTS --tags $2"
+            shift 2
+            ;;
+
+    (--verbose|-v)
+            VERBOSITY="$VERBOSITY -v"
+            shift 1
+            ;;
+
+    (--extra|-e)
+            EXTRA_OPTS="$EXTRA_OPTS -e $2"
+            shift 2
+            ;;
+
+    (--limit)
+            EXTRA_OPTS="$EXTRA_OPTS --limit $2"
+            shift 2
+            ;;
+
+    (--offline|-o)
+            EXTRA_OPTS="$EXTRA_OPTS -e rock_online_install=false"
+            shift 2
+            ;;
+
+    (--yolo)
+            DANGER_CONFIRM="$1"
+            shift 1
+            ;;
+
+    (--list-hosts)
+            EXTRA_OPTS="$EXTRA_OPTS --list-hosts"
+            LIST_ACTION=true
+            shift 1
+            ;;
+
+    (--list-tags)
+            EXTRA_OPTS="$EXTRA_OPTS --list-tags"
+            LIST_ACTION=true
+            shift 1
+            ;;
+
+    (--list-tasks)
+            EXTRA_OPTS="$EXTRA_OPTS --list-tasks"
+            LIST_ACTION=true
+            shift 1
+            ;;
+
+    (--help|-h)
+            usage
+            shift
+            exit 0
+            ;;
+
+    (--)
+            shift
+            break
+            ;;
+
+    (*)
+            echo "error"
+            exit 3
+            ;;
+esac
+done
+
+case "$1" in
+
+(destroy)
+        PLAYBOOK="delete-data.yml"
+        if [[ "${DANGER_CONFIRM}" != "--yolo" ]]; then
+            cat << EOF
+WARNING:
+    This will PERMANENTLY DESTROY all ROCK data.
+    To confirm, please add the following option: --yolo
+EOF
+          if [[ "$LIST_ACTION" = false ]]; then
+            exit 1
+          fi
+        fi
+        run-playbook
+        ;;
+(deploy)
+        if [[ "x$PLAYBOOK" = "x" ]];
+        then
+          PLAYBOOK="deploy-rock.yml"
+        fi
+
+        if [[ ! -f $CONFIG ]]; then
+          PLAYBOOK="generate-defaults.yml $PLAYBOOK"
+        fi
+        run-playbook
+        if [[ "$LIST_ACTION" = false ]]; then
+          banner
+        fi
+        ;;
+(ssh-config)
+        EXTRA_OPTS="$EXTRA_OPTS -k -K"
+        if [[ "x$PLAYBOOK" = "x" ]];
+        then
+          PLAYBOOK="auth-mgmt.yml"
+        fi
+        if [[ ! -f $CONFIG ]]; then
+          PLAYBOOK="generate-defaults.yml $PLAYBOOK"
+        fi
+        run-playbook
+        if [[ "$LIST_ACTION" = false ]]; then
+          banner
+        fi
+        ;;
+(stop)
+        PLAYBOOK="manage-services.yml"
+        EXTRA_OPTS="$EXTRA_OPTS -e service_state=stopped"
+        run-playbook
+        ;;
+(start)
+        PLAYBOOK="manage-services.yml"
+        EXTRA_OPTS="$EXTRA_OPTS -e service_state=started"
+        run-playbook
+        ;;
+(restart)
+        PLAYBOOK="manage-services.yml"
+        EXTRA_OPTS="$EXTRA_OPTS -e service_state=restarted"
+        run-playbook
+        ;;
+(status)
+        PLAYBOOK="manage-services.yml"
+        EXTRA_OPTS="$EXTRA_OPTS --skip-tags="service_mgmt""
+        run-playbook
+        ;;
+(genconfig)
+        PLAYBOOK="generate-defaults.yml"
+        run-playbook
+        ;;
+(setup)
+        if [[ ! -f $CONFIG ]]; then
+          PLAYBOOK="generate-defaults.yml"
+          printf "It looks ${CONFIG} doesn't exist yet.\n\nHang on while I create that for you..."
+          if [[ "x$VERBOSITY" = "x" ]];
+          then
+            run-playbook > /dev/null
+          else
+            run-playbook
+          fi
+        fi
+        
+        ( rock_setup )
+        ;;
+(*)     usage
+        exit 0
+        ;;
+esac

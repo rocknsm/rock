@@ -1,19 +1,25 @@
 ---
-- hosts: all
+- hosts: localhost
+  become: true
+  vars:
+    - config_src: rock_config.yml.j2
+  tags:
+    - common
+    - local
   tasks:
   - name: Create config directory
     file:
       state: directory
       owner: root
       group: root
-      mode:  0755
-      path: /etc/rocknsm
+      mode: 0755
+      path: "{{ rock_conf_dir }}"
 
   - name: Render template
     template:
-      backup: yes
-      src: rock_config.yml.j2
-      dest: /etc/rocknsm/config.yml
+      backup: true
+      src: "{{ config_src }}"
+      dest: "{{ rock_config }}"
       owner: root
       group: root
       mode: 0644

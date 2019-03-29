@@ -1,7 +1,5 @@
 ---
 # defaults file for rocknsm.docket
-ansible_cache: /tmp/ansible_cache
-
 rocknsm_conf_dir: /etc/rocknsm
 rocknsm_conf_user: root
 rocknsm_conf_group: root
@@ -40,7 +38,7 @@ docket_host: "{{ hostvars[groups['docket'][0]]['ansible_hostname'] }}"
 docket_web_server: lighttpd
 docket_web_pemfile: "/etc/pki/tls/private/lighttpd_docket.pem"
 docket_web_dhparams: "/etc/pki/tls/misc/lighttpd_dh.pem"
-docket_web_server_name: "{{ansible_fqdn}}"
+docket_web_server_name: "{{ ansible_fqdn }}"
 docket_web_user: lighttpd
 docket_url_apppath: /app/docket
 docket_url_resultspath: /results
@@ -60,10 +58,10 @@ steno_host: "{{ hostvars[groups['stenographer'][0]]['ansible_default_ipv4']['add
 steno_sensor: "{{ hostvars[groups['stenographer'][0]]['ansible_hostname'] }}"
 steno_port: 1234
 steno_certs_dir: /etc/stenographer/certs
-steno_ca_cert: "{{steno_certs_dir}}/ca_cert.pem"
-steno_ca_key:  "{{steno_certs_dir}}/ca_key.pem"
+steno_ca_cert: "{{ steno_certs_dir }}/ca_cert.pem"
+steno_ca_key: "{{ steno_certs_dir }}/ca_key.pem"
 
 # This is used to generate the config for docket on
 # where to connect and how to authenticate
 docket_steno_instances:
-- { host: "{{ steno_host}}", sensor: "{{ steno_sensor }}", port: "{{ steno_port }}", key: "{{ docket_x509_key }}", cert: "{{docket_x509_dir}}/docket-{{ docket_host }}_sensor-{{ steno_sensor }}_cert.pem", ca: "{{ docket_x509_dir }}/{{ steno_sensor }}_ca_cert.pem" }
+  - { host: "{{ steno_host }}", sensor: "{{ steno_sensor }}", port: "{{ steno_port }}", key: "{{ docket_x509_key }}", cert: "{{ docket_x509_dir }}/docket-{{ docket_host }}_sensor-{{ steno_sensor }}_cert.pem", ca: "{{ docket_x509_dir }}/{{ steno_sensor }}_ca_cert.pem" }

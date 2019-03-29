@@ -1,3 +1,4 @@
+---
 - name: Install packages
   yum:
     name: "{{ stenographer_packagename }}"

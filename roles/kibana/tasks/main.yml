@@ -18,11 +18,11 @@
   service:
     name: kibana
     state: "started"
-    enabled: "{{ enable_kibana }}"
+    enabled: "{{ 'True' if 'kibana' in enabled_services else 'False' }}"
 
 - name: "Wait for Kibana to be available"
   uri:
-    url: "{{kibana_url}}/api/kibana/settings"
+    url: "{{ kibana_url }}/api/kibana/settings"
     status_code: 200
   register: result
   until: result.status == 200
@@ -32,7 +32,7 @@
 - name: Blanket install/update kibana saved objects
   command: ./import-saved-items.sh "{{ kibana_url }}"
   args:
-    chdir: "{{rock_module_dir}}/configuration/kibana"
+    chdir: "{{ rock_module_dir }}/configuration/kibana"
   changed_when: false
   # TODO: Fix this ^^
 
@@ -59,6 +59,7 @@
 
 - name: Set initial kibana credentials
   shell: >
+    set -o pipefail
     export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && \
     export kibpw=$(xkcdpass -a rock) && \
     echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && \
@@ -66,14 +67,14 @@
     sudo tee -a /etc/lighttpd/rock-htpasswd.user > /dev/null 2>&1
   args:
     creates: /etc/lighttpd/rock-htpasswd.user
-  when: with_lighttpd
+  when: "'lighttpd' in installed_services"
 
 - name: Download RockNSM elastic configs
   get_url:
     url: "{{ rock_dashboards_url }}"
     dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
-  when: (with_elasticsearch or with_logstash) and rock_online_install
+  when: ('elasticsearch' or 'logstash' in installed_services) and rock_online_install
 
 - name: Extract RockNSM elastic configs
   unarchive:
@@ -82,5 +83,5 @@
     owner: root
     group: root
     creates: "{{ rock_module_dir }}"
-    remote_src: yes
-  when: (with_elasticsearch or with_logstash)
+    remote_src: true
+  when: ('elasticsearch' or 'logstash' in installed_services)

@@ -1,0 +1,45 @@
+---
+- name: Make sure cluster is green
+  uri:
+    method: "GET"
+    url: "http://{{ es_interface }}:9200/_cluster/health"
+    return_content: true
+    timeout: 2
+  register: result
+  until: result.json is defined and result.json.status == "green"
+  retries: 300
+  delay: 3
+  run_once: true
+
+- name: "Fail if Elasticsearch is RED"
+  fail:
+    msg: "Elasticsearch cluster has a red status"
+  when: result.json.status == "red"
+
+- name: Check for default mapping template
+  uri:
+    method: "GET"
+    url: "{{ es_url }}/_template/default"
+    status_code: [200, 404]
+    return_content: true
+    timeout: 2
+  register: default_index_template
+  run_once: true
+
+- name: Load default elasticsearch mapping template
+  uri:
+    method: PUT
+    url: "{{ es_url }}/_template/default"
+    body: "{{ lookup('file', 'default-mapping.json') }}"
+    body_format: json
+  when: ('elasticsearch' in installed_services) and default_index_template.status != 200
+  run_once: true
+
+- name: Blanket install/update elasticsearch mappings
+  command: ./import-index-templates.sh "{{ es_url }}"
+  args:
+    chdir: "{{ rock_module_dir }}/configuration/elasticsearch"
+  register: result
+  changed_when: 'result.stdout.find("Changed: 0") != -1'
+  run_once: true
+...

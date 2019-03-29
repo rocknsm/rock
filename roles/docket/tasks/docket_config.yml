@@ -1,6 +1,7 @@
 ---
 - name: Check existing secret_key
   shell: >
+    set -o pipefail
     cat /etc/docket/prod.yaml | awk '/^SECRET_KEY/ {print $2}'
   register: docket_prod
   changed_when: false
@@ -13,7 +14,7 @@
 
 - name: Set production docket config
   template:
-    src:  docket_prod.yaml.j2
+    src: docket_prod.yaml.j2
     dest: /etc/docket/prod.yaml
   notify:
     - Restart docket uwsgi
@@ -29,21 +30,21 @@
 - name: Enable redis
   service:
     name: redis
-    enabled: yes
+    enabled: true
   notify: Restart redis
-  when: docket_enable
+  when: "'docket' in enabled_services"
 
 - name: Enable docket celery services
   service:
     name: "{{ item }}"
-    enabled: "{{ docket_enable | bool }}"
+    enabled: "{{ 'True' if 'docket' in enabled_services else 'False' }}"
   notify: Restart docket celery services
-  with_items:
+  loop:
     - docket-celery-io
     - docket-celery-query
 
 - name: Enable docket uwsgi service
   service:
     name: docket
-    enabled: "{{ docket_enable | bool }}"
+    enabled: "{{ 'True' if 'docket' in enabled_services else 'False' }}"
   notify: Restart docket uwsgi

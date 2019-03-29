@@ -1,5 +1,5 @@
+---
 # Remove requiretty to make ssh pipelining work
-
 - name: Remove require tty
   lineinfile:
     regexp: '^\w+\s+requiretty'

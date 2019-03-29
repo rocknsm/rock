@@ -10,15 +10,15 @@ bootstrap.memory_lock: true
 network.host: {{ es_network_host }}
 discovery.zen.minimum_master_nodes: {{ es_min_master_nodes }}
 
-{% if groups['elasticsearch'] > 1 %}
+{% if groups['elasticsearch']|length > 1 %}
 discovery.zen.ping.unicast.hosts:
-{% for host in query('inventory_hostnames', 'es_masters') %}
+{% for host in query('inventory_hostnames', 'es_masters') | sort %}
   - {{ host }}
 {% endfor %}
 
 {% if elastic.major_version > 6 %}
 cluster.initial_master_nodes:
-{% for host in query('inventory_hostnames', 'es_masters') %}
+{% for host in query('inventory_hostnames', 'es_masters') | sort %}
   - {{ host }}
 {% endfor %}
 {% endif %}

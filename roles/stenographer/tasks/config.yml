@@ -1,8 +1,7 @@
 ---
-# tasks file for stenographer
-  ######################################################
-  ################# Config Stenographer #################
-  ######################################################
+#######################################################
+################# Config Stenographer #################
+#######################################################
 
 - name: Set stenographer config
   template:
@@ -29,7 +28,7 @@
     mode: 0644
     owner: root
     group: root
-  with_items:
+  loop:
     - stenographer.service
     - stenographer@.service
 
@@ -44,22 +43,22 @@
 - name: Configure stenographer service
   service:
     name: stenographer
-    enabled: "{{ enable_stenographer }}"
+    enabled: "{{ 'True' if 'stenographer' in enabled_services else 'False' }}"
   notify: Start stenographer service
 
 - name: Configure stenographer per interface
   service:
     name: "stenographer@{{ item }}"
-    enabled: "{{ enable_stenographer }}"
-  with_items: "{{ stenographer_monitor_interfaces }}"
+    enabled: "{{ 'True' if 'stenographer' in enabled_services else 'False' }}"
+  loop: "{{ stenographer_monitor_interfaces }}"
   notify: Start stenographer per interface
 
 - name: Configure firewall ports
   firewalld:
     port: "{{ 1234 + index }}/tcp"
-    permanent: yes
+    permanent: true
     state: enabled
-    immediate: yes
+    immediate: true
   loop: "{{ stenographer_monitor_interfaces }}"
   loop_control:
     index_var: index

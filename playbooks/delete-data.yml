@@ -5,28 +5,26 @@
     http_proxy: "{{ lookup('env','http_proxy') }}"
     https_proxy: "{{ lookup('env', 'https_proxy') }}"
   tasks:
-  - name: Get default settings
-    include_vars: rocknsm_config.dist.yml
-  - name: Apply override settings, if available
-    include_vars: /etc/rocknsm/config.yml
-    ignore_errors: true
-    failed_when: false
-  - name: Debug variables
-    include: debug.yml
-    when: rock_debug is defined and rock_debug
+    - name: Get default settings
+      include_vars: rocknsm_config.dist.yml
+    - name: Apply override settings, if available
+      include_vars: "{{ rock_config }}"
+      ignore_errors: true
+      failed_when: false
+    - name: Debug variables
+      include: debug.yml
+      when: rock_debug is defined and rock_debug
 
     ######################################################
     ######### Stop Services ##############################
     ######################################################
-
-  - name: Stop rocknsm services
-    command: /sbin/rock_stop
+    - name: Stop rocknsm services
+      command: /sbin/rock_stop
 
     ######################################################
     ######### Delete Data ################################
     ######################################################
-
-  - name: Remove rock_data_dir
-    file:
-      state: absent
-      path: "{{ rock_data_dir }}"
+    - name: Remove rock_data_dir
+      file:
+        state: absent
+        path: "{{ rock_data_dir }}"
