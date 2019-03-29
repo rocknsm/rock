@@ -33,6 +33,7 @@
 
 - hosts: stenographer
   tags:
+    - docket
     - stenographer
   pre_tasks:
     - name: Include user-override vars
