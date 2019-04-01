@@ -171,7 +171,7 @@ select_interfaces(){
   iface_list=()
   for i in $(ip a | grep -E "^[0-9]:*" | awk -F: '{print $2}' | sed 's/\s//g' | grep -v lo); do if [[ "$i" = "${mgmt_if}" ]]; then iface_list+=("${i}" "Interface ${i^^}" "ON"); else iface_list+=("${i}" "Interface ${i^^}" "OFF"); fi; done
 
-  mgmt_if=$(whiptail --title "ROCK Installer :: Management Interface" --radiolist "Choose a management interface:\n(Odds are you don't need to change this.)" 20 78 4 "${iface_list[@]}" 3>&1 1>&2 2>&3)
+  mgmt_if=$(whiptail --title "ROCK Installer :: Management Interface" --radiolist "Choose a management interface:\n(If you've connected this interface you probably don't need to change this.)" 20 78 4 "${iface_list[@]}" 3>&1 1>&2 2>&3)
   #echo "${mgmt_if}"
 
   # This isn't necessary for deploying rock, but gives us persistence for the value across runs.
@@ -191,7 +191,7 @@ select_interfaces(){
     yq w -i "${override_config}" "rock_monifs[+]" "${monif}"
   done
   # TODO: Might be useful to dynamically scale this window in case someone has a metric butt-ton of interfaces.
-  whiptail --title "ROCK Installer :: Interface Selections" --msgbox "ROCK will use the following interfaces:\n\n Management:\n${mgmt_if}\n Monitoring:\n${monifs}" 20 78 3>&1 1>&2 2>&3
+  whiptail --title "ROCK Installer :: Interface Selections" --msgbox "ROCK will use the following interface configuration:\n\n Management:\n${mgmt_if}\n Monitoring:\n${monifs}" 20 78 3>&1 1>&2 2>&3
   # Let's make a memory...
   echo "Interfaces selected! We picked MGMT: ${mgmt_if} and MONIF: ${monifs//[$'\t\r\n']}" | logit info
 }
@@ -285,8 +285,8 @@ set_dhcp(){
 set_addressing(){
   # Whiptail menu to select DHCP or Static
   ip_style=$(whiptail --title "ROCK Installer :: Management IP Address" --menu "How would you like to set your management IP?" 20 78 4 \
-  "DHCP" "Use DHCP for management interface." \
-  "STATIC" "Use Static IP for management interface." \
+  "DHCP"\t"Use DHCP for management interface" \
+  "STATIC"\t"Use Static IP for management interface" \
   3>&1 1>&2 2>&3
   )
   #echo ${ip_style}
@@ -311,8 +311,8 @@ set_addressing(){
 # Doesn't take into account multi-host. I'd suggest some usage of 'crudini', which I've added as a pre-req, to handle that.
 set_hostname(){
   # WARNING - This isn't 100% full featured yet. We should do multi-host someday. But for now, let's let people know...
-  whiptail --title "ROCK Installer :: Set Hostname" --msgbox "Just FYI...\nRight now, this TUI only handles a single node install. So setting this hostname is \"one and done\".\nStay tuned...." 12 78 3>&1 1>&2 2>&3
-  sensor_hostname=$(whiptail --inputbox "Enter a hostname for this host:" 8 78 --title "ROCK Installer :: Set Hostname" 3>&1 1>&2 2>&3)
+  whiptail --title "ROCK Installer :: Set Hostname" --msgbox "NOTICE:\nThis TUI currently only handles setting the hostname for single node installation.\nReference docs.rocknsm.io for multinode details." 12 78 3>&1 1>&2 2>&3
+  sensor_hostname=$(whiptail --inputbox "Enter a hostname for this sensor:" 8 78 --title "ROCK Installer :: Set Hostname" 3>&1 1>&2 2>&3)
   echo "Setting hostname to ${sensor_hostname}." | logit info
   current_name=$(crudini --get /etc/rocknsm/hosts.ini rock | awk '{print $1}')
   sed -i "s/${current_name}/${sensor_hostname}/g" /etc/rocknsm/hosts.ini
@@ -320,7 +320,7 @@ set_hostname(){
 }
 
 set_online(){
-  if (whiptail --title "ROCK Installer :: Online/Offline Install" --yesno "Would you like and online install?\n\nYes = Online\nNo = Offline" 13 78) then
+  if (whiptail --title "ROCK Installer :: Online / Offline Install" --yesno "Would you like to run an online install?\n\nYes = Online\nNo = Offline" 13 78) then
     yq w -i "${override_config}" rock_online_install "true"
     online_install="True"
   else
@@ -332,7 +332,7 @@ set_online(){
 }
 
 choose_role(){
-  whiptail --title "ROCK Installer :: Choose Role" --msgbox "Just FYI...\nRight now, this TUI only handles a single node install.\nStay tuned...." 12 78 3>&1 1>&2 2>&3
+  whiptail --title "ROCK Installer :: Choose Role" --msgbox "NOTICE:\nThis TUI currently only handles a single node installation role.\nReference docs.rocknsm.io for multinode details." 12 78 3>&1 1>&2 2>&3
 }
 
 display_config(){
@@ -340,7 +340,7 @@ display_config(){
 }
 
 write_config(){
-  if (whiptail --title "ROCK Installer :: Write Config" --yesno "Would you like to write save your config changes to ${base_config}?" 13 78) then
+  if (whiptail --title "ROCK Installer :: Write Config" --yesno "Would you like to write your configuration changes to ${base_config}?" 13 78) then
     if source /usr/sbin/rock genconfig --config "${override_config}"; then
       return 0
     else
@@ -367,18 +367,18 @@ run_installer(){
 
 # This is the "main menu", as the name would lead you to believe...
 main(){
-  main_choice=$(whiptail --title "ROCK Installer :: Main Menu" --menu "Choose your adventure:" 25 78 16 \
-  "Select Interfaces" "View/Select interfaces to configure." \
+  main_choice=$(whiptail --title "ROCK Installer :: Main Menu" --menu "Choose Your Adventure:" 25 78 16 \
+  "Select Interfaces" "View / Select interfaces to configure" \
   "Management IP" "Set a management IP" \
-  "Set Hostname" "Set the sensor name." \
-  "Offline/Online" "Choose install type." \
-  "Choose a Role" "Pick your node type." \
-  "Choose Components to Install" "Pick which services to install and start." \
-  "Choose Services to Start" "Choose which services start by default." \
-  "Display Config" "Brief overview before you let it rip." \
-  "Write Config" "Write your changes to ${base_config}" \
-  "Run Installer" "Grip it and rip it." \
-  "<-- Exit" "Leave the installer." \
+  "Set Hostname" "Set the sensor hostname" \
+  "Offline/Online" "Choose install package source" \
+  "Choose a Role" "Pick your node type" \
+  "Choose Components" "Pick which services to install and start" \
+  "Choose Enabled Services" "Choose what services start on boot" \
+  "Display Config" "Brief overview before installation" \
+  "Write Config" "Write changes to ${base_config}" \
+  "Run Installer" "Install sensor from selections" \
+  "<-- Exit" "Leave this installer" \
   3>&1 1>&2 2>&3
   )
   #echo $main_choice
@@ -394,9 +394,9 @@ main(){
     ;;
     "Choose a Role") choose_role
     ;;
-    "Choose Components to Install") components
+    "Choose Components") components
     ;;
-    "Choose Services to Start") services
+    "Choose Enabled Services") services
     ;;
     "Display Config") display_config
     ;;
@@ -407,7 +407,7 @@ main(){
     "<-- Exit") echo "rock_setup exiting..." | logit info
     exit 0
     ;;
-    *) whiptail --title "Unknown Option" --msgbox "I don't know ${main_choice}\nThis might need an issue filed..." 8 78 3>&1 1>&2 2>&3
+    *) whiptail --title "Unknown Option" --msgbox "I don't know ${main_choice}\nExiting this interface..." 8 78 3>&1 1>&2 2>&3
     echo "rock_setup exiting (weirdly), chose ${main_choice}..." | logit info
     exit 99
     ;;
