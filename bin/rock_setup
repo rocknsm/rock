@@ -316,7 +316,7 @@ set_hostname(){
   echo "Setting hostname to ${sensor_hostname}." | logit info
   current_name=$(crudini --get /etc/rocknsm/hosts.ini rock | awk '{print $1}')
   sed -i "s/${current_name}/${sensor_hostname}/g" /etc/rocknsm/hosts.ini
-  whiptail --title "ROCK Installer :: Set Hostname" --msgbox "Hostnamme set to ${sensor_hostname}." 10 78 3>&1 1>&2 2>&3
+  whiptail --title "ROCK Installer :: Set Hostname" --msgbox "Hostname set to ${sensor_hostname}." 10 78 3>&1 1>&2 2>&3
 }
 
 set_online(){
