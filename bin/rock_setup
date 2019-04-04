@@ -285,8 +285,8 @@ set_dhcp(){
 set_addressing(){
   # Whiptail menu to select DHCP or Static
   ip_style=$(whiptail --title "ROCK Installer :: Management IP Address" --menu "How would you like to set your management IP?" 20 78 4 \
-  "DHCP"\t"Use DHCP for management interface" \
-  "STATIC"\t"Use Static IP for management interface" \
+  "DHCP"    "Use DHCP for management interface" \
+  "STATIC"  "Use Static IP for management interface" \
   3>&1 1>&2 2>&3
   )
   #echo ${ip_style}
