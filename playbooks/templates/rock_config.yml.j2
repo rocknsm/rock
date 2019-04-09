@@ -14,13 +14,14 @@
 ###############################################################################
 #                      Network Interface Configuration
 ###############################################################################
-# The "rock_monifs:" listed below are the interfaces that were not detected
+# The "rock_monifs:" listed below are the interfaces that are not detected
 # as having an active IP address. Upon running the deploy script, these
 # interfaces will be configured for monitoring (listening) operations.
 # NOTE: management interfaces should *not* be listed here:
 
-rock_monifs:
-  {{ rock_monifs | to_nice_yaml | indent(2, False) }}
+{% raw %}
+rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.interface | default('lo') ])| list }}"
+{% endraw %}
 
 
 ###############################################################################
@@ -28,17 +29,23 @@ rock_monifs:
 ###############################################################################
 # Set hostname and fqdn in inventory file
 
-# Set the number of CPUs assigned to Bro:
-bro_cpu: {{ bro_cpu }}
+# Set the number of CPUs assigned to Bro (Half of total, but no more than 8):
+{% raw %}
+bro_cpu: "{{ (ansible_processor_vcpus|int // 2) if (ansible_processor_vcpus|int <= 16) else 8 }}"
+{% endraw %}
 
 # Set the Elasticsearch cluster name:
 es_cluster_name: {{ es_cluster_name }}
 
 # Set the Elasticsearch cluster node name:
-es_node_name: {{ es_node_name }}
+{% raw %}
+es_node_name: "{{ ansible_hostname }}"
+{% endraw %}
 
-# Set the value of Elasticsearch memory:
-es_mem: {{ es_mem }}
+# Set the value of Elasticsearch memory (Half of total, but no more than 31GB):
+{% raw %}
+es_mem: "{{ (ansible_memtotal_mb|int // 1024 // 2) if (ansible_memtotal_mb|int // 1024) < 64 else 31 }}"
+{% endraw %}
 
 
 ###############################################################################
