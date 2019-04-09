@@ -158,7 +158,7 @@ while [ "$#" -gt 0 ]; do
 
     (--offline|-o)
             EXTRA_OPTS="$EXTRA_OPTS -e rock_online_install=false"
-            shift 2
+            shift 1
             ;;
 
     (--yolo)
@@ -225,7 +225,21 @@ EOF
         then
           PLAYBOOK="deploy-rock.yml"
         fi
-
+        if [[ ! -f $CONFIG ]]; then
+          PLAYBOOK="generate-defaults.yml $PLAYBOOK"
+        fi
+        run-playbook
+        if [[ "$LIST_ACTION" = false ]]; then
+          banner
+        fi
+        ;;
+(deploy-offline)
+        COMMAND=${1}
+        EXTRA_OPTS="$EXTRA_OPTS -e rock_online_install=false"
+        if [[ "x$PLAYBOOK" = "x" ]];
+        then
+          PLAYBOOK="deploy-rock.yml"
+        fi
         if [[ ! -f $CONFIG ]]; then
           PLAYBOOK="generate-defaults.yml $PLAYBOOK"
         fi
