@@ -4,6 +4,7 @@
     name:
       - kafka
       - kafkacat
+      - java-11-openjdk-headless
     state: present
 
 - name: Create kafka data directory
