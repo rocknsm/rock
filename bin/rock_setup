@@ -355,6 +355,8 @@ write_config(){
 run_installer(){
   if (whiptail --title "ROCK Installer :: Run Install" --yesno "Would you like to kick off a deployment?" 13 78) then
     if source /usr/sbin/rock deploy; then
+      echo -e "ROCK was successfully deployed!\n See ${ROCK_LOG} for full deployment log" | logit info
+      whiptail --title "ROCK Installer :: Run Install" --msgbox "\n                        ROCK was successfully deployed!\n\n    See ${ROCK_LOG} for full deployment log" 0 78 3>&1 1>&2 2>&3
       return 0
     else
       echo "Something went wrong! Check ${ROCK_LOG} for more information" | logit crit
