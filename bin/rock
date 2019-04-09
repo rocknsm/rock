@@ -15,7 +15,7 @@ if [[ ! -d ${LOG_DIR} ]]; then
 fi
 
 cd "$PLAYBOOK_DIR" || exit
-if ANSIBLE_LOG_PATH="${ROCK_LOG}" ansible-playbook -i ${INVENTORY} ${EXTRA_OPTS} ${VERBOSITY} ${PLAYBOOK};
+if ANSIBLE_LOG_PATH="${ROCK_LOG}" ansible-playbook -u ${SUDO_USER} -i ${INVENTORY} ${EXTRA_OPTS} ${VERBOSITY} ${PLAYBOOK};
 then
   return 0
 else
@@ -258,7 +258,9 @@ EOF
         if [[ ! -f $CONFIG ]]; then
           PLAYBOOK="generate-defaults.yml $PLAYBOOK"
         fi
+        export ANSIBLE_HOST_KEY_CHECKING=False
         run-playbook
+        unset ANSIBLE_HOST_KEY_CHECKING
         if [[ "$LIST_ACTION" = false ]]; then
           banner
         fi

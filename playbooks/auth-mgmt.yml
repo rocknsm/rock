@@ -7,6 +7,14 @@
   vars_files:
     - "{{ rock_config }}"
   tasks:
+    - name: Generate SSH keys
+      become: false
+      command: "ssh-keygen -t rsa -b 4096 -N '' -f ~/.ssh/id_rsa"
+      args:
+        creates: ~/.ssh/id_rsa.pub
+      delegate_to: localhost
+      run_once: true
+
     - name: Set authorized keys
       authorized_key:
         user: "{{ ansible_env.SUDO_USER }}"
