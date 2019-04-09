@@ -10,21 +10,30 @@ bootstrap.memory_lock: true
 network.host: {{ es_network_host }}
 discovery.zen.minimum_master_nodes: {{ es_min_master_nodes }}
 
+{# Check if more than 1 ES node has been configured in the inventory #}
 {% if groups['elasticsearch']|length > 1 %}
+{# ES versions prior to 7 used a list of unicasts hosts #}
+{% if elastic.major_version < 7 %}
 discovery.zen.ping.unicast.hosts:
 {% for host in query('inventory_hostnames', 'es_masters') | sort %}
   - {{ host }}
 {% endfor %}
-
+{% endif %}
+{# ES version 7 and higher use seed_hosts and a list of initial masters #}
 {% if elastic.major_version > 6 %}
+discovery.seed_hosts:
+{% for host in query('inventory_hostnames', 'es_masters') | sort %}
+  - {{ host }}
+{% endfor %}
 cluster.initial_master_nodes:
 {% for host in query('inventory_hostnames', 'es_masters') | sort %}
   - {{ host }}
 {% endfor %}
 {% endif %}
+{# If we aren't running multiple nodes we can skip all the logic #}
+{# above and declare this will be a single node cluster #}
 {% else %}
 discovery.type: single-node
-
 {% endif %}
 
 action.auto_create_index: {{ es_action_auto_create_index }}
