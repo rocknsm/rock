@@ -294,7 +294,7 @@ EOF
         PLAYBOOK="generate-defaults.yml"
         run-playbook
         ;;
-(setup)
+(setup|tui)
         COMMAND=${1}
         if [[ ! -f $CONFIG ]]; then
           PLAYBOOK="generate-defaults.yml"
@@ -309,22 +309,6 @@ EOF
 
         ( rock_setup )
         ;;
-(tui)
-        COMMAND=${1}
-        if [[ ! -f $CONFIG ]]; then
-          PLAYBOOK="generate-defaults.yml"
-          printf "It looks %s doesn't exist yet.\n\nHang on while I create that for you..." "${CONFIG}"
-          if [[ "x$VERBOSITY" = "x" ]];
-          then
-            run-playbook
-          else
-            run-playbook
-          fi
-        fi
-
-        ( rock_setup )
-        ;;
-
 (*)     usage
         exit 0
         ;;
