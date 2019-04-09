@@ -3,7 +3,7 @@
 - name: Install packages
   yum:
     name:
-      - java-1.8.0-openjdk-headless
+      - java-11-openjdk-headless
       - elasticsearch
     state: installed
   register: es_install
