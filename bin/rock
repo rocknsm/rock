@@ -68,7 +68,8 @@ setup               Launch TUI to configure this host for deployment
 tui                 Alias for setup
 ssh-config          Configure hosts in inventory to use key-based auth (multinode)
 deploy              Deploy selected ROCK components
-deploy-offline      Same as deploy --offline
+deploy-offline      Same as deploy --offline (Default ISO behavior)
+deploy-online       Same as deploy --online
 stop                Stop all ROCK services
 start               Start all ROCK services
 restart             Restart all ROCK services
@@ -86,7 +87,8 @@ Options:
 --list-hosts                       Outputs a list of matching hosts; does not execute anything else
 --list-tags                        List all available tags
 --list-tasks                       List all tasks that would be executed
---offline, -o                      Deploy ROCK using only local repos
+--offline, -o                      Deploy ROCK using only local repos (Default ISO behavior)
+--online, -O                       Deploy ROCK using online repos
 --playbook, -p <playbook_path>     Specify path to Ansible playbook file
 --skip-tags <tags>                 Only run plays and tasks whose tags do not match these values
 --tags, -t <tags>                  Only run plays and tasks tagged with these values
@@ -94,8 +96,8 @@ Options:
 EOF
 }
 
-SHORT_OPTS="c:hi:p:t:e:vo"
-LONG_OPTS="config:help,inventory:,playbook:,tags:,skip-tags:,extra:,verbose,config:,limit:,offline,yolo,list-hosts,list-tags,list-tasks"
+SHORT_OPTS="c:hi:p:t:e:voO"
+LONG_OPTS="config:help,inventory:,playbook:,tags:,skip-tags:,extra:,verbose,config:,limit:,offline,online,yolo,list-hosts,list-tags,list-tasks"
 
 ARGS=$(getopt -o "${SHORT_OPTS}" -l "${LONG_OPTS}" --name "$0" -- "$@") || { usage >&2; exit 2; }
 
@@ -158,6 +160,11 @@ while [ "$#" -gt 0 ]; do
 
     (--offline|-o)
             EXTRA_OPTS="$EXTRA_OPTS -e rock_online_install=false"
+            shift 1
+            ;;
+
+    (--online|-O)
+            EXTRA_OPTS="$EXTRA_OPTS -e rock_online_install=true"
             shift 1
             ;;
 
@@ -236,6 +243,21 @@ EOF
 (deploy-offline)
         COMMAND=${1}
         EXTRA_OPTS="$EXTRA_OPTS -e rock_online_install=false"
+        if [[ "x$PLAYBOOK" = "x" ]];
+        then
+          PLAYBOOK="deploy-rock.yml"
+        fi
+        if [[ ! -f $CONFIG ]]; then
+          PLAYBOOK="generate-defaults.yml $PLAYBOOK"
+        fi
+        run-playbook
+        if [[ "$LIST_ACTION" = false ]]; then
+          banner
+        fi
+        ;;
+(deploy-online)
+        COMMAND=${1}
+        EXTRA_OPTS="$EXTRA_OPTS -e rock_online_install=true"
         if [[ "x$PLAYBOOK" = "x" ]];
         then
           PLAYBOOK="deploy-rock.yml"
