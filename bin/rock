@@ -308,7 +308,7 @@ EOF
 (status)
         COMMAND="${1}"
         PLAYBOOK="manage-services.yml"
-        EXTRA_OPTS="$EXTRA_OPTS --skip-tags='service_mgmt'"
+        EXTRA_OPTS="$EXTRA_OPTS --skip-tags=service_mgmt"
         run-playbook
         ;;
 (genconfig)
