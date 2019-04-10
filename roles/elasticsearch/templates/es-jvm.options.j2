@@ -36,12 +36,31 @@
 -XX:CMSInitiatingOccupancyFraction=75
 -XX:+UseCMSInitiatingOccupancyOnly
 
+## G1GC Configuration
+# NOTE: G1GC is only supported on JDK version 10 or later.
+# To use G1GC uncomment the lines below.
+# 10-:-XX:-UseConcMarkSweepGC
+# 10-:-XX:-UseCMSInitiatingOccupancyOnly
+# 10-:-XX:+UseG1GC
+# 10-:-XX:InitiatingHeapOccupancyPercent=75
+
+## DNS cache policy
+# cache ttl in seconds for positive DNS lookups noting that this overrides the
+# JDK security property networkaddress.cache.ttl; set to -1 to cache forever
+-Des.networkaddress.cache.ttl=60
+# cache ttl in seconds for negative DNS lookups noting that this overrides the
+# JDK security property networkaddress.cache.negative ttl; set to -1 to cache
+# forever
+-Des.networkaddress.cache.negative.ttl=10
+
 ## optimizations
 
 # pre-touch memory pages used by the JVM during initialization
 -XX:+AlwaysPreTouch
 
 ## basic
+# explicitly set the stack size
+-Xss1m
 
 # force the server VM
 -server
@@ -54,6 +73,10 @@
 
 # use our provided JNA always versus the system one
 -Djna.nosys=true
+
+# turn off a JDK optimization that throws away stack traces for common
+# exceptions because stack traces are important for debugging
+-XX:-OmitStackTraceInFastThrow
 
 # flags to configure Netty
 -Dio.netty.noUnsafe=true
@@ -75,6 +98,9 @@
 # specify an alternative path for heap dumps
 # ensure the directory exists and has sufficient space
 -XX:HeapDumpPath=/var/lib/elasticsearch
+
+# specify an alternative path for JVM fatal error logs
+-XX:ErrorFile=/var/log/elasticsearch/hs_err_pid%p.log
 
 ## JDK 8 GC logging
 
