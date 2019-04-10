@@ -121,8 +121,9 @@
 
 - name: Setup elastic repository
   yum_repository:
-    name: elastic-6.x
-    description: Elastic Stack repository for 6.x
+    name: elastic-{{ elastic.major_version }}
+    file: elastic
+    description: Elastic Stack repository for {{ elastic.major_version }}.{{ elastic.suffix }}
     baseurl: "{{ elastic_baseurl }}"
     gpgkey: "{{ elastic_gpgurl }}"
     gpgcheck: false
