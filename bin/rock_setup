@@ -331,9 +331,9 @@ set_online(){
   echo "Online install was set to ${online_install}." | logit info
 }
 
-choose_role(){
-  whiptail --title "ROCK Installer :: Choose Role" --msgbox "NOTICE:\nThis TUI currently only handles a single node installation role.\nReference docs.rocknsm.io for multinode details." 12 78 3>&1 1>&2 2>&3
-}
+#choose_role(){
+#  whiptail --title "ROCK Installer :: Choose Role" --msgbox "NOTICE:\nThis TUI currently only handles a single node installation role.\nReference docs.rocknsm.io for multinode details." 12 78 3>&1 1>&2 2>&3
+#}
 
 display_config(){
   whiptail --title "ROCK Installer :: Display Config" --textbox "${override_config}" --scrolltext 40 98
@@ -368,13 +368,14 @@ run_installer(){
 }
 
 # This is the "main menu", as the name would lead you to believe...
+# TODO add this later:
+#  "Choose a Role" "Pick your node type" \
 main(){
   main_choice=$(whiptail --title "ROCK Installer :: Main Menu" --menu "Choose Your Adventure:" 25 78 16 \
   "Select Interfaces" "View / Select interfaces to configure" \
   "Management IP" "Set a management IP" \
   "Set Hostname" "Set the sensor hostname" \
   "Offline/Online" "Choose install package source" \
-  "Choose a Role" "Pick your node type" \
   "Choose Components" "Pick which services to install and start" \
   "Choose Enabled Services" "Choose what services start on boot" \
   "Display Config" "Brief overview before installation" \
@@ -394,8 +395,8 @@ main(){
     ;;
     "Offline/Online") set_online
     ;;
-    "Choose a Role") choose_role
-    ;;
+#    "Choose a Role") choose_role
+#    ;;
     "Choose Components") components
     ;;
     "Choose Enabled Services") services
@@ -409,7 +410,7 @@ main(){
     "<-- Exit") echo "rock_setup exiting..." | logit info
     exit 0
     ;;
-    *) whiptail --title "Unknown Option" --msgbox "I don't know ${main_choice}\nExiting this interface..." 8 78 3>&1 1>&2 2>&3
+    *) whiptail --title "Unknown Option" --msgbox "Unknown option entered: ${main_choice}\nExiting this interface" 8 78 3>&1 1>&2 2>&3
     echo "rock_setup exiting (weirdly), chose ${main_choice}..." | logit info
     exit 99
     ;;
