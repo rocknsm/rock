@@ -6,7 +6,7 @@ https_proxy: "{{ lookup('env', 'https_proxy') }}"
 rock_version: 2.4.0
 elastic:
   major_version: 7
-  suffix: "x-prerelease"
+  suffix: "x"
 elastic_version: "{{ elastic.major_version }}.{{ elastic.suffix }}"
 rock_online_install: true
 rock_enable_testing: false
