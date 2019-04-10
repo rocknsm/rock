@@ -283,9 +283,6 @@ EOF
         export ANSIBLE_HOST_KEY_CHECKING=False
         run-playbook
         unset ANSIBLE_HOST_KEY_CHECKING
-        if [[ "$LIST_ACTION" = false ]]; then
-          banner
-        fi
         ;;
 (stop)
         COMMAND=${1}
