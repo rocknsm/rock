@@ -36,7 +36,7 @@
   changed_when: false
   tags:
     - saved_objects
-  # TODO: Fix this ^^
+    # TODO: Fix this ^^
 
 - name: Configure kibana templates
   uri:
