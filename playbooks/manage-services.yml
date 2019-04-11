@@ -1,7 +1,8 @@
 ---
 - hosts: all
-  vars_files:
-    - "{{ rock_config }}"
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
   tasks:
     - name: Populate service facts
       service_facts:
