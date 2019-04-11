@@ -3,8 +3,8 @@
 %global _sbindir /usr/sbin
 
 Name:           rock
-Version:        2.3.0
-Release:        3
+Version:        2.4.0
+Release:        1
 
 Summary:        Network Security Monitoring collections platform
 
@@ -73,6 +73,17 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/deploy_rock.sh
 
 %changelog
+* Thu Apr 11 2019 Derek Ditch <derek@rocknsm.io> 2.4.0-1
+- Upgrade Elastic Stack to 7.x
+- Add molecule test harness with full yaml and ansible linting
+- Text-based User Interface to configure, deploy, and manage node(s)
+- Added ansible conveniences like tags to better target deployments
+- Upgrade to Java 11 for Elastic, Logstash, Zookeeper, and Kafka
+- Add logging of Ansible plays
+- Remove remaining snort leftovers
+- Refactor Elasticsearch for rolling restarts
+- Adjust roles to allow remote deployment
+
 * Fri Feb 22 2019 Derek Ditch <derek@rocknsm.io> 2.3.0-3
 - Remove suricata-update from packages. It's in suricata now.
 
