@@ -34,6 +34,8 @@
   args:
     chdir: "{{ rock_module_dir }}/configuration/kibana"
   changed_when: false
+  tags:
+    - saved_objects
   # TODO: Fix this ^^
 
 - name: Configure kibana templates
