@@ -58,7 +58,7 @@
     group: root
 
 - name: Set initial kibana credentials
-  shell: >
+  shell: |
     set -o pipefail
     export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && \
     export kibpw=$(xkcdpass -a rock) && \
