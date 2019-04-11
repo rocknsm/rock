@@ -7,19 +7,19 @@
     - common
     - local
   tasks:
-  - name: Create config directory
-    file:
-      state: directory
-      owner: root
-      group: root
-      mode: 0755
-      path: "{{ rock_conf_dir }}"
+    - name: Create config directory
+      file:
+        state: directory
+        owner: root
+        group: root
+        mode: 0755
+        path: "{{ rock_conf_dir }}"
 
-  - name: Render template
-    template:
-      backup: true
-      src: "{{ config_src }}"
-      dest: "{{ rock_config }}"
-      owner: root
-      group: root
-      mode: 0644
+    - name: Render template
+      template:
+        backup: true
+        src: "{{ config_src }}"
+        dest: "{{ rock_config }}"
+        owner: root
+        group: root
+        mode: 0644
