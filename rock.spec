@@ -3,7 +3,7 @@
 %global _sbindir /usr/sbin
 
 Name:           rock
-Version:        2.4.0
+Version:        2.4.1
 Release:        1
 
 Summary:        Network Security Monitoring collections platform
@@ -73,6 +73,10 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/deploy_rock.sh
 
 %changelog
+* Thu Apr 11 2019 Derek Ditch <derek@rocknsm.io> 2.4.1-1
+- Fix Kibana index pattern for Elastic7 calc fields
+- 
+
 * Thu Apr 11 2019 Derek Ditch <derek@rocknsm.io> 2.4.0-1
 - Upgrade Elastic Stack to 7.x
 - Add molecule test harness with full yaml and ansible linting
