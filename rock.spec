@@ -3,7 +3,7 @@
 %global _sbindir /usr/sbin
 
 Name:           rock
-Version:        2.4.1
+Version:        2.4.2
 Release:        1
 
 Summary:        Network Security Monitoring collections platform
@@ -73,6 +73,9 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/deploy_rock.sh
 
 %changelog
+* Sat Apr 13 2019 Derek Ditch <derek@rocknsm.io> 2.4.2-1
+- Change elastic node name to the inventory hostname Fixes #447
+
 * Thu Apr 11 2019 Derek Ditch <derek@rocknsm.io> 2.4.1-1
 - Fix Kibana index pattern for Elastic7 calc fields
 - 
