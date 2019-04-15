@@ -1,0 +1,8 @@
+---
+
+dependencies:
+  - name: Install and configure filebeat
+    role: filebeat
+    vars:
+      filebeat_configs:
+        - { src: 'fb-suricata.yml.j2', dest: 'suricata.yml' }

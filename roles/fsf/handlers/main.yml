@@ -1,7 +1,2 @@
 ---
-# handlers file for suricata
-
-- name: Restart filebeat
-  systemd:
-    name: filebeat
-    state: restarted
+# handlers file for fsf
