@@ -5,6 +5,14 @@
     name: kibana
     state: present
 
+- name: Add firewall rule for Kibana
+  firewalld:
+    port: 5601/tcp
+    zone: public
+    state: enabled
+    permanent: yes
+  notify: Restart firewalld
+
 - name: Update kibana config
   template:
     src: kibana.yml.j2
