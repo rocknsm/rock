@@ -1,3 +1,4 @@
 server.port: {{ kibana_port }}
 server.name: "{{ ansible_hostname }}"
+server.host: "0.0.0.0"
 elasticsearch.hosts: "{{ es_url }}"
