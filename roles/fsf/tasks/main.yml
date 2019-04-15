@@ -4,31 +4,7 @@
   yum:
     name:
       - fsf
-      - filebeat
     state: present
-
-- name: Create filebeat config directory
-  file:
-    path: /etc/filebeat/configs
-    mode: 0755
-    owner: root
-    group: root
-    state: directory
-
-- name: Add filebeat configuration file
-  template:
-    src: "{{ item.src }}"
-    dest: "/etc/filebeat/{{ item.dest }}"
-  notify: Restart filebeat
-  loop:
-    - { src: 'filebeat.yml.j2', dest: 'filebeat.yml' }
-    - { src: 'fb-fsf.yml.j2', dest: 'configs/fsf.yml' }
-
-- name: Enable and start filebeat
-  service:
-    name: filebeat
-    state: "{{ 'started' if 'filebeat' in enabled_services else 'stopped' }}"
-    enabled: "{{ 'True' if 'filebeat' in enabled_services else 'False' }}"
 
 - name: Create FSF data directory
   file:

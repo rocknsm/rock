@@ -1,11 +1,6 @@
 ---
 # handlers file for suricata
 
-- name: Restart filebeat
-  systemd:
-    name: filebeat
-    state: restarted
-
 - name: Configure monitor interfaces
   shell: >
     for intf in {{ rock_monifs | join(' ') }}; do
