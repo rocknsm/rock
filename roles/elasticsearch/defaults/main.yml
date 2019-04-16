@@ -3,7 +3,7 @@ es_user: elasticsearch
 es_group: elasticsearch
 es_data_dir: "{{ rock_data_dir }}/elasticsearch"
 es_cluster_name: rocknsm
-es_node_name: "{{ ansible_hostname }}"
+es_node_name: "{{ inventory_hostname }}"
 es_network_host: >-
   {%- if (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1 -%}
   _site:ipv4_
