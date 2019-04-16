@@ -1,0 +1,26 @@
+---
+
+- name: "Adding {{ logstash_template }} to logstash"
+  template:
+    src: "{{ item }}.j2"
+    dest: "/etc/logstash/conf.d/{{ item }}.conf"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    mode: 0640
+  notify: Restart logstash
+  with_items:
+    - "{{ logstash_template }}"
+  when: logstash_template is defined
+
+- name: "Copying {{ logstash_config }} from {{ rock_module_dir }}/configuration/logstash/ to logstash"
+  copy:
+    src: "{{ rock_module_dir }}/configuration/logstash/{{ item }}"
+    dest: "/etc/logstash/conf.d/{{ item }}"
+    mode: 0640
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+    remote_src: "yes"
+  notify: Restart logstash
+  with_items:
+    - "{{ logstash_config }}"
+  when: logstash_config is defined
