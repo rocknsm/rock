@@ -1,6 +1,6 @@
 ---
 
-- name: "Adding {{ logstash_template }} to logstash"
+- name: Adding {{ logstash_template }} to logstash
   template:
     src: "{{ item }}.j2"
     dest: "/etc/logstash/conf.d/{{ item }}.conf"
@@ -12,7 +12,8 @@
     - "{{ logstash_template }}"
   when: logstash_template is defined
 
-- name: "Copying {{ logstash_config }} from {{ rock_module_dir }}/configuration/logstash/ to logstash"
+- name: Copying {{ logstash_config }} from
+        {{ rock_module_dir }}/configuration/logstash/ to logstash
   copy:
     src: "{{ rock_module_dir }}/configuration/logstash/{{ item }}"
     dest: "/etc/logstash/conf.d/{{ item }}"
