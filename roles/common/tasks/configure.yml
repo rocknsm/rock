@@ -238,7 +238,7 @@
   yum:
     name: python2-pyOpenSSL
     state: installed
-  when: "'docket' in group_names or 'stenographer' in group_names"
+  when: "'docket' in group_names or 'stenographer' in group_names or 'kibana' in group_names"
 
 - name: Install core packages
   yum:
