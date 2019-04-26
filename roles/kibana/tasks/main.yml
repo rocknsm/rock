@@ -59,18 +59,6 @@
     owner: root
     group: root
 
-- name: Set initial kibana credentials
-  shell: |
-    set -o pipefail
-    export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && \
-    export kibpw=$(xkcdpass -a rock) && \
-    echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && \
-    printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | \
-    sudo tee -a /etc/lighttpd/rock-htpasswd.user > /dev/null 2>&1
-  args:
-    creates: /etc/lighttpd/rock-htpasswd.user
-  when: "'lighttpd' in installed_services"
-
 - name: Download RockNSM elastic configs
   get_url:
     url: "{{ rock_dashboards_url }}"
