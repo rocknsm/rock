@@ -95,3 +95,14 @@
     immediate: true
   loop:
     - 443
+
+- name: Set initial credentials
+  shell: |
+    set -o pipefail
+    export kibuser=$(getent passwd 1000 | awk -F: '{print $1}') && \
+    export kibpw=$(xkcdpass -a rock) && \
+    echo -e "U: ${kibuser}\nP: ${kibpw}" > /home/${kibuser}/KIBANA_CREDS.README && \
+    printf "${kibuser}:$(echo ${kibpw} | openssl passwd -apr1 -stdin)\n" | \
+    sudo tee -a /etc/lighttpd/rock-htpasswd.user > /dev/null 2>&1
+  args:
+    creates: /etc/lighttpd/rock-htpasswd.user
