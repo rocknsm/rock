@@ -1,0 +1,20 @@
+---
+
+- name: Ensure passwd file exists
+  file:
+    path: /etc/lighttpd/rock-htpasswd.user
+    state: touch
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Hash password
+  command: "openssl passwd -apr1 \"{{ lighttpd_password }}\""
+  register: lighttpd_hashed_password
+  no_log: yes
+
+- name: Add a new user to lighttpd
+  lineinfile:
+    path: /etc/lighttpd/rock-htpasswd.user
+    regex: "^{{ lighttpd_user }}"
+    line: "{{ lighttpd_user }}:{{ lighttpd_hashed_password.stdout }}"
