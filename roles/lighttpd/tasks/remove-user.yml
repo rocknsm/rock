@@ -1,0 +1,7 @@
+---
+
+- name: Remove a user from lighttpd
+  lineinfile:
+    path: /etc/lighttpd/rock-htpasswd.user
+    regex: "^{{ lighttpd_user }}"
+    state: absent
