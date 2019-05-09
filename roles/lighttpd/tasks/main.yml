@@ -29,6 +29,13 @@
     line: include "/etc/lighttpd/vhosts.d/*.conf"
   notify: Enable and restart lighttpd
 
+- name: Disable lighttpd ipv6
+  lineinfile:
+    path: /etc/lighttpd/lighttpd.conf
+    regexp: '^server.use-ipv6.*$'
+    line: server.use-ipv6 = "disable"
+  notify: Enable and restart lighttpd
+
 - name: Enable lighttpd to perform proxy connect
   seboolean:
     name: httpd_can_network_connect
