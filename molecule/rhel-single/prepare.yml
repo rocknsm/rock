@@ -1,0 +1,34 @@
+---
+- name: Prepare
+  hosts: sensors
+  gather_facts: false
+  become: true
+  vars:
+    rhsm_orgid: "{{ lookup('env', 'RHSM_ORGID') }}"
+    rhsm_activation_key: "{{ lookup('env', 'RHSM_ACTIVATION_KEY') }}"
+  tasks:
+    - name: Add dummy network interface kernel module
+      modprobe:
+        name: dummy
+        state: present
+        params: numdummies=0
+
+    - name: Create dummy0 interface
+      command: /usr/sbin/ip link add dummy0 type dummy
+      args:
+        creates: /sys/class/net/dummy0
+
+    - name: Register with activationkey to RHSM
+      redhat_subscription:
+        state: present
+        activationkey: "{{ rhsm_activation_key }}"
+        org_id: "{{ rhsm_orgid }}"
+        auto_attach: true
+
+    - name: Add extras and optional repos
+      rhsm_repository:
+        name: "{{ item }}"
+        state: enabled
+      loop:
+        - "rhel-*-optional-rpms"
+        - "rhel-*-extras-rpms"
