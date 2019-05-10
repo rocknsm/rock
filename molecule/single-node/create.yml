@@ -44,7 +44,7 @@
 
     - name: Set vmware_templates fact
       set_fact:
-        vmware_templates: "{{ template_facts.virtual_machines.keys() | sort }}"
+        vmware_templates: "{{ template_facts.virtual_machines | map(attribute='guest_name') | sort }}"
 
     - name: Create molecule instance(s)
       vmware_guest:

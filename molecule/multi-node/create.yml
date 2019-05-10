@@ -25,7 +25,6 @@
     VMWARE_HOST: "{{ molecule_yml.vmware.vcenter_address }}"
     VMWARE_PORT: "{{ molecule_yml.vmware.vcenter_port | default('443') }}"
     VMWARE_VALIDATE_CERTS: "{{ molecule_yml.vmware.validate_certs |  default('Yes') }}"
-
   tasks:
     - name: Create SSH key
       user:
@@ -45,7 +44,7 @@
 
     - name: Set vmware_templates fact
       set_fact:
-        vmware_templates: "{{ template_facts.virtual_machines.keys() | sort }}"
+        vmware_templates: "{{ template_facts.virtual_machines | map(attribute='guest_name') | sort }}"
 
     - name: Create molecule instance(s)
       vmware_guest:
