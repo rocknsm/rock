@@ -1,16 +1,38 @@
 ---
 - name: Prepare
-  hosts: sensors
-  gather_facts: false
+  hosts: all
+  gather_facts: true
   become: true
+  vars:
+    rhsm_orgid: "{{ lookup('env', 'RHSM_ORGID') }}"
+    rhsm_activation_key: "{{ lookup('env', 'RHSM_ACTIVATION_KEY') }}"
   tasks:
     - name: Add dummy network interface kernel module
       modprobe:
         name: dummy
         state: present
         params: numdummies=0
+      when: "'sensors' in group_names"
 
     - name: Create dummy0 interface
       command: /usr/sbin/ip link add dummy0 type dummy
       args:
         creates: /sys/class/net/dummy0
+      when: "'sensors' in group_names"
+
+    - name: Register with activationkey to RHSM
+      redhat_subscription:
+        state: present
+        activationkey: "{{ rhsm_activation_key }}"
+        org_id: "{{ rhsm_orgid }}"
+        auto_attach: true
+      when: ansible_distribution is defined and ansible_distribution == 'RedHat'
+
+    - name: Add extras and optional repos
+      rhsm_repository:
+        name: "{{ item }}"
+        state: enabled
+      loop:
+        - "rhel-*-optional-rpms"
+        - "rhel-*-extras-rpms"
+      when: ansible_distribution is defined and ansible_distribution == 'RedHat'

@@ -18,7 +18,7 @@ function update_issue() {
   systemctl restart $(GETTYS)
 }
 
-if [ "$IF" <> "lo" ]
+if [ "$IF" != "lo" ]
 then
   case "$2" in
     up)

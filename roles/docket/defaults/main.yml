@@ -47,7 +47,7 @@ docket_url_pattern: "(^/results/|^/app/docket/)"
 # Vars to generate keys/certs
 docket_x509_dir: /etc/pki/docket
 docket_x509_key: "{{ docket_x509_dir }}/docket_{{ hostvars[groups['docket'][0]]['ansible_default_ipv4']['address'] }}_key.pem"
-docket_x509_cn: "{{ docket_host }}_docket"
+docket_x509_cn: "{{ docket_host }}-docket"
 docket_x509_o: Stenographer
 docket_x509_c: XX
 docket_x509_user: root

@@ -12,6 +12,7 @@
   command: "openssl passwd -apr1 \"{{ lighttpd_password }}\""
   register: lighttpd_hashed_password
   no_log: true
+  changed_when: false
 
 - name: Add a new user to lighttpd
   lineinfile:

@@ -8,22 +8,22 @@ driver:
   options:
     managed: true
 vmware:
-  network_name: CyberLab
-  datastore: vmstore
-  datacenter: Datacenter
-  vcenter_address: vcenter.rocklab.lan
-  esxi_hostname: 192.168.73.40
-  validate_certs: false
+  network_name: ${VMWARE_NETWORK}
+  datastore: ${VMWARE_DATASTORE}
+  datacenter: ${VMWARE_DATACENTER}
+  vcenter_address: ${VCENTER_ADDRESS}
+  esxi_hostname: ${VCENTER_ESXI}
+  validate_certs: true
   resource_pool: "Resources"
 lint:
   name: yamllint
 platforms:
-  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}-instance-1"
+  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-1"
     memory: 16384
     cpu: 4
     disk_size: 64
-    guest_id: centos7_64Guest
-    template_pattern: '^template-centos-7'
+    guest_id: ${TEMPLATE_DISTRO-centos}7_64Guest
+    template_pattern: '^template-${TEMPLATE_DISTRO-centos}-7'
     groups:
       - rock
       - zookeeper
@@ -35,12 +35,12 @@ platforms:
       - suricata
       - filebeat
       - logstash
-  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}-instance-2"
+  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-2"
     memory: 16384
     cpu: 4
     disk_size: 64
-    guest_id: centos7_64Guest
-    template_pattern: '^template-centos-7'
+    guest_id: ${TEMPLATE_DISTRO-centos}7_64Guest
+    template_pattern: '^template-${TEMPLATE_DISTRO-centos}-7'
     groups:
       - es_masters
       - es_data
@@ -50,23 +50,23 @@ platforms:
       - elasticsearch
       - docket
       - kibana
-  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}-instance-3"
+  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-3"
     memory: 16384
     cpu: 4
     disk_size: 64
-    guest_id: centos7_64Guest
-    template_pattern: '^template-centos-7'
+    guest_id: ${TEMPLATE_DISTRO-centos}7_64Guest
+    template_pattern: '^template-${TEMPLATE_DISTRO-centos}-7'
     groups:
       - es_masters
       - es_data
       - es_ingest
       - elasticsearch
-  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}-instance-4"
+  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-4"
     memory: 16384
     cpu: 4
     disk_size: 64
-    guest_id: centos7_64Guest
-    template_pattern: '^template-centos-7'
+    guest_id: ${TEMPLATE_DISTRO-centos}7_64Guest
+    template_pattern: '^template-${TEMPLATE_DISTRO-centos}-7'
     groups:
       - es_masters
       - es_data
@@ -78,8 +78,10 @@ provisioner:
   become: true
   env:
     ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/roles"
-    VMWARE_USER: "${VMWARE_USER}"
+    VMWARE_USER: "${VMWARE_USERNAME}"
     VMWARE_PASSWORD: "${VMWARE_PASSWORD}"
+    RHSM_ORGID: "${RHSM_ORGID}"
+    RHSM_ACTIVATION_KEY: "${RHSM_ACTIVATION_KEY}"
   options:
     extra-vars:
       rock_conf_dir: "${MOLECULE_EPHEMERAL_DIRECTORY}/etc"
@@ -87,7 +89,6 @@ provisioner:
       rock_monifs: ["dummy0"]
       rock_disable_offline_repo: true
       rock_enable_testing: true
-      elastic_baseurl: http://internal-mirror.cyberlab.lan/elastic/6.x/
       # Must static the es_mem var for now until #386 is resolved
       es_mem: 8
   config_options:
