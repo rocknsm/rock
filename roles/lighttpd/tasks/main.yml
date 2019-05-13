@@ -109,21 +109,21 @@
   register: rocknsm_initial_user_created
 
 - block:
-  - name: Determine initial username
-    shell: "getent passwd 1000 | awk -F: '{print $1}'"
-    register: rocknsm_initial_username
+    - name: Determine initial username
+      shell: "getent passwd 1000 | awk -F: '{print $1}'"
+      register: rocknsm_initial_username
 
-  - name: Determine initial password
-    command: "xkcdpass -a rock"
-    register: rocknsm_initial_password
+    - name: Determine initial password
+      command: "xkcdpass -a rock"
+      register: rocknsm_initial_password
 
-  - name: Set initial credentials
-    include_tasks: add-user.yml
-    vars:
-      lighttpd_user: "{{ rocknsm_initial_username.stdout }}"
-      lighttpd_password: "{{ rocknsm_initial_password.stdout }}"
+    - name: Set initial credentials
+      include_tasks: add-user.yml
+      vars:
+        lighttpd_user: "{{ rocknsm_initial_username.stdout }}"
+        lighttpd_password: "{{ rocknsm_initial_password.stdout }}"
 
-  - name: Output initial credentials
-    shell: "echo -e \"U: {{ rocknsm_initial_username.stdout }}\nP: {{ rocknsm_initial_password.stdout }}\" 
-            > /home/{{ rocknsm_initial_username.stdout }}/KIBANA_CREDS.README"
+    - name: Output initial credentials
+      shell: "echo -e \"U: {{ rocknsm_initial_username.stdout }}\nP: {{ rocknsm_initial_password.stdout }}\"
+              > /home/{{ rocknsm_initial_username.stdout }}/KIBANA_CREDS.README"
   when: rocknsm_initial_user_created.stat.exists == False
