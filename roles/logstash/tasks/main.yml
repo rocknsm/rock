@@ -7,6 +7,12 @@
       - logstash
     state: present
 
+- name: Add sysconfig file
+  template:
+    src: logstash_sysconfig.j2
+    dest: /etc/sysconfig/logstash
+  notify: Restart logstash
+
 - name: Add pipeline configs
   template:
     src: "{{ item.src }}"
