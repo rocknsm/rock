@@ -9,6 +9,52 @@
   roles:
     - common
 
+- hosts: elasticsearch
+  tags:
+    - elasticsearch
+    - elastic
+    - es_before
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  vars:
+    - es_step: "before"
+  become: true
+  roles:
+    - role: elasticsearch
+      when: "'elasticsearch' in installed_services"
+
+- hosts: elasticsearch
+  tags:
+    - elasticsearch
+    - elastic
+    - es_restart
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  vars:
+    - es_step: "restart"
+  serial: 1
+  become: true
+  roles:
+    - role: elasticsearch
+      when: "'elasticsearch' in installed_services and (es_restart is defined and es_restart)"
+
+- hosts: elasticsearch
+  tags:
+    - elasticsearch
+    - elastic
+    - es_after
+  pre_tasks:
+    - name: Include user-override vars
+      include_vars: "{{ rock_config }}"
+  vars:
+    - es_step: "after"
+  become: true
+  roles:
+    - role: elasticsearch
+      when: "'elasticsearch' in installed_services"
+
 - hosts: zookeeper
   tags:
     - zookeeper
@@ -110,52 +156,6 @@
     - role: docket
       when: "'docket' in installed_services"
       docket_enable: "{{ ('docket' in enabled_services) | bool }}"
-
-- hosts: elasticsearch
-  tags:
-    - elasticsearch
-    - elastic
-    - es_before
-  pre_tasks:
-    - name: Include user-override vars
-      include_vars: "{{ rock_config }}"
-  vars:
-    - es_step: "before"
-  become: true
-  roles:
-    - role: elasticsearch
-      when: "'elasticsearch' in installed_services"
-
-- hosts: elasticsearch
-  tags:
-    - elasticsearch
-    - elastic
-    - es_restart
-  pre_tasks:
-    - name: Include user-override vars
-      include_vars: "{{ rock_config }}"
-  vars:
-    - es_step: "restart"
-  serial: 1
-  become: true
-  roles:
-    - role: elasticsearch
-      when: "'elasticsearch' in installed_services and (es_restart is defined and es_restart)"
-
-- hosts: elasticsearch
-  tags:
-    - elasticsearch
-    - elastic
-    - es_after
-  pre_tasks:
-    - name: Include user-override vars
-      include_vars: "{{ rock_config }}"
-  vars:
-    - es_step: "after"
-  become: true
-  roles:
-    - role: elasticsearch
-      when: "'elasticsearch' in installed_services"
 
 - hosts: kibana
   tags:
