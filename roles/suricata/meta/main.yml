@@ -1,5 +1,4 @@
 ---
-
 dependencies:
   - name: Install and configure filebeat
     role: filebeat
@@ -10,7 +9,7 @@ dependencies:
   - name: Install and configure logstash
     role: logstash
     vars:
-      filebeat_configs:
+      logstash_configs:
         - { src: 'ls-input-suricata.j2', dest: '100-input-suricata.conf' }
         - { src: 'ls-filter-suricata.j2', dest: '500-filter-suricata.conf' }
         - { src: 'ls-output-suricata.j2', dest: '999-output-suricata.conf' }
