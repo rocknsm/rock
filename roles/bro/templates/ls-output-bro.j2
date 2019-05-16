@@ -14,8 +14,6 @@ output {
           {% endif %}
           index => "bro-%{[@meta][event_type]}-%{+YYYY.MM.dd}"
           manage_template => false
-          #template => "/opt/rocknsm/rock/playbooks/files/es-bro-mappings.json"
-          document_type => "_doc"
         }
     }
 }

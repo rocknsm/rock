@@ -39,7 +39,6 @@ installed_services:
   - docket
   - bro
   - suricata
-  - logstash
   - elasticsearch
   - kibana
   - zookeeper
@@ -56,7 +55,6 @@ enabled_services:
   - docket
   - bro
   - suricata
-  - logstash
   - elasticsearch
   - kibana
   - zookeeper

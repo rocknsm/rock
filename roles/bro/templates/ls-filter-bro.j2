@@ -1,0 +1,238 @@
+filter {
+  if [@metadata][stage] == "broraw_kafka" {
+      # Set the timestamp
+      date { match => [ "ts", "ISO8601" ] }
+
+      # move metadata to new field
+      mutate {
+        rename => {
+          "@stream" => "[@meta][stream]"
+          "@system" => "[@meta][system]"
+          "@proc"   => "[@meta][proc]"
+        }
+      }
+
+      # Rename ID field from file analyzer logs
+      if [@meta][stream] in ["pe", "x509", "files"] {
+        mutate { rename => { "id" => "fuid" } }
+        mutate {
+          add_field => { "[@meta][event_type]" => "file" }
+          add_field => { "[@meta][id]" => "%{fuid}" }
+        }
+      } else if [@meta][stream] in ["intel", "notice", "notice_alarm", "signatures", "traceroute"] {
+          mutate { add_field => { "[@meta][event_type]" => "detection" } }
+
+          if [id_orig_h] {
+            mutate {
+              convert => {
+                "id_orig_p" => "integer"
+                "id_resp_p" => "integer"
+              }
+              add_field => {
+                "[@meta][id]" => "%{uid}"
+                "[@meta][orig_host]" => "%{id_orig_h}"
+                "[@meta][orig_port]" => "%{id_orig_p}"
+                "[@meta][resp_host]" => "%{id_resp_h}"
+                "[@meta][resp_port]" => "%{id_resp_p}"
+              }
+            }
+            geoip {
+              source => "id_orig_h"
+              target => "[@meta][geoip_orig]"
+	      default_database_type => "City"
+            }
+            geoip {
+              source => "id_resp_h"
+              target => "[@meta][geoip_resp]"
+	      default_database_type => "City"
+            }
+            geoip {
+              source => "id_orig_h"
+              target => "[@meta][geoip_orig]"
+	      default_database_type => "ASN"
+            }
+            geoip {
+              source => "id_resp_h"
+              target => "[@meta][geoip_resp]"
+	      default_database_type => "ASN"
+            }
+
+          }
+      } else if [@meta][stream] in [ "capture_loss", "cluster", "communication", "loaded_scripts", "packet_filter", "prof", "reporter", "stats", "stderr", "stdout" ] {
+        mutate { add_field => { "[@meta][event_type]" => "diagnostic" } }
+      } else if [@meta][stream] in ["netcontrol", "netcontrol_drop", "netcontrol_shunt", "netcontrol_catch_release", "openflow"] {
+        mutate { add_field => { "[@meta][event_type]" => "netcontrol" } }
+      } else if [@meta][stream] in ["known_certs", "known_devices", "known_hosts", "known_modbus", "known_services", "software"] {
+        mutate { add_field => { "[@meta][event_type]" => "observations" } }
+      } else if [@meta][stream] in ["barnyard2", "dpd", "unified2", "weird"] {
+        mutate { add_field => { "[@meta][event_type]" => "miscellaneous" } }
+      } else {
+
+        # Network type
+        mutate {
+          convert => {
+          "id_orig_p" => "integer"
+          "id_resp_p" => "integer"
+          }
+          add_field => {
+            "[@meta][event_type]" => "network"
+            "[@meta][id]" => "%{uid}"
+            "[@meta][orig_host]" => "%{id_orig_h}"
+            "[@meta][orig_port]" => "%{id_orig_p}"
+            "[@meta][resp_host]" => "%{id_resp_h}"
+            "[@meta][resp_port]" => "%{id_resp_p}"
+          }
+        }
+        geoip {
+          source => "id_orig_h"
+          target => "[@meta][geoip_orig]"
+          default_database_type => "City"
+        }
+        geoip {
+          source => "id_resp_h"
+          target => "[@meta][geoip_resp]"
+          default_database_type => "City"
+        }
+        geoip {
+          source => "id_orig_h"
+          target => "[@meta][geoip_orig]"
+          default_database_type => "ASN"
+        }
+        geoip {
+          source => "id_resp_h"
+          target => "[@meta][geoip_resp]"
+          default_database_type => "ASN"
+        }
+      }
+
+      # Tie related records
+      mutate { add_field => { "[@meta][related_ids]" => [] }}
+      if [uid] {
+        mutate { merge => {"[@meta][related_ids]" => "uid" }}
+      }
+      if [fuid] {
+        mutate { merge => {"[@meta][related_ids]" => "fuid" }}
+      }
+      if [related_fuids] {
+        mutate { merge => { "[@meta][related_ids]" => "related_fuids" }}
+      }
+      if [orig_fuids] {
+        mutate { merge => { "[@meta][related_ids]" => "orig_fuids" }}
+      }
+      if [resp_fuids] {
+        mutate { merge => { "[@meta][related_ids]" => "resp_fuids" }}
+      }
+      if [conn_uids] {
+        mutate { merge => { "[@meta][related_ids]" => "conn_uids" }}
+      }
+      if [cert_chain_fuids] {
+        mutate { merge => { "[@meta][related_ids]" => "cert_chain_fuids" }}
+      }
+
+      mutate { add_field => { "[@meta][related_ips]" => [] }}
+      if [id_orig_h] {
+        mutate { merge => { "[@meta][related_ips]" => "id_orig_h" }}
+      }
+      if [id_resp_h] {
+        mutate { merge => { "[@meta][related_ips]" => "id_resp_h" }}
+      }
+      if [rx_hosts] {
+        mutate { merge => { "[@meta][related_ips]" => "rx_hosts" }}
+      }
+      if [tx_hosts] {
+        mutate { merge => { "[@meta][related_ips]" => "tx_hosts" }}
+      }
+      if [src] {
+        mutate { merge => { "[@meta][related_ips]" => "src" }}
+      }
+      if [dst] {
+        mutate { merge => { "[@meta][related_ips]" => "dst" }}
+      }
+
+
+      # Nest the entire document
+      ruby {
+        code => "
+          require 'logstash/event'
+
+          logtype = event.get('[@meta][stream]')
+          ev_hash = event.to_hash
+          meta_hash = ev_hash['@meta']
+          timestamp = ev_hash['@timestamp']
+
+          # Cleanup duplicate info
+          #meta_hash.delete('stream')
+          ev_hash.delete('@meta')
+          ev_hash.delete('@timestamp')
+          ev_hash.delete('tags')
+
+          result = {
+          logtype => ev_hash,
+          '@meta' => meta_hash,
+          '@timestamp' => timestamp
+          }
+          event.initialize( result )
+        "
+      }
+      mutate { add_field => {"[@metadata][stage]" => "broraw_kafka" } }
+
+      # Temporary fix for DHCP
+      if [@meta][stream] == "dhcp" and [@metadata][stage] == "broraw_kafka" {
+        # Remove the broken fields and also fix the log (UID) "id" correction
+        mutate {
+          remove_field => [
+            "id_orig_h",
+            "id_orig_p",
+            "id_resp_h",
+            "id_resp_p",
+            "[@meta][id]",
+            "@meta.id",
+            "[@meta][orig_host]",
+            "@meta.orig_host",
+            "[@meta][orig_port]",
+            "@meta.orig_port",
+            "[@meta][resp_host]",
+            "@meta.resp_host",
+            "[@meta][resp_port]",
+            "@meta.resp_port",
+            "[@meta][related_ips]",
+            "@meta.related_ips"
+          ]
+        }
+
+        # Log (UID) "id" correction
+        mutate {
+          add_field => { "[@meta][id]" => "%{[dhcp][uids]}" }
+        }
+
+        # Recreate related IPs and Fix Orig/Resp Host (Client/Server)
+        mutate { add_field => { "[@meta][related_ips]" => [] } }
+
+        if [dhcp][client_addr] {
+          mutate {
+            merge => { "[@meta][related_ips]" => "[dhcp][client_addr]" }
+            add_field => { "[@meta][orig_host]" => "%{[dhcp][client_addr]}" }
+          }
+        }
+
+        if [dhcp][server_addr] {
+          mutate {
+            merge => { "[@meta][related_ips]" => "[dhcp][server_addr]" }
+            add_field => { "[@meta][resp_host]" => "%{[dhcp][server_addr]}" }
+          }
+        }
+
+        if [dhcp][assigned_addr] {
+          mutate { merge => { "[@meta][related_ips]" => "assigned_addr" } }
+        }
+
+        if [dhcp][msg_orig] {
+          mutate { merge => { "[@meta][related_ips]" => "msg_orig" } }
+        }
+
+        if [dhcp][requested_addr] {
+          mutate { merge => { "[@meta][related_ips]" => "requested_addr" } }
+        }
+      }
+  }
+}

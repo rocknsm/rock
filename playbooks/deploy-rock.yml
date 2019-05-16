@@ -157,18 +157,6 @@
     - role: elasticsearch
       when: "'elasticsearch' in installed_services"
 
-- hosts: logstash
-  tags:
-    - logstash
-    - elastic
-  pre_tasks:
-    - name: Include user-override vars
-      include_vars: "{{ rock_config }}"
-  become: true
-  roles:
-    - role: logstash
-      when: "'logstash' in installed_services"
-
 - hosts: kibana
   tags:
     - kibana
