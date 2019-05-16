@@ -293,6 +293,6 @@
           - { src: 'ls-filter-bro.j2', dest: '500-filter-bro.conf' }
           - { src: 'ls-output-bro.j2', dest: '999-output-bro.conf' }
   loop:
-    - "{{ groups['logstash'] }}"
+    "{{ groups['logstash'] }}"
   loop_control:
     loop_var: host
