@@ -1,21 +1,6 @@
 ---
 # tasks file for bro
 
-- name: Apply Logstash role
-  include_role:
-    name: logstash
-    apply:
-      delegate_to: "{{ host }}"
-      vars:
-        logstash_configs:
-          - { src: 'ls-input-bro.j2', dest: '100-input-bro.conf' }
-          - { src: 'ls-filter-bro.j2', dest: '500-filter-bro.conf' }
-          - { src: 'ls-output-bro.j2', dest: '999-output-bro.conf' }
-  loop:
-    - "{{ groups['logstash'] }}"
-  loop_control:
-    loop_var: host
-
 - name: Install packages
   yum:
     name:
@@ -296,3 +281,18 @@
     state: "{{ 'started' if 'bro' in enabled_services else 'stopped' }}"
     enabled: "{{ 'True' if 'bro' in enabled_services else 'False' }}"
   notify: Reload bro
+
+- name: Apply Logstash role
+  include_role:
+    name: logstash
+    apply:
+      delegate_to: "{{ host }}"
+      vars:
+        logstash_configs:
+          - { src: 'ls-input-bro.j2', dest: '100-input-bro.conf' }
+          - { src: 'ls-filter-bro.j2', dest: '500-filter-bro.conf' }
+          - { src: 'ls-output-bro.j2', dest: '999-output-bro.conf' }
+  loop:
+    - "{{ groups['logstash'] }}"
+  loop_control:
+    loop_var: host
