@@ -1,9 +1,10 @@
 output {
   if [@metadata][stage] == "fsfraw_kafka" {
     kafka {
-     codec => json
-     topic_id => "fsf-clean"
-     bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
+      codec => json
+      topic_id => "fsf-clean"
+      bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
+
     }
 
     elasticsearch {

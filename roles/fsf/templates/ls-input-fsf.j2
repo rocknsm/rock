@@ -8,5 +8,7 @@ input {
     bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
     codec => json
     auto_offset_reset => "earliest"
+    bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
+
   }
 }

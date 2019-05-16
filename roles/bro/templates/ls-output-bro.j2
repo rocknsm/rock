@@ -1,19 +1,20 @@
 output {
-    if [@metadata][stage] == "broraw_kafka" {
-        kafka {
-          codec => json
-          topic_id => "bro-%{[@meta][event_type]}"
-          bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
-        }
+  if [@metadata][stage] == "broraw_kafka" {
+    kafka {
+      codec => json
+      topic_id => "bro-%{[@meta][event_type]}"
+      bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
 
-        elasticsearch {
-          {% if groups['elasticsearch'] | length > 1 %}
-      	  hosts => [{% for host in groups['es_data'] %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
-          {% else %}
-      	  hosts => ["127.0.0.1:9200"]
-          {% endif %}
-          index => "bro-%{[@meta][event_type]}-%{+YYYY.MM.dd}"
-          manage_template => false
-        }
     }
+
+    elasticsearch {
+      {% if groups['elasticsearch'] | length > 1 %}
+  	  hosts => [{% for host in groups['es_data'] %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
+      {% else %}
+  	  hosts => ["127.0.0.1:9200"]
+      {% endif %}
+      index => "bro-%{[@meta][event_type]}-%{+YYYY.MM.dd}"
+      manage_template => false
+    }
+  }
 }

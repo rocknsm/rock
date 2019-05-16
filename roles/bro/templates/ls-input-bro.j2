@@ -5,8 +5,9 @@ input {
     # Set this to one per kafka partition to scale up
     #consumer_threads => 4
     group_id => "bro_logstash"
-    bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
     codec => json
     auto_offset_reset => "earliest"
+    bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
+    
   }
 }
