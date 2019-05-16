@@ -64,6 +64,6 @@
           - { src: 'ls-filter-fsf.j2', dest: '500-filter-fsf.conf' }
           - { src: 'ls-output-fsf.j2', dest: '999-output-fsf.conf' }
   loop:
-    - "{{ groups['logstash'] }}"
+    "{{ groups['logstash'] }}"
   loop_control:
     loop_var: host
