@@ -1,20 +1,5 @@
 ---
 
-- name: Apply Logstash role
-  include_role:
-    name: logstash
-    apply:
-      delegate_to: "{{ host }}"
-      vars:
-        logstash_configs:
-          - { src: 'ls-input-suricata.j2', dest: '100-input-suricata.conf' }
-          - { src: 'ls-filter-suricata.j2', dest: '500-filter-suricata.conf' }
-          - { src: 'ls-output-suricata.j2', dest: '999-output-suricata.conf' }
-  loop:
-    - "{{ groups['logstash'] }}"
-  loop_control:
-    loop_var: host
-
 - name: Install packages
   yum:
     name:
@@ -173,3 +158,18 @@
     job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
          > /var/log/suricata-update.log 2>&1
   when: "'suricata' in enabled_services"
+
+- name: Apply Logstash role
+  include_role:
+    name: logstash
+    apply:
+      delegate_to: "{{ host }}"
+      vars:
+        logstash_configs:
+          - { src: 'ls-input-suricata.j2', dest: '100-input-suricata.conf' }
+          - { src: 'ls-filter-suricata.j2', dest: '500-filter-suricata.conf' }
+          - { src: 'ls-output-suricata.j2', dest: '999-output-suricata.conf' }
+  loop:
+    - "{{ groups['logstash'] }}"
+  loop_control:
+    loop_var: host

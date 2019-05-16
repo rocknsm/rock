@@ -1,20 +1,5 @@
 ---
 
-- name: Apply Logstash role
-  include_role:
-    name: logstash
-    apply:
-      delegate_to: "{{ host }}"
-      vars:
-        logstash_configs:
-          - { src: 'ls-input-fsf.j2', dest: '100-input-fsf.conf' }
-          - { src: 'ls-filter-fsf.j2', dest: '500-filter-fsf.conf' }
-          - { src: 'ls-output-fsf.j2', dest: '999-output-fsf.conf' }
-  loop:
-    - "{{ groups['logstash'] }}"
-  loop_control:
-    loop_var: host
-
 - name: Install packages
   yum:
     name:
@@ -67,3 +52,18 @@
     name: fsf
     state: "{{ 'started' if 'fsf' in enabled_services else 'stopped' }}"
     enabled: "{{ 'True' if 'fsf' in enabled_services else 'False' }}"
+
+- name: Apply Logstash role
+  include_role:
+    name: logstash
+    apply:
+      delegate_to: "{{ host }}"
+      vars:
+        logstash_configs:
+          - { src: 'ls-input-fsf.j2', dest: '100-input-fsf.conf' }
+          - { src: 'ls-filter-fsf.j2', dest: '500-filter-fsf.conf' }
+          - { src: 'ls-output-fsf.j2', dest: '999-output-fsf.conf' }
+  loop:
+    - "{{ groups['logstash'] }}"
+  loop_control:
+    loop_var: host
