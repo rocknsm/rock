@@ -1,0 +1,54 @@
+---
+resource_types:
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: teliaoss/github-pr-resource
+
+resources:
+  - name: pr-source
+    type: pull-request
+    check_every: 15m
+    # webhook_token: ((webhook-token))
+    source:
+      repository: rocknsm/rock
+      access_token: ((github-access-token))
+
+jobs:
+  - name: checks
+    plan:
+      - get: pr-source
+        trigger: true
+        version: every
+      - put: pr-source
+        params:
+          path: pr-source
+          status: pending
+      - task: unit-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source: {repository: quay.io/perched/molecule-vsphere, tag: "latest"}
+          inputs:
+            - name: pr-source
+          run:
+            path: molecule
+            args:
+              - test
+              - --scenario-name
+              - single-node
+            dir: pr-source
+          params:
+            VMWARE_USER: ((vcenter_username))
+            VMWARE_PASSWORD: ((vcenter_password))
+        on_failure:
+          put: pr-source
+          params:
+            path: pr-source
+            status: failure
+      - put: pr-source
+        params:
+          path: pr-source
+          status: success
+...

@@ -1,4 +1,26 @@
 ---
+galaxy_info:
+  author: RockNSM Contributors
+  description: A role to deploy Suricata to a RockNSM sensor
+  company: RockNSM Foundation
+
+  license: Apache
+
+  min_ansible_version: 2.7
+
+  platforms:
+    - name: CentOS
+      versions:
+        - 7
+    - name: RedHat
+      versions:
+        - 7
+
+  galaxy_tags:
+    - suricata
+    - rocknsm
+    - ids
+
 dependencies:
   - name: Install and configure filebeat
     role: filebeat

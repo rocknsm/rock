@@ -1,0 +1,14 @@
+---
+- name: Cleanup
+  hosts: sensors
+  gather_facts: true
+  become: true
+  ignore_unreachable: true
+  vars:
+    rhsm_orgid: "{{ lookup('env', 'RHSM_ORGID') }}"
+    rhsm_activation_key: "{{ lookup('env', 'RHSM_ACTIVATION_KEY') }}"
+  tasks:
+    - name: Unregister with activationkey to RHSM
+      redhat_subscription:
+        state: absent
+      when: ansible_distribution is defined and ansible_distribution == 'RedHat'

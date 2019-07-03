@@ -1,0 +1,250 @@
+---
+groups: []
+resources:
+  - name: pr-source
+    type: pull-request
+    source:
+      access_token: ((github.access-token))
+      repository: rocknsm/rock
+    check_every: 5m
+
+  - name: rocknsm-dev-slack
+    type: slack-notification
+    source:
+      url: ((slack-webhook))
+
+resource_types:
+  - name: pull-request
+    type: docker-image
+    source:
+      repository: teliaoss/github-pr-resource
+
+  - name: slack-notification
+    type: registry-image
+    source:
+      repository: cfcommunity/slack-notification-resource
+
+jobs:
+  - name: run-linters
+    public: true
+    plan:
+      - get: pr-source
+        trigger: true
+        version: every
+      - put: pr-source
+        params:
+          path: pr-source
+          status: pending
+      - task: shellcheck
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: quay.io/rocknsm/shellcheck
+              tag: latest
+          run:
+            path: /bin/bash
+            args:
+              - .ci/test-shellcheck.sh
+              - .
+            dir: pr-source
+          inputs:
+            - name: pr-source
+        on_failure:
+          do:
+            - put: pr-source
+              params:
+                path: pr-source
+                status: failure
+            - put: rocknsm-dev-slack
+              params:
+                text: |
+                  Concourse failed shellcheck tests. Check it out at:
+                  https://ci.rocknsm.org/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                  or at:
+                  https://ci.rocknsm.org/builds/$BUILD_ID
+                username: "Concourse-CI"
+
+      - task: unit-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: quay.io/perched/molecule-vsphere
+              tag: latest
+          params:
+            VMWARE_PASSWORD: ((vcenter.password))
+            VMWARE_USER: ((vcenter.username))
+          run:
+            path: molecule
+            args:
+              - lint
+              - --scenario-name
+              - single-node
+            dir: pr-source
+          inputs:
+            - name: pr-source
+        on_failure:
+          do:
+            - put: pr-source
+              params:
+                path: pr-source
+                status: failure
+            - put: rocknsm-dev-slack
+              params:
+                text: |
+                  Concourse failed molecule lint tests. Check it out at:
+                  https://ci.rocknsm.org/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                  or at:
+                  https://ci.rocknsm.org/builds/$BUILD_ID
+                username: "Concourse-CI"
+      - put: pr-source
+        params:
+          path: pr-source
+          status: success
+
+      - put: rocknsm-dev-slack
+        params:
+          text: |
+            Concourse passed molecule linter tests! Check it out at:
+            https://ci.rocknsm.org/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+            or at:
+            https://ci.rocknsm.org/builds/$BUILD_ID
+          username: "Concourse-CI"
+
+  - name: run-molecule-single-node
+    public: true
+    serial_groups: [molecule_vcenter]
+    serial: true
+    plan:
+      - get: pr-source
+        trigger: true
+        passed:
+          - run-linters
+        version: every
+
+      - put: pr-source
+        params:
+          path: pr-source
+          status: pending
+      - task: unit-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: quay.io/perched/molecule-vsphere
+              tag: latest
+          params:
+            VMWARE_PASSWORD: ((vcenter.password))
+            VMWARE_USERNAME: ((vcenter.username))
+            VMWARE_NETWORK: ((vcenter.network))
+            VMWARE_DATASTORE: ((vcenter.datastore))
+            VMWARE_DATACENTER: ((vcenter.datacenter))
+            VCENTER_ADDRESS: ((vcenter.address))
+            VCENTER_ESXI: ((vcenter.esxi_host))
+          run:
+            path: molecule
+            args:
+              - test
+              - --scenario-name
+              - single-node
+            dir: pr-source
+          inputs:
+            - name: pr-source
+        on_failure:
+          do:
+            - put: pr-source
+              params:
+                path: pr-source
+                status: failure
+            - put: rocknsm-dev-slack
+              params:
+                text: |
+                  Concourse failed molecule single-node tests. Check it out at:
+                  https://ci.rocknsm.org/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                  or at:
+                  https://ci.rocknsm.org/builds/$BUILD_ID
+                username: "Concourse-CI"
+      - put: pr-source
+        params:
+          path: pr-source
+          status: success
+
+      - put: rocknsm-dev-slack
+        params:
+          text: |
+            Concourse passed molecule single-node tests! Check it out at:
+            https://ci.rocknsm.org/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+            or at:
+            https://ci.rocknsm.org/builds/$BUILD_ID
+          username: "Concourse-CI"
+
+  - name: run-molecule-multi-node
+    public: true
+    serial_groups: [molecule_vcenter]
+    serial: true
+    plan:
+      - get: pr-source
+        trigger: true
+        passed:
+          - run-linters
+        version: every
+      - put: pr-source
+        params:
+          path: pr-source
+          status: pending
+      - task: unit-test
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              repository: quay.io/perched/molecule-vsphere
+              tag: latest
+          params:
+            VMWARE_PASSWORD: ((vcenter.password))
+            VMWARE_USERNAME: ((vcenter.username))
+            VMWARE_NETWORK: ((vcenter.network))
+            VMWARE_DATASTORE: ((vcenter.datastore))
+            VMWARE_DATACENTER: ((vcenter.datacenter))
+            VCENTER_ADDRESS: ((vcenter.address))
+            VCENTER_ESXI: ((vcenter.esxi_host))
+          run:
+            path: molecule
+            args:
+              - test
+              - --scenario-name
+              - multi-node
+            dir: pr-source
+          inputs:
+            - name: pr-source
+        on_failure:
+          do:
+            - put: pr-source
+              params:
+                path: pr-source
+                status: failure
+            - put: rocknsm-dev-slack
+              params:
+                text: |
+                  Concourse failed molecule multi-node tests. Check it out at:
+                  https://ci.rocknsm.org/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+                  or at:
+                  https://ci.rocknsm.org/builds/$BUILD_ID
+                username: "Concourse-CI"
+      - put: pr-source
+        params:
+          path: pr-source
+          status: success
+
+      - put: rocknsm-dev-slack
+        params:
+          text: |
+            Concourse passed molecule multi-node tests! Check it out at:
+            https://ci.rocknsm.org/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+            or at:
+            https://ci.rocknsm.org/builds/$BUILD_ID
+          username: "Concourse-CI"

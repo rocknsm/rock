@@ -25,3 +25,5 @@ repo/
 tmp/
 .env.yml
 .python-version
+local-vars.yml
+.tox
