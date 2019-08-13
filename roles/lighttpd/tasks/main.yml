@@ -126,4 +126,4 @@
     - name: Output initial credentials
       shell: "echo -e \"U: {{ rocknsm_initial_username.stdout }}\nP: {{ rocknsm_initial_password.stdout }}\"
               > /home/{{ rocknsm_initial_username.stdout }}/KIBANA_CREDS.README"
-  when: rocknsm_initial_user_created.stat.exists | bool
+  when: not rocknsm_initial_user_created.stat.exists | bool
