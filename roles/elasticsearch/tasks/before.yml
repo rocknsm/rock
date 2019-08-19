@@ -58,6 +58,65 @@
   tags:
     - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
+- name: Discover facts about data mount
+  set_fact:
+    rock_mounts:
+      mount: "{{ item.mount }}"
+      device: "{{ item.device }}"
+      size_total: "{{ item.size_total }}"
+  loop:
+    "{{ ansible_mounts }}"
+  when: (item.mount == default_mount and rock_mounts is not defined)
+
+- name: Determining if quotas are enabled
+  command: awk /prjquota/ /etc/fstab
+  register: prjquota
+
+#- debug:
+#    msg: "{{prjquota}}"
+
+- name: Create elasticsearch quota project id
+  getent:
+    database: group
+    split: ':'
+    key: elasticsearch
+  when: rock_mounts is defined and (prjquota.stdout|length>0) 
+- name: Map elasticsearch quota project id to name
+  lineinfile:
+    create: yes
+    state: present
+    insertafter: EOF
+    path: /etc/projid
+    line: "elasticsearch:{{ getent_group.elasticsearch[1] }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0) 
+- name: Define elasticsearch quota project directories
+  lineinfile:
+    create: yes
+    state: present
+    insertafter: EOF
+    path: /etc/projects
+    line: "{{ getent_group.elasticsearch[1] }}:{{ rock_mounts.mount }}/elasticsearch"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: set elasticsearch weight
+  set_fact:
+    elastic_weight: "{{ rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='quota_weight') | first }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: set elasticsearch quota if not user defined
+  set_fact:
+    elasticsearch_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * elastic_weight | int}}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: set elasticsearch project quota
+  xfs_quota:
+    type: project
+    name: elasticsearch
+    bhard: "{{ elasticsearch_quota }}"
+    state: present
+    mountpoint: "{{ rock_mounts.mount }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Enable and start elasticsearch
   service:
     name: elasticsearch

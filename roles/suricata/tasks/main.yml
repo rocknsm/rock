@@ -91,6 +91,62 @@
     line: "include: rocknsm-overrides.yaml"
     state: present
 
+- name: Discover facts about data mount
+  set_fact:
+    rock_mounts:
+      mount: "{{ item.mount }}"
+      device: "{{ item.device }}"
+      size_total: "{{ item.size_total }}"
+  loop:
+    "{{ ansible_mounts }}"
+  when: (item.mount == default_mount and rock_mounts is not defined)
+
+- name: Determining if quotas are enabled
+  command: awk /prjquota/ /etc/fstab
+  register: prjquota
+
+- name: Create suricata quota project id
+  getent:
+    database: group
+    split: ':'
+    key: suricata
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+- name: Map suricata quota project id to name
+  lineinfile:
+    create: yes
+    state: present
+    insertafter: EOF
+    path: /etc/projid
+    line: "suricata:{{ getent_group.suricata[1] }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+- name: Define suricata quota project directories
+  lineinfile:
+    create: yes
+    state: present
+    insertafter: EOF
+    path: /etc/projects
+    line: "{{ getent_group.suricata[1] }}:{{ rock_mounts.mount }}/suricata"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: set suricata weight
+  set_fact:
+    suricata_weight: "{{ rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='quota_weight') | first }}"
+  when: suricata_quota is not defined and (prjquota.stdout|length>0)
+
+- name: set suricata quota if not user defined
+  set_fact:
+    suricata_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * suricata_weight | int}}"
+  when: suricata_quota is not defined and (prjquota.stdout|length>0)
+
+- name: set suricata project quota
+  xfs_quota:
+    type: project
+    name: suricata
+    bhard: "{{ suricata_quota }}"
+    state: present
+    mountpoint: "{{ rock_mounts.mount }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Enable and start suricata
   service:
     name: suricata

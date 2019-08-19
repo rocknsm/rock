@@ -28,6 +28,62 @@
     regexp: "log.dirs="
     line: "log.dirs={{ kafka_data_dir }}"
 
+- name: Discover facts about data mount
+  set_fact:
+    rock_mounts:
+      mount: "{{ item.mount }}"
+      device: "{{ item.device }}"
+      size_total: "{{ item.size_total }}"
+  loop:
+    "{{ ansible_mounts }}"
+  when: (item.mount == default_mount and rock_mounts is not defined)
+
+- name: Determining if quotas are enabled
+  command: awk /prjquota/ /etc/fstab
+  register: prjquota
+
+- name: Create kafka quota project id
+  getent:
+    database: group
+    split: ':'
+    key: kafka
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+- name: Map kafka quota project id to name
+  lineinfile:
+    create: yes
+    state: present
+    insertafter: EOF
+    path: /etc/projid
+    line: "kafka:{{ getent_group.kafka[1] }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+- name: Define kafka quota project directories
+  lineinfile:
+    create: yes
+    state: present
+    insertafter: EOF
+    path: /etc/projects
+    line: "{{ getent_group.kafka[1] }}:{{ rock_mounts.mount }}/kafka"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: set kafka weight
+  set_fact:
+    kafka_weight: "{{ rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='quota_weight') | first }}"
+  when: kafka_quota is not defined and (prjquota.stdout|length>0)
+
+- name: set kafka quota if not user defined
+  set_fact:
+    kafka_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * kafka_weight | int}}"
+  when: kafka_quota is not defined and (prjquota.stdout|length>0)
+
+- name: set kafka project quota
+  xfs_quota:
+    type: project
+    name: kafka
+    bhard: "{{ kafka_quota }}"
+    state: present
+    mountpoint: "{{ rock_mounts.mount }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Enable and start kafka
   service:
     name: kafka
