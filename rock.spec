@@ -62,7 +62,7 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %config %{_sysconfdir}/hosts.ini
 %ghost %{_sysconfdir}/config.yml
 %defattr(0644, root, root, 0755)
-%{_rockdir}/playbooks/roles/*
+%{_rockdir}/playbooks/roles
 %{_rockdir}/roles/*
 %{_rockdir}/playbooks/*.yml
 %{_rockdir}/playbooks/templates/*
