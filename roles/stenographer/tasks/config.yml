@@ -60,6 +60,7 @@
     split: ':'
     key: stenographer
   when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Map stenographer quota project id to name
   lineinfile:
     create: yes
@@ -68,6 +69,7 @@
     path: /etc/projid
     line: "stenographer:{{ getent_group.stenographer[1] }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Define stenographer quota project directories
   lineinfile:
     create: yes

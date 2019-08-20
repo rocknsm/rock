@@ -67,6 +67,7 @@
     split: ':'
     key: fsf
   when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Map fsf quota project id to name
   lineinfile:
     create: yes
@@ -75,6 +76,7 @@
     path: /etc/projid
     line: "fsf:{{ getent_group.fsf[1] }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Define fsf quota project directories
   lineinfile:
     create: yes

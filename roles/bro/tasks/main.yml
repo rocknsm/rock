@@ -295,6 +295,7 @@
     split: ':'
     key: bro
   when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Map bro quota project id to name
   lineinfile:
     create: yes
@@ -303,6 +304,7 @@
     path: /etc/projid
     line: "bro:{{ getent_group.bro[1] }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Define bro quota project directories
   lineinfile:
     create: yes  

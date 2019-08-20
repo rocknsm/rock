@@ -81,6 +81,7 @@
     split: ':'
     key: elasticsearch
   when: rock_mounts is defined and (prjquota.stdout|length>0) 
+
 - name: Map elasticsearch quota project id to name
   lineinfile:
     create: yes
@@ -89,6 +90,7 @@
     path: /etc/projid
     line: "elasticsearch:{{ getent_group.elasticsearch[1] }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0) 
+
 - name: Define elasticsearch quota project directories
   lineinfile:
     create: yes

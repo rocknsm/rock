@@ -111,6 +111,7 @@
     split: ':'
     key: suricata
   when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Map suricata quota project id to name
   lineinfile:
     create: yes
@@ -119,6 +120,7 @@
     path: /etc/projid
     line: "suricata:{{ getent_group.suricata[1] }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Define suricata quota project directories
   lineinfile:
     create: yes
