@@ -8,6 +8,7 @@
 # You will want to remount this to your "good" storage after the build.
 # This is just to make sure all the paths in the configs are proper.
 ###############
+
 - name: Create RockNSM data directory
   file:
     path: "{{ rock_data_dir }}"
@@ -340,4 +341,8 @@
     mode: 0755
     owner: root
     group: root
+
+- name: Set disk quota total weight
+  set_fact:
+    xfs_quota_weight: "{{ rock_services | selectattr('installed', 'equalto', True) | map(attribute='quota_weight') | sum }}"
 ...

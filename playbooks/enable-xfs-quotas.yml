@@ -1,0 +1,37 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+  - name: Discover facts about /data mount
+    set_fact:
+      rock_mounts:
+        mount: "{{ item.mount }}"
+        device: "{{ item.device }}"
+        size_total: "{{ item.size_total }}"
+    loop:
+      "{{ ansible_mounts }}"
+    when: (item.mount == default_mount and rock_mounts is not defined)
+
+  - debug:
+      msg: "Unable to set quotas, ensure that default_mount exists and is defined"
+    failed_when: rock_mounts.mount != default_mount
+    when: rock_mounts.mount != default_mount
+
+  - name: Enable project quotas on default_mount
+    mount:
+      path: "{{ rock_mounts.mount }}"
+      opts: defaults,prjquota
+      state: present
+      fstype: xfs
+      src: "{{ rock_mounts.device }}"
+    when: rock_mounts.mount == default_mount
+
+  - pause:
+      prompt: "A reboot is required for the changes to take effect. Do you want to reboot now? (y/n)"
+      echo: true
+    register: input
+
+  - name: Reboot
+    command: systemctl reboot
+    when: input.user_input  == 'y'
