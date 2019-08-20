@@ -343,6 +343,6 @@
     group: root
 
 - name: Set disk quota total weight
-  set_fact: 
+  set_fact:
     xfs_quota_weight: "{{ rock_services | selectattr('installed', 'equalto', True) | map(attribute='quota_weight') | sum }}"
 ...

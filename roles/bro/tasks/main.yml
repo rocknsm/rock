@@ -307,7 +307,7 @@
 
 - name: Define bro quota project directories
   lineinfile:
-    create: yes  
+    create: yes
     state: present
     insertafter: EOF
     path: /etc/projects

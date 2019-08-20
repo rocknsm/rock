@@ -1,8 +1,7 @@
 ---
 - hosts: all
   become: true
-  
-  tasks: 
+  tasks:
 
   - name: Discover facts about /data mount
     set_fact:
@@ -14,10 +13,10 @@
       "{{ ansible_mounts }}"
     when: (item.mount == default_mount and rock_mounts is not defined)
 
-  - debug: 
+  - debug:
       msg: "Unable to set quotas, ensure that default_mount exists and is defined"
-    failed_when: rock_mounts.mount != default_mount  
-    when: rock_mounts.mount != default_mount 
+    failed_when: rock_mounts.mount != default_mount
+    when: rock_mounts.mount != default_mount
 
   - name: Enable project quotas on default_mount
     mount:
@@ -28,12 +27,11 @@
       src: "{{ rock_mounts.device }}"
     when: rock_mounts.mount == default_mount
 
-  - pause: 
+  - pause:
       prompt: "A reboot is required for the changes to take effect. Do you want to reboot now? (y/n)"
-      echo: yes
+      echo: true
     register: input
 
   - name: Reboot
-    command: systemctl reboot 
+    command: systemctl reboot
     when: input.user_input  == 'y'
-
