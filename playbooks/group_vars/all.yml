@@ -204,5 +204,3 @@ kibana_url: "http://{{ kibana_host }}:{{ kibana_port }}"
 ###############################################################################
 # Set default mount point for Storage
 default_mount: /data
-
-
