@@ -46,7 +46,7 @@
 - name: Generate sensor private key
   openssl_privatekey:
     path: "{{ http_tls_key }}"
-  when: "'rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')"
+  when: "rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')"
   notify: Enable and restart lighttpd
 
 - name: Generate sensor public key

@@ -123,7 +123,7 @@
   service:
     name: elasticsearch
     state: "started"
-    enabled: "{{ 'true' if rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='enabled') else 'false' }}"
+    enabled: "{{ 'true' if rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='enabled') | bool else 'false' }}"
 
 - name: Create internal firewall zone
   firewalld:

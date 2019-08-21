@@ -9,6 +9,6 @@
 - name: Enable and Start zookeeper
   systemd:
     name: zookeeper
-    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'zookeeper') | map(attribute='enabled') else 'stopped' }}"
-    enabled: "{{ rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') }}"
+    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'zookeeper') | map(attribute='enabled') | bool else 'stopped' }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool }}"
 ...

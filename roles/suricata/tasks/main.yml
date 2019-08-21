@@ -152,8 +152,8 @@
 - name: Enable and start suricata
   service:
     name: suricata
-    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled' else 'stopped' }}"
-    enabled: "{{ rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled' }}"
+    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | bool else 'stopped' }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | bool }}"
 
 - name: Configure logrotate for suricata logs
   template:

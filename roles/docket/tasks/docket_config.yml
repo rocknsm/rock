@@ -44,5 +44,5 @@
 - name: Enable docket uwsgi service
   service:
     name: docket
-    enabled: "{{ rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled'}}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool }}"
   notify: Restart docket uwsgi

@@ -18,7 +18,7 @@
   service:
     name: kibana
     state: "started"
-    enabled: "{{ 'True' if rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='enabled' else 'False' }}"
+    enabled: "{{ 'True' if rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='enabled') | bool else 'False' }}"
 
 - name: "Wait for Kibana to be available"
   uri:
