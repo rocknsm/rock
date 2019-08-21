@@ -35,7 +35,7 @@
 - name: Enable docket celery services
   service:
     name: "{{ item }}"
-    enabled: "{{ 'True' if 'docket' in enabled_services else 'False' }}"
+    enabled: "{{ 'True' if rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool else 'False' }}"
   notify: Restart docket celery services
   loop:
     - docket-celery-io
