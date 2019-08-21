@@ -224,9 +224,7 @@
       delegate_to: "{{ host }}"
       vars:
         logstash_configs:
-          - { src: 'ls-input-suricata.j2', dest: '100-input-suricata.conf' }
-          - { src: 'ls-filter-suricata.j2', dest: '500-filter-suricata.conf' }
-          - { src: 'ls-output-suricata.j2', dest: '999-output-suricata.conf' }
+          - { src: 'ls-input-suricata.j2', dest: 'logstash-100-input-kafka-suricata.conf' }
   loop:
     "{{ groups['logstash'] }}"
   loop_control:

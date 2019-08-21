@@ -347,9 +347,7 @@
       delegate_to: "{{ host }}"
       vars:
         logstash_configs:
-          - { src: 'ls-input-bro.j2', dest: '100-input-bro.conf' }
-          - { src: 'ls-filter-bro.j2', dest: '500-filter-bro.conf' }
-          - { src: 'ls-output-bro.j2', dest: '999-output-bro.conf' }
+          - { src: 'ls-input-bro.j2', dest: 'logstash-100-input-kafka-zeek.conf' }
   loop:
     "{{ groups['logstash'] }}"
   loop_control:
