@@ -3,8 +3,8 @@
 action=$1
 rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed')
 
-enabled_services=({% for service in rock_services | intersect(group_names) %} {% if service.enabled %}"{{ service }}" {% endfor %})
-installed_services=({% for service in rock_services | intersect(group_names) %} {% if service.installed %}"{{ service }}" {% endfor %})
+enabled_services=({% for service in rock_services | intersect(group_names) %} {% if service.enabled %}"{{ service }}" {% endif %}{% endfor %})
+installed_services=({% for service in rock_services | intersect(group_names) %} {% if service.installed %}"{{ service }}" {% endif %}{% endfor %})
 
 function feature_enabled () {
   for service in "${enabled_services[@]}"; do
