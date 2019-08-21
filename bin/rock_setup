@@ -115,7 +115,7 @@ real_network(){
 # The "source of truth" for this is the SERVICES array defined at the top of this script.
 components(){
   components_a=()
-  for i in $(yq r "${base_config}" installed_services | awk '{print $2}'); do
+  for i in $(yq r "${base_config}" rock_services | grep name -A3 | xargs -l4 | awk '$7 == "true" {print $3}'); do
     components_a+=( "${i}" )
   done
 
@@ -142,7 +142,7 @@ components(){
 # This is functionally identical to "components".
 services(){
   services_a=()
-  for i in $(yq r "${base_config}" enabled_services | awk '{print $2}'); do
+  for i in $(yq r "${base_config}" rock_services | grep name -A3 | xargs -l4 | awk '$9 == "true" {print $3}'); do
     services_a+=( "${i}" )
   done
 

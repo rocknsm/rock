@@ -211,7 +211,7 @@
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/kafka"
     state: present
-  when: "'kafka' in enabled_services"
+  when: "rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled'"
 
 - name: Add bro aliases
   copy:
@@ -336,8 +336,8 @@
 - name: Enable and start bro
   service:
     name: bro
-    state: "{{ 'started' if 'bro' in enabled_services else 'stopped' }}"
-    enabled: "{{ 'True' if 'bro' in enabled_services else 'False' }}"
+    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled' else 'stopped' }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled' }}"
   notify: Reload bro
 
 - name: Apply Logstash role

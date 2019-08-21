@@ -108,8 +108,8 @@
 - name: Enable and start FSF
   service:
     name: fsf
-    state: "{{ 'started' if 'fsf' in enabled_services else 'stopped' }}"
-    enabled: "{{ 'True' if 'fsf' in enabled_services else 'False' }}"
+    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'fsf') | map(attribute='enabled' else 'stopped' }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'fsf') | map(attribute='enabled' }}"
 
 - name: Apply Logstash role
   include_role:

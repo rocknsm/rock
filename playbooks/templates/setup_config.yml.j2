@@ -3,7 +3,5 @@ rock_monifs:
   {{ rock_monifs | to_nice_yaml | indent(2, False) }}
 rock_mgmtifs: null
 rock_online_install: {{ rock_online_install }}
-installed_services:
-  {{ installed_services | to_nice_yaml | indent(2, False) }}
-enabled_services:
-  {{ enabled_services | to_nice_yaml | indent(2, False) }}
+rock_services:
+  {{ rock_services | to_nice_yaml | indent(2, False) }}

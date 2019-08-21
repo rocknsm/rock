@@ -89,9 +89,8 @@
 - name: Enable and start kafka
   service:
     name: kafka
-    state: "{{ 'started' if 'kafka' in enabled_services else 'stopped' }}"
-    enabled: "{{ 'True' if 'kafka' in enabled_services else 'False' }}"
-
+    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled' else 'stopped' }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled' }}"
 
 - name: Configure firewall ports
   firewalld:

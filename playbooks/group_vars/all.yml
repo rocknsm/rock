@@ -79,35 +79,6 @@ rock_services:
     installed: True
     enabled: True
 
-installed_services:
-  - stenographer
-  - docket
-  - bro
-  - suricata
-  - elasticsearch
-  - kibana
-  - zookeeper
-  - kafka
-  - lighttpd
-  - fsf
-  - filebeat
-
-# Feature options - Don't flip these unless you know what you're doing
-# These control if the systemd service is enabled
-
-enabled_services:
-  - stenographer
-  - docket
-  - bro
-  - suricata
-  - elasticsearch
-  - kibana
-  - zookeeper
-  - kafka
-  - lighttpd
-  - fsf
-  - filebeat
-
 rocknsm_package_list:
   - jq
   - tcpreplay
