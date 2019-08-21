@@ -1,0 +1,70 @@
+output {
+  # Requires event module and category
+  if [event][module] and [event][category] {
+
+    # Requires event dataset
+    if [event][dataset] {
+      elasticsearch {
+          {% if groups['elasticsearch'] | length > 1 %}
+          hosts => [{% for host in groups['es_data'] %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
+          {% else %}
+          hosts => ["127.0.0.1:9200"]
+          {% endif %}
+          index => "ecs-%{[event][module]}-%{[event][category]}-%{+YYYY.MM.dd}"
+          manage_template => false
+      }
+    }
+
+    else {
+      # Suricata or Zeek JSON error possibly, ie: Suricata without a event.dataset seen with filebeat error, but doesn't have a tag
+      if [event][module] == "suricata" or [event][module] == "zeek" {
+        elasticsearch {
+            {% if groups['elasticsearch'] | length > 1 %}
+            hosts => [{% for host in groups['es_data'] %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
+            {% else %}
+            hosts => ["127.0.0.1:9200"]
+            {% endif %}
+            index => "parse-failures-%{+YYYY.MM.dd}"
+            manage_template => false
+        }
+      }
+      else {
+        elasticsearch {
+            {% if groups['elasticsearch'] | length > 1 %}
+            hosts => [{% for host in groups['es_data'] %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
+            {% else %}
+            hosts => ["127.0.0.1:9200"]
+            {% endif %}
+            index => "ecs-%{[event][module]}-%{[event][category]}-%{+YYYY.MM.dd}"
+            manage_template => false
+        }
+      }
+    }
+  }
+
+  else if [@metadata][stage] == "_parsefailure" {
+    elasticsearch {
+        {% if groups['elasticsearch'] | length > 1 %}
+        hosts => [{% for host in groups['es_data'] %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
+        {% else %}
+        hosts => ["127.0.0.1:9200"]
+        {% endif %}
+        index => "parse-failures-%{+YYYY.MM.dd}"
+        manage_template => false
+    }
+
+  }
+
+  # Catch all index that is not RockNSM or ECS or parse failures
+  else {
+    elasticsearch {
+        {% if groups['elasticsearch'] | length > 1 %}
+        hosts => [{% for host in groups['es_data'] %}"{{ host }}"{% if not loop.last %},{% endif %}{% endfor %}]
+        {% else %}
+        hosts => ["127.0.0.1:9200"]
+        {% endif %}
+        index => "indexme-%{+YYYY.MM.dd}"
+        manage_template => false
+    }
+  }
+}
