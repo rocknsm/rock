@@ -123,16 +123,25 @@ fsf_retention: {{ fsf_retention }}
 ###############################################################################
 
 # The following list defines what components of RockNSM are
-# installed when running the deploy script:
+# installed, enabled, and the weight of disk quotas when running the deploy script:
 
-installed_services:
-  {{ installed_services | to_nice_yaml | indent(2, False) }}
+rock_services:
+  {{ rock_services | to_nice_yaml | indent(2, False) }}
 
-# The following list defines what RockNSM component services
-# are enabled (start automatically on system boot):
+###############################################################################
+#                       XFS Quota Configuration
+###############################################################################
+# Set default mount point for Storage. if this can't be found or Quotas are
+# not enabled on this mount the tasks will be skipped
+default_mount: /data
 
-enabled_services:
-  {{ enabled_services | to_nice_yaml | indent(2, False) }}
+#Overrides for quotas instead of using weights. Expected in bytes.
+# bro_quota: 1073741824
+# stenographer_quota: 1073741824
+# suricata_quota: 1073741824
+# elasticsearch_quota: 1073741824
+# kafka_quota: 1073741824
+# fsf_quota: 1073741824
 
 ###############################################################################
 #                             NEXT STEP: Deployment

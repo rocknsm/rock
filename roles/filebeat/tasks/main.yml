@@ -30,5 +30,5 @@
 - name: Enable and start filebeat
   service:
     name: filebeat
-    state: "{{ 'started' if 'filebeat' in enabled_services else 'stopped' }}"
-    enabled: "{{ 'True' if 'filebeat' in enabled_services else 'False' }}"
+    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'filebeat') | map(attribute='enabled') | bool else 'stopped' }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'filebeat') | map(attribute='enabled') | bool }}"

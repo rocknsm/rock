@@ -32,7 +32,7 @@
     url: "{{ es_url }}/_template/default"
     body: "{{ lookup('file', 'default-mapping.json') }}"
     body_format: json
-  when: ('elasticsearch' in installed_services) and default_index_template.status != 200
+  when: (rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed')) and default_index_template.status != 200
   run_once: true
 
 - name: Blanket install/update elasticsearch mappings

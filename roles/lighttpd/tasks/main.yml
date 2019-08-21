@@ -14,7 +14,7 @@
     mode: 0644
     owner: root
     group: root
-  when: "'kibana' in installed_services"
+  when: "rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')"
   loop:
     - 10-rock-auth.conf
     - 10-tls.conf
@@ -41,19 +41,19 @@
     name: httpd_can_network_connect
     state: true
     persistent: true
-  when: "'kibana' in installed_services"
+  when: "rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')"
 
 - name: Generate sensor private key
   openssl_privatekey:
     path: "{{ http_tls_key }}"
-  when: "'kibana' in installed_services"
+  when: "rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')"
   notify: Enable and restart lighttpd
 
 - name: Generate sensor public key
   openssl_publickey:
     path: "{{ http_tls_pub }}"
     privatekey_path: "{{ http_tls_key }}"
-  when: "'kibana' in installed_services"
+  when: "rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')"
   notify: Enable and restart lighttpd
 
 - name: Generate sensor CSR
@@ -67,7 +67,7 @@
     organizational_unit_name: NSM Ninjas
     email_address: info@rocknsm.io
     common_name: "{{ ansible_hostname }}"
-  when: "'kibana' in installed_services"
+  when: "rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')"
   notify: Enable and restart lighttpd
 
 - name: Generate sensor certificate
@@ -76,7 +76,7 @@
     privatekey_path: "{{ http_tls_key }}"
     csr_path: "{{ http_tls_pub }}.csr"
     provider: selfsigned
-  when: "'kibana' in installed_services"
+  when: "rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')"
   notify: Enable and restart lighttpd
 
 - name: Combine sensor cert and key
@@ -91,7 +91,7 @@
     openssl dhparam -out {{ http_tls_dhparams }} 2048
   args:
     creates: "{{ http_tls_dhparams }}"
-  when: "'kibana' in installed_services"
+  when: "rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')"
   notify: Enable and restart lighttpd
 
 - name: Configure firewall ports
