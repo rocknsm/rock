@@ -101,13 +101,13 @@
 - name: Configure stenographer service
   service:
     name: stenographer
-    enabled: "{{ rock_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') | bool }}"
   notify: Start stenographer service
 
 - name: Configure stenographer per interface
   service:
     name: "stenographer@{{ item }}"
-    enabled: "{{ rock_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') | bool }}"
   loop: "{{ stenographer_monitor_interfaces }}"
   notify: Start stenographer per interface
 
