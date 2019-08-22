@@ -16,7 +16,7 @@
 - name: Copy Logstash configs to /etc
   copy:
     remote_src: true
-    src: /opt/rocknsm/ecs-configuration/logstash/conf.d/
+    src: {{ rock_module_dir }}}}/ecs-configuration/logstash/conf.d/
     dest: "/etc/logstash/conf.d/"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
