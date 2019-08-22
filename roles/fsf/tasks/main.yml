@@ -93,7 +93,7 @@
 
 - name: set fsf quota if not user defined
   set_fact:
-    fsf_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * fsf_weight | int}}"
+    fsf_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * fsf_weight | int }}"
   when: fsf_quota is not defined and (prjquota.stdout|length>0)
 
 - name: set fsf project quota

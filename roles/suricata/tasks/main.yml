@@ -137,7 +137,7 @@
 
 - name: set suricata quota if not user defined
   set_fact:
-    suricata_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * suricata_weight | int}}"
+    suricata_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * suricata_weight | int }}"
   when: suricata_quota is not defined and (prjquota.stdout|length>0)
 
 - name: set suricata project quota
