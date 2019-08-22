@@ -76,5 +76,4 @@
     group: root
     creates: "{{ rock_module_dir }}"
     remote_src: true
-  when: (rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed')) or
-  (rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed'))
+  when: rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or (rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed')
