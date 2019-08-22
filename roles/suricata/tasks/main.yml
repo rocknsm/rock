@@ -104,6 +104,7 @@
 - name: Determining if quotas are enabled
   command: awk /prjquota/ /etc/fstab
   register: prjquota
+  changed_when: false
 
 - name: Create suricata quota project id
   getent:

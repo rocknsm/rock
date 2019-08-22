@@ -64,7 +64,9 @@
     url: "{{ rock_dashboards_url }}"
     dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
-  when: (rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed')) and rock_online_install
+  when: (rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or
+  rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed')) and
+  rock_online_install
 
 - name: Extract RockNSM elastic configs
   unarchive:
@@ -74,4 +76,5 @@
     group: root
     creates: "{{ rock_module_dir }}"
     remote_src: true
-  when: (rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed'))
+  when: (rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or
+  rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed'))

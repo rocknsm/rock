@@ -53,6 +53,7 @@
 - name: Determining if quotas are enabled
   command: awk /prjquota/ /etc/fstab
   register: prjquota
+  changed_when: false
 
 - name: Create stenographer quota project id
   getent:
