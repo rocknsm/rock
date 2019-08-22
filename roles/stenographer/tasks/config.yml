@@ -48,10 +48,10 @@
       size_total: "{{ item.size_total }}"
   loop:
     "{{ ansible_mounts }}"
-  when: (item.mount == default_mount and rock_mounts is not defined)
+  when: (default_mount is defined and item.mount == default_mount and rock_mounts is not defined)
 
 - name: Determining if quotas are enabled
-  command: awk /prjquota/ /etc/fstab
+  shell: grep "{{ default_mount }}" /etc/fstab | awk /prjquota/
   register: prjquota
   changed_when: false
 
@@ -77,7 +77,7 @@
     state: present
     insertafter: EOF
     path: /etc/projects
-    line: "{{ getent_group.stenographer[1] }}:{{ rock_mounts.mount }}/stenographer"
+    line: "{{ getent_group.stenographer[1] }}:{{ stenographer_data_dir }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
 - name: set stenographer weight
