@@ -33,51 +33,52 @@ bro_stats_retention: 0
 
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the service is installed
+
 rock_services:
   - name: bro
     quota_weight: 1
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: stenographer
     quota_weight: 8
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: docket
     quota_weight: 0
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: suricata
     quota_weight: 2
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: elasticsearch
     quota_weight: 4
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: kibana
     quota_weight: 0
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: zookeeper
     quota_weight: 0
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: kafka
     quota_weight: 4
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: lighttpd
     quota_weight: 0
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: fsf
     quota_weight: 1
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
   - name: filebeat
     quota_weight: 0
-    installed: True
-    enabled: True
+    installed: true
+    enabled: true
 
 rocknsm_package_list:
   - jq

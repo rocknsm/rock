@@ -72,7 +72,7 @@
   command: awk /prjquota/ /etc/fstab
   register: prjquota
 
-#- debug:
+# - debug:
 #    msg: "{{prjquota}}"
 
 - name: Create elasticsearch quota project id
@@ -84,7 +84,7 @@
 
 - name: Map elasticsearch quota project id to name
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projid
@@ -93,7 +93,7 @@
 
 - name: Define elasticsearch quota project directories
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projects
