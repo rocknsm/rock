@@ -298,7 +298,7 @@
 
 - name: Map bro quota project id to name
   lineinfile:
-    create: yes
+    create: True
     state: present
     insertafter: EOF
     path: /etc/projid
@@ -307,7 +307,7 @@
 
 - name: Define bro quota project directories
   lineinfile:
-    create: yes
+    create: True
     state: present
     insertafter: EOF
     path: /etc/projects

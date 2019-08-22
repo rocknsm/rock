@@ -51,7 +51,7 @@
 
 - name: Map kafka quota project id to name
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projid
@@ -60,7 +60,7 @@
 
 - name: Define kafka quota project directories
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projects
