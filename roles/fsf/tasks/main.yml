@@ -60,6 +60,7 @@
 - name: Determining if quotas are enabled
   shell: grep "{{ default_mount }}" /etc/fstab | awk /prjquota/
   register: prjquota
+  changed_when: false
 
 - name: Create fsf quota project id
   getent:
@@ -70,7 +71,7 @@
 
 - name: Map fsf quota project id to name
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projid
@@ -79,7 +80,7 @@
 
 - name: Define fsf quota project directories
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projects
@@ -93,7 +94,7 @@
 
 - name: set fsf quota if not user defined
   set_fact:
-    fsf_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * fsf_weight | int}}"
+    fsf_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * fsf_weight | int }}"
   when: fsf_quota is not defined and (prjquota.stdout|length>0)
 
 - name: set fsf project quota

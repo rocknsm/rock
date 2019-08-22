@@ -71,8 +71,9 @@
 - name: Determining if quotas are enabled
   shell: grep "{{ default_mount }}" /etc/fstab | awk /prjquota/
   register: prjquota
+  changed_when: false
 
-#- debug:
+# - debug:
 #    msg: "{{prjquota}}"
 
 - name: Create elasticsearch quota project id
@@ -84,7 +85,7 @@
 
 - name: Map elasticsearch quota project id to name
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projid
@@ -93,7 +94,7 @@
 
 - name: Define elasticsearch quota project directories
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projects
@@ -107,7 +108,7 @@
 
 - name: set elasticsearch quota if not user defined
   set_fact:
-    elasticsearch_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * elastic_weight | int}}"
+    elasticsearch_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * elastic_weight | int }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
 - name: set elasticsearch project quota

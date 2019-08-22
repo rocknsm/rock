@@ -41,6 +41,7 @@
 - name: Determining if quotas are enabled
   shell: grep "{{ default_mount }}" /etc/fstab | awk /prjquota/
   register: prjquota
+  changed_when: false
 
 - name: Create kafka quota project id
   getent:
@@ -51,7 +52,7 @@
 
 - name: Map kafka quota project id to name
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projid
@@ -60,7 +61,7 @@
 
 - name: Define kafka quota project directories
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projects
@@ -74,7 +75,7 @@
 
 - name: set kafka quota if not user defined
   set_fact:
-    kafka_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * kafka_weight | int}}"
+    kafka_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * kafka_weight | int }}"
   when: kafka_quota is not defined and (prjquota.stdout|length>0)
 
 - name: set kafka project quota

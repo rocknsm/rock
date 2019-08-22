@@ -288,6 +288,7 @@
 - name: Determining if quotas are enabled
   shell: grep "{{ default_mount }}" /etc/fstab | awk /prjquota/
   register: prjquota
+  changed_when: false
 
 - name: Create bro quota project id
   getent:
@@ -298,7 +299,7 @@
 
 - name: Map bro quota project id to name
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projid
@@ -307,7 +308,7 @@
 
 - name: Define bro quota project directories
   lineinfile:
-    create: yes
+    create: true
     state: present
     insertafter: EOF
     path: /etc/projects
@@ -321,7 +322,7 @@
 
 - name: set bro quota if not user defined
   set_fact:
-    bro_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * bro_weight | int}}"
+    bro_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * bro_weight | int }}"
   when: bro_quota is not defined and (prjquota.stdout|length>0)
 
 - name: set bro project quota
