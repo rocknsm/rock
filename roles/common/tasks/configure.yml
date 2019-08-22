@@ -44,7 +44,6 @@
     - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
     - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
 
-
 - name: Download RockNSM elastic configs
   get_url:
     url: "{{ rock_dashboards_url }}"
