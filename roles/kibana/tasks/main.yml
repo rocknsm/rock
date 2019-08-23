@@ -32,7 +32,7 @@
 - name: Blanket install/update kibana saved objects
   command: ./import-saved-items.sh "{{ kibana_url }}"
   args:
-    chdir: "{{ rock_module_dir }}/configuration/kibana"
+    chdir: "{{ rock_module_dir }}/ecs-configuration/kibana"
   changed_when: false
   tags:
     - saved_objects
