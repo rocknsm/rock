@@ -7,6 +7,8 @@
       - bro
       - bro-plugin-af_packet
       - bro-plugin-kafka
+      - bro-plugin-gquic
+      - bro-plugin-communityid
       - GeoIP
       - GeoIP-update
       - postfix
