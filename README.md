@@ -4,7 +4,7 @@
 </br>
 
 <p align="center">
-  <strong><a href="https://docs.rocknsm.io/">Documentation</a> | <a href="https://download.rocknsm.io/">Download<a/></strong>
+  <strong><a href="https://docs.rocknsm.io/">Documentation</a> | <a href="https://download.rocknsm.io/isos/stable/">Download<a/></strong>
 </p>
 
 ROCK is a collections platform, in the spirit of Network Security Monitoring by contributors from all over industry and the public sector. It's primary focus is to provide a robust, scalable sensor platform for both enduring security monitoring and incident response missions. The platform consists of 3 core capabilities:
