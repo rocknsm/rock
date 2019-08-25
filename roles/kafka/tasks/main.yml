@@ -28,12 +28,70 @@
     regexp: "log.dirs="
     line: "log.dirs={{ kafka_data_dir }}"
 
+- name: Discover facts about data mount
+  set_fact:
+    rock_mounts:
+      mount: "{{ item.mount }}"
+      device: "{{ item.device }}"
+      size_total: "{{ item.size_total }}"
+  loop:
+    "{{ ansible_mounts }}"
+  when: (default_mount is defined and item.mount == default_mount and rock_mounts is not defined)
+
+- name: Determining if quotas are enabled
+  shell: grep "{{ default_mount }}" /etc/fstab | awk /prjquota/
+  register: prjquota
+  changed_when: false
+
+- name: Create kafka quota project id
+  getent:
+    database: group
+    split: ':'
+    key: kafka
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: Map kafka quota project id to name
+  lineinfile:
+    create: true
+    state: present
+    insertafter: EOF
+    path: /etc/projid
+    line: "kafka:{{ getent_group.kafka[1] }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: Define kafka quota project directories
+  lineinfile:
+    create: true
+    state: present
+    insertafter: EOF
+    path: /etc/projects
+    line: "{{ getent_group.kafka[1] }}:{{ kafka_data_dir }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: set kafka weight
+  set_fact:
+    kafka_weight: "{{ rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='quota_weight') | first }}"
+  when: kafka_quota is not defined and (prjquota.stdout|length>0)
+
+- name: set kafka quota if not user defined
+  set_fact:
+    kafka_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * kafka_weight | int }}"
+  when: kafka_quota is not defined and (prjquota.stdout|length>0)
+
+- name: set kafka project quota
+  xfs_quota:
+    type: project
+    name: kafka
+    bhard: "{{ kafka_quota }}"
+    state: present
+    mountpoint: "{{ rock_mounts.mount }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Enable and start kafka
   service:
     name: kafka
-    state: "{{ 'started' if 'kafka' in enabled_services else 'stopped' }}"
-    enabled: "{{ 'True' if 'kafka' in enabled_services else 'False' }}"
-
+    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | bool else 'stopped' }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | bool }}"
 
 - name: Configure firewall ports
   firewalld:

@@ -4,7 +4,7 @@
 - name: Start stenographer service
   service:
     name: stenographer
-    state: "{{ 'started' if 'stenographer' in enabled_services else 'stopped' }}"
+    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') | bool else 'stopped' }}"
 
 - name: Start stenographer per interface
   service:

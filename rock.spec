@@ -3,7 +3,7 @@
 %global _sbindir /usr/sbin
 
 Name:           rock
-Version:        2.4.2
+Version:        2.5.0
 Release:        1
 
 Summary:        Network Security Monitoring collections platform
@@ -62,6 +62,7 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %config %{_sysconfdir}/hosts.ini
 %ghost %{_sysconfdir}/config.yml
 %defattr(0644, root, root, 0755)
+%{_rockdir}/playbooks/roles
 %{_rockdir}/roles/*
 %{_rockdir}/playbooks/*.yml
 %{_rockdir}/playbooks/templates/*
@@ -73,6 +74,14 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/deploy_rock.sh
 
 %changelog
+* Thu Aug 22 2019 Derek Ditch <derek@rocknsm.io> 2.5.0-1
+- Updated roles to work with ECS pipeline
+- Added XFS Quotas  (#473)
+- Added Suricata Community ID (#469)
+- Cleanups around testing and CI
+- Now requires Ansible 2.8
+- Cleaned up tasks to be more resilient
+- Adding filebeat role to remove duplicate logic.
 * Sat Apr 13 2019 Derek Ditch <derek@rocknsm.io> 2.4.2-1
 - Change elastic node name to the inventory hostname Fixes #447
 

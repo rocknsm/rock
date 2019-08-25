@@ -13,7 +13,16 @@
     dest: /etc/sysconfig/logstash
   notify: Restart logstash
 
-- name: Add pipeline configs
+- name: Copy Logstash configs to /etc
+  copy:
+    remote_src: true
+    src: "{{ rock_module_dir }}/ecs-configuration/logstash/conf.d/"
+    dest: "/etc/logstash/conf.d/"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
+
+
+- name: Template input configs
   template:
     src: "{{ item.src }}"
     dest: "/etc/logstash/conf.d/{{ item.dest }}"
@@ -24,7 +33,7 @@
   when: logstash_configs is defined
   with_items: "{{ logstash_configs }}"
 
-- name: Add parse failure output for Logstash
+- name: Template Elasticsearch output for Logstash
   template:
     src: "{{ item }}.j2"
     dest: "/etc/logstash/conf.d/{{ item }}.conf"
@@ -33,10 +42,10 @@
     mode: 0640
   notify: Restart logstash
   loop:
-    - 999-output-parsefailures
+    - logstash-9999-output-elasticsearch.conf
 
 - name: Enable and start Logstash
   service:
     name: logstash
     state: "started"
-    enabled: "{{ 'True' if 'logstash' in enabled_services else 'False' }}"
+    enabled: "{{ 'True' if rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | bool else 'False' }}"

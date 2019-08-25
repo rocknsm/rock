@@ -18,7 +18,7 @@
   service:
     name: kibana
     state: "started"
-    enabled: "{{ 'True' if 'kibana' in enabled_services else 'False' }}"
+    enabled: "{{ 'True' if rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='enabled') | bool else 'False' }}"
 
 - name: "Wait for Kibana to be available"
   uri:
@@ -32,7 +32,7 @@
 - name: Blanket install/update kibana saved objects
   command: ./import-saved-items.sh "{{ kibana_url }}"
   args:
-    chdir: "{{ rock_module_dir }}/configuration/kibana"
+    chdir: "{{ rock_module_dir }}/ecs-configuration/kibana"
   changed_when: false
   tags:
     - saved_objects
@@ -64,7 +64,10 @@
     url: "{{ rock_dashboards_url }}"
     dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
-  when: ('elasticsearch' or 'logstash' in installed_services) and rock_online_install
+  when:
+    rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or
+    rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed') and
+    rock_online_install
 
 - name: Extract RockNSM elastic configs
   unarchive:
@@ -74,4 +77,6 @@
     group: root
     creates: "{{ rock_module_dir }}"
     remote_src: true
-  when: ('elasticsearch' or 'logstash' in installed_services)
+  when:
+    rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or
+    rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed')

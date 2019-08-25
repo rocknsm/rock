@@ -7,6 +7,8 @@
       - bro
       - bro-plugin-af_packet
       - bro-plugin-kafka
+      - bro-plugin-gquic
+      - bro-plugin-communityid
       - GeoIP
       - GeoIP-update
       - postfix
@@ -211,7 +213,7 @@
     dest: "{{ bro_site_dir }}/local.bro"
     line: "@load scripts/rock/plugins/kafka"
     state: present
-  when: "'kafka' in enabled_services"
+  when: "rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled')"
 
 - name: Add bro aliases
   copy:
@@ -275,11 +277,70 @@
   when: item.stdout is search("state DOWN")
   loop: "{{ iplink.results }}"
 
+- name: Discover facts about data mount
+  set_fact:
+    rock_mounts:
+      mount: "{{ item.mount }}"
+      device: "{{ item.device }}"
+      size_total: "{{ item.size_total }}"
+  loop:
+    "{{ ansible_mounts }}"
+  when: (default_mount is defined and item.mount == default_mount and rock_mounts is not defined)
+
+- name: Determining if quotas are enabled
+  shell: grep "{{ default_mount }}" /etc/fstab | awk /prjquota/
+  register: prjquota
+  changed_when: false
+
+- name: Create bro quota project id
+  getent:
+    database: group
+    split: ':'
+    key: bro
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: Map bro quota project id to name
+  lineinfile:
+    create: true
+    state: present
+    insertafter: EOF
+    path: /etc/projid
+    line: "bro:{{ getent_group.bro[1] }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: Define bro quota project directories
+  lineinfile:
+    create: true
+    state: present
+    insertafter: EOF
+    path: /etc/projects
+    line: "{{ getent_group.bro[1] }}:{{ bro_data_dir }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: set bro weight
+  set_fact:
+    bro_weight: "{{ rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='quota_weight') | first }}"
+  when: bro_quota is not defined and (prjquota.stdout|length>0)
+
+- name: set bro quota if not user defined
+  set_fact:
+    bro_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * bro_weight | int }}"
+  when: bro_quota is not defined and (prjquota.stdout|length>0)
+
+- name: set bro project quota
+  xfs_quota:
+    type: project
+    name: bro
+    bhard: "{{ bro_quota }}"
+    state: present
+    mountpoint: "{{ rock_mounts.mount }}"
+  when: rock_mounts is defined and (prjquota.stdout|length>0)
+
 - name: Enable and start bro
   service:
     name: bro
-    state: "{{ 'started' if 'bro' in enabled_services else 'stopped' }}"
-    enabled: "{{ 'True' if 'bro' in enabled_services else 'False' }}"
+    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled') | bool else 'stopped' }}"
+    enabled: "{{ rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled') | bool }}"
   notify: Reload bro
 
 - name: Apply Logstash role
@@ -289,9 +350,7 @@
       delegate_to: "{{ host }}"
       vars:
         logstash_configs:
-          - { src: 'ls-input-bro.j2', dest: '100-input-bro.conf' }
-          - { src: 'ls-filter-bro.j2', dest: '500-filter-bro.conf' }
-          - { src: 'ls-output-bro.j2', dest: '999-output-bro.conf' }
+          - { src: 'ls-input-bro.j2', dest: 'logstash-100-input-kafka-zeek.conf' }
   loop:
     "{{ groups['logstash'] }}"
   loop_control:

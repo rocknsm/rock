@@ -1,13 +1,13 @@
 input {
   kafka {
     topics => ["suricata-raw"]
-    add_field => { "[@metadata][stage]" => "suricataraw_kafka" }
+    add_field => { "[@metadata][stage]" => "suricata_json" }
     # Set this to one per kafka partition to scale up
     #consumer_threads => 4
     group_id => "suricata_logstash"
+    bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
     codec => json
     auto_offset_reset => "earliest"
-    bootstrap_servers => {% for host in groups['kafka'] %}"{{ host }}:9092"{% if not loop.last %},{% endif %}{% endfor %}
-
+    id => "input-kafka-suricata"
   }
 }

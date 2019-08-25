@@ -2,8 +2,8 @@
 
 action=$1
 
-enabled_services=({% for service in enabled_services | intersect(group_names) %} "{{ service }}" {% endfor %})
-installed_services=({% for service in installed_services | intersect(group_names) %} "{{ service }}" {% endfor %})
+enabled_services=({% for service in rock_services | selectattr("installed", "equalto", True) | map(attribute="name") | list | intersect(group_names) %} "{{ service }}" {% endfor %})
+installed_services=({% for service in rock_services | selectattr("installed", "equalto", True) | map(attribute="name") | list | intersect(group_names) %} "{{ service }}" {% endfor %})
 
 function feature_enabled () {
   for service in "${enabled_services[@]}"; do
