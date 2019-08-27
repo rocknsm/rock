@@ -39,7 +39,9 @@
   when: (default_mount is defined and item.mount == default_mount and rock_mounts is not defined)
 
 - name: Determining if quotas are enabled
-  shell: grep "{{ default_mount }}" /etc/fstab | awk /prjquota/
+  command: >
+    awk -v path="{{ default_mount }}"
+      '$2 ~ path && $4 ~ /p(rj)?quota/ ' /etc/fstab
   register: prjquota
   changed_when: false
 
