@@ -17,7 +17,7 @@
   service:
     name: redis
     state: restarted
-  when: rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool
+  when: local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool
 
 - name: Seed random key
   lineinfile:
@@ -33,16 +33,16 @@
   loop:
     - docket-celery-io
     - docket-celery-query
-  when: rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool
+  when: local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool
 
 - name: Restart docket uwsgi
   service:
     name: docket
     state: restarted
-  when: rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool
+  when: local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool
 
 - name: Restart lighttpd
   service:
     name: lighttpd
     state: restarted
-  when: rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool
+  when: local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool
