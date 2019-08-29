@@ -155,7 +155,7 @@
   roles:
     - role: docket
       when: "rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='installed')"
-      docket_enable: "{{ (rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool }}"
+      docket_enable: "{{ local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool }}"
 
 - hosts: kibana
   tags:

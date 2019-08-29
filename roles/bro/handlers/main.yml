@@ -10,4 +10,5 @@
 - name: Reload bro
   service:
     name: bro
-    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled') | bool else 'stopped' }}"
+    state: restarted
+  when: local_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled') | first | bool

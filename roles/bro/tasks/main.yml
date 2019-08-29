@@ -339,8 +339,7 @@
 - name: Enable and start bro
   service:
     name: bro
-    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled') | bool else 'stopped' }}"
-    enabled: "{{ rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled') | bool }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled') | first | bool }}"
   notify: Reload bro
 
 - name: Apply Logstash role
