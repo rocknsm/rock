@@ -47,5 +47,5 @@
 - name: Enable and start Logstash
   service:
     name: logstash
-    state: "started"
-    enabled: "{{ 'True' if rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | bool else 'False' }}"
+    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | first | bool else 'stopped' }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | first | bool }}"

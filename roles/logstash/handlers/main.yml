@@ -3,4 +3,4 @@
 - name: Restart logstash
   systemd:
     name: logstash
-    state: restarted
+    state: "{{ 'restarted' if local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | first | bool else 'stopped' }}"

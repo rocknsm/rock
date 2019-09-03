@@ -87,11 +87,63 @@
     mountpoint: "{{ rock_mounts.mount }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
+- name: Create wait-for-zookeeper sidecar
+  copy:
+    dest: "{{ item.dest }}"
+    src: "{{ item.src }}"
+    owner: root
+    group: root
+    mode: "{{ item.mode }}"
+  with_items:
+    - src: wait-for-zookeeper.py
+      dest: /usr/local/sbin/wait-for-zookeeper.py
+      mode: '0755'
+    - src: wait-for-zookeeper.service
+      dest: /etc/systemd/system/wait-for-zookeeper.service
+      mode: '0644'
+  register: wait_for_zk_created
+
+- name: Create environment file for sidecar
+  copy:
+    dest: /etc/sysconfig/wait-for-zookeeper
+    content: |
+      ZOOKEEPER_HOST={{ kafka_zookeeper_host }}
+      ZOOKEEPER_PORT={{ kafka_zookeeper_port }}
+    mode: '0644'
+    owner: root
+    group: root
+
+- name: Create kafka service overrides dir
+  file:
+    state: directory
+    path: /etc/systemd/system/kafka.service.d/
+    recurse: yes
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Insert Kafka override to wait for Zookeeper
+  copy:
+    dest: /etc/systemd/system/kafka.service.d/override.conf
+    content: |
+      # /etc/systemd/system/kafka.service.d/override.conf
+      [Unit]
+      After=wait-for-zookeeper.service
+      Requires=wait-for-zookeeper.service
+    mode: '0644'
+    owner: root
+    group: root
+  register: kafka_override_created
+
 - name: Enable and start kafka
   service:
-    name: kafka
-    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | bool else 'stopped' }}"
-    enabled: "{{ rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | bool }}"
+    name: "{{ item }}"
+    daemon-reload: kafka_override_created.changed or wait_for_zk_created.changed
+    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | first | bool else 'stopped' }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | first | bool }}"
+  with_items:
+    - wait-for-zookeeper
+    - kafka
 
 - name: Configure firewall ports
   firewalld:

@@ -3,15 +3,15 @@
   systemd:
     name: lighttpd
     state: >-
-      {%- if rock_services | selectattr('name', 'equalto', 'lighttpd') | map(attribute='enabled') or
-      rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') -%}
+      {%- if local_services | selectattr('name', 'equalto', 'lighttpd') | map(attribute='enabled') | first | bool or
+      local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool -%}
         restarted
       {%- else -%}
         stopped
       {%- endif -%}
     enabled: >-
-      {%- if rock_services | selectattr('name', 'equalto', 'lighttpd') | map(attribute='enabled') or
-      rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') -%}
+      {%- if local_services | selectattr('name', 'equalto', 'lighttpd') | map(attribute='enabled') | first | bool or
+      local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool -%}
         True
       {%- else -%}
         False

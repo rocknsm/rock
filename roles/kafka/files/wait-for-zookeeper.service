@@ -1,0 +1,21 @@
+# /etc/systemd/system/wait-for-zookeeper.service
+[Unit]
+Description=Wait For Zookeeper Service
+Before=kafka.service
+After=network.target
+After=zookeeper.service
+Wants=zookeeper.service
+
+[Service]
+Type=notify
+NotifyAccess=all
+WorkingDirectory=/tmp
+Environment=ZOOKEEPER_HOST=127.0.0.1
+Environment=ZOOKEEPER_PORT=2181
+EnvironmentFile=-/etc/sysconfig/wait-for-zookeeper
+ExecStart=/usr/local/sbin/wait-for-zookeeper.py ${ZOOKEEPER_HOST}:${ZOOKEEPER_PORT}
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+RequiredBy=kafka.service

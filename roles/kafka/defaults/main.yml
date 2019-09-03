@@ -1,2 +1,4 @@
 ---
 # defaults file for kafka
+kafka_zookeeper_host: 127.0.0.1
+kafka_zookeeper_port: 2181
