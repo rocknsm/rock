@@ -155,8 +155,8 @@
 - name: Enable and start suricata
   service:
     name: suricata
-    state: "{{ 'started' if rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | bool else 'stopped' }}"
-    enabled: "{{ rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | bool }}"
+    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool else 'stopped' }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool }}"
 
 - name: Configure logrotate for suricata logs
   template:
@@ -170,7 +170,7 @@
   command: /usr/bin/suricata-update add-source "emerging-threats-offline" "file:///srv/rocknsm/support/emerging.rules-suricata.tar.gz"
   args:
     creates: /var/lib/suricata/update/sources/emerging-threats-offline.yaml
-  when: "rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='installed') and not rock_online_install"
+  when: "local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='installed') | first | bool and not rock_online_install"
   become: true
   become_user: "{{ suricata_user }}"
 
@@ -178,7 +178,7 @@
   command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
   args:
     creates: /var/lib/suricata/rules/suricata.rules
-  when: "rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') and not rock_online_install"
+  when: "local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool and not rock_online_install"
   become: true
   become_user: "{{ suricata_user }}"
 
@@ -187,7 +187,7 @@
   args:
     creates: /var/lib/suricata/update/cache/index.yaml
     chdir: /var/lib/suricata
-  when: "rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') and rock_online_install"
+  when: "local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool and rock_online_install"
   become: true
   become_user: "{{ suricata_user }}"
 
@@ -196,7 +196,7 @@
   args:
     creates: /var/lib/suricata/update/sources/et-open.yaml
     chdir: /var/lib/suricata
-  when: "rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') and rock_online_install"
+  when: "local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool and rock_online_install"
   become: true
   become_user: "{{ suricata_user }}"
 
@@ -205,7 +205,7 @@
   args:
     creates: /var/lib/suricata/rules/suricata.rules
     chdir: /var/lib/suricata
-  when: "rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') and rock_online_install"
+  when: "local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool and rock_online_install"
   become: true
   become_user: "{{ suricata_user }}"
 
@@ -218,7 +218,7 @@
     minute: "0"
     job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
          > /var/log/suricata-update.log 2>&1
-  when: "rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled')"
+  when: "local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool"
 
 - name: Apply Logstash role
   include_role:
