@@ -20,6 +20,7 @@
     dest: "/etc/logstash/conf.d/"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
+  notify: Restart logstash
 
 - name: Copy Logstash ruby scripts to /etc
   copy:
@@ -28,6 +29,7 @@
     dest: "/etc/logstash/conf.d/ruby"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
+  notify: Restart logstash
 
 - name: Template input configs
   template:
@@ -56,6 +58,7 @@
     path: /etc/logstash/logstash.yml
     line: "xpack.monitoring.enabled: true"
     regexp: '^#xpack.monitoring.enabled: .*'
+  notify: Restart logstash
 
 - name: Point logstash monitoring to elastic hosts
   lineinfile:
@@ -71,9 +74,10 @@
           ["127.0.0.1:9200"]
           {%- endif %}
     regexp: '^#xpack.monitoring.elasticsearch.hosts: .*'
+  notify: Restart logstash
 
 - name: Enable and start Logstash
   service:
     name: logstash
-    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | first | bool else 'stopped' }}"
     enabled: "{{ local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | first | bool }}"
+  notify: Restart logstash
