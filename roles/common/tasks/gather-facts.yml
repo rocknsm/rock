@@ -1,5 +1,5 @@
 ---
 # Set local system-specific facts
 - set_fact:
-    local_services: "{{ rock_services | selectattr("name", "in", groups.keys()) | list }}"
+    local_services: "{{ rock_services | selectattr('name', 'in', groups.keys()) | list }}"
 ...

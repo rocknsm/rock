@@ -79,6 +79,10 @@ rock_services:
     quota_weight: 0
     installed: true
     enabled: true
+  - name: logstash
+    quota_weight: 0
+    installed: true
+    enabled: true
 
 rocknsm_package_list:
   - jq
