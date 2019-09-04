@@ -51,6 +51,27 @@
   loop:
     - logstash-9999-output-elasticsearch.conf
 
+- name: Enable logstash monitoring
+  lineinfile:
+    path: /etc/logstash/logstash.yml
+    line: "xpack.monitoring.enabled: true"
+    regexp: '^#xpack.monitoring.enabled: .*'
+
+- name: Point logstash monitoring to elastic hosts
+  lineinfile:
+    path: /etc/logstash/logstash.yml
+    line: >
+          xpack.monitoring.elasticsearch.hosts:
+          {% if groups['elasticsearch'] | length > 1 -%}[
+            {%- for host in groups['es_data'] -%}
+              "{{ host }}"
+              {%- if not loop.last %},{% endif -%}
+            {%- endfor -%}]
+          {% else %}
+          ["127.0.0.1:9200"]
+          {%- endif %}
+    regexp: '^#xpack.monitoring.elasticsearch.hosts: .*'
+
 - name: Enable and start Logstash
   service:
     name: logstash
