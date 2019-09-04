@@ -21,6 +21,13 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
 
+- name: Copy Logstash ruby scripts to /etc
+  copy:
+    remote_src: true
+    src: "{{ rock_module_dir }}/ecs-configuration/logstash/ruby/"
+    dest: "/etc/logstash/conf.d/ruby"
+    owner: "{{ logstash_user }}"
+    group: "{{ logstash_group }}"
 
 - name: Template input configs
   template:
@@ -36,7 +43,7 @@
 - name: Template Elasticsearch output for Logstash
   template:
     src: "{{ item }}.j2"
-    dest: "/etc/logstash/conf.d/{{ item }}.conf"
+    dest: "/etc/logstash/conf.d/{{ item }}"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0640
