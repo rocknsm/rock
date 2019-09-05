@@ -38,7 +38,7 @@
 - name: Blanket install/update elasticsearch mappings
   command: ./import-index-templates.sh "{{ es_url }}"
   args:
-    chdir: "{{ rock_module_dir }}/configuration/elasticsearch"
+    chdir: "{{ rock_module_dir }}/ecs-configuration/elasticsearch"
   register: result
   changed_when: 'result.stdout.find("Changed: 0") != -1'
   run_once: true
