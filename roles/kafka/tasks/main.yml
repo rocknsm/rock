@@ -119,7 +119,7 @@
   file:
     state: directory
     path: /etc/systemd/system/kafka.service.d/
-    recurse: yes
+    recurse: true
     owner: root
     group: root
     mode: '0755'
