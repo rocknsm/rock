@@ -11,14 +11,13 @@
     dest: /etc/kibana/kibana.yml
   notify: Restart kibana
 
-- name: Flush handlers
-  meta: flush_handlers
-
 - name: Enable and start kibana
   service:
     name: kibana
-    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'kibana') | map(attribute='enabled') | first | bool else 'stopped' }}"
     enabled: "{{ local_services | selectattr('name', 'equalto', 'kibana') | map(attribute='enabled') | first | bool }}"
+
+- name: Flush handlers
+  meta: flush_handlers
 
 - name: "Wait for Kibana to be available"
   uri:
@@ -29,6 +28,10 @@
   until: result.status == 200
   retries: 60
   delay: 1
+
+- name: Store Kibana settings
+  set_fact:
+    kbn_settings: "{{ result.json.settings }}"
 
 - name: Blanket install/update kibana saved objects
   command: ./import-saved-items.sh "{{ kibana_url }}"
@@ -52,26 +55,54 @@
     body_format: json
     status_code: 200,201
 
-- name: Configure SIEM to read ecs-* index pattern
+- name: Set Kibana dark mode for the default space
   uri:
     method: POST
-    url: "{{ kibana_url }}/api/kibana/settings:siem"
+    url: "{{ kibana_url }}/api/kibana/settings"
     body: >
       {"changes": {
-         "siem:defaultIndex": [
-            "auditbeat-*",
-            "filebeat-*",
-            "packetbeat-*",
-            "winlogbeat-*",
-            "ecs-*"
-          ]
+         "theme:darkMode": true
         }
       }
     headers:
-      kbn-version: 7.4.0
+      kbn-xsrf: true
     body_format: json
     status_code: 200,201
-    when: "'ecs-*' not in result.content"
+  when: "'theme:darkMode' not in kbn_settings or not (kbn_settings['theme:darkMode']|bool)"
+
+- name: Set Kibana to store data in session storage
+  uri:
+    method: POST
+    url: "{{ kibana_url }}/api/kibana/settings"
+    body: >
+      {"changes": {
+         "state:storeInSessionStorage": true
+        }
+      }
+    headers:
+      kbn-xsrf: true
+    body_format: json
+    status_code: 200,201
+  when: "'state:storeInSessionStorage' not in kbn_settings or not (kbn_settings['state:storeInSessionStorage']|bool)"
+
+- name: Set fact for list of SIEM index patterns
+  set_fact:
+    siem_indices: "{{ kbn_settings['siem:defaultIndex']['userValue'] | default(['auditbeat-*', 'filebeat-*', 'packetbeat-*', 'winlogbeat-*']) }}"
+
+- name: Configure SIEM to read ecs-* index pattern
+  uri:
+    method: POST
+    url: "{{ kibana_url }}/api/kibana/settings"
+    body: >
+      {"changes": {
+         "siem:defaultIndex": {{ siem_indices | union(['ecs-*']) }}
+        }
+      }
+    headers:
+      kbn-xsrf: true
+    body_format: json
+    status_code: 200,201
+  when: "'siem:defaultIndex' not in kbn_settings or 'ecs-*' not in kbn_settings['siem:defaultIndex']['userValue']"
 
 - name: Add the kibanapw shell function
   copy:
