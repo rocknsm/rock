@@ -119,7 +119,7 @@
       delegate_to: "{{ host }}"
       vars:
         logstash_configs:
-          - { src: 'ls-input-fsf.j2', dest: '100-input-fsf.conf' }
+          - { src: 'ls-input-fsf.j2', dest: 'logstash-100-input-kafka-fsf.conf' }
   loop:
     "{{ groups['logstash'] }}"
   loop_control:
