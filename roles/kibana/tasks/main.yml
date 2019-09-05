@@ -24,6 +24,7 @@
   uri:
     url: "{{ kibana_url }}/api/kibana/settings"
     status_code: 200
+    return_content: true
   register: result
   until: result.status == 200
   retries: 60
@@ -50,6 +51,27 @@
         "mappings" : { }, "aliases" : { } }
     body_format: json
     status_code: 200,201
+
+- name: Configure SIEM to read ecs-* index pattern
+  uri:
+    method: POST
+    url: "{{ kibana_url }}/api/kibana/settings:siem"
+    body: >
+      {"changes": {
+         "siem:defaultIndex": [
+            "auditbeat-*",
+            "filebeat-*",
+            "packetbeat-*",
+            "winlogbeat-*",
+            "ecs-*"
+          ]
+        }
+      }
+    headers:
+      kbn-version: 7.4.0
+    body_format: json
+    status_code: 200,201
+    when: "'ecs-*' not in result.content"
 
 - name: Add the kibanapw shell function
   copy:
