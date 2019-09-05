@@ -173,6 +173,8 @@ logstash_group: logstash
 kibana_host: "127.0.0.1"
 kibana_port: "5601"
 kibana_url: "http://{{ kibana_host }}:{{ kibana_port }}"
+# Set default page to "Welcome [ROCK]" dashboard
+kibana_defaultRoute: "/app/kibana#/dashboard/6151e9d0-bf83-11e9-85bb-3b744f61312d"
 
 
 ###############################################################################
