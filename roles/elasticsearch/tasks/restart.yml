@@ -24,7 +24,7 @@
 
 - name: Make sure node has joined the cluster
   uri:
-    url: "http://{{ es_interface }}:9200/_nodes/{{ ansible_hostname }}/name"
+    url: "http://{{ es_interface }}:9200/_nodes/{{ es_node_name }}/name"
     return_content: true
     timeout: 5
   register: result
