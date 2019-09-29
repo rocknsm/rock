@@ -28,14 +28,14 @@ elastic_close_interval: 15
 elastic_delete_interval: 60
 kafka_retention: 168
 suricata_retention: 3
-bro_log_retention: 7
-bro_stats_retention: 0
+zeek_log_retention: 7
+zeek_stats_retention: 0
 
 # Feature options - Don't flip these unless you know what you're doing
 # These control if the service is installed
 
 rock_services:
-  - name: bro
+  - name: zeek
     quota_weight: 1
     installed: true
     enabled: true
@@ -120,16 +120,16 @@ rocknsm_testing_baseurl: https://copr-be.cloud.fedoraproject.org/results/@rockns
 rocknsm_gpgurl: https://packagecloud.io/rocknsm/2_4/gpgkey
 rocknsm_local_baseurl: file:///srv/rocknsm
 rock_offline_gpgcheck: 0
-bro_user: bro
-bro_group: bro
-bro_data_dir: "{{ rock_data_dir }}/bro"
-bro_prefix: /usr
-bro_sysconfig_dir: /etc/bro
-bro_site_dir: /usr/share/bro/site
-bro_cpu: "{{ (ansible_processor_vcpus|int // 2) if (ansible_processor_vcpus|int <= 16) else 8 }}"
-bro_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
-bro_rockscripts_branch: master
-bro_rockscripts_filename: "rock-scripts_{{ bro_rockscripts_branch | replace('/', '-') }}.tar.gz"
+zeek_user: zeek
+zeek_group: zeek
+zeek_data_dir: "{{ rock_data_dir }}/zeek"
+zeek_prefix: /usr
+zeek_sysconfig_dir: /etc/zeek
+zeek_site_dir: /usr/share/zeek/site
+zeek_cpu: "{{ (ansible_processor_vcpus|int // 2) if (ansible_processor_vcpus|int <= 16) else 8 }}"
+zeek_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
+zeek_rockscripts_branch: master
+zeek_rockscripts_filename: "rock-scripts_{{ zeek_rockscripts_branch | replace('/', '-') }}.tar.gz"
 rock_dashboards_repo: https://github.com/rocknsm/rock-dashboards.git
 rock_dashboards_branch: master
 rock_dashboards_url: "https://github.com/rocknsm/rock-dashboards/archive/{{ rock_dashboards_branch }}.tar.gz"

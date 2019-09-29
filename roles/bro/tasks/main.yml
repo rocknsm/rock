@@ -4,11 +4,11 @@
 - name: Install packages
   yum:
     name:
-      - bro
-      - bro-plugin-af_packet
-      - bro-plugin-kafka
-      - bro-plugin-gquic
-      - bro-plugin-communityid
+      - zeek
+      - zeek-plugin-af_packet
+      - zeek-plugin-kafka
+      - zeek-plugin-gquic
+      - zeek-plugin-communityid
       - GeoIP
       - GeoIP-update
       - postfix
@@ -72,44 +72,44 @@
     - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
     - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
 
-- name: Create bro group
+- name: Create zeek group
   group:
-    name: "{{ bro_group }}"
+    name: "{{ zeek_group }}"
     state: present
     system: true
 
-- name: Create bro user
+- name: Create zeek user
   user:
-    name: "{{ bro_user }}"
-    comment: "bro service account"
+    name: "{{ zeek_user }}"
+    comment: "zeek service account"
     createhome: false
-    group: "{{ bro_group }}"
-    home: /var/spool/bro
+    group: "{{ zeek_group }}"
+    home: /var/spool/zeek
     shell: /sbin/nologin
     system: true
     state: present
 
-- name: Create bro directories
+- name: Create zeek directories
   file:
     path: "{{ item }}"
     mode: 0755
-    owner: "{{ bro_user }}"
-    group: "{{ bro_group }}"
+    owner: "{{ zeek_user }}"
+    group: "{{ zeek_group }}"
     state: directory
     setype: var_log_t
   loop:
-    - "{{ bro_data_dir }}"
-    - "{{ bro_data_dir }}/logs"
-    - "{{ bro_data_dir }}/spool"
+    - "{{ zeek_data_dir }}"
+    - "{{ zeek_data_dir }}/logs"
+    - "{{ zeek_data_dir }}/spool"
 
-- name: Create /opt/bro for wandering users
+- name: Create /opt/zeek for wandering users
   file:
-    dest: "/opt/bro"
+    dest: "/opt/zeek"
     state: directory
 
 - name: Create note to wandering users
   copy:
-    dest: "/opt/bro/README.md"
+    dest: "/opt/zeek/README.md"
     content: |
       Hey! Where's my Bro?
       =========================
@@ -129,111 +129,111 @@
       /opt/bro/logs -> /data/bro/logs
       /opt/bro/spool -> /data/bro/spool
 
-- name: Create bro configs
+- name: Create zeek configs
   template:
     src: "{{ item }}.j2"
-    dest: "{{ bro_sysconfig_dir }}/{{ item }}"
+    dest: "{{ zeek_sysconfig_dir }}/{{ item }}"
     mode: 0644
     owner: root
     group: root
-  notify: Reload bro
+  notify: Reload zeek
   loop:
     - node.cfg
-    - broctl.cfg
+    - zeekctl.cfg
     - networks.cfg
 
-- name: Add bro custom scripts directory
+- name: Add zeek custom scripts directory
   file:
-    path: "{{ bro_site_dir }}/scripts"
+    path: "{{ zeek_site_dir }}/scripts"
     owner: root
     group: root
     mode: 0755
     state: directory
 
-- name: Set permissions on broctl scripts
+- name: Set permissions on zeekctl scripts
   file:
-    path: "{{ bro_prefix }}/share/broctl/scripts"
-    owner: "{{ bro_user }}"
-    group: "{{ bro_user }}"
+    path: "{{ zeek_prefix }}/share/zeekctl/scripts"
+    owner: "{{ zeek_user }}"
+    group: "{{ zeek_user }}"
     mode: 0755
     state: directory
 
 - name: Add README to scripts
   copy:
     src: bro-scripts-readme.txt
-    dest: "{{ bro_site_dir }}/scripts/README.txt"
+    dest: "{{ zeek_site_dir }}/scripts/README.txt"
     mode: 0644
     owner: root
     group: root
 
-- name: Checkout ROCK bro scripts
+- name: Checkout ROCK zeek scripts
   git:
-    repo: "{{ bro_rockscripts_repo }}"
-    dest: "{{ bro_site_dir }}/scripts/rock"
-    version: "{{ bro_rockscripts_branch }}"
+    repo: "{{ zeek_rockscripts_repo }}"
+    dest: "{{ zeek_site_dir }}/scripts/rock"
+    version: "{{ zeek_rockscripts_branch }}"
   when: rock_online_install
 
-- name: Deploy offline ROCK bro scripts
+- name: Deploy offline ROCK zeek scripts
   unarchive:
-    src: "{{ rock_cache_dir }}/{{ bro_rockscripts_filename }}"
-    dest: "{{ bro_site_dir }}/scripts/"
+    src: "{{ rock_cache_dir }}/{{ zeek_rockscripts_filename }}"
+    dest: "{{ zeek_site_dir }}/scripts/"
     owner: root
     group: root
-    creates: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
+    creates: "{{ zeek_site_dir }}/scripts/rock-scripts-{{ zeek_rockscripts_branch | replace ('/', '-') }}"
     remote_src: true
   when: not rock_online_install | bool
 
-- name: Symlink offline ROCK bro scripts
+- name: Symlink offline ROCK zeek scripts
   file:
-    src: "{{ bro_site_dir }}/scripts/rock-scripts-{{ bro_rockscripts_branch | replace ('/', '-') }}"
-    dest: "{{ bro_site_dir }}/scripts/rock"
+    src: "{{ zeek_site_dir }}/scripts/rock-scripts-{{ zeek_rockscripts_branch | replace ('/', '-') }}"
+    dest: "{{ zeek_site_dir }}/scripts/rock"
     state: link
     force: true
   when: not rock_online_install | bool
 
-- name: Update owner for ROCK bro scripts
+- name: Update owner for ROCK zeek scripts
   file:
-    path: "{{ bro_site_dir }}/scripts/rock"
-    owner: "{{ bro_user }}"
-    group: "{{ bro_group }}"
+    path: "{{ zeek_site_dir }}/scripts/rock"
+    owner: "{{ zeek_user }}"
+    group: "{{ zeek_group }}"
     state: directory
     recurse: true
     follow: true
   tags:
-    - bro_scripts
+    - zeek_scripts
 
-- name: Add ROCK scripts to local.bro
+- name: Add ROCK scripts to local.zeek
   lineinfile:
-    dest: "{{ bro_site_dir }}/local.bro"
+    dest: "{{ zeek_site_dir }}/local.zeek"
     line: "@load scripts/rock # ROCK NSM customizations"
     state: present
 
-- name: Enable bro kafka output to local.bro
+- name: Enable bro kafka output to local.zeek
   lineinfile:
-    dest: "{{ bro_site_dir }}/local.bro"
+    dest: "{{ zeek_site_dir }}/local.zeek"
     line: "@load scripts/rock/plugins/kafka"
     state: present
   when: "rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled')"
 
 - name: Add bro aliases
   copy:
-    src: profile.d-bro.sh
-    dest: /etc/profile.d/bro.sh
+    src: profile.d-zeek.sh
+    dest: /etc/profile.d/zeek.sh
     mode: 0644
     owner: root
     group: root
 
 - name: Add broctl wrapper for admin use
   copy:
-    src: broctl.sh
-    dest: /usr/sbin/broctl
+    src: zeekctl.sh
+    dest: /usr/sbin/zeekctl
     mode: 0754
     owner: root
     group: root
 
-- name: Set bro capabilities
+- name: Set zeek capabilities
   capabilities:
-    path: /usr/bin/bro
+    path: /usr/bin/zeek
     capability: "{{ item }}"
     state: present
   loop:
@@ -251,18 +251,18 @@
 
 - name: Set broctl cron
   cron:
-    name: "broctl maintenance"
+    name: "zeekctl maintenance"
     minute: "*/5"
-    cron_file: rocknsm_broctl
-    user: "{{ bro_user }}"
-    job: "/usr/bin/broctl cron >/dev/null 2>&1"
+    cron_file: rocknsm_zeekctl
+    user: "{{ zeek_user }}"
+    job: "/usr/bin/zeekctl cron >/dev/null 2>&1"
 
 - name: Initialize bro scripts for workers
-  command: /usr/bin/broctl install
+  command: /usr/bin/zeekctl install
   args:
-    creates: "{{ bro_data_dir }}/spool/broctl-config.sh"
+    creates: "{{ zeek_data_dir }}/spool/zeekctl-config.sh"
   become: true
-  become_user: "{{ bro_user }}"
+  become_user: zeek
 
 - name: Check status of interfaces
   command: >
@@ -294,11 +294,11 @@
   register: prjquota
   changed_when: false
 
-- name: Create bro quota project id
+- name: Create zeek quota project id
   getent:
     database: group
     split: ':'
-    key: bro
+    key: zeek
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
 - name: Map bro quota project id to name
@@ -307,7 +307,7 @@
     state: present
     insertafter: EOF
     path: /etc/projid
-    line: "bro:{{ getent_group.bro[1] }}"
+    line: "zeek:{{ getent_group.zeek[1] }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
 - name: Define bro quota project directories
@@ -316,33 +316,27 @@
     state: present
     insertafter: EOF
     path: /etc/projects
-    line: "{{ getent_group.bro[1] }}:{{ bro_data_dir }}"
+    line: "{{ getent_group.zeek[1] }}:{{ zeek_data_dir }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
 - name: set bro weight
   set_fact:
-    bro_weight: "{{ rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='quota_weight') | first }}"
-  when: bro_quota is not defined and (prjquota.stdout|length>0)
+    zeek_weight: "{{ rock_services | selectattr('name', 'equalto', 'zeek') | map(attribute='quota_weight') | first }}"
+  when: zeek_quota is not defined and (prjquota.stdout|length>0)
 
 - name: set bro quota if not user defined
   set_fact:
-    bro_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * bro_weight | int }}"
-  when: bro_quota is not defined and (prjquota.stdout|length>0)
+    zeek_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * zeek_weight | int }}"
+  when: zeek_quota is not defined and (prjquota.stdout|length>0)
 
 - name: set bro project quota
   xfs_quota:
     type: project
-    name: bro
-    bhard: "{{ bro_quota }}"
+    name: zeek
+    bhard: "{{ zeek_quota }}"
     state: present
     mountpoint: "{{ rock_mounts.mount }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
-
-- name: Enable and start bro
-  service:
-    name: bro
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled') | first | bool }}"
-  notify: Reload bro
 
 - name: Apply Logstash role
   include_role:
