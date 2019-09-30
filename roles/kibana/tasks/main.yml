@@ -2,7 +2,7 @@
 
 - name: Install packages
   yum:
-    name: kibana
+    name: 'kibana-{{ elastic_version }}'
     state: present
 
 - name: Update kibana config

@@ -2,7 +2,7 @@
 
 - name: Install filebeat package
   yum:
-    name: filebeat
+    name: 'filebeat-{{ elastic_version }}'
     state: present
 
 - name: Create filebeat config directory

@@ -111,7 +111,7 @@ docket_web_dhparams: "{{ http_tls_dhparams }}"
 
 epel_baseurl: http://download.fedoraproject.org/pub/epel/$releasever/$basearch/
 epel_gpgurl: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
-elastic_baseurl: https://artifacts.elastic.co/packages/{{ elastic_version }}/yum
+elastic_baseurl: https://artifacts.elastic.co/packages/{{ elastic.major_version }}.x/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
 rocknsm_baseurl: https://packagecloud.io/rocknsm/2_4/el/7/$basearch

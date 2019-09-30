@@ -4,7 +4,7 @@
   yum:
     name:
       - java-11-openjdk-headless
-      - logstash
+      - 'logstash-{{ elastic_version }}'
     state: present
 
 - name: Add sysconfig file

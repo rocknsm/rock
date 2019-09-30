@@ -123,7 +123,7 @@
   yum_repository:
     name: elastic-{{ elastic.major_version }}
     file: elastic
-    description: Elastic Stack repository for {{ elastic.major_version }}.{{ elastic.suffix }}
+    description: Elastic Stack repository for {{ elastic.major_version }}.x
     baseurl: "{{ elastic_baseurl }}"
     gpgkey: "{{ elastic_gpgurl }}"
     gpgcheck: false
