@@ -34,7 +34,7 @@ platforms:
     groups:
       - lighttpd
       - sensors
-      - bro
+      - zeek
       - fsf
       - kafka
       - stenographer

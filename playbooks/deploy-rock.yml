@@ -90,17 +90,17 @@
       when: "rock_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='installed')"
       stenographer_monitor_interfaces: "{{ rock_monifs }}"
 
-- hosts: bro
+- hosts: zeek
   tags:
-    - bro
+    - zeek
     - sensor
   pre_tasks:
     - name: Include user-override vars
       include_vars: "{{ rock_config }}"
   become: true
   roles:
-    - role: bro
-      when: "rock_services | selectattr('name', 'equalto', 'bro') | map(attribute='installed')"
+    - role: zeek
+      when: "rock_services | selectattr('name', 'equalto', 'zeek') | map(attribute='installed')"
 
 - hosts: suricata
   tags:

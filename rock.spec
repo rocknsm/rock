@@ -114,7 +114,7 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 - Fixes: issue with services starting that shouldn’t (#346, therealneu5ron@gmail.com)
 - Fixes: race condition on loading dashboards into Kibana (#356, derek@rocknsm.io)
 - Fixes: configuration for Docket allowing serving from non-root URI (#361, derek@rocknsm.io)
-- Change: bro log retention value to one week rather than forever (#345, sean.cochran@gmail.com)
+- Change: zeek log retention value to one week rather than forever (#345, sean.cochran@gmail.com)
 - Change: Greatly improve documentation  (#338, sean.cochran@gmail.com)
 - Change: Reorganize README (#308, bradford.dabbs@elastic.co)
 - Change: Move ECS to rock-dashboards repo (#305, derek@rocknsm.io)

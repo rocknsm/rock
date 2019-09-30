@@ -28,7 +28,7 @@ platforms:
       - rock
       - zookeeper
       - sensors
-      - bro
+      - zeek
       - fsf
       - kafka
       - stenographer
@@ -119,7 +119,7 @@ provisioner:
           sensors:
             children:
               rock:
-          bro:
+          zeek:
             children:
               sensors:
           fsf:

@@ -5,7 +5,7 @@ from builtins import (ascii, bytes, chr, dict, filter, hex, input,
 import pytest
 import yaml
 
-with open('tests/vars/bro.vars', 'r') as f:
+with open('tests/vars/zeek.vars', 'r') as f:
     try:
         yml_vars = yaml.load(f)
     except yaml.YAMLError as e:
@@ -65,7 +65,7 @@ def test_files(host, file_path):
             assert oct(host.file(file_p).mode) == file_m
 
 
-def test_bro_check(host):
+def test_zeek_check(host):
     with host.sudo():
-        result = host.run('broctl check')
+        result = host.run('zeekctl check')
         assert 'error' not in result.stdout

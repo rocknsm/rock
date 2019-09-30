@@ -3,12 +3,12 @@
 - debug: var=rock_debug
 - debug: var=rock_online_install
 - debug: var=rock_data_dir
-- debug: var=bro_data_dir
+- debug: var=zeek_data_dir
 - debug: var=suricata_data_dir
 - debug: var=stenographer_data_dir
 - debug: var=rock_data_user
 - debug: var=es_mem
-- debug: var=bro_cpu
+- debug: var=zeek_cpu
 - debug: var=rock_monifs
 - debug: var=epel_baseurl
 - debug: var=epel_gpgurl

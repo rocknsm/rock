@@ -31,7 +31,7 @@ rock_monifs: "{{ ansible_interfaces | difference(['lo', ansible_default_ipv4.int
 
 # Set the number of CPUs assigned to Bro (Half of total, but no more than 8):
 {% raw %}
-bro_cpu: "{{ (ansible_processor_vcpus|int // 2) if (ansible_processor_vcpus|int <= 16) else 8 }}"
+zeek_cpu: "{{ (ansible_processor_vcpus|int // 2) if (ansible_processor_vcpus|int <= 16) else 8 }}"
 {% endraw %}
 
 # Set the Elasticsearch cluster name:
@@ -90,7 +90,7 @@ rocknsm_local_baseurl: {{ rocknsm_local_baseurl }}
 # 0 = disabled
 rock_offline_gpgcheck: {{ rock_offline_gpgcheck }}
 # (OFFLINE) the git repo used to checkout customized ROCK scripts for Bro:
-bro_rockscripts_repo: {{ bro_rockscripts_repo }}
+zeek_rockscripts_repo: {{ zeek_rockscripts_repo }}
 
 
 ###############################################################################
@@ -107,10 +107,10 @@ elastic_delete_interval: {{ elastic_delete_interval }}
 kafka_retention: {{ kafka_retention }}
 
 # Set value for Bro log retention (in days):
-bro_log_retention: {{ bro_log_retention }}
+zeek_log_retention: {{ zeek_log_retention }}
 
 # Set value for Bro statistics log retention (in days):
-bro_stats_retention: {{ bro_stats_retention }}
+zeek_stats_retention: {{ zeek_stats_retention }}
 
 # Set how often logrotate will roll Suricata log (in days):
 suricata_retention: {{ suricata_retention }}
@@ -136,7 +136,7 @@ rock_services:
 default_mount: /data
 
 #Overrides for quotas instead of using weights. Expected in bytes.
-# bro_quota: 1073741824
+# zeek_quota: 1073741824
 # stenographer_quota: 1073741824
 # suricata_quota: 1073741824
 # elasticsearch_quota: 1073741824

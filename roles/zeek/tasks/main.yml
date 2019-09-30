@@ -1,5 +1,5 @@
 ---
-# tasks file for bro
+# tasks file for zeek
 
 - name: Install packages
   yum:
@@ -120,14 +120,14 @@
       Here's where you can find your stuff:
       Bro configuration files
       -----------------------
-      /opt/bro/etc -> /etc/bro
+      /opt/zeek/etc -> /etc/zeek
       Bro site scripts
       -----------------------
-      /opt/bro/share/bro/site -> /usr/share/bro/site
+      /opt/zeek/share/zeek/site -> /usr/share/zeek/site
       Bro logs and spool dirs (same as previous ROCK iterations)
       -----------------------
-      /opt/bro/logs -> /data/bro/logs
-      /opt/bro/spool -> /data/bro/spool
+      /opt/zeek/logs -> /data/zeek/logs
+      /opt/zeek/spool -> /data/zeek/spool
 
 - name: Create zeek configs
   template:
@@ -160,7 +160,7 @@
 
 - name: Add README to scripts
   copy:
-    src: bro-scripts-readme.txt
+    src: zeek-scripts-readme.txt
     dest: "{{ zeek_site_dir }}/scripts/README.txt"
     mode: 0644
     owner: root
@@ -208,14 +208,14 @@
     line: "@load scripts/rock # ROCK NSM customizations"
     state: present
 
-- name: Enable bro kafka output to local.zeek
+- name: Enable zeek kafka output to local.zeek
   lineinfile:
     dest: "{{ zeek_site_dir }}/local.zeek"
     line: "@load scripts/rock/plugins/kafka"
     state: present
   when: "rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled')"
 
-- name: Add bro aliases
+- name: Add zeek aliases
   copy:
     src: profile.d-zeek.sh
     dest: /etc/profile.d/zeek.sh
@@ -223,7 +223,7 @@
     owner: root
     group: root
 
-- name: Add broctl wrapper for admin use
+- name: Add zeekctl wrapper for admin use
   copy:
     src: zeekctl.sh
     dest: /usr/sbin/zeekctl
@@ -249,7 +249,7 @@
     - "cap_net_raw+eip"
     - "cap_net_admin+eip"
 
-- name: Set broctl cron
+- name: Set zeekctl cron
   cron:
     name: "zeekctl maintenance"
     minute: "*/5"
@@ -257,7 +257,7 @@
     user: "{{ zeek_user }}"
     job: "/usr/bin/zeekctl cron >/dev/null 2>&1"
 
-- name: Initialize bro scripts for workers
+- name: Initialize zeek scripts for workers
   command: /usr/bin/zeekctl install
   args:
     creates: "{{ zeek_data_dir }}/spool/zeekctl-config.sh"
@@ -301,7 +301,7 @@
     key: zeek
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
-- name: Map bro quota project id to name
+- name: Map zeek quota project id to name
   lineinfile:
     create: true
     state: present
@@ -310,7 +310,7 @@
     line: "zeek:{{ getent_group.zeek[1] }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
-- name: Define bro quota project directories
+- name: Define zeek quota project directories
   lineinfile:
     create: true
     state: present
@@ -319,17 +319,17 @@
     line: "{{ getent_group.zeek[1] }}:{{ zeek_data_dir }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
-- name: set bro weight
+- name: set zeek weight
   set_fact:
     zeek_weight: "{{ rock_services | selectattr('name', 'equalto', 'zeek') | map(attribute='quota_weight') | first }}"
   when: zeek_quota is not defined and (prjquota.stdout|length>0)
 
-- name: set bro quota if not user defined
+- name: set zeek quota if not user defined
   set_fact:
     zeek_quota: "{{ rock_mounts.size_total | int / xfs_quota_weight | int * zeek_weight | int }}"
   when: zeek_quota is not defined and (prjquota.stdout|length>0)
 
-- name: set bro project quota
+- name: set zeek project quota
   xfs_quota:
     type: project
     name: zeek
@@ -345,7 +345,7 @@
       delegate_to: "{{ host }}"
       vars:
         logstash_configs:
-          - { src: 'ls-input-bro.j2', dest: 'logstash-100-input-kafka-zeek.conf' }
+          - { src: 'ls-input-zeek.j2', dest: 'logstash-100-input-kafka-zeek.conf' }
   loop:
     "{{ groups['logstash'] }}"
   loop_control:

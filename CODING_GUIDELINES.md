@@ -394,14 +394,14 @@ Use `snake_case` for variable names in your scripts. All variables should prefix
 - name: 'set some facts'
   set_fact:
     Boolean: true
-    broint: 20
+    zeekint: 20
     string: 'test'
 
 # good
 - name: 'set some facts'
   set_fact:
     rocknsm_boolean: true
-    bro_int: 20
+    zeek_int: 20
     kafka_string: 'test'
 ```
 

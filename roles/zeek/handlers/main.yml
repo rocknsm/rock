@@ -7,8 +7,8 @@
       /sbin/ifup ${intf};
     done
 
-- name: Reload bro
+- name: Reload zeek
   service:
-    name: bro
+    name: zeek
     state: restarted
-  when: local_services | selectattr('name', 'equalto', 'bro') | map(attribute='enabled') | first | bool
+  when: local_services | selectattr('name', 'equalto', 'zeek') | map(attribute='enabled') | first | bool
