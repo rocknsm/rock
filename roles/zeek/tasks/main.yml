@@ -10,7 +10,7 @@
       - zeek-plugin-gquic
       - zeek-plugin-communityid
       - GeoIP
-      - GeoIP-update
+      - geoipupdate
       - postfix
     state: installed
 
