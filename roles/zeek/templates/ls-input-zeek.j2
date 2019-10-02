@@ -1,6 +1,6 @@
 input {
   kafka {
-    topics => ["bro-raw"]
+    topics => ["zeek-raw"]
     add_field => { "[@metadata][stage]" => "zeek_json" }
     # Set this to one per kafka partition to scale up
     #consumer_threads => 4

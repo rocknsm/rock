@@ -13,7 +13,7 @@ type=proxy
 host=localhost
 env_vars=fanout_id=0
 
-{% set procs_per_worker = (bro_cpu | int) // (rock_monifs|length) %}
+{% set procs_per_worker = (zeek_cpu | int) // (rock_monifs|length) %}
 {% for iface in rock_monifs %}
 [{{ iface }}]
 type=worker
@@ -21,7 +21,7 @@ host=localhost
 {%if procs_per_worker >=2 %}
 interface=af_packet::{{ iface }}
 lb_method=custom
-lb_procs={{ (bro_cpu | int) // loop.length }}
+lb_procs={{ (zeek_cpu | int) // loop.length }}
 {% else %}
 interface={{ iface }}
 {% endif %}

@@ -1,5 +1,5 @@
 filter {
-  if [@metadata][stage] == "broraw_kafka" {
+  if [@metadata][stage] == "zeekraw_kafka" {
       # Set the timestamp
       date { match => [ "ts", "ISO8601" ] }
 
@@ -174,11 +174,11 @@ filter {
           event.initialize( result )
         "
       }
-      mutate { add_field => {"[@metadata][stage]" => "broraw_kafka" } }
+      mutate { add_field => {"[@metadata][stage]" => "zeekraw_kafka" } }
 
       # Temporary fix for DHCP
-      if [@meta][stream] == "dhcp" and [@metadata][stage] == "broraw_kafka" {
-        # Remove the broken fields and also fix the log (UID) "id" correction
+      if [@meta][stream] == "dhcp" and [@metadata][stage] == "zeekraw_kafka" {
+        # Remove the zeekken fields and also fix the log (UID) "id" correction
         mutate {
           remove_field => [
             "id_orig_h",

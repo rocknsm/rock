@@ -35,7 +35,7 @@ sensor_hostname=
 declare -A SERVICES
 SERVICES[stenographer]="Full packet capture"
 SERVICES[docket]="Web interface and API to stenographer"
-SERVICES[bro]="Traffic metadata"
+SERVICES[zeek]="Traffic metadata"
 SERVICES[suricata]="Signature-based IDS"
 SERVICES[logstash]="Data pipeline Swiss Army knife"
 SERVICES[elasticsearch]="Full text indexing magic"
