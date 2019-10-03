@@ -3,15 +3,7 @@
 
 - name: Install packages
   yum:
-    name:
-      - zeek
-      - zeek-plugin-af_packet
-      - zeek-plugin-kafka
-      - zeek-plugin-gquic
-      - zeek-plugin-communityid
-      - GeoIP
-      - geoipupdate
-      - postfix
+    name: "{{ zeek_packages }}"
     state: installed
 
 - name: Set monitor interface config
@@ -40,7 +32,7 @@
     dest: /etc/GeoIP.conf
 
 # There's an issue w/ geoipupdate when env is empty
-- name: Update GeoIP
+- name: Update GeoIP - Skipping due to bug
   shell: >
     if [ "x$HTTP_PROXY" == "x" ]; then
         unset HTTP_PROXY;
@@ -59,6 +51,9 @@
     creates: /usr/share/GeoIP/GeoLiteASNum.dat
   register: result
   failed_when: (result.rc != 0) and (result.rc != 1)
+  when: false
+  tags:
+    - molecule-idempotence-notest
 
 - name: Create GeoIP symlinks
   file:
@@ -201,6 +196,7 @@
     follow: true
   tags:
     - zeek_scripts
+    - molecule-idempotence-notest
 
 - name: Add ROCK scripts to local.zeek
   lineinfile:

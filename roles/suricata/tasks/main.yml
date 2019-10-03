@@ -84,6 +84,8 @@
   loop:
     - rules
     - update
+  tags:
+    - molecule-idempotence-notest
 
 - name: Set suricata overrides include
   lineinfile:
