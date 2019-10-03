@@ -92,4 +92,4 @@
     enabled: "{{ local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | first | bool }}"
   notify: Restart logstash
   tags:
-  - molecule-idempotence-notest
+    - molecule-idempotence-notest
