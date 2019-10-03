@@ -1,9 +1,17 @@
 ---
 # tasks file for zeek
 
+# Prefer to move this list to default vars
 - name: Install packages
   yum:
-    name: "{{ zeek_packages }}"
+    name:
+      - zeek
+      - zeek-aux
+      - zeekctl
+      - zeek-plugin-kafka
+      - zeek-plugin-af_packet
+      - zeek-plugin-communityid
+      - zeek-plugin-gquic
     state: installed
 
 - name: Set monitor interface config
