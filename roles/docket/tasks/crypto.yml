@@ -56,6 +56,8 @@
     path: "{{ docket_x509_key }}"
     size: 4096
   when: inventory_hostname in groups['docket']
+  tags:
+    - molecule-idempotence-notest
 
 - name: Set perms on private key
   file:
@@ -64,6 +66,8 @@
     group: "{{ docket_x509_group }}"
     mode: "0644"
   when: inventory_hostname in groups['docket']
+  tags:
+    - molecule-idempotence-notest
 
 - name: Check for certificate
   stat:

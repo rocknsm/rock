@@ -21,6 +21,8 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
   notify: Restart logstash
+  tags:
+    - molecule-idempotence-notest
 
 - name: Copy Logstash ruby scripts to /etc
   copy:
@@ -41,6 +43,8 @@
   notify: Restart logstash
   when: logstash_configs is defined
   with_items: "{{ logstash_configs }}"
+  tags:
+    - molecule-idempotence-notest
 
 - name: Template Elasticsearch output for Logstash
   template:
@@ -52,6 +56,8 @@
   notify: Restart logstash
   loop:
     - logstash-9999-output-elasticsearch.conf
+  tags:
+    - molecule-idempotence-notest
 
 - name: Enable logstash monitoring
   lineinfile:
@@ -59,6 +65,8 @@
     line: "xpack.monitoring.enabled: true"
     regexp: '^#xpack.monitoring.enabled: .*'
   notify: Restart logstash
+  tags:
+    - molecule-idempotence-notest
 
 - name: Point logstash monitoring to elastic hosts
   lineinfile:
@@ -75,9 +83,13 @@
           {%- endif %}
     regexp: '^#xpack.monitoring.elasticsearch.hosts: .*'
   notify: Restart logstash
+  tags:
+    - molecule-idempotence-notest
 
 - name: Enable and start Logstash
   service:
     name: logstash
     enabled: "{{ local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | first | bool }}"
   notify: Restart logstash
+  tags:
+  - molecule-idempotence-notest
