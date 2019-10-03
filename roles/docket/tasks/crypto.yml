@@ -74,7 +74,7 @@
   when: inventory_hostname in groups['docket']
 
 - name: Debug cert output
-  debug: 
+  debug:
     var: docket_cert.results
   when: inventory_hostname in groups['docket']
 
