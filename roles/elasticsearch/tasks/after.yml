@@ -42,4 +42,6 @@
   register: result
   changed_when: 'result.stdout.find("Changed: 0") != -1'
   run_once: true
+  tags: 
+    - molecule-idempotence-notest
 ...
