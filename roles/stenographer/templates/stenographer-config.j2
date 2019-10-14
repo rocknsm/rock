@@ -10,7 +10,7 @@
   , "StenotypePath": "/usr/bin/stenotype"
   , "Interface": "{{ item.1 }}"
   , "Port": {{ 1234 + item.0 }}
-  , "Host": "{{ ansible_default_ipv4.address }}"
+  , "Host": "{{ stenographer_monitor_interfaces[0] }}"
   , "Flags": ["-v"]
   , "CertPath": "/etc/stenographer/certs"
 }
