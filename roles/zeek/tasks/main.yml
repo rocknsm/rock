@@ -334,6 +334,12 @@
     mountpoint: "{{ rock_mounts.mount }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
+- name: Enable and start zeek
+  service:
+    name: zeek
+    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'zeek') | map(attribute='enabled') | first | bool else 'stopped' }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'zeek') | map(attribute='enabled') | first | bool }}"
+
 - name: Apply Logstash role
   include_role:
     name: logstash
