@@ -286,7 +286,6 @@
 - name: Configure firewall ports
   firewalld:
     port: "{{ item[1] }}"
-    source: "{{ item[0] }}"
     zone: work
     permanent: true
     state: enabled
