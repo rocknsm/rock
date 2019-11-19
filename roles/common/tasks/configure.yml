@@ -285,13 +285,14 @@
 
 - name: Configure firewall ports
   firewalld:
-    port: "{{ item[1] }}"
+    port: "{{ item }}"
     zone: work
     permanent: true
     state: enabled
     immediate: true
-  loop: "{{ rock_mgmt_nets | product(['22/tcp']) | list }}"
-
+    loop:
+      - 22/tcp
+      
 - name: Ensure cache directory exists
   file:
     dest: "{{ rock_cache_dir }}"
