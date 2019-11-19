@@ -283,15 +283,24 @@
   tags:
     - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
+- name: Configure sources for work zone
+  firewalld:
+    source: "{{ item }}"
+    zone: work
+    permanent: true
+    immediate: true
+    state: enabled
+  loop: "{{ rock_mgmt_nets }}"
+
 - name: Configure firewall ports
   firewalld:
-    port: "{{ item[1] }}"
-    source: "{{ item[0] }}"
+    port: "{{ item }}"
     zone: work
     permanent: true
     state: enabled
     immediate: true
-  loop: "{{ rock_mgmt_nets | product(['22/tcp']) | list }}"
+  loop:
+    - 22/tcp
 
 - name: Ensure cache directory exists
   file:
