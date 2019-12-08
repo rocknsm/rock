@@ -114,10 +114,10 @@ epel_gpgurl: https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
 elastic_baseurl: https://artifacts.elastic.co/packages/{{ elastic_version }}/yum
 elastic_gpgurl: https://artifacts.elastic.co/GPG-KEY-elasticsearch
 
-rocknsm_baseurl: https://packagecloud.io/rocknsm/2_4/el/7/$basearch
-rocknsm_srpm_baseurl: https://packagecloud.io/rocknsm/2_4/el/7/SRPMS
+rocknsm_baseurl: https://packagecloud.io/rocknsm/2_5/el/7/$basearch
+rocknsm_srpm_baseurl: https://packagecloud.io/rocknsm/2_5/el/7/SRPMS
 rocknsm_testing_baseurl: https://copr-be.cloud.fedoraproject.org/results/@rocknsm/testing/epel-7-$basearch/
-rocknsm_gpgurl: https://packagecloud.io/rocknsm/2_4/gpgkey
+rocknsm_gpgurl: https://packagecloud.io/rocknsm/2_5/gpgkey
 rocknsm_local_baseurl: file:///srv/rocknsm
 rock_offline_gpgcheck: 0
 zeek_user: zeek
