@@ -96,7 +96,7 @@
 - name: Workaround for issue 522
   lineinfile:
     dest: /etc/suricata/suricata.yaml
-    line: "    EXTERNAL_NET: \"[any, !$HOME_NET]\""
+    line: "    EXTERNAL_NET: \"[any, !$HOME_NET]\" # See https://github.com/rocknsm/rock/issue/522"
     regexp: '^ *[^#]EXTERNAL_NET:'
     state: present
   tags:
