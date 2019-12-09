@@ -93,6 +93,15 @@
     line: "include: rocknsm-overrides.yaml"
     state: present
 
+- name: Workaround for issue 522
+  lineinfile:
+    dest: /etc/suricata/suricata.yaml
+    line: "    EXTERNAL_NET: \"[any, !$HOME_NET]\""
+    regexp: '^ *[^#]EXTERNAL_NET:'
+    state: present
+  tags:
+    - temp-fix
+
 - name: Discover facts about data mount
   set_fact:
     rock_mounts:
