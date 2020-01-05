@@ -39,7 +39,7 @@ es_cluster_name: {{ es_cluster_name }}
 
 # Set the Elasticsearch cluster node name:
 {% raw %}
-es_node_name: "{{ ansible_hostname }}"
+es_node_name: "{{ inventory_hostname }}"
 {% endraw %}
 
 # Set the value of Elasticsearch memory (Half of total, but no more than 31GB):

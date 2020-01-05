@@ -143,16 +143,27 @@
   tags:
     - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
-- name: Configure firewall ports for internal elastic communication
+- name: Configure firewall zone for internal elastic sources
   firewalld:
-    port: "{{ item.1 }}/tcp"
     permanent: true
     state: enabled
     immediate: true
-    source: "{{ hostvars[item.0]['ansible_default_ipv4']['address'] }}"
+    source: "{{ hostvars[item]['ansible_default_ipv4']['address'] }}"
     zone: work  # This should be a different zone, but leaving this here for now
   when: (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1
-  loop: "{{ (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana'])) | product([9200, 9300]) | list }}"
+  loop: "{{ (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana'])) | list }}"
+
+- name: Configure firewall ports for zone
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+    zone: work  # This should be a different zone, but leaving this here for now
+  when: (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1
+  loop: 
+    - 9200
+    - 9300
 
 - name: Determine if Elasticsearch needs to be restarted
   set_fact:

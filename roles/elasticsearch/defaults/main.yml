@@ -12,7 +12,7 @@ es_network_host: >-
   {%- endif -%}
 es_interface: >-
     {%- if (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1 -%}
-    {{ ansible_hostname }}
+    {{ inventory_hostname }}
     {%- else -%}
     localhost
     {%- endif -%}

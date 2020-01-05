@@ -118,9 +118,10 @@
     dest: "{{ rock_cache_dir }}/{{ rock_dashboards_filename }}"
     mode: 0644
   when:
-    rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or
-    rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed') and
-    rock_online_install
+    rock_online_install and (
+      rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or
+      rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed')
+    )
 
 - name: Extract RockNSM elastic configs
   unarchive:

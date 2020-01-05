@@ -19,7 +19,7 @@
 
 - name: Wait for elasticsearch to become ready
   wait_for:
-    host: "{{ ansible_host }}"
+    host: "{{ es_interface }}"
     port: 9200
 
 - name: Make sure node has joined the cluster
