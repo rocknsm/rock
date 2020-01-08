@@ -171,5 +171,4 @@
   when: "(es_config.changed or es_memlock.changed or es_jvm.changed) and not es_install.changed"
   tags:
     - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
-
 ...
