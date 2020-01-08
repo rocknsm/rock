@@ -28,6 +28,18 @@
     regexp: "log.dirs="
     line: "log.dirs={{ kafka_data_dir }}"
 
+- name: Set kafka broker.id to automatic
+  lineinfile:
+    dest: "{{ kafka_config_path }}"
+    regexp: "broker.id="
+    line: "broker.id=-1"
+
+- name: Set kafka zookeeper.connect
+  lineinfile:
+    dest: "{{ kafka_config_path }}"
+    regexp: "zookeeper.connect="
+    line: "zookeeper.connect={{ kafka_zookeeper_host }}:{{ kafka_zookeeper_port }}{{ kafka_zookeeper_chroot }}"
+
 - name: Discover facts about data mount
   set_fact:
     rock_mounts:
@@ -153,6 +165,8 @@
     permanent: true
     state: enabled
     immediate: true
+    zone: work
   loop:
     - 9092
   when: groups['kafka'] | difference(groups['logstash']) | count > 0
+...
