@@ -48,8 +48,31 @@ platforms:
       - stenographer
       - suricata
       - filebeat
-      - logstash
   - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-2"
+    memory: 16384
+    cpu: 4
+    disk_size: 64
+    guest_id: ${TEMPLATE_DISTRO-centos}7_64Guest
+    template_pattern: '^template-${TEMPLATE_DISTRO-centos}-7'
+    groups:
+      - rock
+      - zookeeper
+      - sensors
+      - zeek
+      - fsf
+      - kafka
+      - stenographer
+      - suricata
+      - filebeat
+  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-3"
+    memory: 16384
+    cpu: 4
+    disk_size: 64
+    guest_id: ${TEMPLATE_DISTRO-centos}7_64Guest
+    template_pattern: '^template-${TEMPLATE_DISTRO-centos}-7'
+    groups:
+      - logstash
+  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-4"
     memory: 16384
     cpu: 4
     disk_size: 64
@@ -64,7 +87,7 @@ platforms:
       - elasticsearch
       - docket
       - kibana
-  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-3"
+  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-5"
     memory: 16384
     cpu: 4
     disk_size: 64
@@ -75,7 +98,7 @@ platforms:
       - es_data
       - es_ingest
       - elasticsearch
-  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-4"
+  - name: "rock-molecule-${MOLECULE_SCENARIO_NAME}${TOX_ENVNAME}-instance-6"
     memory: 16384
     cpu: 4
     disk_size: 64
