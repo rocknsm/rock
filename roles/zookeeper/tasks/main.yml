@@ -9,6 +9,17 @@
 - name: Enable and Start zookeeper
   systemd:
     name: zookeeper
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'zookeeper') | map(attribute='enabled') | first | bool }}"
   notify: Restart zookeeper
+
+- name: Configure firewall ports
+  firewalld:
+    port: "{{ item }}/tcp"
+    permanent: true
+    state: enabled
+    immediate: true
+    zone: work
+  loop:
+    - 2181
+  when: groups['zookeeper'] | difference(groups['kafka']) | count > 0
 ...
