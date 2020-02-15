@@ -4,7 +4,7 @@
 
 Name:           rock
 Version:        2.5.0
-Release:        1
+Release:        2
 
 Summary:        Network Security Monitoring collections platform
 
@@ -74,6 +74,14 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/deploy_rock.sh
 
 %changelog
+* Sat Feb 15 2020 Derek Ditch <derek@rocknsm.io> 2.5.0-2
+- Enhances to multinode setup to be more reliable (espeically w/ elasticsearch)
+- Fixes startup logic for Zeek
+- Improvements to molecule testing framework for multinode testing
+- Globally rename bro to zeek to align with upstream
+- Migrate to maxmind GeoIP v2 for everything (zeek, suricata, logstash)
+- Modularization of Logstash pipeline and ECS 1.4 compatibility
+
 * Thu Aug 22 2019 Derek Ditch <derek@rocknsm.io> 2.5.0-1
 - Updated roles to work with ECS pipeline
 - Added XFS Quotas  (#473)
