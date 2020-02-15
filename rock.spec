@@ -165,7 +165,6 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 - Deprecated Pulled Pork
 
 * Thu Jun 08 2017 spartan782 <john.hall7688@hotmail.com> 2.0.5-1
--
-Tito files added.
-rock.spec added.
-sign_rpm.sh added.
+- Tito files added.
+- rock.spec added.
+- sign_rpm.sh added.
