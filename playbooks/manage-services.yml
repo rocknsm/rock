@@ -40,6 +40,6 @@
         msg: "{{ item.stdout }}"
       loop: "{{ services.results }}"
       loop_control:
-        label: "{{ item._ansible_item_label }}"
+        label: "{{ item.item }}"
       tags:
         - service_status
