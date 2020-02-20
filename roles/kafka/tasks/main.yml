@@ -117,7 +117,7 @@
       mode: '0644'
   register: wait_for_zk_created
 
-- name: Create environment file for sidecar
+- name: Create environment file for zookeeper sidecar
   copy:
     dest: /etc/sysconfig/wait-for-zookeeper
     content: |
