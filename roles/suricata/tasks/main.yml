@@ -163,12 +163,6 @@
     mountpoint: "{{ rock_mounts.mount }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
 
-- name: Enable and start suricata
-  service:
-    name: suricata
-    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool else 'stopped' }}"
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool }}"
-
 - name: Configure logrotate for suricata logs
   template:
     src: templates/logrotate-suricata.j2
@@ -230,6 +224,12 @@
     job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
          > /var/log/suricata-update.log 2>&1
   when: "local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool"
+
+- name: Enable and start suricata
+  service:
+    name: suricata
+    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool else 'stopped' }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'suricata') | map(attribute='enabled') | first | bool }}"
 
 - name: Apply Logstash role
   include_role:
