@@ -116,6 +116,11 @@ LIST_ACTION=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
+    (--diag|-D)
+            diag
+            shift
+            exit 0
+            ;;  
 
     (--config|-c)
             CONF_OVERRIDES="$2"
@@ -210,6 +215,28 @@ esac
 done
 
 case "$1" in
+
+(diag)
+	COMMAND=${1}
+	echo "-----Yum Info-----" > rockdiag.log
+	yum info -v rock >> rockdiag.log
+
+	echo "-----Build-----" >> rockdiag.log
+	cat /etc/rocknsm/rocknsm-buildstamp >> rockdiag.log
+
+	echo "-----Memory-----" >> rockdiag.log
+	free -g >> rockdiag.log
+
+	echo "-----Storage-----" >> rockdiag.log
+	df -h /data /var >> rockdiag.log
+
+	echo "-----Network-----" >> rockdiag.log
+	ip a >> rockdiag.log
+
+	echo "-----Deployment Config-----" >> rockdiag.log
+	cat /etc/rocknsm/config.yml >> rockdiag.log
+	;;
+
 
 (destroy)
         COMMAND=${1}
