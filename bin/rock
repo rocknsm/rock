@@ -70,6 +70,7 @@ ssh-config          Configure hosts in inventory to use key-based auth (multinod
 deploy              Deploy selected ROCK components
 deploy-offline      Same as deploy --offline (Default ISO behavior)
 deploy-online       Same as deploy --online
+diag                Outputs diagnostic file to current working directory
 stop                Stop all ROCK services
 start               Start all ROCK services
 restart             Restart all ROCK services
@@ -116,12 +117,6 @@ LIST_ACTION=false
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
-    (--diag|-D)
-            diag
-            shift
-            exit 0
-            ;;  
-
     (--config|-c)
             CONF_OVERRIDES="$2"
             EXTRA_OPTS="$EXTRA_OPTS -e @$CONF_OVERRIDES"
