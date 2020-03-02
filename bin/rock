@@ -70,7 +70,6 @@ ssh-config          Configure hosts in inventory to use key-based auth (multinod
 deploy              Deploy selected ROCK components
 deploy-offline      Same as deploy --offline (Default ISO behavior)
 deploy-online       Same as deploy --online
-diag                Outputs diagnostic file to current working directory
 stop                Stop all ROCK services
 start               Start all ROCK services
 restart             Restart all ROCK services
@@ -95,6 +94,26 @@ Options:
 --tags, -t <tags>                  Only run plays and tasks tagged with these values
 --verbose, -v                      Increase verbosity of ansible-playbook
 EOF
+}
+
+function diagnostic(){
+	echo "----------Yum Info----------" > rockdiag.log
+	yum info -v rock >> rockdiag.log
+
+	echo "----------Build----------" >> rockdiag.log
+	cat /etc/rocknsm/rocknsm-buildstamp >> rockdiag.log
+
+	echo "----------Memory(MB)----------" >> rockdiag.log
+	free --mega >> rockdiag.log
+
+	echo "----------Storage----------" >> rockdiag.log
+	df -h >> rockdiag.log
+
+	echo "----------Network----------" >> rockdiag.log
+	ip a >> rockdiag.log
+
+	echo "----------Deployment Config----------" >> rockdiag.log
+	cat /etc/rocknsm/config.yml >> rockdiag.log
 }
 
 SHORT_OPTS="c:hi:p:t:e:voO"
@@ -213,23 +232,7 @@ case "$1" in
 
 (diag)
 	COMMAND=${1}
-	echo "-----Yum Info-----" > rockdiag.log
-	yum info -v rock >> rockdiag.log
-
-	echo "-----Build-----" >> rockdiag.log
-	cat /etc/rocknsm/rocknsm-buildstamp >> rockdiag.log
-
-	echo "-----Memory-----" >> rockdiag.log
-	free -g >> rockdiag.log
-
-	echo "-----Storage-----" >> rockdiag.log
-	df -h /data /var >> rockdiag.log
-
-	echo "-----Network-----" >> rockdiag.log
-	ip a >> rockdiag.log
-
-	echo "-----Deployment Config-----" >> rockdiag.log
-	cat /etc/rocknsm/config.yml >> rockdiag.log
+	diagnostic
 	;;
 
 
