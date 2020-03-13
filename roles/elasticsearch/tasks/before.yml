@@ -161,7 +161,7 @@
     immediate: true
     zone: work  # This should be a different zone, but leaving this here for now
   when: (groups['elasticsearch']|union(groups['logstash'])|union(groups['kibana']))| count > 1
-  loop: 
+  loop:
     - 9200
     - 9300
 
