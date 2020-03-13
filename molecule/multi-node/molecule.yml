@@ -10,7 +10,7 @@ scenario:
     - create
     - prepare
     - converge
-    #- idempotence
+    # - idempotence
     - side_effect
     - verify
     - cleanup
