@@ -28,7 +28,11 @@
         - service_mgmt
 
     - name: Register service status
-      shell: systemctl status -n 3 {{ item }}*
+      shell: >
+             /bin/bash -c "systemctl status {{ item }} | tee >(grep -o 'Active: .*') >(
+             tail -2 | sed 's/.*\: //' | tee >(jq) | fold -w100) > /dev/null" |
+             tr '"' ' ' | 
+             tr '\\\\' '\\'
       loop: "{{ host_services }}"
       register: services
       changed_when: false
