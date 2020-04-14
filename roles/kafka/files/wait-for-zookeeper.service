@@ -5,6 +5,7 @@ Before=kafka.service
 After=network.target
 After=zookeeper.service
 Wants=zookeeper.service
+PartOf=kafka.service
 
 [Service]
 Type=notify
