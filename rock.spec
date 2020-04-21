@@ -3,8 +3,8 @@
 %global _sbindir /usr/sbin
 
 Name:           rock
-Version:        2.5.0
-Release:        2
+Version:        2.5.1
+Release:        1
 
 Summary:        Network Security Monitoring collections platform
 
@@ -74,6 +74,14 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/deploy_rock.sh
 
 %changelog
+* Tue Apr 21 2020 Derek Ditch <derek@rocknsm.io>
+- Improves kafka and zookeeper reliability (derek@rocknsm.io)
+- Improve multi-node unit testing (derek@rocknsm.io)
+- Add diag function to rock command for troubleshooting (koelslaw@gmail.com)
+- Improve formating of JSON logs in rock status command (10247070+nstrik159@users.noreply.github.com)
+- Adjust the start to update order for Suricata  (#533) (jeff.geiger@gmail.com)
+- Add @dcode's fix for multinode . (#532) (jeff.geiger@gmail.com)
+
 * Sat Feb 15 2020 Derek Ditch <derek@rocknsm.io> 2.5.0-2
 - Enhances to multinode setup to be more reliable (espeically w/ elasticsearch)
 - Fixes startup logic for Zeek
