@@ -3,7 +3,7 @@
 http_proxy: "{{ lookup('env','http_proxy') }}"
 https_proxy: "{{ lookup('env', 'https_proxy') }}"
 
-rock_version: "{{ lookup('file', '/etc/rocknsm/rock-version', errors='ignore') | default('2.5.0') }}"
+rock_version: "{{ lookup('file', '/etc/rocknsm/rock-version', errors='ignore') | default('2.5.1') }}"
 elastic:
   major_version: 7
   suffix: "x"
