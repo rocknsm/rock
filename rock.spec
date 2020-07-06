@@ -4,7 +4,7 @@
 
 Name:           rock
 Version:        2.5.1
-Release:        1
+Release:        2
 
 Summary:        Network Security Monitoring collections platform
 
@@ -14,12 +14,18 @@ Source0:        https://github.com/rocknsm/%{name}/archive/v%{version}.tar.gz#/%
 
 BuildArch:      noarch
 
-Requires:       ansible >= 2.7.0
+Requires:       ansible >= 2.8.0
+%if 0%{?rhel} < 8
 Requires:       python-jinja2 >= 2.9.0
 Requires:       python-markupsafe >= 0.23
 Requires:       python-pyOpenSSL
 Requires:       python-netaddr
 Requires:       libselinux-python
+%else
+Requires:       python3-pyOpenSSL
+Requires:       python3-netaddr
+Requires:       python3-libselinux
+%endif
 Requires:       git
 Requires:       yq
 Requires:       crudini
@@ -31,7 +37,6 @@ ROCK is a collections platform, in the spirit of Network Security Monitoring.
 %setup -q
 
 %build
-
 
 %install
 rm -rf %{buildroot}
@@ -74,7 +79,10 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/deploy_rock.sh
 
 %changelog
-* Tue Apr 21 2020 Derek Ditch <derek@rocknsm.io>
+* Mon Jun 6 2020 Derek Ditch <derek@rocknsm.io> 2.5.1-2
+- Tweaks to allow for python3 support on EL8
+
+* Tue Apr 21 2020 Derek Ditch <derek@rocknsm.io> 2.5.1-1
 - Improves kafka and zookeeper reliability (derek@rocknsm.io)
 - Improve multi-node unit testing (derek@rocknsm.io)
 - Add diag function to rock command for troubleshooting (koelslaw@gmail.com)
@@ -103,7 +111,7 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 
 * Thu Apr 11 2019 Derek Ditch <derek@rocknsm.io> 2.4.1-1
 - Fix Kibana index pattern for Elastic7 calc fields
-- 
+-
 
 * Thu Apr 11 2019 Derek Ditch <derek@rocknsm.io> 2.4.0-1
 - Upgrade Elastic Stack to 7.x

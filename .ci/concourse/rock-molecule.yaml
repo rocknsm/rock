@@ -72,7 +72,7 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: quay.io/perched/molecule-vsphere
+              repository: quay.io/rocknsm/molecule-vsphere
               tag: latest
           params:
             VMWARE_PASSWORD: ((vcenter.password))
@@ -135,7 +135,7 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: quay.io/perched/molecule-vsphere
+              repository: quay.io/rocknsm/molecule-vsphere
               tag: latest
           params:
             VMWARE_PASSWORD: ((vcenter.password))
