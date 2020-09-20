@@ -126,7 +126,7 @@
   service:
     name: elasticsearch
     state: started
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='enabled') | first | bool }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='enabled') | bool }}"
 
 - name: Create internal firewall zone
   firewalld:

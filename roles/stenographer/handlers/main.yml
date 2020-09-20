@@ -4,16 +4,16 @@
 - name: Start stenographer service
   service:
     name: stenographer
-    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') | first | bool else 'stopped' }}"
+    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') | bool else 'stopped' }}"
 
 - name: Start stenographer per interface
   service:
     name: "stenographer@{{ item }}"
-    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') | first | bool else 'stopped' }}"
+    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') | bool else 'stopped' }}"
   loop: "{{ stenographer_monitor_interfaces }}"
 
 - name: Restart stenographer per interface
   service:
     name: "stenographer@{{ item }}"
-    state: "{{ 'restarted' if local_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') | first | bool else 'stopped' }}"
+    state: "{{ 'restarted' if local_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='enabled') | bool else 'stopped' }}"
   loop: "{{ stenographer_monitor_interfaces }}"

@@ -153,8 +153,8 @@
   service:
     name: "{{ item }}"
     daemon-reload: "{{ kafka_override_created.changed or wait_for_zk_created.changed }}"
-    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | first | bool else 'stopped' }}"
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | first | bool }}"
+    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | bool else 'stopped' }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | bool  }}"
   with_items:
     - wait-for-zookeeper
     - kafka

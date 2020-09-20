@@ -14,7 +14,7 @@
 - name: Enable and start kibana
   service:
     name: kibana
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'kibana') | map(attribute='enabled') | first | bool }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'kibana') | map(attribute='enabled') | list | bool }}"
 
 - name: Flush handlers
   meta: flush_handlers
@@ -119,8 +119,8 @@
     mode: 0644
   when:
     rock_online_install and (
-      rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or
-      rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed')
+      rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') | list | first | bool or
+      rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed') | list | first | bool
     )
 
 - name: Extract RockNSM elastic configs
@@ -132,5 +132,5 @@
     creates: "{{ rock_module_dir }}"
     remote_src: true
   when:
-    rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') or
-    rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed')
+    rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') | list | first | bool or
+    rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='installed') | list | first | bool

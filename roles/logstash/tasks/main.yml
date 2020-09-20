@@ -20,7 +20,7 @@
     dest: "/etc/logstash/conf.d/"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
-  notify: Restart logstash
+#  notify: Restart logstash
   tags:
     - molecule-idempotence-notest
 
@@ -31,7 +31,7 @@
     dest: "/etc/logstash/conf.d/ruby"
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
-  notify: Restart logstash
+#  notify: Restart logstash
 
 - name: Template input configs
   template:
@@ -40,7 +40,7 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0640
-  notify: Restart logstash
+ # notify: Restart logstash
   when: logstash_configs is defined
   with_items: "{{ logstash_configs }}"
   tags:
@@ -53,7 +53,7 @@
     owner: "{{ logstash_user }}"
     group: "{{ logstash_group }}"
     mode: 0640
-  notify: Restart logstash
+ # notify: Restart logstash
   loop:
     - logstash-9999-output-elasticsearch.conf
   tags:
@@ -64,7 +64,7 @@
     path: /etc/logstash/logstash.yml
     line: "xpack.monitoring.enabled: true"
     regexp: '^#xpack.monitoring.enabled: .*'
-  notify: Restart logstash
+#  notify: Restart logstash
   tags:
     - molecule-idempotence-notest
 
@@ -82,14 +82,17 @@
           ["127.0.0.1:9200"]
           {%- endif %}
     regexp: '^#xpack.monitoring.elasticsearch.hosts: .*'
-  notify: Restart logstash
+#  notify: Restart logstash
   tags:
     - molecule-idempotence-notest
 
 - name: Enable and start Logstash
   service:
     name: logstash
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | first | bool }}"
-  notify: Restart logstash
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | bool }}"
+#  notify: Restart logstash
   tags:
-    - molecule-idempotence-notest
+    - molecule-idempotencie-notest
+
+#- name: Enable and start Logstash
+#  service: sudo systemctl restart logstash

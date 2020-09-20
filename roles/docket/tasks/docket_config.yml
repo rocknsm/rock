@@ -30,12 +30,12 @@
     name: redis
     enabled: true
   notify: Restart redis
-  when: "local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool"
+  when: "local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool"
 
 - name: Enable docket celery services
   service:
     name: "{{ item }}"
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool }}"
   notify: Restart docket celery services
   loop:
     - docket-celery-io
@@ -44,5 +44,5 @@
 - name: Enable docket uwsgi service
   service:
     name: docket
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool }}"
   notify: Restart docket uwsgi
