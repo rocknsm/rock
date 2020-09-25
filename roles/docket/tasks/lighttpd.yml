@@ -41,5 +41,5 @@
 - name: Enable lighttpd service
   service:
     name: lighttpd
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | bool }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool }}"
   notify: Restart lighttpd
