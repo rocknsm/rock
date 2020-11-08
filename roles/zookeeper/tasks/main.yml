@@ -9,7 +9,7 @@
 - name: Enable and Start zookeeper
   systemd:
     name: zookeeper
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'zookeeper') | map(attribute='enabled') | first | bool }}"
+    enabled: "{{ local_services | selectattr('name', 'equalto', 'zookeeper') | map(attribute='enabled') | bool }}"
   notify: Restart zookeeper
 
 - name: Configure firewall ports
