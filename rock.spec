@@ -8,7 +8,7 @@ Release:        1
 
 Summary:        Network Security Monitoring collections platform
 
-License:        BSD
+License:        ASL 2.0
 URL:            http://rocknsm.io/
 Source0:        https://github.com/rocknsm/%{name}/archive/v%{version}.tar.gz#/%{name}-%{version}.tar.gz
 
