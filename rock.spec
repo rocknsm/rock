@@ -15,13 +15,12 @@ Source0:        https://github.com/rocknsm/%{name}/archive/v%{version}.tar.gz#/%
 BuildArch:      noarch
 
 Requires:       ansible >= 2.7.0
-Requires:       python-jinja2 >= 2.9.0
-Requires:       python-markupsafe >= 0.23
-Requires:       python-pyOpenSSL
+Requires:       python-jinja2
+Requires:       python-markupsafe
+Requires:       pyOpenSSL
 Requires:       python-netaddr
 Requires:       libselinux-python
 Requires:       git
-Requires:       yq
 Requires:       crudini
 
 %description
@@ -74,6 +73,10 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/deploy_rock.sh
 
 %changelog
+* Thu May 05 2021 spartan782 <john.hall7688@hotmail.com>
+- Remove yq as it is no longer a package
+- Update python requirements with python2 purge
+
 * Tue Apr 21 2020 Derek Ditch <derek@rocknsm.io>
 - Improves kafka and zookeeper reliability (derek@rocknsm.io)
 - Improve multi-node unit testing (derek@rocknsm.io)
@@ -103,7 +106,7 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 
 * Thu Apr 11 2019 Derek Ditch <derek@rocknsm.io> 2.4.1-1
 - Fix Kibana index pattern for Elastic7 calc fields
-- 
+-
 
 * Thu Apr 11 2019 Derek Ditch <derek@rocknsm.io> 2.4.0-1
 - Upgrade Elastic Stack to 7.x
