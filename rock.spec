@@ -16,8 +16,8 @@ BuildArch:      noarch
 
 Requires:       ansible >= 2.7.0
 Requires:       python-jinja2
-Requires:       python-markupsafe
-Requires:       pyOpenSSL
+Requires:       python2-markupsafe
+Requires:       python2-pyOpenSSL
 Requires:       python-netaddr
 Requires:       libselinux-python
 Requires:       git
