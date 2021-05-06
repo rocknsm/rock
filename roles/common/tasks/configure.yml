@@ -311,14 +311,6 @@
     - ('logstash' or 'kibana' or 'elasticsearch' in installed_services)
     - "['elasticsearch', 'logstash', 'kibana']|intersect(group_names)|count > 0"
 
-- name: Install RockNSM control script
-  template:
-    src: rockctl.j2
-    dest: /usr/local/bin/rockctl
-    mode: 0755
-    owner: root
-    group: root
-
 - name: Create RockNSM control script symlink
   file:
     src: "/usr/local/bin/rockctl"
