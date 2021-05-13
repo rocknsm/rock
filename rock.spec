@@ -3,7 +3,7 @@
 %global _sbindir /usr/sbin
 
 Name:           rock
-Version:        2.5.1
+Version:        3.0.0
 Release:        1
 
 Summary:        Network Security Monitoring collections platform
