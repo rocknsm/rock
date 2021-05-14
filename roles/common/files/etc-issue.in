@@ -4,7 +4,7 @@
  |                 /   \\                            |        Kernel: \s
  |         \\      /     \\                           |        Build: \v
  |        / \\    X   \\   \\                          |      IP Addr: {{IP_ADDR}}
- |       /   \\  / \\ / \\ ^_v___   ____   _____ _  __ |      Release: ROCK {{ROCK_VERSION}}          
+ |       /   \\  / \\ / \\ ^_v___   ____   _____ _  __ |      Release: ROCK {{ROCK_VERSION}}
  |      /     v/   /   /|  __ \\ / __ \\ / ____| |/ / |
  |     /      /         | |__) | |  | | |    | ' /  |
  |    /      /          |  _  /| |  | | |    |  <   |         Date: \d

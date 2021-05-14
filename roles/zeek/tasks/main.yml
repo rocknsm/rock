@@ -209,7 +209,7 @@
     dest: "{{ zeek_site_dir }}/local.zeek"
     line: "@load scripts/rock/plugins/kafka"
     state: present
-  when: "rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='enabled') | list | first | bool"
+  when: "'kafka' in enabled_services"
 
 - name: Add zeek aliases
   copy:
@@ -337,8 +337,8 @@
 - name: Enable and start zeek
   service:
     name: zeek
-    state: "{{ 'started' if local_services | selectattr('name', 'equalto', 'zeek') | map(attribute='enabled') | bool else 'stopped' }}"
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'zeek') | map(attribute='enabled') | bool }}"
+    state: "{{ 'started' if 'zeek' in enabled_services else 'stopped' }}"
+    enabled: "{{ 'zeek' in enabled_services }}"
 
 - name: Apply Logstash role
   include_role:

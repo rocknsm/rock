@@ -3,4 +3,4 @@
 - name: Restart zookeeper
   systemd:
     name: zookeeper
-    state: "{{ 'restarted' if local_services | selectattr('name', 'equalto', 'zookeeper') | map(attribute='enabled') | first | bool else 'stopped' }}"
+    state: "{{ 'restarted' if 'zookeeper' in enabled_services else 'stopped' }}"

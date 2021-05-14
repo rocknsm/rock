@@ -11,4 +11,4 @@
   service:
     name: zeek
     state: restarted
-  when: local_services | selectattr('name', 'equalto', 'zeek') | map(attribute='enabled') | first | bool
+  when: "'zeek' in enabled_services"
