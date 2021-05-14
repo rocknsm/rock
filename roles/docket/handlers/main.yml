@@ -17,7 +17,7 @@
   service:
     name: redis
     state: restarted
-  when: local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool
+  when: "'docket' in enabled_services"
 
 - name: Seed random key
   lineinfile:
@@ -33,16 +33,16 @@
   loop:
     - docket-celery-io
     - docket-celery-query
-  when: local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool
+  when: "'docket' in enabled_services"
 
 - name: Restart docket uwsgi
   service:
     name: docket
     state: restarted
-  when: local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool
+  when: "'docket' in enabled_services"
 
 - name: Restart lighttpd
   service:
     name: lighttpd
     state: restarted
-  when: local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool
+  when: "'docket' in enabled_services"

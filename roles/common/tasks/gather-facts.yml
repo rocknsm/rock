@@ -2,5 +2,7 @@
 # Set local system-specific facts
 - name: Gather local service facts specific to each host
   set_fact:
-    local_services: "{{ rock_services |map(attribute='name') | list | intersect(group_names) }}"
+    local_services: "{{ rock_services | map(attribute='name') | list | intersect(group_names) }}"
+    enabled_services: "{{ rock_services | rejectattr('enabled', 'equalto', False) | map(attribute='name') | list | intersect(group_names)  }}"
+    installed_services: "{{ rock_services | rejectattr('installed', 'equalto', False) | map(attribute='name') | list | intersect(group_names) }}"
 ...

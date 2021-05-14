@@ -89,7 +89,7 @@
 - name: Enable and start Logstash
   service:
     name: logstash
-    enabled: "{{ local_services | selectattr('name', 'equalto', 'logstash') | map(attribute='enabled') | bool }}"
+    enabled: "{{ 'logstash' in enabled_services }}"
 #  notify: Restart logstash
   tags:
     - molecule-idempotencie-notest
