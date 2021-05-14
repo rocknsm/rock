@@ -3,7 +3,7 @@
 %global _sbindir /usr/sbin
 
 Name:           rock
-Version:        2.5.1
+Version:        3.0.0
 Release:        1
 
 Summary:        Network Security Monitoring collections platform
@@ -16,8 +16,8 @@ BuildArch:      noarch
 
 Requires:       ansible >= 2.7.0
 Requires:       python-jinja2
-Requires:       python2-markupsafe
-Requires:       python2-pyOpenSSL
+Requires:       python-markupsafe
+Requires:       pyOpenSSL
 Requires:       python-netaddr
 Requires:       libselinux-python
 Requires:       git
