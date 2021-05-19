@@ -39,50 +39,57 @@ rock_services:
     quota_weight: 1
     installed: true
     enabled: true
+    version: 3.1.5
   - name: stenographer
     quota_weight: 8
     installed: true
     enabled: true
+    version: 1:0-2
   - name: docket
     quota_weight: 0
     installed: true
     enabled: true
+    version: 1.0.3
   - name: suricata
     quota_weight: 2
     installed: true
     enabled: true
+    version: 5.0.5
   - name: elasticsearch
     quota_weight: 4
     installed: true
     enabled: true
+    version: 7.11.2
   - name: kibana
     quota_weight: 0
     installed: true
     enabled: true
+    version: 7.11.2
   - name: zookeeper
     quota_weight: 0
     installed: true
     enabled: true
+    version: 3.4.14
   - name: kafka
     quota_weight: 4
     installed: true
     enabled: true
+    version: 2.3.0
   - name: lighttpd
     quota_weight: 0
     installed: true
     enabled: true
-  - name: fsf
-    quota_weight: 1
-    installed: true
-    enabled: true
+    version: 1.4.54
   - name: filebeat
     quota_weight: 0
     installed: true
     enabled: true
+    version: 7.11.2
   - name: logstash
     quota_weight: 0
     installed: true
     enabled: true
+    version: 7.11.2
 
 rocknsm_package_list:
   - jq
