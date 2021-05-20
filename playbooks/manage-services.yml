@@ -13,7 +13,7 @@
 
     - name: collect enabled services
       set_fact:
-        enabled_services: "{{ rock_services | selectattr('enabled', 'equalto', True) | map(attribute='name') | list }}"
+        enabled_services: "{{ rock_services | rejectattr('enabled', 'equalto', False) | map(attribute='name') | list }}"
 
     - name: Collect ROCK services from facts
       set_fact:

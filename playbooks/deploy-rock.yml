@@ -22,7 +22,7 @@
   become: true
   roles:
     - role: elasticsearch
-      when: "rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') | list | first | bool"
+      when: "'elasticsearch' in installed_services"
 
 - hosts: elasticsearch
   tags:
@@ -38,7 +38,7 @@
   become: true
   roles:
     - role: elasticsearch
-      when: "rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') | list | first | bool and (es_restart is defined and es_restart)"
+      when: "'elasticsearch' in installed_services and (es_restart is defined and es_restart)"
 
 - hosts: elasticsearch
   tags:
@@ -53,7 +53,7 @@
   become: true
   roles:
     - role: elasticsearch
-      when: "rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='installed') | list | first | bool"
+      when: "'elasticsearch' in installed_services"
 
 - hosts: zookeeper
   tags:
@@ -64,7 +64,7 @@
   become: true
   roles:
     - role: zookeeper
-      when: "rock_services | selectattr('name', 'equalto', 'zookeeper') | map(attribute='installed') | list | first | bool"
+      when: "'zookeeper' in installed_services"
 
 - hosts: kafka
   tags:
@@ -75,7 +75,7 @@
   become: true
   roles:
     - role: kafka
-      when: "rock_services | selectattr('name', 'equalto', 'kafka') | map(attribute='installed') | list | first | bool"
+      when: "'kafka' in installed_services"
 
 - hosts: stenographer
   tags:
@@ -87,7 +87,7 @@
   become: true
   roles:
     - role: stenographer
-      when: "rock_services | selectattr('name', 'equalto', 'stenographer') | map(attribute='installed') | list | first | bool"
+      when: "'stenographer' in installed_services"
       stenographer_monitor_interfaces: "{{ rock_monifs }}"
 
 - hosts: zeek
@@ -100,7 +100,7 @@
   become: true
   roles:
     - role: zeek
-      when: "rock_services | selectattr('name', 'equalto', 'zeek') | map(attribute='installed') | list | first | bool"
+      when: "'zeek' in installed_services"
 
 - hosts: suricata
   tags:
@@ -112,7 +112,7 @@
   become: true
   roles:
     - role: suricata
-      when: "rock_services | selectattr('name', 'equalto', 'suricata') | map(attribute='installed') | list | first | bool"
+      when: "'suricata' in installed_services"
 
 - hosts: fsf
   tags:
@@ -124,7 +124,7 @@
   become: true
   roles:
     - role: fsf
-      when: "rock_services | selectattr('name', 'equalto', 'fsf') | map(attribute='installed') | list | first | bool"
+      when: "'fsf' in installed_services"
 
 - hosts:
     - docket
@@ -140,7 +140,7 @@
   become: true
   roles:
     - role: lighttpd
-      when: "rock_services | selectattr('name', 'equalto', 'lighttpd') | map(attribute='installed') | list | first | bool"
+      when: "'lighttpd' in installed_services"
 
 - hosts:
     - docket
@@ -154,8 +154,8 @@
   become: true
   roles:
     - role: docket
-      when: "rock_services | selectattr('name', 'equalto', 'docket') | map(attribute='installed') | list | first | bool"
-      docket_enable: "{{ local_services | selectattr('name', 'equalto', 'docket') | map(attribute='enabled') | first | bool }}"
+      when: "'docket' in installed_services"
+      docket_enable: "{{ 'docket' in enabled_servicesl }}"
 
 - hosts: kibana
   tags:
@@ -167,4 +167,4 @@
   become: true
   roles:
     - role: kibana
-      when: "rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='installed')  | list | first | bool"
+      when: "'kibana' in installed_services"
