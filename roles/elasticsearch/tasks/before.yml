@@ -3,8 +3,7 @@
 - name: Install packages
   yum:
     name:
-      - java-11-openjdk-headless
-      - elasticsearch
+      - elasticsearch-{{ rock_services | selectattr('name', 'equalto', 'elasticsearch') | map(attribute='version') | first }}
     state: installed
   register: es_install
 
