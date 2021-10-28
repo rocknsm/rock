@@ -3,8 +3,7 @@
 - name: Install packages
   yum:
     name:
-      - java-11-openjdk-headless
-      - logstash-{{ elastic_stack_version }}
+      - logstash-{{ rock_services | selectattr('name', 'equalto', 'logstash') | map(attribute='version') | first }}
     state: present
 
 - name: Add sysconfig file
