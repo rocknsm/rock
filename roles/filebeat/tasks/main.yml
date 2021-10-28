@@ -2,7 +2,7 @@
 
 - name: Install filebeat package
   yum:
-    name: filebeat-{{ elastic_stack_version }}
+    name: filebeat-{{ rock_services | selectattr('name', 'equalto', 'filebeat') | map(attribute='version') | first }}
     state: present
 
 - name: Create filebeat config directory
