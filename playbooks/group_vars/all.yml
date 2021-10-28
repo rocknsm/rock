@@ -166,7 +166,6 @@ kafka_zookeeper_host: "{{ hostvars[groups['zookeeper'][0]].ansible_default_ipv4.
 kafka_zookeeper_port: 2181
 kafka_zookeeper_chroot: ""
 
-elastic_stack_version: 7.11.2
 es_user: elasticsearch
 es_group: elasticsearch
 es_data_dir: "{{ rock_data_dir }}/elasticsearch"
