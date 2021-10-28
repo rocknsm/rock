@@ -2,7 +2,7 @@
 
 - name: Install packages
   yum:
-    name: kibana-{{ elastic_stack_version }}
+    name: kibana-{{ rock_services | selectattr('name', 'equalto', 'kibana') | map(attribute='version') | first }}
     state: present
 
 - name: Update kibana config
