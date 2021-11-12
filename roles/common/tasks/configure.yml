@@ -71,7 +71,7 @@
 - name: Disable IPv6 for all interfaces
   sysctl:
     name: net.ipv6.conf.all.disable_ipv6
-    value: 1
+    value: "1"
     sysctl_file: "{{ rock_sysctl_file }}"
 
 - name: Disable IPv6 for default interfaces
@@ -143,8 +143,8 @@
       - file:///etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2
     sslverify: 1
     sslcacert: /etc/pki/tls/certs/ca-bundle.crt
-    metadata_expire: 300
-    cost: 750
+    metadata_expire: "300"
+    cost: "750"
     state: present
   loop:
     - { name: "rocknsm_2_5", gpgcheck: true, baseurl: "{{ rocknsm_baseurl }}" }
@@ -317,6 +317,7 @@
     dest: "/usr/sbin/rockctl"
     force: true
     state: link
+    follow: false
 
 - name: Set RockNSM Version
   copy:
