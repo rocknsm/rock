@@ -15,11 +15,11 @@ Source0:        https://github.com/rocknsm/%{name}/archive/v%{version}.tar.gz#/%
 BuildArch:      noarch
 
 Requires:       ansible >= 2.7.0
-Requires:       python-jinja2
-Requires:       python-markupsafe
-Requires:       pyOpenSSL
-Requires:       python-netaddr
-Requires:       libselinux-python
+Requires:       python3-jinja2
+Requires:       python3-markupsafe
+Requires:       python3-pyOpenSSL
+Requires:       python3-netaddr
+Requires:       python3-libselinux
 Requires:       git
 Requires:       crudini
 
@@ -73,6 +73,9 @@ cp -a tests/. %{buildroot}/%{_rockdir}/tests
 %attr(0755, root, root) %{_sbindir}/deploy_rock.sh
 
 %changelog
+* Wed Apr 26 2023 spartan782 <john.hall7688@hotmail.com>
+- Update packages to python3 versions
+  
 * Thu May 05 2021 spartan782 <john.hall7688@hotmail.com>
 - Remove yq as it is no longer a package
 - Update python requirements with python2 purge
