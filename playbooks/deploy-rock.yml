@@ -8,7 +8,7 @@
   become: true
   roles:
     - common
-
+    
 - hosts: elasticsearch
   tags:
     - elasticsearch
@@ -113,18 +113,6 @@
   roles:
     - role: suricata
       when: "'suricata' in installed_services"
-
-- hosts: fsf
-  tags:
-    - fsf
-    - sensor
-  pre_tasks:
-    - name: Include user-override vars
-      include_vars: "{{ rock_config }}"
-  become: true
-  roles:
-    - role: fsf
-      when: "'fsf' in installed_services"
 
 - hosts:
     - docket

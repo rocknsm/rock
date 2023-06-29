@@ -1,16 +1,38 @@
 %YAML 1.1
 ---
+
+# Versions to pin in current release
+elastic:
+  major_version: 8
+  minor_version: 7
+  patch: 1
+  suffix: "x"
+zeek:
+  major_version: 5
+  minor_version: 2
+  patch: 0
+suricata:
+  major_version: 6
+  minor_version: 0
+  patch: 11
+zookeeper:
+  major_version: 3
+  minor_version: 4
+  patch: 14
+kafka:
+  major_version: 2
+  minor_version: 3
+  patch: 0
+
 http_proxy: "{{ lookup('env','http_proxy') }}"
 https_proxy: "{{ lookup('env', 'https_proxy') }}"
 
 rock_version: "{{ lookup('file', '/etc/rocknsm/rock-version', errors='ignore') | default('2.6.0') }}"
-elastic:
-  major_version: 7
-  suffix: "x"
+
 elastic_version: "{{ elastic.major_version }}.{{ elastic.suffix }}"
-rock_online_install: true
+rock_online_install: false
 rock_enable_testing: false
-rock_disable_offline_repo: true
+rock_disable_offline_repo: false
 rock_sysctl_file: /etc/sysctl.d/10-ROCK.conf
 rock_data_dir: "{{ default_mount | default('/data')}}"
 rock_conf_dir: /etc/rocknsm
@@ -39,7 +61,7 @@ rock_services:
     quota_weight: 1
     installed: true
     enabled: true
-    version: 3.1.5
+    version: "{{ zeek.major_version}}.{{ zeek.minor_version }}.{{ zeek.patch }}"
   - name: stenographer
     quota_weight: 8
     installed: true
@@ -54,27 +76,27 @@ rock_services:
     quota_weight: 2
     installed: true
     enabled: true
-    version: 5.0.5
+    version: "{{ suricata.major_version}}.{{ suricata.minor_version }}.{{ suricata.patch }}"
   - name: elasticsearch
     quota_weight: 4
     installed: true
     enabled: true
-    version: 7.11.2
+    version: "{{ elastic.major_version}}.{{ elastic.minor_version }}.{{ elastic.patch }}"
   - name: kibana
     quota_weight: 0
     installed: true
     enabled: true
-    version: 7.11.2
+    version: "{{ elastic.major_version}}.{{ elastic.minor_version }}.{{ elastic.patch }}"
   - name: zookeeper
     quota_weight: 0
     installed: true
     enabled: true
-    version: 3.4.14
+    version: "{{ zookeeper.major_version}}.{{ zookeeper.minor_version }}.{{ zookeeper.patch }}"
   - name: kafka
     quota_weight: 4
     installed: true
     enabled: true
-    version: 2.3.0
+    version: "{{ kafka.major_version}}.{{ kafka.minor_version }}.{{ kafka.patch }}"
   - name: lighttpd
     quota_weight: 0
     installed: true
@@ -84,19 +106,19 @@ rock_services:
     quota_weight: 0
     installed: true
     enabled: true
-    version: 7.11.2
+    version: "{{ elastic.major_version}}.{{ elastic.minor_version }}.{{ elastic.patch }}"
   - name: logstash
     quota_weight: 0
     installed: true
     enabled: true
-    version: 7.11.2
+    version: "{{ elastic.major_version}}.{{ elastic.minor_version }}.{{ elastic.patch }}"
 
 rocknsm_package_list:
   - jq
   - tcpreplay
   - tcpdump
   - bats
-  - policycoreutils-python
+  - python3-policycoreutils
   - htop
   - vim
   - git
@@ -105,7 +127,7 @@ rocknsm_package_list:
   - logrotate
   - firewalld
   - chrony
-  - libselinux-python
+  - python3-libselinux
 
 http_tls_crt: /etc/pki/tls/certs/http_tls_crt.pem
 http_tls_pub: /etc/pki/tls/certs/http_tls_pub.pem
@@ -150,13 +172,6 @@ suricata_user: suricata
 suricata_group: suricata
 suricata_data_dir: "{{ rock_data_dir }}/suricata"
 suricata_var_dir: /var/lib/suricata
-
-fsf_user: fsf
-fsf_group: fsf
-fsf_data_dir: "{{ rock_data_dir }}/fsf"
-fsf_archive_dir: "{{ fsf_data_dir }}/archive"
-fsf_client_logfile: "{{ fsf_data_dir }}/client.log"
-fsf_retention: 3
 
 kafka_user: kafka
 kafka_group: kafka

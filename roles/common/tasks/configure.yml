@@ -113,6 +113,7 @@
     gpgcheck: true
   when: rock_online_install
 
+# Needs to be updated to Rocky GPG key and mirrors
 - name: Manually trust CentOS GPG key
   rpm_key:
     state: present
@@ -188,35 +189,36 @@
     - RPM-GPG-KEY-RockNSM-Testing
     - RPM-GPG-KEY-RockNSM-pkgcloud-2_5
 
-- name: Trust RockNSM GPG keys for RPMs
-  rpm_key:
-    state: present
-    key: "{{ item.path }}"
-  loop:
-    - repoid: "rocknsm_2_5"
-      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2"
-      test: "{{ rock_online_install }}"
-    - repoid: "rocknsm_2_5"
-      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_5"
-      test: "{{ rock_online_install }}"
-    - repoid: "rocknsm-testing"
-      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-Testing"
-      test: "{{ rock_online_install }}"
-    - repoid: "rocknsm-local"
-      path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2"
-      test: "{{ not rock_disable_offline_repo }}"
-  register: registered_keys
-  when: item.test | bool
+# Disabled for now EL9 RPM --addsign still kicks out bad V4 header even when using Force 3 and sha256
+# - name: Trust RockNSM GPG keys for RPMs
+#   rpm_key:
+#     state: present
+#     key: "{{ item.path }}"
+#   loop:
+#     - repoid: "rocknsm_2_5"
+#       path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2"
+#       test: "{{ rock_online_install }}"
+#     - repoid: "rocknsm_2_5"
+#       path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-pkgcloud-2_5"
+#       test: "{{ rock_online_install }}"
+#     - repoid: "rocknsm-testing"
+#       path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-Testing"
+#       test: "{{ rock_online_install }}"
+#     - repoid: "rocknsm-local"
+#       path: "/etc/pki/rpm-gpg/RPM-GPG-KEY-RockNSM-2"
+#       test: "{{ not rock_disable_offline_repo }}"
+#   register: registered_keys
+#   when: item.test | bool
 
-- name: Trust RockNSM GPG keys in yum
-  command: >
-    yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.item.repoid }}'
-  args:
-    warn: false
-  loop: "{{ registered_keys.results }}"
-  when: item.changed
-  tags:
-    - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
+# - name: Trust RockNSM GPG keys in yum
+#   command: >
+#     yum -q makecache -y --disablerepo='*' --enablerepo='{{ item.item.repoid }}'
+#   args:
+#     warn: false
+#   loop: "{{ registered_keys.results }}"
+#   when: item.changed
+#   tags:
+#     - skip_ansible_lint  # [503] Tasks that run when changed should be handlers
 
 - name: Configure default CentOS online repos
   ini_file:
@@ -226,10 +228,10 @@
     value: "{{ '1' if rock_online_install else '0' }}"
     state: "present"
   loop:
-    - { path: "/etc/yum.repos.d/CentOS-Base.repo", repo: "base" }
-    - { path: "/etc/yum.repos.d/CentOS-Base.repo", repo: "updates" }
-    - { path: "/etc/yum.repos.d/CentOS-Base.repo", repo: "extras" }
-  when: ansible_distribution == "CentOS"
+    - { path: "/etc/yum.repos.d/rocky.repo", repo: "baseos" }
+    - { path: "/etc/yum.repos.d/rocky.repo", repo: "appstream" }
+    - { path: "/etc/yum.repos.d/rocky-extras.repo", repo: "extras" }
+  when: ansible_distribution == "Rocky"
 
 # We need to make sure pyopenssl >= 0.15 is installed to support the following module
 # https://docs.ansible.com/ansible/latest/modules/openssl_certificate_module.html#openssl-certificate-module
