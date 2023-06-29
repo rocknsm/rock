@@ -4,7 +4,7 @@
   yum:
     name:
       - suricata
-      - PyYAML
+      - python3-pyyaml
     state: present
 
 - name: Set monitor interface config
@@ -172,7 +172,7 @@
     group: root
 
 - name: Create local rules source for offline install of suricata
-  command: /usr/bin/suricata-update add-source "emerging-threats-offline" "file:///srv/rocknsm/support/emerging.rules-suricata.tar.gz"
+  command: /sbin/suricata-update add-source "emerging-threats-offline" "file:///srv/rocknsm/support/emerging.rules-suricata.tar.gz"
   args:
     creates: /var/lib/suricata/update/sources/emerging-threats-offline.yaml
   when: "'suricata' in installed_services and not rock_online_install"
@@ -180,7 +180,7 @@
   become_user: "{{ suricata_user }}"
 
 - name: Offline install of suricata rules
-  command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+  command: /sbin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
   args:
     creates: /var/lib/suricata/rules/suricata.rules
   when: "'suricata' in enabled_services and not rock_online_install"
@@ -188,7 +188,7 @@
   become_user: "{{ suricata_user }}"
 
 - name: Update suricata-update source index
-  command: /usr/bin/suricata-update update-sources
+  command: /sbin/suricata-update update-sources
   args:
     creates: /var/lib/suricata/update/cache/index.yaml
     chdir: /var/lib/suricata
@@ -197,7 +197,7 @@
   become_user: "{{ suricata_user }}"
 
 - name: Explicitly enable ET rules for suricata-update online
-  command: /usr/bin/suricata-update enable-source et/open
+  command: /sbin/suricata-update enable-source et/open
   args:
     creates: /var/lib/suricata/update/sources/et-open.yaml
     chdir: /var/lib/suricata
@@ -206,7 +206,7 @@
   become_user: "{{ suricata_user }}"
 
 - name: Suricata-update online rules pull
-  command: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+  command: /sbin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
   args:
     creates: /var/lib/suricata/rules/suricata.rules
     chdir: /var/lib/suricata
@@ -221,7 +221,7 @@
     user: "{{ suricata_user }}"
     hour: "12"
     minute: "0"
-    job: /usr/bin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
+    job: /sbin/suricata-update update --reload-command "/usr/bin/systemctl kill -s USR2 suricata"
          > /var/log/suricata-update.log 2>&1
   when: "'suricata' in enabled_services"
 
