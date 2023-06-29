@@ -115,9 +115,6 @@ zeek_stats_retention: {{ zeek_stats_retention }}
 # Set how often logrotate will roll Suricata log (in days):
 suricata_retention: {{ suricata_retention }}
 
-# Set value for FSF log retention (in days):
-fsf_retention: {{ fsf_retention }}
-
 ###############################################################################
 #                              ROCK Component Options
 ###############################################################################
@@ -141,7 +138,6 @@ default_mount: /data
 # suricata_quota: 1073741824
 # elasticsearch_quota: 1073741824
 # kafka_quota: 1073741824
-# fsf_quota: 1073741824
 
 ###############################################################################
 #                             NEXT STEP: Deployment
