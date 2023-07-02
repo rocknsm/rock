@@ -1,0 +1,14 @@
+[Unit]
+Description=Zeek Network Intrusion Detection System (NIDS)
+After=network.target
+
+[Service]
+Type=forking
+User=zeek
+Group=zeek
+Environment=HOME=/var/spool/zeek
+ExecStart={{ zeek_prefix }}bin/zeekctl deploy
+ExecStop={{ zeek_prefix }}/bin/zeekctl stop
+
+[Install]
+WantedBy=multi-user.target
