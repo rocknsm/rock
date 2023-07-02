@@ -152,9 +152,9 @@ rock_offline_gpgcheck: 0
 zeek_user: zeek
 zeek_group: zeek
 zeek_data_dir: "{{ rock_data_dir }}/zeek"
-zeek_prefix: /usr
-zeek_sysconfig_dir: /etc/zeek
-zeek_site_dir: /usr/share/zeek/site
+zeek_prefix: /opt/zeek
+zeek_sysconfig_dir: /opt/zeek/etc
+zeek_site_dir: /opt/zeek/share/zeek/site
 zeek_cpu: "{{ (ansible_processor_vcpus|int // 2) if (ansible_processor_vcpus|int <= 16) else 8 }}"
 zeek_rockscripts_repo: https://github.com/rocknsm/rock-scripts.git
 zeek_rockscripts_branch: master
