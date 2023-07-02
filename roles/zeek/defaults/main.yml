@@ -2,9 +2,3 @@
 # defaults file for zeek
 zeek_packages:
   - zeek
-  - zeek-aux
-  - zeekctl
-  - zeek-plugin-kafka
-  - zeek-plugin-af_packet
-  - zeek-plugin-communityid
-  - zeek-plugin-gquic

@@ -66,6 +66,7 @@
     - { src: 'GeoLiteCountry.dat', dest: 'GeoIPCountry.dat' }
     - { src: 'GeoLiteASNum.dat', dest: 'GeoIPASNum.dat' }
     - { src: 'GeoLiteCityv6.dat', dest: 'GeoIPCityv6.dat' }
+  when: false
 
 - name: Create zeek group
   group:
@@ -229,7 +230,7 @@
 
 - name: Set zeek capabilities
   capabilities:
-    path: /usr/bin/zeek
+    path: "{{ zeek_prefix }}/bin/zeek"
     capability: "{{ item }}"
     state: present
   loop:
@@ -238,7 +239,7 @@
 
 - name: Set capstats capabilities
   capabilities:
-    path: /usr/bin/capstats
+    path: "{{ zeek_prefix }}/bin/capstats"
     capability: "{{ item }}"
     state: present
   loop:
@@ -251,10 +252,10 @@
     minute: "*/5"
     cron_file: rocknsm_zeekctl
     user: "{{ zeek_user }}"
-    job: "/usr/bin/zeekctl cron >/dev/null 2>&1"
+    job: "{{ zeek_prefix }}/bin/zeekctl cron >/dev/null 2>&1"
 
 - name: Initialize zeek scripts for workers
-  command: /usr/bin/zeekctl install
+  command: "{{ zeek_prefix }}/bin/zeekctl install"
   args:
     creates: "{{ zeek_data_dir }}/spool/zeekctl-config.sh"
   become: true
@@ -333,6 +334,14 @@
     state: present
     mountpoint: "{{ rock_mounts.mount }}"
   when: rock_mounts is defined and (prjquota.stdout|length>0)
+
+- name: create zeek service file
+  template:
+    src: "zeek.service.j2"
+    dest: "/usr/lib/systemd/system/zeek.service"
+    mode: 0644
+    owner: root
+    group: root
 
 - name: Enable and start zeek
   service:
